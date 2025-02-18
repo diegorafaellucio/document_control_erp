@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui">
+	<f:metadata>
+		<f:viewAction action="#{candidatoListBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['candidatoList.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<style>
+				.ui-datatable tbody td {
+					font-size: 13px;
+				}
+				.filtro-campos-modal .modal-dialog {
+					width: 900px;
+					padding-top: 0px;
+				}
+			</style>
+			<h:form id="form-processos">
+				<div class="row default-form">
+					<div class="col-sm-12">
+						<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+						<div class="row">
+							<div class="col-sm-6 noMarginBottom">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['periodo.label']}" />
+									<b:panelGrid colSpans="3,4,1,4" style="margin-bottom: -15px; margin-left: 5px;" styleClass="panelGridNoMarginBottom">
+										<b:selectOneMenu value="#{candidatoListBean.filtro.considerarData}" converter="enumConverter" >
+											<f:selectItems value="#{candidatoListBean.considerarDatas}" var="sp" itemLabel="#{msg['ConsiderarData.'.concat(sp).concat('.label')]}" itemValue="#{sp}" />
+										</b:selectOneMenu>
+										<b:inputText id="dataInicioId" value="#{candidatoListBean.filtro.dataInicio}" placeholder="dd/mm/aaaa" styleClass="mask-date" label="#{msg['dataInicial.label']}" renderLabel="false">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14" />
+											</f:facet>
+										</b:inputText>
+										<h:outputText value="#{msg['ate.label']}"/>
+										<b:inputText value="#{candidatoListBean.filtro.dataFim}" placeholder="dd/mm/aaaa" styleClass="mask-date" label="#{msg['dataFinal.label']}" renderLabel="false">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14" />
+											</f:facet>
+										</b:inputText>
+									</b:panelGrid>
+									<b:message for="dataInicioId" showSummary="false"/>
+								</div>
+								<div class="form-group" jsf:id="divTiposProcessos" jsf:rendered="#{candidatoListBean.pesquisaAvanc}">
+									<h:outputLabel value="#{msg['tipoProcesso.label']}"/>
+									<p:selectCheckboxMenu value="#{candidatoListBean.filtro.tiposProcesso}" appendTo="@this" disabled="#{candidatoListBean.permissaoFiltroTP}"
+														  label="" multiple="true" filter="false" converter="entityConverter">
+										<f:selectItems value="#{candidatoListBean.tiposProcessos}" var="item" itemLabel="#{item.nome}" itemValue="#{item}" />
+										<p:ajax event="change" process="@this" update="local-oferta-id"/>
+										<p:ajax event="toggleSelect" process="@this"/>
+									</p:selectCheckboxMenu>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['regional.label']}" for="regional" styleClass="bf-no-message"/>
+									<h:selectOneMenu styleClass="form-control bf-no-message"
+													 value="#{candidatoListBean.regional}" id="regional">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{candidatoListBean.regionais}" var="re" itemValue="#{re.baseRegistro.chaveUnicidade}" itemLabel="#{re.label}"/>
+										<f:ajax event="change" render="form-processos" listener="#{candidatoListBean.findInstituicoesCampus}"/>
+									</h:selectOneMenu>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['etapa.label']}" />
+									<p:selectCheckboxMenu value="#{candidatoListBean.filtro.nomesEtapas}" label=""
+														  style="form-control bf-no-message has-success" multiple="true">
+										<f:selectItems value="#{candidatoListBean.etapas}" var="etapa" itemValue="#{etapa}" itemLabel="#{etapa}"/>
+									</p:selectCheckboxMenu>
+								</div>
+								<div class="form-group" jsf:rendered="#{candidatoListBean.pesquisaAvanc}">
+									<h:outputLabel value="#{msg['situacao.label']}" />
+									<p:selectCheckboxMenu value="#{candidatoListBean.filtro.nomesSituacoes}" label=""
+														  style="form-control bf-no-message has-success" multiple="true" filter="true" filterMatchMode="contains">
+										<f:selectItems value="#{candidatoListBean.situacoes}" var="s" itemValue="#{s}" itemLabel="#{s}"/>
+									</p:selectCheckboxMenu>
+								</div>
+								<div class="form-group">
+									<b:inputText value="#{candidatoListBean.filtro.processoId}" label="#{msg['numero.label']}" styleClass="mask-number" renderLabel="true" maxlength="10"/>
+								</div>
+							</div>
+							<div class="col-sm-6 noMarginBottom">
+								<div class="form-group">
+									<b:inputText id="filtro-cpf" value="#{candidatoListBean.filtro.cpfCnpj}" label="CPF" styleClass="mask-cpf"/>
+									<b:message for="filtro-cpf" showSummary="false"/>
+								</div>
+							</div>
+							<div class="col-sm-6 noMarginBottom">
+								<b:inputText id="filtro-num-candidato" value="#{candidatoListBean.filtro.numCandidatoInscricao}" label="#{msg['codInscricaoCandidato.label']}" styleClass="mask-number">
+									<f:validateLength minimum="3"/>
+								</b:inputText>
+								<b:message for="filtro-num-candidato" showSummary="false"/>
+							</div>
+							<div class="col-sm-6 noMarginBottom">
+								<b:inputText id="filtro-matricula" value="#{candidatoListBean.filtro.matricula}" label="#{msg['matricula.label']}" styleClass="mask-number"/>
+							</div>
+							<div class="col-sm-6 noMarginBottom">
+								<div class="form-group" jsf:rendered="#{candidatoListBean.pesquisaAvanc}">
+									<b:inputText id="filtro-nome" value="#{candidatoListBean.filtro.nomeCliente}" label="Nome do Aluno" renderLabel="true">
+										<f:validateLength minimum="3"/>
+									</b:inputText>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['campus.label']}" for="campus" styleClass="bf-no-message"/>
+									<h:selectOneMenu styleClass="form-control bf-no-message"
+													 value="#{candidatoListBean.campus}" id="campus">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{candidatoListBean.listCampus}" var="ca" itemValue="#{ca.baseRegistro.chaveUnicidade}" itemLabel="#{ca.label}"/>
+									</h:selectOneMenu>
+									<b:message/>
+								</div>
+								<div class="form-group" jsf:rendered="#{candidatoListBean.pesquisaAvanc}">
+									<h:outputLabel value="#{msg['resultadoIsencao.label']}" />
+									<p:selectCheckboxMenu value="#{candidatoListBean.resultadoIsencao}" label=""
+														  style="form-control bf-no-message has-success" multiple="true">
+										<f:selectItem itemValue="Deferido" itemLabel="Deferido"/>
+										<f:selectItem itemValue="Indeferido" itemLabel="Indeferido"/>
+										<f:selectItem itemValue="Problema na Documentação" itemLabel="Problema na Documentação"/>
+									</p:selectCheckboxMenu>
+								</div>
+								<h:panelGroup id="local-oferta-id">
+									<h:panelGroup rendered="#{candidatoListBean.carregarLocalDeOferta(candidatoListBean.filtro)}">
+										<div class="form-group">
+											<div id="auto-complete-local-oferta">
+												<h:outputLabel value="#{msg['localDeOferta.label']}" />
+												<p:autoComplete id="auto-complete-id"  dropdown="true"
+																value="#{candidatoListBean.filtro.localDeOferta}"
+																var="l" itemValue="#{l}"
+																itemLabel="#{l}" effect="fade" scrollHeight="300"
+																completeMethod="#{candidatoListBean.completaLocalDeOferta}">
+												</p:autoComplete>
+												<b:message />
+											</div>
+										</div>
+									</h:panelGroup>
+								</h:panelGroup>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-2">
+								<div class="form-group">
+									<b:switch value="#{candidatoListBean.pesquisaAvanc}" label="#{msg['pesquisaAvanc.label']}"
+											  onText="#{msg['sim.label']}" offText="#{msg['nao.label']}">
+										<f:ajax event="change" render="form-processos" listener="#{candidatoListBean.limpar}"/>
+									</b:switch>
+								</div>
+							</div>
+							<div class="col-sm-2">
+								<div class="form-group">
+									<b:switch value="#{candidatoListBean.filtro.utilizaTermo}" label="#{msg['utilizaTermo.label']}"
+											  onText="#{msg['sim.label']}" offText="#{msg['nao.label']}" rendered="#{candidatoListBean.pesquisaAvanc}"/>
+								</div>
+							</div>
+							<div class="col-sm-8" >
+								<div class="form-group" style="float: right; margin-left: 10px;">
+									<h:commandButton value="#{msg['buscar.label']}" id="buscarId"  styleClass="btn btn-primary btn-md" process="form-processos" ajax="true" update="tabela-id"
+											actionListener="#{candidatoListBean.buscar()}">
+									</h:commandButton>
+								</div>
+								<div class="form-group" style="float: right;">
+									<b:commandButton value="#{msg['limpar.label']}" actionListener="#{candidatoListBean.limpar()}"
+										 styleClass="btn btn-primary btn-md" ajax="true" update="content-pg-id"/>
+								</div>
+								<div class="form-group" style="float: right;">
+								<b:commandButton id="exportarId" value="#{msg['exportar.label']}" styleClass="btn btn-primary btn-md"
+												 style="margin-right: 10px" onclick="exportarInicio()" type="button" />
+								</div>
+							</div>
+					 	</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12">
+						<p:dataTable id="tabela-id" var="vo" value="#{candidatoListBean.dataModel}" 
+									rowKey="#{vo.processo.id}" binding="#{ utilBean.lazyDataTable }">
+
+							<p:column headerText="#{msg['status.label']}" style="width: 80px; text-align: center;">
+								<img alt="" title="#{msg['StatusProcesso.'.concat(vo.processo.status).concat('.label')]}"
+										src="#{request.contextPath}/resources/images/icons/StatusProcesso-#{vo.processo.status}.png" class="status-processo" width="28px"/>
+								<img alt="" title="Utiliza termo" jsf:rendered="#{vo.processo.usaTermo}" style="position: absolute; margin: 8px -25px"
+									 src="#{request.contextPath}/resources/images/icons/StatusProcesso-termo.png" class="status-processo" width="22px"/>
+							</p:column>
+							<p:column headerText="#{msg['numero.label']}" style="width: 100px; text-align: right;">
+								<h:outputText value="#{utilBean.getNumero(vo.processo)}" />
+							</p:column>
+							<p:column headerText="#{msg['motivo.label']}" style="width: 200px; text-align: center;">
+								<h:outputText value="#{vo.processo.tipoProcesso.nome}" />
+							</p:column>
+							<p:column headerText="#{msg['situacao.label']}" style="text-align: center;">
+								<h:outputText value="#{vo.processo.situacao.nome}" />
+							</p:column>
+							<p:column headerText="#{msg['dataEnvio.label']}" style="width: 125px; text-align: center;">
+								<h:outputText value="#{utilBean.getDateTimeStr(vo.processo.dataEnvioAnalise)}" />
+							</p:column>
+							<p:column headerText="#{msg['aluno.label']}" style="text-align: center;">
+								<h:outputText value="#{vo.processo.aluno.nome}" />
+							</p:column>
+							<p:column headerText="#{msg['origem.label']}" style="text-align: center;">
+								<h:outputText value="#{vo.processo.origem.name()}" />
+							</p:column>
+							<!-- colunas personalizadas -->
+							<c:forEach items="#{candidatoListBean.colunasPersonalizadas.entrySet()}" var="coluna">
+								<p:column headerText="#{coluna.key}" style="width: auto; text-align: center;">
+									<c:set var="tipoCamposIds" value="#{candidatoListBean.colunasPersonalizadas.get(coluna.key)}" />
+									<c:set var="campos" value="#{candidatoListBean.findCamposColunaPersonalizada(tipoCamposIds, vo.processo.id)}" />
+									<ui:repeat value="#{campos}" var="campo">
+										<h:outputText value="#{utilBean.capitalize(campo.nome)}: " rendered="#{campos.size() > 1}" />
+										<h:outputText value="#{campo.valor}" rendered="#{campo.baseInterna eq null}" />
+										<h:outputText value="#{candidatoListBean.getValorBaseInternaLabel(campo.baseInterna.id, campo.valor)}"
+											rendered="#{campo.baseInterna ne null}" />
+										<br/>
+									</ui:repeat>
+								</p:column>
+							</c:forEach>
+							<p:column style="width: 125px;" sortable="false">
+								<a href="#{request.contextPath}/consultas/candidato/#{vo.processo.id}" class="btn btn-info btn-editar">
+									<h:outputText value="#{msg['abrir.label']}"/>
+								</a>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+				<p:remoteCommand name="exportar" actionListener="#{candidatoListBean.exportar()}" oncomplete="verificarNoBean()" />
+				<p:remoteCommand name="verificarNoBean" actionListener="#{candidatoListBean.verificar()}" oncomplete="verificar()"/>
+				<b:commandButton id="baixarId" value="#{msg['baixar.label']}" style="display:none" action="#{candidatoListBean.baixar}"/>
+			</h:form>
+			<script type="text/javascript">
+				//overhide pra não bloquear
+				function bloquearCampos() {}
+
+                function exportarInicio() {
+                    document.getElementById('form-processos:buscarId').disabled = true;
+                    document.getElementById('form-processos:exportarId').disabled = true;
+                    this.disabled = true;
+                    waitingDialog.show('Aguarde...');
+                    exportar();
+                }
+
+                function baixar() {
+                    document.getElementById('form-processos:baixarId').click();
+                    document.getElementById('form-processos:buscarId').disabled = false;
+                    document.getElementById('form-processos:exportarId').disabled = false;
+                    waitingDialog.hide();
+                }
+
+                function verificar() {
+
+                    var data = OmniFaces.Ajax.data;
+                    var terminou = data.terminou;
+
+                    if(terminou) {
+                        baixar();
+                    }
+                    else if (terminou == false) {
+                        setTimeout(verificarNoBean, 2000);
+                    }
+                }
+			</script>
+			<script type="text/javascript" jsf:rendered="#{not empty candidatoListBean.exporter}">
+                exportarInicio();
+			</script>
+		</ui:define>
+	</ui:composition>
+</html>

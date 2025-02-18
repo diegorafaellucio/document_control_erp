@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:b="http://bootsfaces.net/ui">
+	<f:metadata>
+		<f:viewParam name="id" value="#{logAlteracaoViewBean.id}" />
+		<f:viewAction action="#{logAlteracaoViewBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="conteudo">
+			<h:form id="form-log-alteracoes">
+				<div class="row filtro-form">
+					<div class="col-sm-12">
+						<h4><h:outputText value="#{msg['logAlteracaoView.label']}"/></h4>
+						<div class="status alert alert-success" style="display: none"></div>
+						<div class="row">
+							<b:column col-sm="6">
+								<h:panelGroup rendered="#{not empty logAlteracaoViewBean.antes}">
+									<div class="list-group">
+										<div class="list-group-item list-group-titulo">#{msg['logEm.label']} #{utilBean.getDateTimeStr(logAlteracaoViewBean.antes.data)}</div>
+										<div class="list-group-item">
+											<h:outputLabel value="ID:" styleClass="label-log-alteracao"/>
+											<h:outputText value="#{logAlteracaoViewBean.antes.id}"/>
+										</div>
+										<div class="list-group-item">
+											<h:outputLabel value="#{msg['data.label']}:" styleClass="label-log-alteracao"/>
+											<h:outputText value="#{utilBean.getDateTimeStr(logAlteracaoViewBean.antes.data)}"/>
+										</div>
+										<div class="list-group-item">
+											<h:outputLabel value="#{msg['usuario.label']}:" styleClass="label-log-alteracao"/>
+											<h:outputText value="#{logAlteracaoViewBean.antes.usuario.nome}"/>
+										</div>
+										<div class="list-group-item">
+											<h:outputLabel value="#{msg['tipoRegistro.label']}:" styleClass="label-log-alteracao"/>
+											<h:outputText value="#{logAlteracaoViewBean.antes.tipoRegistro}"/>
+										</div>
+										<div class="list-group-item">
+											<h:outputLabel value="#{msg['registroId.label']}:" styleClass="label-log-alteracao"/>
+											<h:outputText value="#{logAlteracaoViewBean.antes.registroId}"/>
+										</div>
+										<div class="list-group-item">
+											<h:outputLabel value="#{msg['tipoAlteracao.label']}:" styleClass="label-log-alteracao"/>
+											<h:outputText value="#{msg['TipoAlteracao.'.concat(logAlteracaoViewBean.antes.tipoAlteracao).concat('.label')]}"/>
+										</div>
+									</div>
+
+									<ui:param name="classExc1" value="#{logAlteracaoViewBean.antes.tipoAlteracao.name().equals('EXCLUSAO') ? 'strike' : '' }"/>
+
+									<div class="list-group">
+										<div class="list-group-item list-group-titulo">#{msg['registroEm.label']} #{utilBean.getDateTimeStr(logAlteracaoViewBean.antes.data)}</div>
+										<ui:repeat value="#{logAlteracaoViewBean.antesKeyList}" var="key">
+											<div class="list-group-item #{classExc1}">
+												<h:outputLabel value="#{key}:" styleClass="label-log-alteracao"/>
+												<h:outputText value="#{logAlteracaoViewBean.antesMap.get(key)}" escape="false"/>
+											</div>
+										</ui:repeat>
+
+										<h:panelGroup rendered="#{not empty logAlteracaoViewBean.antes2}">
+											<div style="text-align: left; padding-top: 10px;">
+												<a href="#{request.contextPath}/admin/logs-alteracoes/view/#{logAlteracaoViewBean.antes.id}" class="btn btn-primary">
+													<span aria-hidden="true" style="padding-right: 5px;">&larr;</span>
+													<h:outputText value="#{msg['anterior.label']}"/>
+												</a>
+											</div>
+										</h:panelGroup>
+									</div>
+								</h:panelGroup>
+							</b:column>
+							<b:column col-sm="6">
+								<div class="list-group">
+									<a href="#" class="list-group-item list-group-titulo">#{msg['logEm.label']} #{utilBean.getDateTimeStr(logAlteracaoViewBean.depois.data)}</a>
+									<h:panelGroup rendered="#{not empty logAlteracaoViewBean.depois}">
+										<div class="list-group-item">
+											<h:outputLabel value="ID:" styleClass="label-log-alteracao"/>
+											<h:outputText value="#{logAlteracaoViewBean.depois.id}"/>
+										</div>
+										<div class="list-group-item">
+											<h:outputLabel value="#{msg['data.label']}:" styleClass="label-log-alteracao"/>
+											<h:outputText value="#{utilBean.getDateTimeStr(logAlteracaoViewBean.depois.data)}"/>
+										</div>
+										<div class="list-group-item">
+											<h:outputLabel value="#{msg['usuario.label']}:" styleClass="label-log-alteracao"/>
+											<h:outputText value="#{logAlteracaoViewBean.depois.usuario.nome}"/>
+										</div>
+										<div class="list-group-item">
+											<h:outputLabel value="#{msg['tipoRegistro.label']}:" styleClass="label-log-alteracao"/>
+											<h:outputText value="#{logAlteracaoViewBean.depois.tipoRegistro}"/>
+										</div>
+										<div class="list-group-item">
+											<h:outputLabel value="#{msg['registroId.label']}:" styleClass="label-log-alteracao"/>
+											<h:outputText value="#{logAlteracaoViewBean.depois.registroId}"/>
+										</div>
+										<div class="list-group-item">
+											<h:outputLabel value="#{msg['tipoAlteracao.label']}:" styleClass="label-log-alteracao"/>
+											<h:outputText value="#{msg['TipoAlteracao.'.concat(logAlteracaoViewBean.depois.tipoAlteracao).concat('.label')]}"/>
+										</div>
+									</h:panelGroup>
+								</div>
+
+								<ui:param name="classExc2" value="#{logAlteracaoViewBean.depois.tipoAlteracao.name().equals('EXCLUSAO') ? 'strike' : '' }"/>
+
+								<div class="list-group">
+									<a href="#" class="list-group-item list-group-titulo">#{msg['registroEm.label']} #{utilBean.getDateTimeStr(logAlteracaoViewBean.depois.data)}</a>
+									<ui:repeat value="#{logAlteracaoViewBean.depoisKeyList}" var="key">
+
+										<ui:param name="classDif" value="#{logAlteracaoViewBean.estaDiferente(key) ? 'colorRed' : '' }"/>
+
+										<div class="list-group-item #{classExc2} #{classDif}">
+											<h:outputLabel value="#{key}:" styleClass="label-log-alteracao"/>
+											<h:outputText value="#{logAlteracaoViewBean.depoisMap.get(key)}" escape="false"/>
+										</div>
+									</ui:repeat>
+
+									<h:panelGroup rendered="#{not empty logAlteracaoViewBean.proximoId}">
+										<div style="text-align: right; padding-top: 10px;">
+											<a href="#{request.contextPath}/admin/logs-alteracoes/view/#{logAlteracaoViewBean.proximoId}" class="btn btn-primary">
+												<h:outputText value="#{msg['proximo.label']}"/>
+												<span aria-hidden="true">&rarr;</span>
+											</a>
+										</div>
+									</h:panelGroup>
+								</div>
+
+							</b:column>
+						</div>
+					</div>
+				</div>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

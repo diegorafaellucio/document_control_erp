@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf"
+	  xmlns:b="http://bootsfaces.net/ui" xmlns:c="http://java.sun.com/jsp/jstl/core">
+<f:metadata>
+	<f:viewAction action="#{relatorioLoginLogBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/navegacao.xhtml">
+	<ui:define name="tituloPagina">#{msg['relatorioLoginLogoff.titulo']}</ui:define>
+	<ui:define name="conteudo">
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/tooltipster.bundle.min.css" />
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-punk.min.css" />
+		<script type="text/javascript" src="#{request.contextPath}/resources/tooltipster/js/tooltipster.bundle.min.js"></script>
+		<h:form id="form">
+			<div class="row default-form">
+				<div class="col-sm-12">
+					<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+					<div class="row">
+						<div class="col-sm-1" ></div>
+						<div class="col-sm-5">
+							<div class="form-group">
+								<h:outputLabel value="#{msg['periodo.label']}"/>
+								<b:panelGrid colSpans="1,5,1,5" style="margin-bottom: -20px; margin-left: 5px;">
+									<h:outputText value="#{msg['de.label']}"/>
+									<b:inputText id="dataInicioId" value="#{relatorioLoginLogBean.filtro.dataInicio}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+												 label="#{msg['dataInicial.label']}" renderLabel="false" required="true">
+										<f:convertDateTime pattern="dd/MM/yyyy"/>
+										<f:facet name="append">
+											<i class="fa fa-calendar-o fa-12x14" />
+										</f:facet>
+									</b:inputText>
+									<h:outputText value="#{msg['ate.label']}"/>
+									<b:inputText id="dataFimId" value="#{relatorioLoginLogBean.filtro.dataFim}" placeholder="dd/mm/aaaa" styleClass="mask-date" label="#{msg['dataFinal.label']}"
+												 renderLabel="false" required="true">
+										<f:convertDateTime pattern="dd/MM/yyyy"/>
+										<f:facet name="append">
+											<i class="fa fa-calendar-o fa-12x14" />
+										</f:facet>
+									</b:inputText>
+								</b:panelGrid>
+								<b:message for="dataInicioId" showSummary="false"/>
+								<b:message for="dataFimId" showSummary="false"/>
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<div class="form-group">
+								<h:outputLabel value="#{msg['analista.label']}"/>
+								<p:selectCheckboxMenu value="#{relatorioLoginLogBean.filtro.usuarioIds}" style="overflow: auto;" converter="javax.faces.Long" filter="true" filterMatchMode="contains" multiple="true" label="#{msg['analista.label']}">
+									<f:selectItems value="#{relatorioLoginLogBean.analistas}" var="usu" itemValue="#{usu.id}" itemLabel="#{usu.nome}"/>
+								</p:selectCheckboxMenu>
+							</div>
+						</div>
+						<div class="col-sm-1"></div>
+					</div>
+					<div class="row" jsf:id="campos-tipo-id">
+						<div class="col-sm-1" ></div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<b:selectOneMenu value="#{relatorioLoginLogBean.filtro.roleGD}" label="Role" >
+									<f:selectItem itemValue="" itemLabel=""/>
+									<f:selectItems value="#{utilBean.getValues('RoleGD')}" var="role" itemValue="#{role}" itemLabel="#{msg['RoleGD.'.concat(role).concat('.label')]}"/>
+								</b:selectOneMenu>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h:outputLabel value="#{msg['apenasAtivos.label']}:" for="apenasAtivos"/><br />
+								<b:switch id="apenasAtivos" onText="#{msg['sim.label']}" offText="#{msg['nao.label']}"
+										  value="#{relatorioLoginLogBean.filtro.apenasAtivos}"/>
+								<b:message/>
+							</div>
+						</div>
+						<div class="col-sm-1"></div>
+					</div>
+					<div class="row" jsf:id="botoes-id">
+						<div class="col-sm-1"></div>
+						<div class="col-sm-6">
+						</div>
+						<div class="col-sm-4">
+							<div class="form-group" style="float: right;">
+								<b:commandButton id="exportarId" value="#{msg['exportar.label']}" styleClass="btn btn-primary btn-md" type="button" onclick="exportarInicio()"/>
+								<b:commandButton id="buscarId" value="#{msg['buscar.label']}" styleClass="btn btn-primary btn-md" update="tabela-ID"
+												 style="margin-left: 10px" onerror="alert('Erro!')"/>
+							</div>
+						</div>
+						<div class="col-sm-1"></div>
+					</div>
+				</div>
+			</div>
+			<div class="row" >
+				<div class="col-sm-12" jsf:id="tabela-ID">
+					<p:dataTable var="log" value="#{relatorioLoginLogBean.dataModel}" rows="50"
+								 scrollable="false" binding="#{ utilBean.lazyDataTable }">
+						<p:column headerText="#{msg['usuario.label']}" style="text-align: center;" >
+							<h:outputText value="#{log.usuario.nome} ##{log.usuario.id}" />
+						</p:column>
+						<p:column headerText="#{msg['dataAcesso.label']}" style="text-align: center;">
+							<h:outputText value="#{utilBean.getDateTimeStr(log.dataAcesso)}" />
+						</p:column>
+						<p:column headerText="#{msg['dataFimAcesso.label']}" style="text-align: center;">
+							<h:outputText value="#{utilBean.getDateTimeStr(log.dataFimAcesso)}" />
+						</p:column>
+						<p:column headerText="#{msg['tempo.label']}" style="text-align: center;">
+							<h:outputText value="#{utilBean.calcularTempoEntreDatas(log.dataAcesso, log.dataFimAcesso)}"/>
+						</p:column>
+					</p:dataTable>
+				</div>
+			</div>
+			<p:remoteCommand name="exportar" actionListener="#{relatorioLoginLogBean.exportar()}" oncomplete="verificarNoBean()" />
+			<p:remoteCommand name="verificarNoBean" actionListener="#{relatorioLoginLogBean.verificar()}" oncomplete="verificar()"/>
+			<b:commandButton id="baixar-id" style="display: none;" action="#{relatorioLoginLogBean.baixar}"/>
+		</h:form>
+		<script type="text/javascript">
+			function exportarInicio() {
+				this.disabled = true;
+				waitingDialog.show('Aguarde...');
+				exportar();
+			}
+
+			function baixar() {
+				document.getElementById('form:baixar-id').click();
+				waitingDialog.hide();
+			}
+
+			function verificar() {
+
+				var data = OmniFaces.Ajax.data;
+				var terminou = data.terminou;
+
+				if(terminou) {
+					baixar();
+				}
+				else if (terminou == false) {
+					setTimeout(verificarNoBean, 2000);
+				}
+			}
+
+		</script>
+	</ui:define>
+</ui:composition>
+</html>

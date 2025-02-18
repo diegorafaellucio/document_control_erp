@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+ 	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:o="http://omnifaces.org/ui">
+	<f:metadata>
+		<f:viewAction action="#{adminAjudaBean.init}" onPostback="false"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['adminAjuda.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/tooltipster.bundle.min.css" />
+			<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-punk.min.css" />
+			<script type="text/javascript" src="#{request.contextPath}/resources/tooltipster/js/tooltipster.bundle.min.js"></script>
+			<style type="text/css">
+				.tooltipContent {
+					color: #fff;
+				}
+				.tooltipster-sidetip.tooltipster-punk .tooltipster-box {
+					background-color: #0f487f;
+				}
+			</style>
+			<style type="text/css">
+				.ui-datatable tbody td {
+					font-size: 13px;
+				}
+			</style>
+			<style type="text/css">
+				.modal-dialog {
+					width: 750px;
+				}
+			</style>
+			<style type="text/css">
+				.pulsate {
+					font-size: 25px;
+					color: #337ab7;
+					font-weight: bold;
+					-webkit-animation: pulsate 3s ease-out;
+					-webkit-animation-iteration-count: infinite;
+					opacity: 0.5;
+				}
+				@-webkit-keyframes pulsate {
+					0% {
+						opacity: 0.5;
+					}
+					50% {
+						opacity: 1.0;
+					}
+					100% {
+						opacity: 0.5;
+					}
+				}
+			</style>
+			<h:form id="form-criar-ajuda">
+				<b:modal title="#{msg['adicionarAjuda.label']}" styleClass="criar-ajuda-modal">
+						<b:row id="criar-ajuda-modal-content-id">
+						<b:growl id="growl-ajuda-id" placementFrom="bottom" allowDismiss="true" animationEnter="animated bounceInDown" animationExit="animated flipOutX"/>
+						<div class="col-sm-12">
+							<b:messages globalOnly="true" showSummary="true"/>
+							<div class="row">
+								<div class="col-sm-12">
+									<div class="form-group">
+										<b:inputText value="#{adminAjudaBean.adminAjuda.nome}" placeholder="#{msg['nome.label']}"
+													 label="#{msg['nome.label']}" renderLabel="true"
+													 maxlength="100" required="true"/>
+										<b:message/>
+									</div>
+									<div class="form-group">
+										<b:inputTextarea value="#{adminAjudaBean.adminAjuda.descricao}" label="#{msg['descricao.label']}" renderLabel="true" maxlength="200" rows="3"/>
+										<b:message/>
+									</div>
+									<h:form id="form-anexo-upload" enctype="multipart/form-data" >
+										<p:fileUpload
+												id="anexo" styleClass="anexo-ajuda"
+												cancelLabel="#{msg['cancelar.label']}"
+												label="#{msg['escolherArquivo.label']}"
+												required="required"
+												auto="true" update="form-criar-ajuda:anexo-indexar"
+												listener="#{adminAjudaBean.uploadAnexo}"
+												multiple="false" sizeLimit="#{utilBean.getFileSizeLimit()}"
+												oncomplete="$('#ajaxLoaderImg').hide()">
+										</p:fileUpload>
+									</h:form>
+									<h:panelGroup id="anexo-indexar">
+										<div style="padding-bottom: 5px;">
+											<p:commandLink class="btn btn-default btn-excluir" onerror="alert('Erro!')" immediate="true"
+														   actionListener="#{adminAjudaBean.removerAnexo()}"
+														   update="form-criar-ajuda:anexo-indexar" style="display:none; color: #000000">
+												x
+											</p:commandLink>
+											<span style="padding-left: 5px;">#{adminAjudaBean.fileVO.name}</span>
+											<span style="padding-left: 15px;">#{adminAjudaBean.fileVO.length}</span>
+										</div>
+									</h:panelGroup>
+								</div>
+							</div>
+						</div>
+						<h:panelGroup>
+							<script type="text/javascript">
+                                $('.criar-ajuda-modal').modal('hide');
+							</script>
+						</h:panelGroup>
+					</b:row>
+					<f:facet name="footer">
+						<h:panelGroup id="criar-ajuda-modal-footer-id">
+							<b:button value="#{msg['nao.label']}" look="primary" dismiss="modal" />
+							<p:commandButton value="#{msg['sim.label']}" actionListener="#{adminAjudaBean.criarAjuda}" update="content-pg-id" styleClass="btn btn-danger"
+											 dismiss="modal">
+							</p:commandButton >
+						</h:panelGroup>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-tabela">
+				<b:row rendered="#{adminAjudaBean.podeCriar}">
+					<div class="col-sm-12" style="float: right;">
+						<div style="float: right; vertical-align: bottom;">
+							<p:commandLink onerror="alert('Erro!')"
+										   actionListener="#{adminAjudaBean.carregaCriarAjuda()}"
+										   styleClass="btn btn-primary btn-md" style="color: #fff; margin-top: 20px; font-size: 14px;"
+										   onsuccess="openModal('criar-ajuda-modal');"
+										   update="form-criar-ajuda:anexo-indexar">
+								#{msg['adicionar.label']}
+							</p:commandLink>
+						</div>
+					</div>
+				</b:row>
+				<div class="row">
+					<div class="col-sm-12">
+						<o:commandScript name="downloadDocumentoPrev" action="#{adminAjudaBean.downloadDocumentoPrev()}"/>
+						<o:commandScript name="excluirDocumento" action="#{adminAjudaBean.deletaAjuda()}"/>
+						<p:dataTable id="tabela-id" var="ajuda" value="#{adminAjudaBean.dataModel}" rows="30" binding="#{ utilBean.lazyDataTable }"
+									 rowKey="#{ajuda.id}">
+							<p:column headerText="#{msg['conteudoHtml.label']}" style="width: 100px; text-align: center;" sortBy="#{ajuda.nome}">
+								<h:outputText value="#{ajuda.nome}"/>
+							</p:column>
+							<p:column headerText="#{msg['descricao.label']}" style="width: 150px; text-align: center;" sortBy="#{ajuda.descricao}">
+								<h:outputText value="#{ajuda.descricao}" rendered="#{ajuda.descricao.length()lt 36}"/>
+								<div class="tooltip_templates" style="display: none;">
+									<span id="tooltip-#{ajuda.id}" class="tooltipContent">
+										#{ajuda.descricao}
+									</span>
+								</div>
+								<span class="tooltipar" data-tooltip-content="#tooltip-#{ajuda.id}" jsf:rendered="#{ajuda.descricao.length() gt 35}" style="cursor: pointer">
+									<h:outputText value="#{ajuda.descricao.substring(0,32)}"/>
+									<h:outputText value=" ..." styleClass="pulsate"/>
+								</span>
+							</p:column>
+							<p:column headerText="#{msg['dataPublicacao.label']}" style="width: 100px; text-align: center;" sortBy="#{ajuda.dataCriacao}">
+								<h:outputText value="#{utilBean.getDateTimeStr(ajuda.dataCriacao)}" />
+							</p:column>
+							<p:column headerText="#{msg['usuario.label']}" style="width: 150px; text-align: center;" sortBy="#{ajuda.analista.nome}">
+								<h:outputText value="#{ajuda.analista.nome}" />
+							</p:column>
+							<p:column style="width: 100px; text-align: center;">
+								<p:commandLink ajax="false" title="#{msg['baixarDocumento.label']}" onmousedown="downloadDocumentoPrev({ajudaId : #{ajuda.id}})" onerror="alert('Erro!')"
+											   class="btn btn-info btn-editar">
+									<p:fileDownload value="#{adminAjudaBean.downloadDocumento()}"/>
+									<i class="fa fa-download" aria-hidden="false" style="color:  #FFFFFF"></i>
+								</p:commandLink>
+							</p:column>
+							<p:column style="width: 50px; text-align: center;" rendered="#{adminAjudaBean.podeCriar}">
+								<p:commandLink ajax="false" title="#{msg['excluirDocumento.label']}" onclick="excluirDocumento({ajudaId : #{ajuda.id}})" onerror="alert('Erro!')"
+											   class="btn btn-info">
+									<i class="fa fa-remove" aria-hidden="false" style="color:  #FFFFFF"></i>
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+						<script type="text/javascript">
+                            $(document).ready(function() {
+                                $('.tooltipar').tooltipster({
+                                    theme: 'tooltipster-punk',
+                                    animation: 'grow',
+                                    position: 'right',
+                                    interactive: true,
+                                });
+                            });
+						</script>
+					</div>
+				</div>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

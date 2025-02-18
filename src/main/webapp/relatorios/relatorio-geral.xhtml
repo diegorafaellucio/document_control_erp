@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:pa="http://java.sun.com/jsf/passthrough">
+	<f:metadata>
+		<f:viewAction action="#{relatorioGeralBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['relatorioGeral.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<style>
+				.downloads-modal .modal-dialog {
+					padding-top: 0px;
+					width: 700px;
+				}
+
+				.ui-datatable tbody td {
+					 font-size: 13px;
+				}
+				.filtro-campos-modal .modal-dialog {
+					width: 900px;
+					padding-top: 0px;
+				}
+			</style>
+			<h:form id="form-downloads">
+				<b:modal id="downloads-modal-id" title="#{msg['downloads.label']}" styleClass="downloads-modal">
+					<b:row id="downloads-modal-content-id">
+						<div class="col-sm-12">
+							<p:dataTable var="relatorio" value="#{relatorioGeralBean.relatoriosSalvosPorData}" rows="3" paginator="false">
+								<p:column headerText="#{msg['arquivo.label']}" style="text-align: center;">
+									#{relatorio.name}
+								</p:column>
+								<p:column headerText="#{msg['tamanho.label']}" style="width: 90px; text-align: center;">
+									#{utilBean.toFileSize(relatorio.length())}
+								</p:column>
+								<p:column style="width: 50px; text-align: center;">
+									<p:commandLink ajax="false" title="#{msg['baixarDocumento.label']}" action="#{relatorioGeralBean.baixarRelatorioSalvo(relatorio)}"
+									   class="btn btn-info">
+										<i class="fa fa-download" aria-hidden="false" style="color:  #FFFFFF"></i>
+									</p:commandLink>
+								</p:column>
+							</p:dataTable>
+						</div>
+					</b:row>
+					<f:facet name="footer">
+						<p:commandLink onclick="openModal('historico-modal')" update="form-historico:historico-modal-content-id" action="#{relatorioGeralBean.showHistorico}" >
+							#{msg['historico.label']}
+						</p:commandLink>
+						<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-historico">
+				<b:modal id="historico-modal-id" title="#{msg['historico.label']}" styleClass="historico-modal" style="margin-top:50px">
+					<b:row id="historico-modal-content-id">
+						<div class="col-sm-12">
+							<p:dataTable id="tabela-id" var="file" value="#{relatorioGeralBean.historicoDataModel}" paginatorPosition="bottom"
+										 rows="15" lazy="true" paginator="true">
+								<p:ajax event="sort"/>
+								<p:ajax event="page"/>
+								<p:column headerText="#{msg['arquivo.label']}" style="text-align: center;" sortBy="#{file}">
+									<h:outputText value="#{file.name}" />
+								</p:column>
+								<p:column headerText="#{msg['tamanho.label']}" style="width: 90px; text-align: center;">
+									#{utilBean.toFileSize(file.length())}
+								</p:column>
+								<p:column style="width: 50px; text-align: center;">
+									<p:commandLink ajax="false" title="#{msg['baixarDocumento.label']}" onerror="alert('Erro!')"
+												   class="btn btn-info">
+										<p:fileDownload value="#{relatorioGeralBean.downloadDocumento(file)}"/>
+										<i class="fa fa-download" aria-hidden="false" style="color:  #FFFFFF"></i>
+									</p:commandLink>
+								</p:column>
+							</p:dataTable>
+						</div>
+					</b:row>
+				</b:modal>
+			</h:form>
+			<h:form id="form-filtro-campos">
+				<b:modal title="#{msg['filtrosCamposProcesso.label']}" styleClass="filtro-campos-modal" style="padding: 10px;"  >
+					<h:panelGroup id="filtro-campos-modal-content-id">
+						<b:row>
+							<b:tabView ajax="true" styleClass="tabViewClass" contentClass="tabViewClass" active-index="0" rendered="#{relatorioGeralBean.tipoProcessoCampos ne null}"
+									   contentStyle="border-right: 1px solid #ddd;border-left: 1px solid #ddd;border-bottom: 1px solid #ddd;padding:1px">
+								<c:set var="tp" value="#{relatorioGeralBean.tipoProcessoCampos}"/>
+								<b:tab title="#{tp.nome}" styleClass="tab-log">
+									<div class="row">
+										<div class="col-md-12">
+											<h:panelGroup>
+												<b:messages globalOnly="true" showSummary="true" id="messages-form-confirm"/>
+												<b:tabView ajax="true" styleClass="tabViewClass" contentClass="tabViewClass" active-index="0"
+														   contentStyle="border-right: 1px solid #ddd;border-left: 1px solid #ddd;border-bottom: 1px solid #ddd;padding:10px">
+													<c:forEach items="#{utilBean.toList(tp.tipoCampoGrupo)}" var="grupo">
+														<b:tab title="#{grupo.nome}" styleClass="tab-log" style="color: #cc092f;">
+															<h:panelGroup layout="block" styleClass="row default-form" style="padding: 10px;">
+																<div class="row">
+																	<c:forEach var="tipoCampo" items="#{utilBean.toList(grupo.campos)}">
+																		<div class="col-md-4">
+																			<div class="form-group" style="margin-left: 10px; margin-right: 10px;">
+																				<b:inputText label="#{tipoCampo.nome}" value="#{tipoCampo.valor}"/>
+																				<b:message/>
+																			</div>
+																		</div>
+																	</c:forEach>
+																</div>
+															</h:panelGroup>
+														</b:tab>
+													</c:forEach>
+												</b:tabView>
+											</h:panelGroup>
+										</div>
+									</div>
+								</b:tab>
+							</b:tabView>
+						</b:row>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<p:commandButton value="#{msg['confirmar.label']}" update="fecharModalFiltroCampos-panel form:countFiltroPorCampos"
+										 styleClass="btn btn-danger" actionListener="#{relatorioGeralBean.confirmarFiltros()}"/>
+					</f:facet>
+				</b:modal>
+				<h:panelGroup id="fecharModalFiltroCampos-panel">
+					<h:panelGroup rendered="#{fecharModal}">
+						<script type="text/javascript">
+							$('.filtro-campos-modal').modal('hide');
+						</script>
+					</h:panelGroup>
+				</h:panelGroup>
+			</h:form>
+			<h:form id="form">
+				<div class="row default-form">
+					<div class="col-sm-12">
+						<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['periodo.label']}"/>
+									<b:panelGrid colSpans="3,1,4,1,3" style="margin-bottom: -20px; margin-left: 5px;">
+										<b:selectOneMenu value="#{relatorioGeralBean.filtro.considerarData}" converter="enumConverter" >
+											<f:selectItems value="#{relatorioGeralBean.considerarDatas}" var="sp" itemLabel="#{msg['ConsiderarData.'.concat(sp).concat('.label')]}" itemValue="#{sp}" />
+										</b:selectOneMenu>
+										<h:outputText value="#{msg['de.label']}"/>
+										<b:inputText id="dataInicioId" value="#{relatorioGeralBean.filtro.dataInicio}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+												label="#{msg['dataInicial.label']}" renderLabel="false" required="true">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14" />
+											</f:facet>
+										</b:inputText>
+										<h:outputText value="#{msg['ate.label']}"/>
+										<b:inputText id="dataFimId" value="#{relatorioGeralBean.filtro.dataFim}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+												label="#{msg['dataFinal.label']}" renderLabel="false" required="true">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14" />
+											</f:facet>
+										</b:inputText>
+									</b:panelGrid>
+									<b:message for="dataInicioId" showSummary="false"/>
+									<b:message for="dataFimId" showSummary="false"/>
+									<script type="text/javascript">
+										jQuery(function($) {
+											configurarMascaras();
+											configurarDatePicker();
+										});
+									</script>
+								</div>
+							</div>
+						 </div>
+						<div class="row">
+							<div class="col-sm-4">
+								<b:selectOneMenu value="#{relatorioGeralBean.filtro.tipo}" label="#{msg['tipo.label']}">
+									<f:selectItems value="#{relatorioGeralBean.tipoRelatorioGeralEnumList}" var="item" itemLabel="#{msg['TipoRelatorioGeralEnum.'.concat(item).concat('.label')]}" itemValue="#{item}" />
+								</b:selectOneMenu>
+							</div>
+							<div class="form-group col-sm-4" jsf:id="divTiposProcessos">
+								<h:outputLabel value="#{msg['motivos.label']}"/>
+								<p:selectCheckboxMenu value="#{relatorioGeralBean.filtro.tiposProcessoList}" appendTo="@this" required="true" disabled="#{relatorioGeralBean.permissaoFiltroTP}"
+													  style="form-control bf-no-message has-success"
+													  label="#{msg['motivos.label']}" multiple="true" filter="false" converter="entityConverter" >
+									<f:selectItems value="#{relatorioGeralBean.tiposProcessos}" var="item" itemLabel="#{item.nome}" itemValue="#{item}" />
+									<p:ajax event="change" process="@this"/>
+									<p:ajax event="toggleSelect" process="@this"/>
+								</p:selectCheckboxMenu>
+								<b:message/>
+							</div>
+							<div class="form-group col-sm-4" jsf:id="divSituacaoProcesso">
+								<h:outputLabel value="#{msg['situacao.label']}" />
+								<p:selectCheckboxMenu value="#{relatorioGeralBean.filtro.situacoes}" label=""
+													  style="form-control bf-no-message has-success" multiple="true"
+													  filter="true" filterMatchMode="contains" converter="entityConverter">
+									<f:selectItems value="#{relatorioGeralBean.situacoes}" var="s" itemValue="#{s}" itemLabel="#{s.tipoProcesso.nome} -> #{s.nome}"/>
+								</p:selectCheckboxMenu>
+							</div>
+						</div>
+						<div class="row">
+							<div class="form-group">
+								<div class="col-sm-4">
+									<h:outputLabel value="#{msg['tipoProcessoCampos.label']}&nbsp;">
+											<span jsf:id="countFiltroPorCampos" class="badge">
+												<h:outputText value="#{relatorioGeralBean.filtro.camposFiltro eq null ? 0 : relatorioGeralBean.filtro.camposFiltro.size()}"/>
+											</span>
+									</h:outputLabel>
+									<b:selectOneMenu value="#{relatorioGeralBean.tipoProcessoCampos}" valueChangeListener="#{relatorioGeralBean.bloqueiaTiposProcessos}"
+													 ajax="true" update="form-filtro-campos:divBotaoFiltroCampos form:divTiposProcessos form-filtro-campos:countFiltroPorCampos">
+										<f:selectItem itemLabel="" itemValue=""/>
+										<f:selectItems value="#{relatorioGeralBean.tiposProcessos}" var="tipoProcesso" itemValue="#{tipoProcesso}" itemLabel="#{tipoProcesso.nome}" />
+									</b:selectOneMenu>
+								</div>
+							</div>
+							<div class="col-sm-2 sem-padding-left" style="margin-top: 14px;">
+								<div jsf:id="divBotaoFiltroCampos" style="float: left;">
+									<div class="form-group" jsf:rendered="#{relatorioGeralBean.tipoProcessoCampos ne null}">
+										<p:commandLink class="btn" oncomplete="openModal('filtro-campos-modal')"
+													   update="form-filtro-campos:filtro-campos-modal-content-id">
+											<i class="fa fa-filter" aria-hidden="true"/>
+											Add
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group" style="float: right;">
+									<b:commandButton value="#{msg['downloads.label']}" styleClass="btn btn-primary btn-md" ajax="true" oncomplete="openModal('downloads-modal')" update="form-downloads form-historico"/>
+									<b:commandButton id="buscarId" value="#{msg['buscar.label']}" styleClass="btn btn-primary btn-md" update="form" style="margin-left: 10px"
+													 oncomplete="updateButton()" actionListener="#{relatorioGeralBean.buscar()}"/>
+									<b:commandButton id="exportarId" value="#{msg['exportar.label']}" styleClass="btn btn-primary btn-md"
+													 style="margin-left: 10px" onclick="exportarInicio()" type="button" disabled="#{empty relatorioGeralBean.ativosDataModel.list and empty relatorioGeralBean.relatorioGeralEtapaDataModel.list}"/>
+									<b:commandButton value="#{msg['limpar.label']}" actionListener="#{relatorioGeralBean.limpar()}"
+														 styleClass="btn btn-primary btn-md" ajax="true" update="content-pg-id"/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div style="float: left;">
+									<i class="fa fa-circle" aria-hidden="true" title="Job em execução" jsf:rendered="#{relatorioGeralBean.executando}"></i>
+									<i class="fa fa-circle-thin" aria-hidden="true" title="Job aguardando..." jsf:rendered="#{not relatorioGeralBean.executando}"></i>
+									Relatório Atualizado Até: #{relatorioGeralBean.dataUltimaExecucao}
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12">
+						<p:dataTable var="re" value="#{relatorioGeralBean.relatorioGeralEtapaDataModel}" rows="10"
+									 scrollable="false" binding="#{ utilBean.lazyDataTable }" rendered="#{relatorioGeralBean.isTipoEtapa()}">
+							<p:column headerText="#{msg['processo.label']}" style="text-align: center;">
+								<h:outputText value="#{re.relatorioGeral.processoId}" />
+							</p:column>
+							<p:column headerText="#{msg['tipoProcesso.label']}" style="text-align: center;">
+								<h:outputText value="#{re.relatorioGeral.tipoProcesso.nome}" />
+							</p:column>
+							<p:column headerText="#{msg['etapa.label']}" style="text-align: center;">
+								<h:outputText value="#{re.etapa.nome}" />
+							</p:column>
+							<p:column headerText="#{msg['dataEnvio.label']}" style="text-align: center;">
+								<h:outputText value="#{utilBean.getDateTimeStr(re.dataInicio)}" />
+							</p:column>
+							<p:column headerText="#{msg['dataFinalizacao.label']}" style="text-align: center;">
+								<h:outputText value="#{utilBean.getDateTimeStr(re.dataFim)}" />
+							</p:column>
+							<p:column headerText="#{msg['prazoAnalise.label']}" style="text-align: center;">
+								<h:outputText value="#{utilBean.getDateTimeStr(re.prazoLimite)}" />
+							</p:column>
+							<p:column headerText="#{msg['slaAtendido.label']}" style="text-align: center;">
+								<h:outputText value="#{msg['sim.label']}" rendered="#{re.prazoOk}"/>
+								<h:outputText value="#{msg['nao.label']}" rendered="#{!re.prazoOk}"/>
+							</p:column>
+						</p:dataTable>
+						<p:dataTable var="rg" value="#{relatorioGeralBean.ativosDataModel}" rows="10"
+									 scrollable="false" binding="#{ utilBean.lazyDataTable }" rendered="#{!relatorioGeralBean.isTipoEtapa()}">
+							<p:column headerText="#{msg['processoId.label']}" style="text-align: center; width: 120px;">
+								<h:outputText value="#{rg.processoId}" />
+							</p:column>
+							<p:column headerText="#{msg['dataCriacao.label']}" style="text-align: center; width: 120px;">
+								<h:outputText value="#{utilBean.getDateTimeStr(rg.dataCriacao)}" />
+							</p:column>
+							<p:column headerText="#{msg['dataEnvioAnalise.label']}" style="text-align: center; width: 120px;">
+								<h:outputText value="#{utilBean.getDateTimeStr(rg.dataEnvioAnalise)}" />
+							</p:column>
+							<p:column headerText="#{msg['dataFinalizacao.label']}" style="text-align: center; width: 120px;">
+								<h:outputText value="#{utilBean.getDateTimeStr(rg.dataFinalizacao)}" />
+							</p:column>
+							<p:column headerText="#{msg['status.label']}" style="text-align: center; width: 120px;">
+								<h:outputText value="#{msg['StatusProcesso.'.concat(rg.status.name()).concat('.label')]}" />
+							</p:column>
+							<p:column headerText="#{msg['tipoProcesso.label']}" style="text-align: center; width: 120px;">
+								<h:outputText value="#{rg.tipoProcesso.nome}" />
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+				<p:remoteCommand name="exportar" actionListener="#{relatorioGeralBean.exportar()}" oncomplete="verificarNoBean()" />
+				<p:remoteCommand name="verificarNoBean" actionListener="#{relatorioGeralBean.verificar()}" oncomplete="verificar()"/>
+				<p:remoteCommand name="updateButton" update="form:exportarId"/>
+				<b:commandButton id="baixarId" value="#{msg['baixar.label']}" style="display:none" action="#{relatorioGeralBean.baixar}"/>
+			</h:form>
+			<script type="text/javascript">
+
+				function exportarInicio() {
+					document.getElementById('form:buscarId').disabled = true;
+					document.getElementById('form:exportarId').disabled = true;
+					this.disabled = true;
+					waitingDialog.show('Aguarde...');
+					exportar();
+				}
+
+				function baixar() {
+					document.getElementById('form:baixarId').click();
+					document.getElementById('form:buscarId').disabled = false;
+					document.getElementById('form:exportarId').disabled = false;
+					waitingDialog.hide();
+				}
+
+				function verificar() {
+
+					var data = OmniFaces.Ajax.data;
+					var terminou = data.terminou;
+
+					if(terminou) {
+						baixar();
+					}
+					else if (terminou == false) {
+						setTimeout(verificarNoBean, 2000);
+					}
+				}
+
+			</script>
+			<script type="text/javascript" jsf:rendered="#{not empty relatorioGeralBean.exporter}">
+				exportarInicio();
+			</script>
+		</ui:define>
+	</ui:composition>
+</html>

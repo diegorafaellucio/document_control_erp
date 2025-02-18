@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf"
+	  xmlns:b="http://bootsfaces.net/ui" xmlns:c="http://java.sun.com/jsp/jstl/core">
+<f:metadata>
+	<f:viewAction action="#{relatorioStatusLaboralBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/navegacao.xhtml">
+	<ui:define name="tituloPagina">#{msg['relatorioStatusLaboral.titulo']}</ui:define>
+	<ui:define name="conteudo">
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/tooltipster.bundle.min.css" />
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-punk.min.css" />
+		<script type="text/javascript" src="#{request.contextPath}/resources/tooltipster/js/tooltipster.bundle.min.js"></script>
+		<style type="text/css">
+			.sinteticoRow {
+				border-top: none;
+				margin: 0;
+				height: 22px;
+				width: 230%;
+			}
+			.sinteticoRow:before {
+				content: none;
+			}
+			.sinteticoRow:after {
+				content: none;
+			}
+			.sinteticoRowTitulo {
+				float: left;
+				width: 175px;
+				margin-bottom: 0 !important;
+				height: 22px;
+				padding: 5px 6px 0px;
+				overflow: hidden;
+				border-bottom: 1px #ccc solid;
+			}
+			.sinteticoRowLog {
+				height: 26px;
+				position: relative;
+				width: 100%;
+				border-bottom: 1px #ccc solid;
+				margin-bottom: 0 !important;
+			}
+			.sinteticoRowLog div {
+				position: absolute;
+				width: 40px;
+				height: 22px;
+				padding-top: 2px;
+				text-align: left;
+			}
+			.sinteticoRowProc {
+				border-bottom: 1px #ccc solid;
+				border-right: 1px #ccc solid;
+				border-left: 1px #ccc solid;
+				left: 0;
+				margin-top: 0px;
+				position: relative;
+				margin-left: 175px;
+				height: 22px;
+				width: auto;
+				margin-bottom: 0 !important;
+				background: repeating-linear-gradient(
+						45deg,
+						transparent,
+						transparent 6px,
+						#efefef 4px,
+						#efefef 8px
+				);
+			}
+			.sinteticoRowProc div {
+				position: absolute;
+				height: 22px;
+				padding-top: 4px;
+				text-align: center;
+				overflow: hidden;
+				margin: 0;
+			}
+			.sinteticoRowProc div.DISPONIVEL {
+				background-color: green;
+				color: #fff;
+				font-weight: 200;
+			}
+			.sinteticoRowProc div.EM_ANALISE {
+				background-color: cornflowerblue;
+				color: #fff;
+				font-weight: 200;
+			}
+			.sinteticoRowProc div.PAUSA {
+				background-color: red;
+				color: #fff;
+				font-weight: 200;
+			}
+			.sinteticoRowProc div.PAUSA_SISTEMA {
+				background-color: gray;
+				color: #fff;
+				font-weight: 200;
+			}
+		</style>
+		<h:form id="form">
+			<div class="row default-form">
+				<div class="col-sm-11">
+					<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+				</div>
+				<div class="col-sm-1" jsf:id="reload-id">
+					<p:commandLink id="reloadAutomaticoId" actionListener="#{relatorioStatusLaboralBean.reloadAutomatico()}" process="@this" update="reloadAutomaticoId" styleClass="btn btn-md"
+								   style="margin-right: 5px; background-color: #{relatorioStatusLaboralBean.reloadAutomatico ? '#d3d3d3' : '#fff'}" title="Atualizar a cada 1 min." rendered="#{relatorioStatusLaboralBean.filtro.tipo eq 'SINTETICO'}">
+						<i class="fa fa-clock-o" style="font-size: 16px; color: #{relatorioStatusLaboralBean.reloadAutomatico ? '#000' : '#337ab7'}"></i>
+					</p:commandLink>
+				</div>
+					<div class="col-sm-12">
+					<div class="row">
+						<div class="col-sm-1" ></div>
+						<div class="col-sm-5">
+							<div class="form-group">
+								<h:outputLabel value="#{msg['periodo.label']}"/>
+								<b:panelGrid colSpans="1,5,1,5" style="margin-bottom: -20px; margin-left: 5px;">
+									<h:outputText value="#{msg['de.label']}"/>
+									<b:inputText id="dataInicioId" value="#{relatorioStatusLaboralBean.filtro.inicio}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+												 label="#{msg['dataInicial.label']}" renderLabel="false" required="true">
+										<f:convertDateTime pattern="dd/MM/yyyy"/>
+										<f:facet name="append">
+											<i class="fa fa-calendar-o fa-12x14" />
+										</f:facet>
+									</b:inputText>
+									<h:outputText value="#{msg['ate.label']}"/>
+									<b:inputText id="dataFimId" value="#{relatorioStatusLaboralBean.filtro.fim}" placeholder="dd/mm/aaaa" styleClass="mask-date" label="#{msg['dataFinal.label']}"
+												 renderLabel="false" required="true">
+										<f:convertDateTime pattern="dd/MM/yyyy"/>
+										<f:facet name="append">
+											<i class="fa fa-calendar-o fa-12x14" />
+										</f:facet>
+									</b:inputText>
+								</b:panelGrid>
+								<b:message for="dataInicioId" showSummary="false"/>
+								<b:message for="dataFimId" showSummary="false"/>
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<div class="form-group">
+								<b:selectOneMenu value="#{relatorioStatusLaboralBean.filtro.tipo}" label="#{msg['tipo.label']}">
+									<f:selectItem itemValue="" itemLabel=""/>
+									<f:selectItem itemLabel="Analítico" itemValue="ANALITICO"/>
+									<f:selectItem itemLabel="Sintético" itemValue="SINTETICO"/>
+									<f:ajax event="change" render="campos-tipo-id botoes-id reload-id"/>
+								</b:selectOneMenu>
+							</div>
+						</div>
+						<div class="col-sm-1"></div>
+					</div>
+					<div class="row" jsf:id="campos-tipo-id">
+						<div class="col-sm-1" ></div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['analista.label']}"/>
+									<p:selectCheckboxMenu value="#{relatorioStatusLaboralBean.filtro.usuarioIdList}" converter="javax.faces.Long" filter="true" filterMatchMode="contains" multiple="true" label="#{msg['analista.label']}">
+										<f:selectItems value="#{relatorioStatusLaboralBean.analistas}" var="usu" itemValue="#{usu.id}" itemLabel="#{usu.nome}"/>
+									</p:selectCheckboxMenu>
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['statusLaboral.label']}"/>
+									<p:selectCheckboxMenu value="#{relatorioStatusLaboralBean.filtro.statusLaboralIdList}" converter="javax.faces.Long" filter="true" filterMatchMode="contains" multiple="true" label="#{msg['statusLaboral.label']}">
+										<f:selectItems value="#{relatorioStatusLaboralBean.statusLaboral}" var="sl" itemValue="#{sl.id}" itemLabel="#{sl.nome}"/>
+									</p:selectCheckboxMenu>
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-1"></div>
+					</div>
+					<div class="row" jsf:id="botoes-id">
+						<div class="col-sm-1"></div>
+						<div class="col-sm-6">
+						</div>
+						<div class="col-sm-4">
+							<div class="form-group" style="float: right;">
+								<b:commandButton id="exportarId" value="#{msg['exportar.label']}" styleClass="btn btn-primary btn-md" type="button" onclick="exportarInicio()"
+												 rendered="#{relatorioStatusLaboralBean.filtro.tipo eq 'ANALITICO'}"/>
+								<b:commandButton id="buscarId" value="#{msg['buscar.label']}" styleClass="btn btn-primary btn-md" update="tabela-ID"
+												 style="margin-left: 10px" action="#{relatorioStatusLaboralBean.buscar()}" oncomplete="configurarTooltip()" onerror="alert('Erro!')"/>
+							</div>
+						</div>
+						<div class="col-sm-1"></div>
+					</div>
+				</div>
+			</div>
+			<div class="row" >
+				<div class="col-sm-12" jsf:id="tabela-ID">
+					<p:dataTable var="log" value="#{relatorioStatusLaboralBean.dataModel}" rows="50"
+								 scrollable="false" binding="#{ utilBean.lazyDataTable }"
+								 rendered="#{relatorioStatusLaboralBean.filtro.tipo eq 'ANALITICO'}">
+						<p:column headerText="#{msg['idProcesso.label']}" style="text-align: center; width: 120px;">
+							<a href="#{request.contextPath}/requisicoes/fila/edit/#{log.processo.id}" target="_blank">#{log.processo.id}</a>
+						</p:column>
+						<p:column headerText="#{msg['tipoProcesso.label']}" style="text-align: center; width: 120px;">
+							<h:outputText value="#{log.processo.tipoProcesso.nome}" />
+						</p:column>
+						<p:column headerText="#{msg['situacaoInicial.label']}" style="text-align: center; width: 120px;">
+							<h:outputText value="#{log.situacaoInicial.nome}" />
+						</p:column>
+						<p:column headerText="#{msg['situacaoFinal.label']}" style="text-align: center; width: 120px;">
+							<h:outputText value="#{log.situacaoFinal.nome}" />
+						</p:column>
+						<p:column headerText="#{msg['dataEmAnalise.label']}" style="text-align: center; width: 120px;">
+							<h:outputText value="#{utilBean.getDateTimeStr(log.dataEmAnalise)}" />
+						</p:column>
+						<p:column headerText="#{msg['statusLaboral.label']}" style="text-align: center; width: 120px;">
+							<h:outputText value="#{log.statusLaboral.nome}" />
+						</p:column>
+						<p:column headerText="#{msg['login.label']}" style="text-align: center;" >
+							<h:outputText value="#{log.analista.login}" />
+						</p:column>
+						<p:column headerText="#{msg['analista.label']}" style="text-align: center;" >
+							<h:outputText value="#{log.analista.nome}" />
+						</p:column>
+						<p:column headerText="#{msg['dataInicial.label']}" style="text-align: center; width: 120px;">
+							<h:outputText value="#{utilBean.getDateTimeStr(log.inicio)}" />
+						</p:column>
+						<p:column headerText="#{msg['dataFinal.label']}" style="text-align: center; width: 120px;">
+							<h:outputText value="#{utilBean.getDateTimeStr(log.fim)}" />
+						</p:column>
+						<p:column headerText="#{msg['tempo.label']}" style="text-align: center; width: 120px;">
+							<h:outputText value="#{utilBean.formatarMilisegundosParaHoraMinutoSegundo(log.tempo)}"/>
+						</p:column>
+					</p:dataTable>
+					<div style="overflow: auto; padding-bottom: 10px;" jsf:rendered="#{relatorioStatusLaboralBean.filtro.tipo eq 'SINTETICO'}">
+						<div class="row sinteticoRow" style="height: 22px; border: none; margin-left: 1px; display: inline-block;">
+							<div class="sinteticoRowTitulo" style="padding-top: 8px; height: 22px; border: none;">
+								<span class="ui-column-title">Analista</span>
+							</div>
+							<div class="sinteticoRowLog" style="padding-top: 6px;">
+								<c:set var="leftHora" value="175"/>
+								<c:forEach var="hora" items="#{relatorioStatusLaboralBean.sinteticoVO.horas}">
+									<div style="border: none; left: #{leftHora}px;">#{hora}</div>
+									<c:set var="leftHora" value="#{leftHora + 40}"/>
+								</c:forEach>
+							</div>
+						</div>
+						<p:repeat value="#{relatorioStatusLaboralBean.sinteticoVO.statusAtendimentoMap.keySet().toArray()}" var="key" varStatus="status0">
+							<div class="row sinteticoRow">
+								<div class="sinteticoRowTitulo">
+									<span>#{relatorioStatusLaboralBean.sinteticoVO.getKeyFormatada(key)}</span>
+								</div>
+								<div class="sinteticoRowProc">
+									<p:repeat value="#{relatorioStatusLaboralBean.sinteticoVO.getStatusAtendimento(key)}" var="statusAtendimento" varStatus="status">
+										<div class="#{statusAtendimento.logAtendimento[0]} tooltipar"
+											 style="
+														width: #{statusAtendimento.minutosLimite gt 0 ? statusAtendimento.minutosLimite * 2.1 : 2.1}px;
+														left: #{statusAtendimento.minutosDesdeInicio * 2.1}px;
+													"
+											 data-tooltip-content="#tooltipContent-#{status0.index}-#{status.index}">
+
+										</div>
+										<div class="tooltip_templates" style="display: none;">
+												<span id="tooltipContent-#{status0.index}-#{status.index}" class="tooltipContent tooltipTable">
+													<table class="relatorioTable" style="width: 660px">
+														Processo:
+														<a href="#{request.contextPath}/requisicoes/fila/edit/#{statusAtendimento.processoId}" target="_blank" style="color: #fff;">
+															#{not empty statusAtendimento.processoNumero ? statusAtendimento.processoNumero : statusAtendimento.processoId }
+														</a>
+														<tr>
+															<th style="width: 200px; text-align: center;">Status Atendimento</th>
+															<th style="width: 200px; text-align: center;">Status Laboral</th>
+															<th style="width: 100px; text-align: center;">Hora Inicio</th>
+															<th style="width: 100px; text-align: center;">Hora Fim</th>
+															<th style="width: 60px; text-align: center;">Tempo</th>
+														</tr>
+														<tr>
+															<td style="text-align: center;">#{msg['StatusAtendimento.'.concat(statusAtendimento.logAtendimento[0]).concat('.label')]}</td>
+															<td style="text-align: center;">#{statusAtendimento.logAtendimento[1]}</td>
+															<td style="text-align: center;">#{statusAtendimento.logAtendimento[2]}</td>
+															<td style="text-align: center;">#{statusAtendimento.logAtendimento[3]}</td>
+															<td style="text-align: center;">#{statusAtendimento.logAtendimento[4]}</td>
+														</tr>
+													</table>
+												</span>
+										</div>
+									</p:repeat>
+								</div>
+							</div>
+						</p:repeat>
+						<script type="application/javascript">
+							function configurarTooltip() {
+								$('.tooltipar').tooltipster({
+									theme: 'tooltipster-punk',
+									animation: 'grow',
+									interactive: true
+								});
+							}
+
+							$(document).ready(function() {
+								configurarTooltip();
+							});
+
+						</script>
+						<span style="float: right;">
+							Legenda:
+							<i class="fa fa-circle" style="color: green; font-size: 12px;"></i> Disponível
+							<i class="fa fa-circle" style="color: gray; font-size: 12px;"></i> Pausa Sistema
+							<i class="fa fa-circle" style="color: red; font-size: 12px;"></i> Pausa
+							<i class="fa fa-circle" style="color: cornflowerblue; font-size: 12px;"></i> Em Análise
+						</span>
+					</div>
+				</div>
+			</div>
+			<p:remoteCommand name="exportar" actionListener="#{relatorioStatusLaboralBean.exportar()}" oncomplete="verificarNoBean()" />
+			<p:remoteCommand name="verificarNoBean" actionListener="#{relatorioStatusLaboralBean.verificar()}" oncomplete="verificar()"/>
+			<b:commandButton id="baixar-id" style="display: none;" action="#{relatorioStatusLaboralBean.baixar}"/>
+		</h:form>
+		<script type="text/javascript">
+			function exportarInicio() {
+				this.disabled = true;
+				waitingDialog.show('Aguarde...');
+				exportar();
+			}
+
+			function baixar() {
+				document.getElementById('form:baixar-id').click();
+				waitingDialog.hide();
+			}
+
+			function verificar() {
+
+				var data = OmniFaces.Ajax.data;
+				var terminou = data.terminou;
+
+				if(terminou) {
+					baixar();
+				}
+				else if (terminou == false) {
+					setTimeout(verificarNoBean, 2000);
+				}
+			}
+
+			function startReloadAutomatico() {
+				document.getElementById("form:buscarId").click();
+				timeout = setTimeout("startReloadAutomatico()",60000); //1 minuto
+			}
+
+			function stopReloadAutomatico() {
+				clearTimeout(timeout);
+			}
+
+		</script>
+	</ui:define>
+</ui:composition>
+</html>

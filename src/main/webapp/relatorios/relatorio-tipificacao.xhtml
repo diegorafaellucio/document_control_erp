@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf"
+	  xmlns:o="http://omnifaces.org/ui"
+	  xmlns:b="http://bootsfaces.net/ui">
+<f:metadata>
+	<f:viewAction action="#{relatorioTipificacaoBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/navegacao.xhtml">
+
+	<ui:define name="tituloPagina">#{msg['relatorioTipificacao.titulo']}</ui:define>
+	<ui:define name="conteudo">
+
+		<h:form id="form">
+			<div class="row default-form noMarginBottom">
+				<div class="col-sm-12">
+					<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+					<div class="row">
+						<div class="col-sm-6">
+							<div class="form-group">
+								<h:outputLabel value="#{msg['periodo.label']}"/>
+								<b:panelGrid colSpans="1,5,1,5" style="margin-bottom: -20px; margin-left: 5px;">
+									<h:outputText value="#{msg['de.label']}"/>
+									<b:inputText id="dataInicioId" value="#{relatorioTipificacaoBean.filtro.dataInicio}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+												 label="#{msg['dataInicial.label']}" renderLabel="false" required="true">
+										<f:convertDateTime pattern="dd/MM/yyyy"/>
+										<f:facet name="append">
+											<i class="fa fa-calendar-o fa-12x14" />
+										</f:facet>
+									</b:inputText>
+									<h:outputText value="#{msg['ate.label']}"/>
+									<b:inputText id="dataFimId" value="#{relatorioTipificacaoBean.filtro.dataFim}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+												 label="#{msg['dataFinal.label']}" renderLabel="false" required="true">
+										<f:convertDateTime pattern="dd/MM/yyyy"/>
+										<f:facet name="append">
+											<i class="fa fa-calendar-o fa-12x14" />
+										</f:facet>
+									</b:inputText>
+								</b:panelGrid>
+								<b:message for="dataInicioId" showSummary="false"/>
+								<b:message for="dataFimId" showSummary="false"/>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="form-group">
+									<o:importConstants type="net.wasys.getdoc.domain.enumeration.Origem" />
+									<b:selectOneMenu value="#{relatorioTipificacaoBean.filtro.origemProcesso}" label="#{msg['origem.label']}">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItem itemValue="#{Origem.PORTAL_GRADUCAO}" itemLabel="Portal Graduação"/>
+										<f:selectItem itemValue="#{Origem.PORTAL_POS_GRADUACAO}" itemLabel="Portal Pós-Graduação"/>
+										<f:selectItem itemValue="#{Origem.WEB}" itemLabel="Sala Matrícula"/>
+									</b:selectOneMenu>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group col-sm-6">
+
+							<h:outputLabel value="#{msg['modeloDocumento.label']}"/>
+							<p:selectCheckboxMenu value="#{relatorioTipificacaoBean.filtro.modeloDocumentoList}" label=""
+												  style="form-control bf-no-message has-success" multiple="true"
+												  filter="true" filterMatchMode="contains" converter="entityConverter">
+								<f:selectItems value="#{relatorioTipificacaoBean.modeloDocumentoList}" var="m" itemValue="#{m}" itemLabel="#{m.descricao}"/>
+							</p:selectCheckboxMenu>
+
+						</div>
+						<div class="form-group col-sm-6">
+
+							<h:outputLabel value="#{msg['tipoProcesso.label']}"/>
+							<p:selectCheckboxMenu value="#{relatorioTipificacaoBean.filtro.tipoProcessoList}" label=""
+												  style="form-control bf-no-message has-success" multiple="true"
+												  filter="true" filterMatchMode="contains" converter="entityConverter">
+								<f:selectItems value="#{relatorioTipificacaoBean.tipoProcessoList}" var="tp" itemValue="#{tp}" itemLabel="#{tp.nome}"/>
+							</p:selectCheckboxMenu>
+
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-sm-1" ></div>
+						<div class="col-sm-12">
+							<div class="form-group" style="float: right; margin-right: 60px;">
+								<p:commandLink id="exportarId" value="#{msg['exportar.label']}" styleClass="btn btn-primary btn-md" type="button" onclick="exportarInicio()"
+											   style="margin-left: 10px; margin-right: 15px;" />
+							</div>
+						</div>
+						<div class="col-sm-1"></div>
+					</div>
+				</div>
+			</div>
+			<p:remoteCommand name="exportar" actionListener="#{relatorioTipificacaoBean.exportar()}" oncomplete="verificarNoBean()" />
+			<p:remoteCommand name="verificarNoBean" actionListener="#{relatorioTipificacaoBean.verificar()}" oncomplete="verificar()"/>
+			<b:commandButton id="baixarId" style="display: none;" action="#{relatorioTipificacaoBean.baixar}"/>
+
+
+		</h:form>
+		<script type="text/javascript">
+
+			function exportarInicio() {
+				document.getElementById('form:exportarId').disabled = true;
+				this.disabled = true;
+				waitingDialog.show('Aguarde...');
+				exportar();
+			}
+
+			function baixar() {
+				document.getElementById('form:baixarId').click();
+				document.getElementById('form:exportarId').disabled = false;
+				waitingDialog.hide();
+			}
+
+			function verificar() {
+
+				var data = OmniFaces.Ajax.data;
+				var terminou = data.terminou;
+
+				if (terminou) {
+					baixar();
+				} else if (terminou == false) {
+					setTimeout(verificarNoBean, 2000);
+				}
+			}
+		</script>
+	</ui:define>
+</ui:composition>
+</html>

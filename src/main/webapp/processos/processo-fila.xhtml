@@ -1,0 +1,574 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:c="http://java.sun.com/jsp/jstl/core"
+	  xmlns:b="http://bootsfaces.net/ui"
+	  xmlns:o="http://omnifaces.org/ui">
+	<f:metadata>
+		<f:viewAction action="#{processoFilaBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['filaTrabalho.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<style>
+				.ui-datatable tbody td {
+					font-size: 13px;
+				}
+				.filtro-campos-modal .modal-dialog {
+					width: 900px;
+					padding-top: 0px;
+				}
+			</style>
+			<h:form id="form-concluir">
+				<b:modal title="#{msg['confirmarTitulo.label']}" styleClass="concluir-modal">
+					<h:panelGroup id="concluir-modal-content-id">
+						<b:messages globalOnly="true" showSummary="true" id="messages-form-confirm"/>
+						#{processoFilaBean.processosSelecionados.size()} (s) processo(s) selecionados
+						<b:selectOneMenu value="#{processoFilaBean.novaSituacao}" label="#{msg['selecioneNovaSituacao.label']}" required="true">
+							<f:selectItem itemValue="" itemLabel=""/>
+							<f:selectItems value="#{processoFilaBean.situacoesConclusao}" var="situacao" itemValue="#{situacao}" itemLabel="#{situacao.nome}"/>
+						</b:selectOneMenu>
+						<b:message/>
+						<p><h4 class="msg-confirm"><h:outputText value="#{msg['finalizar-CONCLUIR.confirm']}"/></h4></p>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<b:button value="#{msg['nao.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['sim.label']}" actionListener="#{processoFilaBean.concluirEmMassa()}" styleClass="btn btn-danger"
+								update="messages-form-confirm fecharModalConclusao-panel mensagensGlobaisGroup form-tabela">
+						</p:commandButton>
+					</f:facet>
+				</b:modal>
+				<h:panelGroup id="fecharModalConclusao-panel">
+					<h:panelGroup rendered="#{fecharModal}">
+						<script type="text/javascript">
+							$('.concluir-modal').modal('hide');
+						</script>
+					</h:panelGroup>
+				</h:panelGroup>
+			</h:form>
+			<h:form id="form-alteracao-situacao-em-massa-isencao">
+				<b:modal title="#{msg['confirmarTitulo.label']}" styleClass="alterar-situacao-isencao-modal">
+					<h:panelGroup id="alteracao-situacao-isencao-modal-content-id">
+						<b:messages globalOnly="true" showSummary="true" id="messages-form-confirm"/>
+						#{processoFilaBean.processosSelecionados.size()} (s) processo(s) selecionados
+						<b:message/>
+						<p><h4 class="msg-confirm"><h:outputText value="#{msg['finalizar-ALTERAR_SITUACAO.confirm']}"/></h4></p>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<b:button value="#{msg['nao.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['sim.label']}" actionListener="#{processoFilaBean.alterarSituacoesEmMassaIsencao}" styleClass="btn btn-danger"
+										 update="messages-form-confirm fecharModalAlteracaoEmMassa-panel mensagensGlobaisGroup form-tabela">
+						</p:commandButton>
+					</f:facet>
+				</b:modal>
+				<h:panelGroup id="fecharModalAlteracaoEmMassa-panel">
+					<h:panelGroup rendered="#{fecharModal}">
+						<script type="text/javascript">
+							$('.concluir-modal').modal('hide');
+						</script>
+					</h:panelGroup>
+				</h:panelGroup>
+			</h:form>
+			<h:form id="form-filtro-campos">
+				<b:modal title="#{msg['filtrosCamposProcesso.label']}" styleClass="filtro-campos-modal">
+					<h:panelGroup id="filtro-campos-modal-content-id">
+						<b:row>
+							<b:tabView ajax="true" styleClass="tabViewClass" contentClass="tabViewClass" active-index="0" rendered="#{processoFilaBean.tipoProcessoCampos ne null}"
+									   contentStyle="border-right: 1px solid #ddd;border-left: 1px solid #ddd;border-bottom: 1px solid #ddd;padding:10px">
+								<c:set var="tp" value="#{processoFilaBean.tipoProcessoCampos}"/>
+								<b:tab title="#{tp.nome}" styleClass="tab-log">
+									<div class="row">
+										<div class="col-md-12">
+											<h:panelGroup>
+												<b:messages globalOnly="true" showSummary="true" id="messages-form-confirm"/>
+												<b:tabView ajax="true" styleClass="tabViewClass" contentClass="tabViewClass" active-index="0"
+														   contentStyle="border-right: 1px solid #ddd;border-left: 1px solid #ddd;border-bottom: 1px solid #ddd;padding:10px">
+													<c:forEach items="#{utilBean.toList(tp.tipoCampoGrupo)}" var="grupo">
+														<b:tab title="#{grupo.nome}" styleClass="tab-log" style="color: #cc092f;">
+															<h:panelGroup layout="block" styleClass="row default-form" style="padding: 10px;">
+																<div class="row">
+																	<c:forEach var="tipoCampo" items="#{utilBean.toList(grupo.campos)}">
+																		<div class="col-md-4">
+																			<div class="form-group" style="margin-left: 10px; margin-right: 10px;">
+																				<b:inputText label="#{tipoCampo.nome}" value="#{tipoCampo.valor}"/>
+																				<b:message/>
+																			</div>
+																		</div>
+																	</c:forEach>
+																</div>
+															</h:panelGroup>
+														</b:tab>
+													</c:forEach>
+												</b:tabView>
+											</h:panelGroup>
+										</div>
+									</div>
+								</b:tab>
+							</b:tabView>
+						</b:row>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<p:commandButton value="#{msg['confirmar.label']}" update="fecharModalFiltroCampos-panel form-buscar:countFiltroPorCampos"
+							styleClass="btn btn-danger" actionListener="#{processoFilaBean.confirmarFiltros()}"/>
+					</f:facet>
+				</b:modal>
+				<h:panelGroup id="fecharModalFiltroCampos-panel">
+					<h:panelGroup rendered="#{fecharModal}">
+						<script type="text/javascript">
+                            $('.filtro-campos-modal').modal('hide');
+						</script>
+					</h:panelGroup>
+				</h:panelGroup>
+			</h:form>
+			<h:form id="form-buscar">
+				<h:panelGroup rendered="#{processoFilaBean.mostrarFiltro()}" layout="block" styleClass="row default-form">
+					<div class="col-sm-12">
+						<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+						<span onclick="mostrarMenos()" style="cursor: pointer;" class="hide-row-filtro">
+							<i style="padding-right: 10px;" class="fa fa-minus-square-o" aria-hidden="true"></i>
+							<h:outputText value="#{grupo.nome}"/>
+						</span>
+						<span onclick="mostrarMais()" style="cursor: pointer;" class="show-row-filtro">
+							<i style="padding-right: 10px;" class="fa fa-plus-square-o" aria-hidden="true"></i>
+							<h:outputText value="#{grupo.nome}"/>
+						</span>
+						<div class="row row-filtro" style="margin-top: -20px;">
+							<div class="col-sm-1"></div>
+							<div class="col-sm-5 noMarginBottom">
+								<h:panelGroup rendered="#{processoFilaBean.mostrarFiltroAnalista()}">
+									 <div class="form-group">
+										<b:selectOneMenu value="#{processoFilaBean.filtro.analista}" label="#{msg['analista.label']}">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{processoFilaBean.analistas}" var="usu" itemValue="#{usu}" itemLabel="#{usu.nome}"/>
+										</b:selectOneMenu>
+										<b:message/>
+									</div>
+								</h:panelGroup>
+								<div class="form-group">
+									<b:inputText value="#{processoFilaBean.filtro.processoId}" label="#{msg['numero.label']}" renderLabel="true" maxlength="15"/>
+								</div>
+								<div class="form-group" jsf:id="divTiposProcessos">
+									<h:outputLabel value="#{msg['motivos.label']}"/>
+									<p:selectCheckboxMenu value="#{processoFilaBean.filtro.tiposProcesso}" appendTo="@this" disabled="#{!processoFilaBean.permissaoFiltroTP}"
+														  label="" multiple="true" filter="false" converter="entityConverter" >
+										<f:selectItems value="#{processoFilaBean.tiposProcessos}" var="item" itemLabel="#{item.nome}" itemValue="#{item}" />
+										<p:ajax event="change" process="@this"/>
+										<p:ajax event="toggleSelect" process="@this"/>
+									</p:selectCheckboxMenu>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<b:inputText value="#{processoFilaBean.filtro.cpfCnpj}" label="CPF" styleClass="mask-cpf"/>
+								</div>
+								<div class="form-group" jsf:rendered="#{processoFilaBean.mostrarFiltroCELAC()}">
+									<h:outputLabel value="#{msg['curso.label']}" for="cursos" styleClass="bf-no-message"/>
+									<b:selectOneMenu styleClass="form-control bf-no-message" value="#{processoFilaBean.curso}" id="cursos">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{processoFilaBean.cursos}" var="curso" itemValue="#{curso.label}" itemLabel="#{curso.label}"/>
+									</b:selectOneMenu>
+									<b:message/>
+								</div>
+								<div class="form-group" jsf:rendered="#{processoFilaBean.mostrarFiltroCELAC()}">
+									<h:outputLabel value="#{msg['area.label']}" for="area" styleClass="bf-no-message"/>
+									<b:selectOneMenu styleClass="form-control bf-no-message" value="#{processoFilaBean.area}" id="area">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{processoFilaBean.areas}" var="area" itemValue="#{area.label}" itemLabel="#{area.label}"/>
+									</b:selectOneMenu>
+									<b:message/>
+								</div>
+								<div class="form-group" jsf:rendered="#{processoFilaBean.mostrarFiltroCELAC()}">
+									<h:outputLabel value="#{msg['campus.label']}" for="campus" styleClass="bf-no-message"/>
+									<b:selectOneMenu styleClass="form-control bf-no-message" value="#{processoFilaBean.campus}" id="campus">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{processoFilaBean.campusList}" var="camp" itemValue="#{camp.label}" itemLabel="#{camp.label}"/>
+									</b:selectOneMenu>
+									<b:message/>
+								</div>
+								<div class="form-group" jsf:rendered="#{processoFilaBean.mostrarFiltroCELAC()}">
+									<h:outputLabel value="#{msg['periodo-ingresso.label']}"/>
+									<p:selectCheckboxMenu value="#{processoFilaBean.filtro.periodosIngresso}" appendTo="@this" disabled="#{!processoFilaBean.mostrarFiltroCELAC()}"
+														  label="" multiple="true" filter="true" filterMatchMode="contains" >
+										<f:selectItems value="#{processoFilaBean.periodosIngresso}" var="item" itemLabel="#{item}" itemValue="#{item}" />
+										<p:ajax event="change" process="@this"/>
+										<p:ajax event="toggleSelect" process="@this"/>
+									</p:selectCheckboxMenu>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-5 noMarginBottom">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['situacao.label']}" />
+									<p:selectCheckboxMenu value="#{processoFilaBean.filtro.situacao}" label=""
+											style="form-control bf-no-message has-success" multiple="true"
+											filter="true" filterMatchMode="contains" converter="entityConverter">
+										<f:selectItems value="#{processoFilaBean.situacoes}" var="s" itemValue="#{s}" itemLabel="#{s.tipoProcesso.nome} -> #{s.nome}"/>
+									</p:selectCheckboxMenu>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['status.label']}"/>
+									<p:selectCheckboxMenu value="#{processoFilaBean.filtro.statusArray}"
+											style="form-control bf-no-message has-success" label="" multiple="true"
+											filter="false" panelStyle="width:250px" converter="enumConverter" >
+										<f:selectItems value="#{utilBean.getValues('StatusProcesso')}" var="sp" itemLabel="#{msg['StatusProcesso.'.concat(sp).concat('.label')]}" itemValue="#{sp}" />
+									</p:selectCheckboxMenu>
+									<b:message/>
+								 </div>
+								<div class="form-group">
+									<b:inputText value="#{processoFilaBean.filtro.numCandidatoInscricao}" label="#{msg['codInscricaoCandidato.label']}" id="filtro-matricula">
+										<f:validateLength minimum="3"/>
+									</b:inputText>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<b:inputText value="#{processoFilaBean.filtro.matricula}" label="#{msg['matricula.label']}" styleClass="mask-number"/>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-10 sem-padding-left">
+										<h:outputLabel value="#{msg['tipoProcessoCampos.label']}&nbsp;">
+											<span jsf:id="countFiltroPorCampos" class="badge">
+												<h:outputText value="#{processoFilaBean.filtro.camposFiltro eq null ? 0 : processoFilaBean.filtro.camposFiltro.size()}"/>
+											</span>
+										</h:outputLabel>
+										<b:selectOneMenu value="#{processoFilaBean.tipoProcessoCampos}" valueChangeListener="#{processoFilaBean.bloqueiaTiposProcessos}"
+												ajax="true" update="form-buscar:divBotaoFiltroCampos form-buscar:divTiposProcessos form-buscar:countFiltroPorCampos">
+											<f:selectItem itemLabel="" itemValue=""/>
+											<f:selectItems value="#{processoFilaBean.tiposProcessos}" var="tipoProcesso" itemValue="#{tipoProcesso}" itemLabel="#{tipoProcesso.nome}" />
+										</b:selectOneMenu>
+									</div>
+									<div class="col-sm-2 sem-padding-right" style="margin-top: 14px;">
+										<div jsf:id="divBotaoFiltroCampos" style="float: right;">
+											<div class="form-group" jsf:rendered="#{processoFilaBean.tipoProcessoCampos ne null}">
+												<p:commandLink class="btn" oncomplete="openModal('filtro-campos-modal')"
+															   update="form-filtro-campos:filtro-campos-modal-content-id">
+													<i class="fa fa-filter" aria-hidden="true"/>
+													Add
+												</p:commandLink>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="form-group" jsf:rendered="#{processoFilaBean.CSCAdmin}">
+									<h:outputLabel value="#{msg['proximaSituacao.label']}" />
+									<p:selectCheckboxMenu value="#{processoFilaBean.filtro.proximaSituacao}" label=""
+														  style="form-control bf-no-message has-success" multiple="true"
+														  filter="true" filterMatchMode="contains" converter="entityConverter">
+										<f:selectItems value="#{processoFilaBean.situacoesIsencao}" var="s" itemValue="#{s}" itemLabel="#{s.tipoProcesso.nome} -> #{s.nome}"/>
+									</p:selectCheckboxMenu>
+									<b:message/>
+								</div>
+						 	</div>
+							<div class="col-sm-1"></div>
+						</div>
+						<div class="row row-filtro">
+							<div class="col-sm-1"></div>
+							<div class="col-sm-5" >
+								<div class="form-group">
+									<h:outputLabel value="#{msg['statusPrazo.label']}" />
+									<p:selectCheckboxMenu value="#{processoFilaBean.filtro.statusPrazo}" label=""
+											style="form-control bf-no-message has-success" multiple="true" filter="false" converter="enumConverter"
+											 rendered="${not utilBean.usuarioLogado.isAreaRole()}">
+										<f:selectItems value="#{utilBean.getValues('StatusPrazo')}" var="sp" itemValue="#{sp}" itemLabel="#{msg['StatusPrazo.'.concat(sp).concat('.label')]}"/>
+									</p:selectCheckboxMenu>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-5" >
+								<div class="form-group" style="float: left; ">
+									<b:switch value="#{processoFilaBean.filtro.possuiEmailNaoLido}" label="#{msg['emailNaoLido.label']}"
+											onText="#{msg['sim.label']}" offText="#{msg['nao.label']}" rendered="${not utilBean.usuarioLogado.isAreaRole()}"/>
+								</div>
+								<div class="form-group" style="float: right; margin-left: 10px;">
+									<p:commandButton id="buscarid" value="#{msg['buscar.label']}" styleClass="btn btn-primary btn-md" actionListener="#{processoFilaBean.buscar}"
+											ajax="true" update="form-buscar form-tabela" style="margin-top: 20px"/>
+								</div>
+								<div class="form-group" style="float: right;">
+									<b:commandButton value="#{msg['limpar.label']}" styleClass="btn btn-primary btn-md" actionListener="#{processoFilaBean.limpar}"
+											ajax="true" update="form-buscar form-tabela" style="margin-top: 20px"/>
+								</div>
+							</div>
+							<div class="col-sm-1"></div>
+						</div>
+						<script type="text/javascript">
+							$('.hide-row-filtro').hide();
+							$('.show-row-filtro').show();
+							$('.row-filtro').hide();
+						</script>
+						<script type="text/javascript">
+							function mostrarMenos() {
+								$('.hide-row-filtro').hide();
+								$('.show-row-filtro').show();
+								$('.row-filtro').hide(300);
+							}
+
+							function mostrarMais() {
+								$('.hide-row-filtro').show();
+								$('.show-row-filtro').hide();
+								$('.row-filtro').show(300);
+							}
+						</script>
+					 </div>
+				</h:panelGroup>
+			</h:form>
+			<h:form id="form-tabela">
+				<o:commandScript name="setDynamicFalse2" actionListener="#{processoFilaBean.atualizaDynamicSort(false)}"/>
+				<div class="row">
+					<div class="col-sm-12}">
+						<!-- <h:panelGroup rendered="#{not empty processoFilaBean.mapCountStatus}">
+							<div style="float: left; margin-left: 20px; margin-top: 15px; font-style: italic;">
+								<i class="fa fa-info" aria-hidden="true" style="color: #5bc0de; font-weight: bold; font-size: 16px; padding-right: 5px;"></i>
+								<c:set var="map" value="#{processoFilaBean.mapCountStatus}"/>
+								<c:forEach items="#{map.keySet()}" var="key">
+									<span style="padding-right: 15px;">
+									    #{msg['StatusProcesso.'.concat(key).concat('.label')]}: <b>#{map.get(key)}</b>.
+									</span>
+								</c:forEach>
+							</div>
+						</h:panelGroup> -->
+						<div style="float: right; margin-bottom: 5px; margin-right: 15px;">
+							<!-- <h:link outcome="processo-novo.xhtml" rendered="#{menuBean.podeCadastrar()}" class="btn btn-primary #{utilBean.usuarioLogado.isRequisitanteRole() ? 'btn-lg' : ''}" style="vertical-align: bottom;">
+								#{msg['adicionarProcesso.label']}
+							</h:link> -->
+	 						<p:commandLink value="#{msg['proximaRequisicao.label']}" class="btn btn-primary btn-lg" style="margin-left: 5px;" update="content-pg-id"
+	 								actionListener="#{processoFilaBean.proximaRequisicao}" rendered="#{menuBean.podeEditar() and utilBean.usuarioLogado.isAnalistaRole() and processoFilaBean.podeVerificarProxima() and not pausaBean.estaEmPausa()}">
+							</p:commandLink>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12">
+						<p:dataTable id="tabela-id" var="vo" value="#{processoFilaBean.dataModel}" rows="30" paginator="true" lazy="true"
+									 paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}" styleClass="tableFilaTrabalho"
+									 currentPageReportTemplate="Total: {totalRecords}" scrollable="true" emptyMessage="#{msg['emptyMessage.label']}"
+									 paginatorPosition="bottom" rowKey="#{vo.processo.id}" selection="#{processoFilaBean.processosSelecionados}">
+							<p:ajax event="sort" oncomplete="pintarLinhas('tableFilaTrabalho')"/>
+							<p:ajax event="page" oncomplete="pintarLinhas('tableFilaTrabalho')"/>
+							<p:column selectionMode="multiple" style="width:50px;text-align:center" rendered="#{processoFilaBean.podeTrocarAnalistas()}"/>
+							<p:column headerText="#{msg['status.label']}" style="width: 80px;" sortBy="#{vo.processo.status}">
+								<img title="#{msg['StatusProcesso.'.concat(vo.processo.status).concat('.label')]}" class="status-processo statusPrazo-#{vo.statusPrazo}"
+										src="#{request.contextPath}/resources/images/icons/StatusProcesso-#{vo.processo.status}.png" width="28px"/>
+								<img title="#{vo.mensagemBloqueio}" src="#{request.contextPath}/resources/images/blocked.png" width="14px;" align="center"
+										class="msg-bloqueio msg-bloqueio-#{vo.processo.id}" style="#{not empty vo.mensagemBloqueio ? '' : 'display: none'} "/>
+								<h:panelGroup rendered="#{not utilBean.usuarioLogado.isAreaRole()}">
+									<h:panelGroup rendered="#{vo.evidenciaNaoLida eq true}">
+										<img title="Nova evidência"
+												src="#{request.contextPath}/resources/images/icons/digital.png"
+												width="14px" style="vertical-align: bottom;"/>
+									</h:panelGroup>
+									<h:panelGroup rendered="#{vo.reenvioNaoLido eq true}">
+										<img title="Reenvio"
+												src="#{request.contextPath}/resources/images/ifcons/reenviar.png"
+												width="14px" style="vertical-align: bottom;"/>
+									</h:panelGroup>
+									<ui:repeat value="#{vo.alertasSolicitacoes}" var="ss">
+											<img title="Possui solicitações: #{msg['StatusSolicitacao.'.concat(ss.statusSolicitacao).concat('.label')]}"
+													src="#{request.contextPath}/resources/images/icons/StatusSolicitacao-#{ss.statusSolicitacao}.png"
+													class="#{ss.animarAlerta ? 'animarBlink' : ''}" width="14px" style="vertical-align: bottom;"/>
+									</ui:repeat>
+								</h:panelGroup>
+								<h:panelGroup rendered="#{vo.possuiEmailNaoLido}">
+									<img alt="" title="E-mails não lidos" style="vertical-align: bottom; width: 13px; height: 12px;"
+											src="#{request.contextPath}/resources/images/icons/carta-fechada.png"/>
+								</h:panelGroup>
+							</p:column>
+							<p:column headerText="#{msg['numero.label']}" style="width: 70px; text-align: right;" styleClass="processoIdColumn">
+								<h:outputText value="#{vo.numero}" />
+							</p:column>
+							<p:column headerText="#{msg['tempoRestante.label']}" style="width: 170px;">
+								<h:outputText value="#{msg['daEtapa.label']}:" style="text-align: left;"/>
+								<h:outputText value="#{vo.horasRestantesEtapa}" style="float: right" rendered="#{not utilBean.usuarioLogado.isAreaRole()}"/>
+								<h:outputText value="#{vo.horasRestantesArea}" style="float: right;" rendered="#{utilBean.usuarioLogado.isAreaRole()}"/><br></br>
+								<h:panelGroup rendered="#{not utilBean.usuarioLogado.isAreaRole()}">
+									<h:outputText value="#{msg['daSituacao.label']}:" style="text-align: left;"/>
+									<h:outputText value="#{vo.horasRestantesSituacao}" style="float: right;"/>
+								</h:panelGroup>
+							</p:column>
+							<p:column headerText="#{msg['motivo.label']}" style="text-align: center;" sortBy="#{vo.processo.tipoProcesso.id}">
+								<h:outputText value="#{vo.processo.tipoProcesso.nome}" />
+							</p:column>
+							<p:column headerText="#{msg['situacao.label']}" style="text-align: center;" sortBy="#{vo.processo.situacao.id}">
+								<h:outputText value="#{vo.processo.situacao.nome}" />
+							</p:column>
+							<p:column headerText="#{msg['dataEnvio.label']}" style="width: 125px; text-align: center;" sortBy="#{vo.processo.dataEnvioAnalise}" rendered="#{!utilBean.isSubPerfilSID()}">
+								<h:outputText value="#{utilBean.getDateTimeStr(vo.processo.dataEnvioAnalise)}" />
+							</p:column>
+							<p:column headerText="#{msg['dataFimEmAcompanhamento.label']}" style="width: 125px; text-align: center;" sortBy="#{vo.processo.prazoLimiteEmAcompanhamento}" rendered="#{utilBean.isSubPerfilSID()}">
+								<h:outputText value="#{utilBean.getDateTimeStr(vo.processo.prazoLimiteEmAcompanhamento)}" />
+							</p:column>
+							<!-- colunas personalizadas -->
+							<c:forEach items="#{processoFilaBean.colunasPersonalizadas.entrySet()}" var="coluna">
+								<p:column headerText="#{coluna.key}" style="width: auto;" >
+									<f:facet name="header">
+										<p:commandLink update="form-buscar form-tabela" action="#{processoFilaBean.montaOrdemDinamica}"
+													   styleClass="dynamic-sort-btn" style="margin-left:2px; text-decoration: none;" oncomplete="setDynamicFalse()">
+											<f:setPropertyActionListener target="#{processoFilaBean.filtro.dynamicSort}" value="#{true}" />
+											<f:setPropertyActionListener target="#{processoFilaBean.ordemDinamica.key}" value="#{coluna.key}" />
+											<f:setPropertyActionListener target="#{processoFilaBean.ordemDinamica.order}"
+																		 value="#{processoFilaBean.filtro.ordem == null ?
+																			'ASCENDING' : 'ASCENDING'.equals(processoFilaBean.filtro.ordem.name()) ? 'DESCENDING' : null}" />
+											<h:outputText value="#{coluna.key}" />
+											<i class="#{(processoFilaBean.filtro.ordem != null and processoFilaBean.ordemDinamica.key.equals(coluna.key)) ?
+												('ASCENDING'.equals(processoFilaBean.filtro.ordem.name()) ?
+												'ui-sortable-column-icon ui-icon ui-icon-carat-2-n-s ui-icon-triangle-1-n' : 'ui-sortable-column-icon ui-icon ui-icon-carat-2-n-s ui-icon-triangle-1-s') : 'ui-sortable-column-icon ui-icon ui-icon-carat-2-n-s'}"></i>
+										</p:commandLink>
+									</f:facet>
+									<c:set var="tipoCamposIds" value="#{processoFilaBean.colunasPersonalizadas.get(coluna.key)}" />
+									<c:set var="campos" value="#{processoFilaBean.findCamposColunaPersonalizada(tipoCamposIds, vo.processo.id)}" />
+									<ui:repeat value="#{campos}" var="campo">
+										<h:outputText value="#{utilBean.capitalize(campo.nome)}: " rendered="#{campos.size() > 1}" />
+										<h:outputText value="#{campo.valor}" rendered="#{campo.baseInterna eq null}" />
+										<h:outputText value="#{processoFilaBean.getValorBaseInternaLabel(campo.baseInterna.id, campo.valor)}"
+													  rendered="#{campo.baseInterna ne null}" />
+										<br/>
+									</ui:repeat>
+								</p:column>
+							</c:forEach>
+							<p:column headerText="#{msg['analista.label']}" style="width: 125px; text-align: center;" sortBy="#{vo.processo.analista.nome}" rendered="#{processoFilaBean.filaConfiguracao.exibirColunaAnalista}">
+								<h:outputText value="#{vo.processo.analista.nome}" />
+							</p:column>
+							<p:column style="width: 80px;" sortable="false">
+								<a href="#{request.contextPath}/requisicoes/fila/edit/#{vo.processo.id}" style="width: 60px" class="btn btn-info btn-editar">
+									<h:outputText value="#{msg['abrir.label']}"/>
+								</a>
+							</p:column>
+							<f:facet name="footer">
+								<b:row class="row" rendered="#{processoFilaBean.dataModel.processosIds.size() > 0}">
+									<div class="col-sm-12 ui-paginator-current">
+										<h:outputText value="#{msg['irParaPagina.label']}"/>: &nbsp;
+										<p:inputText onfocus="(this.value='')" style="width:50px" value="#{processoFilaBean.filtro.paginacao}" />
+										<p:commandLink  style="text-decoration: none" update="tabela-id" action="#{utilBean.goToPage('form-tabela:tabela-id')}" >
+											<f:setPropertyActionListener target="#{utilBean.pagina}" value="#{processoFilaBean.filtro.paginacao}" />
+											<span style="font-size: 16px">&raquo;</span>
+										</p:commandLink>
+									</div>
+								</b:row>
+								<b:row rendered="#{processoFilaBean.podeTrocarAnalistas()}" style="text-align: left; background-color: #fff; padding-top: 5px;">
+									<div class="col-sm-5">
+										<div class="form-group">
+											<b:selectOneMenu value="#{processoFilaBean.novoAnalista}" label="#{msg['novAnalista.label']}" required="false">
+												<f:selectItem itemValue="" itemLabel=""/>
+												<f:selectItems value="#{processoFilaBean.analistas}" var="s" itemValue="#{s}" itemLabel="#{s.nome}"/>
+											</b:selectOneMenu>
+											<b:message/>
+										</div>
+									</div>
+									<div class="col-sm-1">
+										<b:commandButton process="tabela-id" update="mensagensGlobaisGroup form-buscar form-tabela" value="#{msg['salvar.label']}"
+												styleClass="btn btn-primary btn-md" style="margin-top: 20px; font-size: 14px;"
+												actionListener="#{processoFilaBean.trocarAnalistas()}"/>
+									</div>
+									<div class="col-sm-3">
+										<div class="form-group">
+										</div>
+									</div>
+									<div class="col-sm-2" jsf:rendered="#{processoFilaBean.CSCAdmin}">
+										<p:commandLink onerror="alert('Erro!')"
+													   process="tabela-id"
+													   styleClass="btn btn-primary btn-md" style="color: #fff; margin-top: 20px; font-size: 14px;"
+													   onsuccess="openModal('alterar-situacao-isencao-modal');"
+													   update="form-alteracao-situacao-em-massa-isencao:alteracao-situacao-isencao-modal-content-id">
+											#{msg['alteracaoSituacaoProcessosIsencao.label']}
+										</p:commandLink>
+									</div>
+									<div class="col-sm-1">
+										<p:commandLink onerror="alert('Erro!')"
+												process="tabela-id"
+												styleClass="btn btn-primary btn-md" style="color: #fff; margin-top: 20px; font-size: 14px;"
+												onsuccess="openModal('concluir-modal');"
+												update="form-concluir:concluir-modal-content-id">
+											#{msg['concluir.label']}
+										</p:commandLink>
+									</div>
+								</b:row>
+							</f:facet>
+						</p:dataTable>
+						<script type="text/javascript">
+						//<![CDATA[
+						function pintarLinhas(cssClass) {
+
+							$('tr', '.' + cssClass).each(function() {
+								var thiz = $(this)
+								var icone = $('.status-processo', $('td:first', thiz));
+								icone = icone.length > 0 ? icone : $('.status-processo', $('td:nth-child(2)', thiz));
+
+								if(icone.hasClass('statusPrazo-ALERTAR')) {
+
+									if(thiz.hasClass('ui-datatable-even')) {
+										thiz.css('background-color', '#e39090');
+									}
+									else {//ui-datatable-odd
+										thiz.css('background-color', '#efa5a5');
+									}
+								}
+								else if(icone.hasClass('statusPrazo-ADVERTIR')) {
+									if(thiz.hasClass('ui-datatable-even')) {
+										thiz.css('background-color', '#fddd8e');
+									}
+									else {//ui-datatable-odd
+										thiz.css('background-color', '#ffe4a3');
+									}
+								}
+							});
+						}
+
+							pintarLinhas('tableFilaTrabalho');
+
+							jQuery(document).ready(function() {
+								setTimeout('verificarBloqueio()', 3000);
+							});
+
+							function setDynamicFalse(){
+								setDynamicFalse2({});
+							}
+
+							function atualizarBloqueios(pb) {
+								
+								$('.msg-bloqueio').hide();
+								
+								for (var key in pb) {
+								    if (pb.hasOwnProperty(key)) {
+										$('.status-processo-' + key).removeClass('statusPrazo-ALERTAR');
+										$('.msg-bloqueio-' + key).attr('title', 'Este processo está atualmente bloqueado por ' + pb[key] + '.');
+										$('.msg-bloqueio-' + key).show();
+								    }
+								}
+								
+								setTimeout('verificarBloqueio()', 5000);
+							}
+
+							function verificarBloqueio() {
+
+								let i = 0;
+								let processos = [];
+								$('td.processoIdColumn').each(function() {
+									processos[i++] = $(this).html();
+								});
+
+								$.ajax({
+									url: '#{request.contextPath}/rest/fila-trabalho/v1/verificar-bloqueio',
+									type: "POST",
+									headers: {
+										'Accept': 'application/json',
+										'Content-Type': 'application/json'
+									},
+									'dataType': 'json',
+									data: JSON.stringify(processos),
+									success: function(response){
+										atualizarBloqueios(response);
+									}
+								});
+							}
+						//]]>
+						</script>
+					</div>
+				</div>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

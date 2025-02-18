@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+
+	<composite:interface>
+		<composite:attribute name="title" required="true"/>
+		<composite:attribute name="style" required="true"/>
+		<composite:attribute name="icon" required="true"/>
+		<composite:attribute name="processoRegra" required="true" type="net.wasys.getdoc.domain.entity.ProcessoRegra"/>
+	</composite:interface>
+
+	<composite:implementation>
+		<o:importConstants type="net.wasys.getdoc.domain.enumeration.StatusProcessoRegra" />
+		<style>
+			.desc-regra-modal .modal-dialog {
+				width: 1000px;
+				padding-top: 0;
+			}
+			.desc-regra-modal > .row > div {
+			    margin-bottom: 0px;
+			}
+			.condicionalJs-modal .modal-dialog {
+			    width: 900px;
+			    padding-top: 100px;
+			}
+			.params-modal .modal-dialog {
+			    width: 900px;
+			    padding-top: 100px;
+			}
+		</style>
+		<link href="#{request.contextPath}/resources/css/prism.css" rel="stylesheet"/>
+		<o:importConstants type="net.wasys.getdoc.domain.enumeration.TipoSubRegra" />
+		<o:importConstants type="net.wasys.getdoc.domain.enumeration.TipoConsultaExterna" />
+		<o:importConstants type="net.wasys.getdoc.domain.enumeration.FarolRegra" />
+		<h:form id="form-regraInfo">
+			<div class="row">
+				<div class="col-sm-12 noMarginBottom">
+					<div class="alert alert-#{cc.attrs.style} alert-labeled" style="padding: 0px; margin-bottom: 10px;">
+		                <div class="alert-labeled-row">
+		                    <span class="alert-label alert-label-left alert-labelled-cell" style="padding-right: 5px;" title="#{cc.attrs.title}">
+		                        <i class="fa #{cc.attrs.icon}"></i>
+		                    </span>
+		                    <p class="alert-body alert-body-right alert-labelled-cell" style="width: 100%; padding-left: 0;" title="#{cc.attrs.processoRegra.regra.descricao}">
+								##{cc.attrs.processoRegra.regra.id} #{cc.attrs.processoRegra.regra.nome}
+		                    </p>
+		                    <span class="alert-label alert-label-right alert-labelled-cell" style="padding-left: 0px; padding-right: 6px;" >
+			                    <p:commandLink oncomplete="openModal('desc-regra-modal-#{cc.attrs.processoRegra.id}')" title="Detalhes">
+									<p:ajax listener="#{processoEditBean.carregarProcessoRegraLogs(cc.attrs.processoRegra)}" update="table-regra-log-content-id"/>
+									<i class="fa fa-file-text-o" aria-hidden="true"></i>
+								</p:commandLink>
+		                    </span>
+		                    <span class="alert-label alert-label-right alert-labelled-cell" style="padding-left: 0px" jsf:rendered="#{processoEditBean.autorizacao.podeReprocessarRegra(cc.attrs.processoRegra)}">
+			                    <p:commandLink oncomplete="openModal('reprocessarRegra-confim-modal'); return false;" title="Reprocessar regra">
+									<p:ajax listener="#{processoEditBean.carregarRegra(cc.attrs.processoRegra)}" update="table-regra-log-content-id"/>
+									<i class="fa fa-repeat" aria-hidden="true"></i>
+								</p:commandLink>
+		                    </span>
+							<div style="color: #555; padding: 0px 10px 10px 30px; margin-top: -10px; overflow: auto;">
+								<h:outputText escape="false" value="##{cc.attrs.processoRegra.subRegraFinalId} - #{utilBean.stringToHTML(cc.attrs.processoRegra.mensagem)}"/>
+							</div>
+		                </div>
+		            </div>
+	            </div>
+			</div>
+			<b:modal id="desc-regra-modal-id" title="#{ msg['detalhesRegraProcesso.label'] }" close-on-escape="false" backdrop="false"
+					styleClass="desc-regra-modal desc-regra-modal-#{cc.attrs.processoRegra.id}">
+				<h:panelGroup id="table-regra-log-content-id">
+					<getdoc:sumarioRegra processoRegra="#{cc.attrs.processoRegra}"/>
+				</h:panelGroup>
+			</b:modal>
+		</h:form>
+	</composite:implementation>
+</html>

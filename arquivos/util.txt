@@ -1,0 +1,70 @@
+
+exportar thread dump (https://fastthread.io/)
+    docker exec -it getdoc-captacao /bin/bash
+    ps -ef | grep java
+	jstack -l <PID do processo java> > /getdoc/downloads/dump.txt
+
+
+--dump no servidor
+pg_dump getdoc_aluno -f /opt/dumps/getdoc_aluno-20190802.sql
+pg_dump -U postgres -d getdoc_captacao -f /tmp/getdoc_captacao.sql
+psql getdoc_aluno < /tmp/getdoc_aluno04-07-2019.sql
+psql novar2prod < /tmp/novar2.sql
+
+felipe	psql -U getdoc_aluno -d getdoc_aluno -f "C:\Users\Guilherme - Wasys\Desktop\getdoc_aluno09-07-2019.sql"
+felipe	"C:\Program Files\PostgreSQL\9.6\bin\psql" -U getdoc_captacao -d getdoc_captacao -f D:\tmp\dump\getdoc_captacao-2019.11.01.sql
+felipe	"C:\Program Files\PostgreSQL\9.6\bin\pg_dump" -U getdoc_captacao -W -Fc -Z 9 --exclude-table-data=log_acesso --exclude-table-data=log_alteracao --exclude-table-data=consulta_externa --exclude-table-data=consulta_externa_log --exclude-table-data=login_log --exclude-table-data=sessao_http_request --file=D:\tmp\dump\getdoc_captacao_hml_rdz-2020.08.25.dump getdoc_captacao
+felipe	"C:\Program Files\PostgreSQL\10\bin\pg_restore" -Fc -d getdoc_captacao -U getdoc_captacao C:\tmp\dumps\getdoc_captacao-2022.02.08-redz.dump
+prod 	psql -U getdoc_aluno -d getdoc_aluno -f /tmp/getdoc_aluno.sql
+
+pg_dump -Fc -Z 9 --exclude-table-data=log_acesso --exclude-table-data=log_alteracao --exclude-table-data=consulta_externa --exclude-table-data=consulta_externa_log --exclude-table-data=login_log --exclude-table-data=sessao_http_request --exclude-table-data=endereco_cep --file=/opt/dumps/getdoc_captacao-2022.02.08-redz.dump getdoc_captacao
+pg_restore -Fc /opt/dumps/getdoc_captacao-2021.02.11-redz.dump -d getdoc_captacao
+
+pg_dump getdoc_5 -f /tmp/getdoc_5.backup
+psql getdoc_aluno < /tmp/getdoc_aluno.sql    ou    psql -U getdoc_5 -d getdoc_5 -f d:\tmp\dump\getdoc_5.sql
+
+
+Servidor NGINX1:
+    10.221.242.184
+Servidor NGINX2:
+    10.221.242.183
+Servidor GETDOC1:
+    10.221.242.185
+    Docker configurado com wildfly (getdoc-aluno)
+Servidor GETDOC2:
+    10.221.242.186
+    Docker configurado com wildfly (getdoc-aluno)
+Servidor DATABASE1 Aluno Prod:
+    10.221.242.187
+Servidor BI e Geral Estácio e Tipificação:
+    10.221.242.60
+Servidor Homolog:
+	10.221.242.95
+Servidor GETDOC3 Captacao Prod
+    10.221.242.100
+Servidor GETDOC4 Captacao Backup Prod
+	10.221.242.86
+Servidor DATABASE2 Captacao Prod
+	10.221.242.96
+Todos com acesso SSH, usuário userwasys e a senha W@sys2019.
+
+Servidor OCR Space
+    10.222.248.82
+    Para logar tem que acessar primeiro o 10.221.240.128 via mstsc (.\wasys.ext W@sys@2019).
+    Depois acessar o 10.222.248.82 (.\wasys.ext Neobpo@20191234)
+    Página de teste: http://10.222.248.82:8083/
+    O executável deve estar rodando: C:\OCR.Space.Local\OCREngine1\OCREngine.exe
+    Configurações em: C:\OCR.Space.Local\OCRAPI\Web.config
+    Logs em C:\OCR.Space.Local\OCRAPI\Log\OCRWebAPILog.log
+
+Servidores DR
+    10.221.230.135 NGINX
+    10.221.230.136 Aplicação
+    10.221.230.137 Banco
+
+Teste Login Azure:
+	Login: ged_getdoc@estacio.br
+    Senha: 8?9nFdf7
+
+ssh userwasys@10.221.242.100
+ssh userwasys@10.221.242.86

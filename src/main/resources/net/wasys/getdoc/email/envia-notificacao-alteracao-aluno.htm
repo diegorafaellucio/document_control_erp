@@ -1,0 +1,51 @@
+<html>
+<head>
+	<style type="text/css">
+		.tabelaAtrasos td, th {
+			border: 1px black solid;
+			padding: 1px 5px 1px 5px;
+		}
+		.tabelaAtrasos a {
+			color: #3c4749;
+		}
+		.tabelaAtrasos th {
+			font-weight: bold;
+		}
+	</style>
+</head>
+<body style="width: 100%;">
+<center>
+	<table style="width: 650px; height: 400px; text-align: left; border: 1px #f2f2f2 solid;">
+		<tr>
+			<td style="background-color: #f2f2f2; padding: 10px 20px; height: 60px;">
+				<img src="$logoImagemUrl" width="200px"/>
+			</td>
+		</tr>
+		<tr>
+			<td style="padding: 10px 50px 50px 50px;">
+				<h1>Notifica&ccedil;&atilde;o de Alteração de Dados do Aluno</h1>
+				<p>Processo: <b>$processo.id</b></p>
+				<table style="width: 650px; height: 170px; text-align: left; border: 1px #f2f2f2 solid;">
+					<tr>
+						<th style="background-color: #f2f2f2; padding: 10px 20px; height: 60px;">
+							De:
+						</th>
+						<th style="background-color: #f2f2f2; padding: 10px 20px; height: 60px;">
+							Para:
+						</th>
+					</tr>
+					<tr>
+						<td style="padding: 0px 50px 0px 50px; vertical-align: top;">Nome: $alunoOld.nome</td>
+						<td style="padding: 0px 50px 0px 50px; vertical-align: top;">Nome: $alunoNew.nome</td>
+					</tr>
+					<tr>
+						<td style="padding: 0px 50px 0px 50px; vertical-align: top;">Cpf: $alunoOld.cpf</td>
+						<td style="padding: 0px 50px 0px 50px; vertical-align: top;">Cpf: $alunoNew.cpf</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+</center>
+</body>
+</html>

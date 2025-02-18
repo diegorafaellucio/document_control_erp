@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+    xmlns:o="http://omnifaces.org/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+	<f:metadata>
+		<f:viewAction action="#{tipoProcessoCrudBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['tipoProcessoCrud.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<style>
+				.modal-dialog {
+				    width: 750px;
+				}
+			</style>
+            <o:importConstants type="net.wasys.getdoc.domain.enumeration.TipoPrazo" />
+			<h:form id="form-tipoProcesso">
+				<b:modal id="tipoProcesso-modal-id" title="#{msg['adicionarTipoProcesso.label']}" styleClass="tipoProcesso-modal" rendered="#{menuBean.podeEditar()}">
+					<b:row id="tipoProcesso-modal-content-id">
+						<div class="col-sm-12">
+							<b:messages globalOnly="true" showSummary="true"/>
+							<div class="row">
+								<div class="col-sm-12">
+									<div class="form-group">
+										<b:inputText value="#{tipoProcessoCrudBean.tipoProcesso.nome}" placeholder="#{msg['nome.label']}"
+											label="#{msg['nome.label']}" renderLabel="true"
+											maxlength="100" required="true"/>
+										<b:message/>
+							 		</div>
+									<div class="row">
+										<div class="col-sm-4">
+											<div class="form-group">
+												<h:outputLabel value="#{msg['prazo.label']}" for="prazo-id"/>
+												<div class="form-inline">
+													<b:inputText id="prazo-id" value="#{tipoProcessoCrudBean.prazo}" maxlength="4" styleClass="mask-number" style="width: 60px" rendered="true">
+														<f:convertNumber pattern="####"/>
+													</b:inputText>
+													<b:message/>
+													<b:selectOneMenu value="#{tipoProcessoCrudBean.tipoProcesso.tipoPrazo}" rendered="#{not empty tipoProcessoCrudBean.tipoProcesso}">
+														<f:selectItems value="#{TipoPrazo}" var="t" itemValue="#{t}" itemLabel="#{msg['TipoPrazo.'.concat(t).concat('.label')]}" />
+													</b:selectOneMenu>
+													<b:message/>
+												</div>
+											</div>
+                                       </div>
+										<div class="col-sm-4">
+											<div class="form-group">
+												<h:outputLabel value="#{msg['prazoAdvertir.label']}" for="prazo-advertencia-id"/>
+												<div class="form-inline">
+													<b:inputText id="prazo-advertencia-id" value="#{tipoProcessoCrudBean.prazoAdvertir}" maxlength="4" renderLabel="false"
+															styleClass="mask-number" style="width: 60px" rendered="true" required="true" label="#{msg['prazoAdvertir.label']}">
+														<f:convertNumber pattern="####"/>
+													</b:inputText>
+													<b:message/>
+													<b:selectOneMenu value="#{tipoProcessoCrudBean.tipoProcesso.tipoPrazoAdvertir}" rendered="#{not empty tipoProcessoCrudBean.tipoProcesso}">
+														<f:selectItems value="#{TipoPrazo}" var="t" itemValue="#{t}" itemLabel="#{msg['TipoPrazo.'.concat(t).concat('.label')]}" />
+													</b:selectOneMenu>
+													<b:message/>
+												</div>
+											</div>
+                                       </div>
+										<div class="col-sm-4">
+											<b:inputText value="#{tipoProcessoCrudBean.tipoProcesso.nivelPrioridade}" label="Nível de Prioridade"
+													maxlength="4" styleClass="mask-number" style="width: 150px">
+												<f:convertNumber pattern="####"/>
+											</b:inputText>
+											<b:message/>
+										</div>
+										<div class="col-sm-4">
+											<h:outputLabel value="#{msg['isAtivo.label']}" for="ativoId"/>
+											<h:selectOneRadio id="ativoId" value="#{tipoProcessoCrudBean.tipoProcesso.ativo}" label="#{msg['isAtivo.label']}" styleClass="radio-default">
+												<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+												<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}" />
+											</h:selectOneRadio>
+											<b:message/>
+										</div>
+										<div class="col-sm-4">
+											<h:outputLabel value="#{msg['isAnaliseIsencao.label']}" for="isencaoId"/>
+											<h:selectOneRadio id="isencaoId" value="#{tipoProcessoCrudBean.tipoProcesso.isencaoDisciplinas}" label="#{msg['isAnaliseIsencao.label']}" styleClass="radio-default">
+												<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+												<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}" />
+												<f:ajax event="change" execute="isencaoId" render="preAnaliseIsencao"/>
+											</h:selectOneRadio>
+											<b:message/>
+										</div>
+										<h:panelGroup id="preAnaliseIsencao">
+											<div class="col-sm-4" jsf:rendered="#{tipoProcessoCrudBean.tipoProcesso.isencaoDisciplinas eq true}">
+												<h:outputLabel value="#{msg['isPreAnaliseIsencao.label']}" for="preIsecaoId"/>
+												<h:selectOneRadio id="preIsecaoId" value="#{tipoProcessoCrudBean.tipoProcesso.possuiPreIsencaoDisciplinas}" label="#{msg['isPreAnaliseIsencao.label']}" styleClass="radio-default">
+													<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+													<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}" />
+												</h:selectOneRadio>
+												<b:message/>
+											</div>
+										</h:panelGroup>
+                                   </div>
+									<div class="form-group" jsf:rendered="#{not empty tipoProcessoCrudBean.tipoProcesso}">
+										<b:selectOneMenu id="situacaoInicialId" value="#{tipoProcessoCrudBean.tipoProcesso.situacaoInicial}" label="Situação Inicial de Análise"
+												styleClass="radio-default">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{tipoProcessoCrudBean.situacoes}" var="item" itemValue="#{item}" itemLabel="#{item.nome}"/>
+										</b:selectOneMenu>
+										<b:message/>
+									</div>
+									<div class="form-group" jsf:rendered="#{not empty tipoProcessoCrudBean.tipoProcesso}">
+										<b:selectOneMenu id="situacaoDestinoId" value="#{tipoProcessoCrudBean.tipoProcesso.situacaoDestinoConclusao}" label="Situação de Conclusão"
+														 styleClass="radio-default">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{tipoProcessoCrudBean.situacoes}" var="item" itemValue="#{item}" itemLabel="#{item.nome}"/>
+										</b:selectOneMenu>
+										<b:message/>
+									</div>
+							 		<div class="form-group">
+										<b:inputTextarea value="#{tipoProcessoCrudBean.tipoProcesso.dica}" label="#{msg['dica.label']}" renderLabel="true" maxlength="200" rows="3"/>
+										<b:message/>
+									</div>
+									<div class="form-group noMarginBottom">
+										<div class="row">
+											<div class="col-sm-6">
+												<h:outputLabel value="#{msg['preencherViaOcr.label']}" for="preencherViaOcrId"/>
+												<h:selectOneRadio id="preencherViaOcrId" value="#{tipoProcessoCrudBean.tipoProcesso.preencherViaOcr}" label="#{msg['preencherViaOcr.label']}" styleClass="radio-default">
+													<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+													<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}" />
+												</h:selectOneRadio>
+												<b:message/>
+											</div>
+										</div>
+									</div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <h:outputLabel value="#{msg['permitirEnvioComRegrasEm.label']}" for="permitirEnvioRegrasId"/>
+                                                <p:selectManyCheckbox id="permitirEnvioRegrasId" value="#{tipoProcessoCrudBean.permissoeseEnvioFarolRegra}" layout="grid"
+                                                                      columns="4" label="#{msg['permitirEnvio.label']}" required="true">
+                                                    <f:selectItems value="#{utilBean.getValues('FarolRegra')}" var="p1" itemLabel="#{msg['FarolRegra.'.concat(p1.name()).concat('.label')]}" itemValue="#{p1}" />
+                                                </p:selectManyCheckbox>
+                                                <b:message/>
+                                            </div>
+                                        </div>
+                                    </div>
+									<div class="form-group">
+										<h:outputLabel value="Perfis com Permissão de Cadastro *" for="permissoesId"/>
+										<p:selectManyCheckbox id="permissoesId" value="#{tipoProcessoCrudBean.permissoesSelecionadas}" layout="grid"
+												columns="4" label="#{msg['permissoes.label']}" required="true">
+											<f:selectItems value="#{utilBean.getValues('PermissaoTP')}" var="p" itemLabel="#{msg['PermissaoTP.'.concat(p.name()).concat('.label')]}" itemValue="#{p}" />
+										</p:selectManyCheckbox>
+										<b:message/>
+									</div>
+								</div>
+							</div>
+						</div>
+						<h:panelGroup rendered="#{fecharModal}">
+							<script type="text/javascript">
+								$('.tipoProcesso-modal').modal('hide');
+							</script>
+						</h:panelGroup>
+					</b:row>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['salvar.label']}" actionListener="#{tipoProcessoCrudBean.salvar()}" update="tipoProcesso-modal-content-id form-tipoProcesso-list mensagensGlobaisGroup" styleClass="btn" rendered="#{menuBean.podeEditar()}"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<div class="row">
+				<div class="col-sm-12" style="float: right;">
+					<div style="float: right; vertical-align: bottom;">
+						<p:commandLink value="#{msg['adicionarTipoProcesso.label']}" onclick="openModal('tipoProcesso-modal')" class="btn btn-primary btn-lg" style="float: right;"
+								update="form-tipoProcesso:tipoProcesso-modal-content-id" rendered="#{menuBean.podeEditar()}">
+							<f:setPropertyActionListener target="#{tipoProcessoCrudBean.tipoProcesso}" value="#{null}" />
+						</p:commandLink>
+					</div>
+				</div>
+			</div>
+			<getdoc:excluirModal id="excluirModal" metodoExcluir="#{tipoProcessoCrudBean.excluir()}"/>
+			<h:form id="form-tipoProcesso-list">
+					<div class="row">
+						<p:dataTable var="vo" value="#{tipoProcessoCrudBean.dataModel}" rows="50" paginator="true" lazy="true" paginatorPosition="bottom"
+									 paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+									 currentPageReportTemplate="Total: {totalRecords}" scrollable="true" emptyMessage="#{msg['emptyMessage.label']}"
+									 stickyHeader="true" stickyTopAt=".layout-topbar">
+							<p:column headerText="ID" style="text-align: center; width: 70px;">
+								<h:outputText value="#{vo.tipoProcesso.id}" />
+							</p:column>
+							<p:column headerText="#{msg['nome.label']}" sortBy="#{vo.tipoProcesso.nome}">
+								<h:outputText value="#{vo.tipoProcesso.nome}"/>
+							</p:column>
+							<p:column headerText="#{msg['viaOcr.label']}" style="width: 100px; text-align: center;" sortBy="#{vo.tipoProcesso.preencherViaOcr}">
+								<h:outputText value="#{msg['sim.label']}" rendered="#{vo.tipoProcesso.preencherViaOcr}"/>
+								<h:outputText value="#{msg['nao.label']}" rendered="#{!vo.tipoProcesso.preencherViaOcr}"/>
+							</p:column>
+							<p:column headerText="#{msg['isAtivo.label']}" style="width: 100px; text-align: center;" sortBy="#{vo.tipoProcesso.ativo}">
+								<h:outputText value="#{msg['sim.label']}" rendered="#{vo.tipoProcesso.ativo}"/>
+								<h:outputText value="#{msg['nao.label']}" rendered="#{!vo.tipoProcesso.ativo}"/>
+							</p:column>
+							<p:column style="width: 550px;">
+								<p:column>
+									<a href="#{request.contextPath}/cadastros/tipos-processos/campanhas/#{vo.tipoProcesso.id}" class="btn btn-default btn-md" style="width: 125px;">
+										<h:outputText value="#{vo.countCampanhas} #{msg['campanhas.label']}"/>
+									</a>
+								</p:column>
+								<p:column>
+									<a href="#{request.contextPath}/cadastros/tipos-processos/campos/#{vo.tipoProcesso.id}" class="btn btn-default btn-md" style="width: 125px;">
+										<h:outputText value="#{vo.countCampos} #{msg['campos.label']}"/>
+									</a>
+								</p:column>
+								<p:column>
+									<a href="#{request.contextPath}/cadastros/tipos-processos/situacoes/#{vo.tipoProcesso.id}" class="btn btn-default btn-md" style="width: 125px;">
+										<h:outputText value="#{vo.countSituacoes} #{msg['situacoes.label']}"/>
+									</a>
+								</p:column>
+								<p:column>
+									<a href="#{request.contextPath}/cadastros/tipos-processos/documentos/#{vo.tipoProcesso.id}" class="btn btn-default btn-md" style="width: 125px;">
+										<h:outputText value="#{vo.countDocumentos} #{msg['documentos.label']}"/>
+									</a>
+								</p:column>
+							</p:column>
+							<p:column style="width: 160px;">
+								<p:commandLink class="btn btn-default" update="form-tipoProcesso-list mensagensGlobaisGroup" title="#{msg['duplicarTipoProcesso.label']}">
+									<f:setPropertyActionListener target="#{tipoProcessoCrudBean.duplicar}" value="#{vo.tipoProcesso}" />
+									<i class="fa fa-files-o" aria-hidden="true"></i>
+								</p:commandLink>
+								<p:commandLink title="#{msg['editar.label']}" onclick="openModal('tipoProcesso-modal')" class="btn btn-warning btn-editar" update="form-tipoProcesso:tipoProcesso-modal-content-id"
+											   style="margin-left: 2px; margin-right: 2px; width: 45px;">
+									<f:setPropertyActionListener target="#{tipoProcessoCrudBean.tipoProcesso}" value="#{vo.tipoProcesso}" />
+									<i class="fa fa-pencil" aria-hidden="true" style="color: #fff;"></i>
+								</p:commandLink>
+								<p:commandLink title="#{msg['excluir.label']}" onclick="openModal('excluir-modal', 'excluirModal:form-exclusao:excluir-btn')" class="btn btn-danger btn-excluir" rendered="#{menuBean.podeExcluir()}"
+											   style="margin-left: 2px; margin-right: 2px; width: 45px;">
+									<f:setPropertyActionListener target="#{tipoProcessoCrudBean.tipoProcessoId}" value="#{vo.tipoProcesso.id}" />
+									<i class="fa fa-trash" aria-hidden="true" style="color: #fff;"></i>
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+					</div>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

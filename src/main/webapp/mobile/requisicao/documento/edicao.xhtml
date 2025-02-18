@@ -1,0 +1,362 @@
+<ui:composition template="/mobile/master.xhtml"
+				xmlns:o="http://omnifaces.org/ui"
+				xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:h="http://java.sun.com/jsf/html"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:c="http://java.sun.com/jsp/jstl/core"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+>
+	<f:metadata>
+		<f:viewParam name="id" value="#{edicaoDocumentoBean.id}" />
+		<f:viewParam name="origem" value="#{edicaoDocumentoBean.origem}" />
+		<f:event type="preRenderView" listener="#{edicaoDocumentoBean.init}" />
+	</f:metadata>
+	<ui:define name="master.style">
+		<style type="text/css">
+			div.top {
+				padding-top: 15px;
+				padding-bottom: 15px;
+				border-bottom: 1px solid #ddd;
+				margin-bottom: 15px;
+			}
+			div.top > div.row {
+				padding-bottom: 4px;
+			}
+			div.carousel {
+				border-radius: 5px;
+			}
+			.carousel-top {
+				position: absolute;
+				z-index: 10;
+				top: 0;
+			}
+			.carousel-top.left {
+				left: 0;
+			}
+			.carousel-top.right {
+				right: 0;
+			}
+			.carousel-top.right > span.badge {
+				margin: 4px
+			}
+			i.fa.fa-exclamation-triangle {
+				color: red;
+				font-size: 20px;
+			}
+		</style>
+	</ui:define>
+	<ui:define name="master.script">
+		<c:set var="bean" value="#{edicaoDocumentoBean}" />
+		<script type="text/javascript">
+			//<![CDATA[
+			View = {
+				onCameraClick: function() {
+					Device.Image.upload({
+						url: '#{request.contextPath}/rest/upload',
+						types: ['png', 'jpg', 'jpeg']
+					});
+				},
+				onAssinaturaClick: function() {
+					Device.Image.assinatura({
+						url: '#{request.contextPath}/rest/upload',
+						types: ['png', 'jpg', 'jpeg']
+					});
+				},
+				onExcluirClick: function() {
+					var id = $('div.carousel-inner > div.item.active').attr('id').replace(/item:/, '');
+					if (Utils.isNotEmpty(id)) {
+						onExcluir({ imagemId: id });
+					}
+				},
+				showModalExcluir: function() {
+					$('div#excluir-modal').modal();
+				}
+			};
+			Device = {
+				onReady: function() {
+					Device.initialize(#{bean.deviceInitializeScript});
+				},
+				onTapped: function(id) {
+					if (id == 1) {
+						location.href = '#{request.contextPath}/mobile/requisicao/documento/lista.xhtml?id=#{bean.processoVO.processo.id}&origem=#{bean.origem}'
+					}
+				},
+				onUpload: function(result) {
+					var json = JSON.stringify(result);
+					onUpload({ upload: json });
+				}
+			};
+			//]]>
+		</script>
+	</ui:define>
+	<ui:define name="master.content">
+		<c:set var="bean" value="#{edicaoDocumentoBean}" />
+		<c:set var="regra" value="#{bean.regra}" />
+		<c:set var="imagens" value="#{bean.imagens}" />
+		<c:set var="processoVO" value="#{bean.processoVO}" />
+		<c:set var="documentoVO" value="#{bean.documentoVO}" />
+		<div class="container">
+			<h:form styleClass="form-horizontal">
+				<o:commandScript
+						name="onUpload"
+						action="#{bean.onUpload}"
+						render="@form"
+				/>
+				<o:commandScript
+						name="onExcluir"
+						action="#{bean.onExcluir}"
+						oncomplete="View.showModalExcluir()"
+				/>
+				<div class="top">
+					<div class="secao">
+						<h:outputText
+								value="#{msg['numero.label']}: #{processoVO.numero}"
+						/>
+					</div>
+					<div class="row">
+						<div class="col-xs-7 ellipsis">
+							<h:outputText value="#{processoVO.nome}" />
+						</div>
+						<div class="col-xs-5 ellipsis text-right">
+							<h:outputText value="#{processoVO.cpfCnpj}" />
+						</div>
+					</div>
+					<div class="row status">
+						<div class="col-xs-12">
+							<div class="ellipsis">
+								<img
+										width="20px"
+										src="#{request.contextPath}/resources/images/icons/StatusDocumento-#{documentoVO.status}.png"
+								/>
+								<span class="space" />
+								<h:outputText
+										value="#{msg['StatusDocumento.'.concat(documentoVO.status).concat('.label')]}"
+								/>
+							</div>
+							<h:panelGroup
+									layout="block"
+									styleClass="pull-right"
+									rendered="#{documentoVO.justificavel}"
+							>
+								<a href="#" data-toggle="modal" data-target="#irregularidade-modal">
+									<i class="fa fa-exclamation-triangle" />
+								</a>
+							</h:panelGroup>
+						</div>
+					</div>
+					<h:panelGroup
+							layout="block"
+							styleClass="row status"
+							rendered="#{documentoVO.justificavel}"
+					>
+						<div class="col-xs-12">
+							<div align="center" class="text-primary">
+								<i class="fa fa-reply" />
+								<a href="#" data-toggle="modal" data-target="#justificativa-modal">
+									<span class="space" />
+									<h:outputText
+											value="#{msg['justificar.label']}"
+									/>
+								</a>
+							</div>
+						</div>
+					</h:panelGroup>
+				</div>
+				<div style="margin:20px">
+					<h:outputLink
+							value="#"
+							onclick="View.onAssinaturaClick()"
+							styleClass="btn btn-default btn-round btn-sm"
+							rendered="#{documentoVO.nome eq 'ASSINATURA'}"
+					>
+						<i class="fa fa-pencil" />
+					</h:outputLink>
+				</div>
+				<div id="carousel-document" class="carousel slide" data-ride="carousel" data-interval="false">
+					<div class="carousel-top left" style="width: 100%">
+						<h:outputLink
+								value="#"
+								onclick="View.onCameraClick()"
+								styleClass="btn btn-default btn-round btn-sm"
+								rendered="#{regra.podeDigitalizarDocumento() and (documentoVO.nome != 'ASSINATURA')}"
+						>
+							<i class="fa fa-camera" />
+						</h:outputLink>
+						<h:selectOneMenu rendered="#{documentoVO.nome != 'ASSINATURA'}" id="versaoSelect2" value="#{bean.versao}" label="#{msg['tipoProcesso.label']}"
+										 styleClass="form-control" onchange="submit()" valueChangeListener="#{bean.onImagensChange}"
+										 style="float: left; width: 100px; top: 5px; margin-left: -50px; left: 50%; position: absolute;">
+							<f:selectItems var="item" itemValue="#{item}" itemLabel="Versão #{item}" value="#{bean.versoes}"/>
+						</h:selectOneMenu>
+					</div>
+					<div class="carousel-top right">
+					</div>
+					<!-- Indicators -->
+					<ol class="carousel-indicators">
+						<ui:repeat var="imagem" value="#{imagens}" varStatus="loop">
+							<li data-target="#carousel-document" data-slide-to="#{loop.index}" class="#{loop.index eq 0 ? 'active' : ''}" />
+						</ui:repeat>
+					</ol>
+					<!-- Wrapper for slides -->
+					<div class="carousel-inner" role="listbox">
+						<ui:repeat var="imagem" value="#{imagens}" varStatus="loop">
+							<div id="#{not empty imagem.id ? 'item:'.concat(imagem.id) : ''}" class="item #{loop.index eq 0 ? 'active' : ''}" align="center">
+								<h:panelGroup
+										layout="block"
+										rendered="#{imagens.size() > 1}"
+										styleClass="carousel-top right"
+								>
+		    						<span class="badge">
+										<h:outputText
+												value="#{loop.index + 1} / #{imagens.size()}"
+										/>
+									</span>
+								</h:panelGroup>
+								<img src="#{imagem.caminho}" onclick="Device.Image.open('#{imagem.caminho}')" class="img-responsive" />
+							</div>
+						</ui:repeat>
+					</div>
+					<!-- Controls -->
+					<h:outputLink
+							value="#carousel-document"
+							styleClass="left carousel-control"
+							pt:role="button"
+							pt:data-slide="prev"
+							rendered="#{imagens.size() > 1}">
+						<span class="glyphicon glyphicon-chevron-left" aria-hidden="true" />
+					</h:outputLink>
+					<h:outputLink
+							value="#carousel-document"
+							styleClass="right carousel-control"
+							pt:role="button"
+							pt:data-slide="next"
+							rendered="#{imagens.size() > 1}">
+						<span class="glyphicon glyphicon-chevron-right" aria-hidden="true" />
+					</h:outputLink>
+					<script type="text/javascript">
+						(function($) {
+							$(function() {
+								$('div.carousel-inner > div.item > img').css({
+									height: ($(window).height() - $('div.top').height() - 58)
+								});
+							});
+						})(jQuery);
+					</script>
+				</div>
+				<h:commandLink
+						actionListener="#{bean.desfazer()}"
+						styleClass="btn btn-info btn-fab bl"
+						rendered="#{bean.isDesfazerEnable()}">
+					<i class="fa fa-undo" />
+				</h:commandLink>
+				<h:outputLink
+						value="#"
+						onclick="View.onExcluirClick()"
+						styleClass="btn btn-danger btn-fab bl"
+						rendered="#{bean.isExcluirEnable()}"
+				>
+					<i class="fa fa-trash-o" />
+				</h:outputLink>
+				<h:commandLink
+						actionListener="#{bean.salvar()}"
+						styleClass="btn btn-primary btn-fab br"
+						rendered="#{bean.isSalvarEnable()}">
+					<i class="fa fa-floppy-o" />
+				</h:commandLink>
+				<!-- Modal -->
+				<div id="excluir-modal" class="modal fade" tabindex="-1" role="dialog">
+					<div class="modal-dialog modal-lg" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal">
+									<i class="fa fa-times" aria-hidden="true" />
+								</button>
+								<h4 class="modal-title">#{msg['excluir.label']}</h4>
+							</div>
+							<div class="modal-body">
+								<div class="row">
+									<div class="col-xs-12">
+										<h:outputText
+												value="#{msg['imagemExcluir.confirm']}"
+										/>
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">#{msg['nao.label']}</button>
+								<h:commandButton
+										actionListener="#{bean.excluir()}"
+										value="#{msg['sim.label']}"
+										styleClass="btn btn-primary"
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<h:panelGroup
+						rendered="#{documentoVO.justificavel}"
+				>
+					<div id="irregularidade-modal" class="modal fade" tabindex="-1" role="dialog">
+						<div class="modal-dialog modal-lg" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal">
+										<i class="fa fa-times" aria-hidden="true" />
+									</button>
+									<h4 class="modal-title">#{documentoVO.irregularidadeNome}</h4>
+								</div>
+								<div class="modal-body">
+									<div class="row">
+										<div class="col-xs-12">
+											<h:outputText
+													value="#{documentoVO.pendenciaObservacao}"
+											/>
+										</div>
+									</div>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default" data-dismiss="modal">#{msg['fechar.label']}</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div id="justificativa-modal" class="modal fade" tabindex="-1" role="dialog">
+						<div class="modal-dialog modal-lg" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal">
+										<i class="fa fa-times" aria-hidden="true" />
+									</button>
+									<h4 class="modal-title">#{documentoVO.irregularidadeNome}</h4>
+								</div>
+								<div class="modal-body">
+									<div class="row">
+										<div class="col-xs-12">
+											<h:outputText
+													value="#{documentoVO.pendenciaObservacao}"
+											/>
+											<hr />
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-xs-12">
+											<textarea name="observacao" rows="4" class="form-control" />
+										</div>
+									</div>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-default" data-dismiss="modal">#{msg['fechar.label']}</button>
+									<h:commandButton
+											actionListener="#{bean.justificar()}"
+											value="#{msg['justificar.label']}"
+											styleClass="btn btn-primary"
+									/>
+								</div>
+							</div>
+						</div>
+					</div>
+				</h:panelGroup>
+			</h:form>
+		</div>
+	</ui:define>
+</ui:composition>

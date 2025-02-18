@@ -1,0 +1,37 @@
+<html>
+	<head>
+	</head>
+	<body style="width: 100%;">
+		<center>
+			<table style="width: 650px; height: 400px; text-align: left; border: 1px #f2f2f2 solid;">
+				<tr>
+					<td style="background-color: #f2f2f2; padding: 10px 20px; height: 60px;">
+						 <img src="$logoImagemUrl" width="200px"/>
+					</td>
+				</tr>
+				<tr>
+					<td style="padding: 10px 50px 50px 50px; vertical-align: top;">
+						<h3>Requisi&ccedil;&otilde;es enviadas para an&aacute;lise pelo Job $nomeJob:</h3>
+						<h2>Na data $dummyUtils.formatDateTime($data).</h2>
+						$processos.size() Requisi&ccedil;&otilde;es Enviadas com Sucesso: <br/>
+						#foreach($proc in $processos)
+						<a href="$urlSistema/requisicoes/fila/edit/$proc">$proc</a>;
+						#end
+						<br/><br/>
+						$erros.size() Requisi&ccedil;&otilde;es Ocorreram Erros: <br/>
+						#foreach($erro in $erros)
+						<a href="$urlSistema/requisicoes/fila/edit/$erro">$erro</a>;
+						#end
+						<br/><br/>
+						Muito obrigado,
+						<br>GetDoc
+					</td>
+				</tr>
+				<tr>
+					<td style="background-color: #4f708c; height: 15px;"></td>
+				</tr>
+			</table>
+		</center>
+	</body>
+</html>
+

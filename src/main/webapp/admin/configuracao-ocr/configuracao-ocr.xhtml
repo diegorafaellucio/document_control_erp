@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:b="http://bootsfaces.net/ui"
+	  xmlns:o="http://omnifaces.org/ui"
+	  xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc"
+>
+<f:metadata>
+	<f:viewAction action="#{configuracaoOCRBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/navegacao.xhtml">
+	<ui:define name="tituloPagina">#{msg['configuracoesOCR.titulo']}</ui:define>
+	<ui:define name="conteudo">
+		<style>
+			.modal-dialog {
+				width: 700px;
+			}
+		</style>
+		<h:form id="form-configuracoesOCR">
+			<b:modal id="adicionar-modal-id" title="Configurações Fluxo Aprovação" styleClass="adicionar-modal" rendered="#{menuBean.podeEditar()}">
+				<b:row id="adicionar-modal-content-id">
+					<b:messages globalOnly="true" showSummary="true"/>
+					<div class="col-sm-12">
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{configuracaoOCRBean.configuracaoOCR.nome}"
+												 label="#{msg['nome.label']}" renderLabel="true" maxlength="100" required="false" disabled="true"/>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="Tipificação Ativa?" for="ativoId"/>
+									<h:selectOneRadio id="ativoId" value="#{configuracaoOCRBean.configuracaoOCR.tipificacaoAtiva}" label="Tipificação Ativa?" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="OCR Ativo?" for="ativoId"/>
+									<h:selectOneRadio id="ocrId" value="#{configuracaoOCRBean.configuracaoOCR.ocrAtivo}" label="OCR Ativo?" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="Análise IA Ativa?" for="ativoId"/>
+									<h:selectOneRadio id="analiseId" value="#{configuracaoOCRBean.configuracaoOCR.analiseAtiva}" label="Análise IA Ativa?" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="Aprovação Ativa?" for="ativoId"/>
+									<h:selectOneRadio id="aprovarId" value="#{configuracaoOCRBean.configuracaoOCR.aprovacaoAtiva}" label="Aprovação Ativa?" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<script type="text/javascript">
+						jQuery(function($) {
+							configurarMascaras();
+							configurarDatePicker();
+						});
+					</script>
+				</b:row>
+				<f:facet name="footer">
+					<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+					<p:commandButton value="#{msg['salvar.label']}" actionListener="#{configuracaoOCRBean.salvar()}" update="adicionar-modal-content-id form-configuracoesOCR-list" styleClass="btn"/>
+				</f:facet>
+			</b:modal>
+		</h:form>
+
+		<h:form id="form-configuracoesOCR-list">
+			<div class="row">
+				<div class="col-sm-12">
+					<p:dataTable id="tabela-ID" var="vo" value="#{configuracaoOCRBean.configuracaoOCRDataModel}" rows="50" paginator="true"
+                                 lazy="true"
+                                 paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+                                 currentPageReportTemplate="Total: {totalRecords}" scrollable="true"
+                                 emptyMessage="#{msg['emptyMessage.label']}"
+                                 paginatorPosition="bottom">
+						<p:column headerText="ID" style="text-align: center; width: 10%;" >
+							<h:outputText value="#{vo.id}" />
+						</p:column>
+						<p:column headerText="Tipo de Processo" style="text-align: center;">
+							<h:outputText value="#{vo.nome}" />
+						</p:column>
+						<p:column headerText="Tipificação Ativa?" style="width: 100px; text-align: center;" sortBy="#{vo.tipificacaoAtiva}">
+							<h:outputText value="#{msg['sim.label']}" rendered="#{vo.tipificacaoAtiva}"/>
+							<h:outputText value="#{msg['nao.label']}" rendered="#{!vo.tipificacaoAtiva}"/>
+						</p:column>
+						<p:column headerText="OCR Ativo?" style="width: 100px; text-align: center;" sortBy="#{vo.ocrAtivo}">
+							<h:outputText value="#{msg['sim.label']}" rendered="#{vo.ocrAtivo}"/>
+							<h:outputText value="#{msg['nao.label']}" rendered="#{!vo.ocrAtivo}"/>
+						</p:column>
+						<p:column headerText="Análise IA Ativa?" style="width: 100px; text-align: center;" sortBy="#{vo.analiseAtiva}">
+							<h:outputText value="#{msg['sim.label']}" rendered="#{vo.analiseAtiva}"/>
+							<h:outputText value="#{msg['nao.label']}" rendered="#{!vo.analiseAtiva}"/>
+						</p:column>
+						<p:column headerText="Aprovação Ativa?" style="width: 100px; text-align: center;" sortBy="#{vo.aprovacaoAtiva}">
+							<h:outputText value="#{msg['sim.label']}" rendered="#{vo.aprovacaoAtiva}"/>
+							<h:outputText value="#{msg['nao.label']}" rendered="#{!vo.aprovacaoAtiva}"/>
+						</p:column>
+						<p:column style="width: 140px; text-align: center;">
+							<p:column>
+								<a href="#{request.contextPath}/admin/configuracao-ocr/configuracao-ocr-ies/#{vo.id}" class="btn btn-default btn-md" style="width: 125px;">
+									<h:outputText value="#{configuracaoOCRBean.getTotalIES(vo.id)} Instituição"/>
+								</a>
+							</p:column>
+						</p:column>
+						<p:column style="width: 120px;" sortable="false" rendered="#{menuBean.podeEditar()}">
+							<p:commandLink value="#{msg['editar.label']}" onclick="openModal('adicionar-modal')" class="btn btn-warning btn-editar" update="form-configuracoesOCR:adicionar-modal-content-id">
+								<f:setPropertyActionListener target="#{configuracaoOCRBean.configuracaoOCR}" value="#{vo}" />
+							</p:commandLink>
+						</p:column>
+					</p:dataTable>
+				</div>
+			</div>
+		</h:form>
+	</ui:define>
+</ui:composition>
+</html>

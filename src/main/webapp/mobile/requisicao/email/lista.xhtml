@@ -1,0 +1,292 @@
+<ui:composition template="/mobile/master.xhtml"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc"
+	>
+	<f:metadata>
+		<f:viewParam name="id" value="#{listaEmailBean.id}" />
+		<f:viewParam name="id" value="#{edicaoRequisicaoBean.id}" />
+		<f:viewParam name="origem" value="#{listaEmailBean.origem}" />
+		<f:event type="preRenderView" listener="#{listaEmailBean.init}" />
+		<f:event type="preRenderView" listener="#{edicaoRequisicaoBean.init}" />
+	</f:metadata>
+	<ui:define name="master.style">
+		
+	</ui:define>
+	<ui:define name="master.script">
+		<c:set var="bean" value="#{listaEmailBean}" />	
+		<script type="text/javascript">
+			//<![CDATA[
+			Device = {
+				onReady: function() {
+					Device.initialize(#{bean.deviceInitializeScript});
+				},
+				onTapped: function(id) {
+					if (id == 1) {
+						
+					} else if (id == 2) {
+						location.href = '#{request.contextPath}/mobile/requisicao/edicao.xhtml?id=#{bean.id}&origem=#{bean.origem}'
+					}
+				}
+			};
+			(function($) {
+				$(function() {
+					$('div.row.list div[email-id]').on({
+						click: function(event) {
+							if ($(event.target).hasClass('fa')) {
+								log('sim')
+							} else {
+								var id = $(this).attr('email-id');
+								location.href = '#{request.contextPath}/mobile/requisicao/email/detalhe.xhtml?origem=#{bean.origem}&id=' + id;
+							}
+						}
+					});
+					$('div.row.list div.secao a[collapse-id]').on({
+						click: function(event) {
+							var el = $(this);
+							var id = el.attr('collapse-id');
+							var row = el.parents('div.row.list');
+							var icon = $('i.fa', el);
+							var color = '#fff'
+							if (icon.hasClass('fa-angle-double-down')) {
+								icon.removeClass('fa-angle-double-down')
+							} else {
+								icon.addClass('fa-angle-double-down');
+								color = '#ddd'
+							}
+							row.css({
+								background: color
+							});
+							$('div[id=\'' + id + '\']').collapse('toggle');
+						}
+					});
+				});
+			})(jQuery);
+			//]]>
+		</script>
+	</ui:define>
+	<ui:define name="master.content">
+		<c:set var="bean" value="#{listaEmailBean}" />
+		<c:set var="rows" value="#{bean.rows}" />
+		<getdoc:headerRequisicao numMenu="5" bean="#{edicaoRequisicaoBean}"/>
+		<div class="container">
+			<h:form>
+				<h:panelGroup
+					layout="block"
+					styleClass="row empty"
+					rendered="#{empty rows}"
+					>
+					<div class="col-xs-12 text-center">
+						<h:outputText value="#{msg['emptyMessage.label']}" />
+					</div>
+				</h:panelGroup>
+				<h:panelGroup
+					layout="block"
+					rendered="#{not empty rows}"
+					>
+					<ui:repeat var="row" value="#{rows}">
+						<div class="row list">
+							<div class="col-xs-12">
+								<div class="secao">
+									<div class="row">
+										<div class="col-xs-10 ellipsis">
+											<ui:remove>
+												<h:outputText
+													value="#{msg['enviadoEm.label']}"
+													/>
+												<span class="espace" />
+											</ui:remove>
+											<h:outputText
+												value="#{row.emailEnviado.dataEnvio}"
+						 						>
+						 						<f:convertDateTime pattern="dd/MM/yyyy HH:mm" locale="pt_BR" />
+						 					</h:outputText>	
+										</div>
+										<div class="col-xs-2">
+											<h:panelGroup
+												layout="block"
+												styleClass="pull-right"
+												>
+												<h:outputLink 
+													value="javascript:void(0)"
+													pt:collapse-id="#{recebidoPanel.clientId}"
+													rendered="#{not empty row.emailsRecebidos}"
+													>
+													<i class="fa fa-angle-double-right" aria-hidden="true" />
+												</h:outputLink>
+											</h:panelGroup>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-12 ellipsis">
+										<h:outputLabel
+											styleClass="text-primary"
+											value="#{msg['para.label']}"
+											/>
+										<span class="espace" />
+										<h:outputText
+											value="#{row.emailEnviado.destinatarios}"
+											/>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-12 ellipsis text-muted">
+										<h:outputText
+											escape="false" 
+											value="#{row.logCriacao.observacao}"
+											/>
+									</div>
+								</div>
+								<h:panelGroup
+									layout="block"
+									rendered="#{not empty row.logCriacao.anexos}"
+									>
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="title">
+												<span class="text">
+													<i class="fa fa-paperclip" />
+													<span style="margin: 0 2px" />
+													<h:outputText
+														value="#{msg['anexos.label']}"
+														/>
+												</span>
+												<hr />
+											</div>
+										</div>
+									</div>
+									<ui:repeat var="anexo" value="#{row.logCriacao.anexos.toArray()}">
+										<div class="row">
+											<div class="col-xs-12">
+												<div class="ellipsis text-info" style="padding: 2px 0">
+													<i class="fa fa-file-image-o" />
+													<span class="space" />
+													<h:commandLink
+														actionListener="#{bean.download(anexo)}"
+														target="_blank"
+														rendered="#{not utilBean.isExtensaoImagem(anexo.extensao)}"
+														>
+														<h:outputText
+															value="#{anexo.nome} #{utilBean.toFileSize(anexo.tamanho)}"
+															/>
+													</h:commandLink>
+													<h:outputLink
+														value="#"
+														rendered="#{utilBean.isExtensaoImagem(anexo.extensao)}"
+														onclick="Device.Image.open('#{utilBean.getPathImagem(anexo)}')"
+														>
+														<h:outputText
+															value="#{anexo.nome} #{utilBean.toFileSize(anexo.tamanho)}"
+															/>
+													</h:outputLink>
+												</div>
+											</div>
+										</div>
+									</ui:repeat>
+								</h:panelGroup>
+							</div>
+						</div>
+						<h:panelGroup
+							id="recebidoPanel"
+							binding="#{recebidoPanel}"
+							layout="block"
+							styleClass="collapse"
+							rendered="#{not empty row.emailsRecebidos}"
+							>
+							<ui:repeat var="recebido" value="#{row.emailsRecebidos}">
+								<div class="row list">
+									<div class="col-xs-12">
+										<div email-id="#{recebido.id}">
+											<div class="row">
+												<div class="col-xs-12 ellipsis">
+													<strong class="text-warning">
+														<h:outputText
+															value="#{recebido.sentDate}"
+									 						>
+									 						<f:convertDateTime pattern="dd/MM/yyyy HH:mm" locale="pt_BR" />
+									 					</h:outputText>	
+													</strong>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-xs-12 ellipsis">
+													<h:outputLabel
+														styleClass="text-primary"
+														value="#{msg['de.label']}"
+														/>
+													<span class="espace" />
+													<h:outputText
+														value="#{recebido.emailFrom}"
+														/>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-xs-12 ellipsis text-muted">
+													<h:outputText
+														value="#{recebido.subject}"
+														/>
+												</div>
+											</div>
+										</div>
+										<h:panelGroup
+											layout="block"
+											rendered="#{not empty recebido.anexos}"
+											>
+											<div class="row">
+												<div class="col-xs-12">
+													<div class="title">
+														<span class="text">
+															<i class="fa fa-paperclip" />
+															<span style="margin: 0 2px" />
+															<h:outputText
+																value="#{msg['anexos.label']}"
+																/>
+														</span>
+														<hr />
+													</div>
+												</div>
+											</div>
+											<ui:repeat var="anexo" value="#{recebido.anexos.toArray()}">
+												<div class="row">
+													<div class="col-xs-12">
+														<div class="ellipsis text-info" style="padding: 2px 0">
+															<i class="fa fa-file-image-o" />
+															<span class="space" />
+															<h:outputLink
+																value="#"
+																onclick="Device.Image.open('#{utilBean.getPathImagem(anexo)}')"
+																rendered="#{utilBean.isExtensaoImagem(anexo.extensao)}"
+																>
+																<h:outputText
+																	value="#{anexo.fileName} #{utilBean.toFileSize(anexo.tamanho)}"
+																	/>
+															</h:outputLink>
+															<h:commandLink
+																actionListener="#{bean.download(anexo)}"
+																rendered="#{not utilBean.isExtensaoImagem(anexo.extensao)}"
+																>
+																<h:outputText
+																	value="#{anexo.fileName} #{utilBean.toFileSize(anexo.tamanho)}"
+																	/>
+															</h:commandLink>
+														</div>
+													</div>
+												</div>
+											</ui:repeat>
+										</h:panelGroup>
+									</div>
+								</div>
+							</ui:repeat>
+						</h:panelGroup>
+					</ui:repeat>
+				</h:panelGroup>
+			</h:form>
+		</div>
+	</ui:define>
+</ui:composition>

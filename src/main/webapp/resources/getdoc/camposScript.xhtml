@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+
+	<composite:interface>
+	</composite:interface>
+
+	<composite:implementation>
+		<script type="application/javascript">
+		//<![CDATA[
+
+        function filtroCampoDinamicoResult() {
+            if(!OmniFaces.Ajax) return;
+            var data = OmniFaces.Ajax.data;
+            var opcoes = data.opcoes;
+            var tipoCampoId = data.tipoCampoId;
+            var gruponome = data.gruponome;
+
+            var select = $('select[tipocampoid=\'' + tipoCampoId + '\'][gruponome=\'' + gruponome + '\']');
+
+            if (select.length > 1) {
+                select = buscarCampoDoGrupoCorreto(select, gruponome);
+            }
+
+            var val = select.val();
+            select.empty();
+            select.append($("<option></option>"));
+
+            for (var key in opcoes) {
+                if (opcoes.hasOwnProperty(key)) {
+                    select.append($("<option></option>").attr("data-label", opcoes[key]).attr("value", key).text(opcoes[key]));
+                }
+            }
+            select.val(val);
+		}
+
+		jQuery(function($) {
+			preparaScriptsCampos();
+            configurarMascaras();
+		});
+
+        function buscarCampoDoGrupoCorreto(campos, thizGrupoNome) {
+
+            let campoCorreto;
+
+            for (let j = 0; j < campos.length; j++) {
+
+                let gruponome = campos[j].attributes['gruponome'].value;
+                if (gruponome === thizGrupoNome) {
+                    campoCorreto = $(campos[j]);
+                }
+            }
+
+            return campoCorreto;
+        }
+
+        function preparaScriptsCampos() {
+			$('input[pais], select[pais], div[pais]').each(function() {
+				let thiz = $(this);
+				let paisStr = thiz.attr('pais');
+				let pais = eval(paisStr);
+                let thizGrupoNome = thiz.attr('gruponome');
+                let criterioExibicao = $(this).attr('criterioExibicao');
+				let criterioFiltro = $(this).attr('criterioFiltro');
+
+				if(criterioExibicao) {
+
+					let changeFunc = function() {
+						let vars = '';
+						for (let i = 0; i < pais.length; i++) {
+
+						    let paiId = pais[i].paiId;
+                            let paiNome = pais[i].nome;
+
+						    let campo = getCampoByTipoCampoId(paiId);
+
+						    if (campo.length > 1) {
+                                campo = buscarCampoDoGrupoCorreto(campo, thizGrupoNome);
+                            }
+
+                            let valor = getValorCampo(campo);
+                            vars += 'let ' + paiNome + ' = {"valor" : ""};';
+                            vars += paiNome + '.valor = \'' + valor + '\';';
+						}
+						let isMostrar = eval(vars + ' ' + criterioExibicao);
+
+						if(isMostrar) {
+							thiz.parent().show();
+						} else {
+							thiz.parent().hide();
+						}
+					};
+					changeFunc();
+
+					for (var i = 0; i < pais.length; i++) {
+						let paiId = pais[i].paiId;
+						let campo = getCampoByTipoCampoId(paiId);
+						campo.change(changeFunc);
+					}
+				}
+
+				if(criterioFiltro) {
+					let filtros = criterioFiltro.split(',');
+					for (var i = 0; i < filtros.length; i++) {
+
+						let filtro = filtros[i].trim();
+						for (var j = 0; j < pais.length; j++) {
+
+							if(("" + filtro).startsWith(pais[j].nome)) {
+
+								let paiId = pais[j].paiId;
+
+								let coluna = filtro.substring(filtro.indexOf(':') + 1);
+								coluna = coluna.trim();
+								let criterio = '{"filtrar": ' + '"' + coluna + '"}';
+
+								var campo = getCampoByTipoCampoId(paiId);
+
+                                if (campo.length > 1) {
+                                    campo = buscarCampoDoGrupoCorreto(campo, thizGrupoNome);
+                                }
+
+                               let changeCampoDinamicoFunc = function(){
+
+                                    let campo = getCampoByTipoCampoId(paiId);
+
+                                    if (campo.length > 1) {
+                                        campo = buscarCampoDoGrupoCorreto(campo, thizGrupoNome);
+                                    }
+
+                                    let valor = getValorCampo(campo);
+                                    filtroCampoDinamico({ criterio: criterio, filtro: valor, paiId: paiId, tipoCampoId: thiz.attr('tipocampoid'), gruponome: thizGrupoNome });
+                                };
+
+                                campo.change(changeCampoDinamicoFunc);
+
+								break;
+							}
+						}
+					}
+				}
+			});
+		}
+
+		function getCampoByTipoCampoId(tipoCampoId) {
+			var campo = $("input[tipocampoid='" + tipoCampoId + "'], select[tipocampoid='" + tipoCampoId + "'], div[tipocampoid='" + tipoCampoId + "']");
+			return campo;
+		}
+
+		function getValorCampo(campo) {
+			var isDiv = campo.is('div');
+			var valor = isDiv ? campo.html() : campo.val();
+			if(campo.html().includes('<')){
+			    valor = campo.val();
+			}
+			return valor;
+		}
+
+        //]]>
+		</script>
+		<o:commandScript name="filtroCampoDinamico" action="#{utilBean.filtroCampoDinamico}" oncomplete="filtroCampoDinamicoResult()"/>
+	</composite:implementation>
+</html>

@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui">
+	<f:metadata>
+		<f:viewParam name="id" value="#{usuarioEditBean.id}" />
+		<f:viewAction action="#{usuarioEditBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['usuarioEdit.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<h:form id="form-modal1">
+				<b:modal title="#{msg['confirmarReiniciarSenhaTitulo.label']}" styleClass="confirmar-modal reiniciar-senha-modal">
+					<p><h4 class="msg-confirm"><h:outputText value="#{msg['reiniciarSenha.confirm']}"/> </h4></p>
+					<f:facet name="footer">
+						<p:commandButton id="confirmar-reiniciar-btn" value="#{msg['reinicializar.label']}" actionListener="#{usuarioEditBean.reiniciarSenha()}" update="content-pg-id" styleClass="btn btn-primary"/>
+						<b:button value="#{msg['cancelar.label']}" dismiss="modal" onclick="return false;"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-modal2">
+				<b:modal title="#{msg['confirmarDesativacaoUsuarioTitulo.label']}" styleClass="confirmar-modal desativar-usuario-modal">
+					<b:selectOneMenu id="statusId" value="#{usuarioEditBean.usuario.motivoDesativacao}" label="#{msg['motivoDesativacao.label']}" required="true">
+						<f:selectItem itemValue="" itemLabel=""/>
+						<f:selectItems value="#{utilBean.getValues('MotivoDesativacaoUsuario')}" var="mdu" itemValue="#{mdu}" itemLabel="#{msg['MotivoDesativacaoUsuario.'.concat(mdu).concat('.label')]}"/>
+					</b:selectOneMenu>
+					<b:message/>
+					<f:facet name="footer">
+						<p:commandButton id="confirmar-desativar-btn" value="#{msg['desativar.label']}" actionListener="#{usuarioEditBean.desativarUsuario()}" update="content-pg-id" styleClass="btn btn-primary"/>
+						<b:button value="#{msg['cancelar.label']}" dismiss="modal" onclick="return false;"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-modal3">
+				<b:modal title="#{msg['confirmarAtivacaoUsuarioTitulo.label']}" styleClass="confirmar-modal ativar-usuario-modal">
+					<p><h4 class="msg-confirm"><h:outputText value="#{msg['ativarUsario.confirm']}"/> </h4></p>
+					<f:facet name="footer">
+						<p:commandButton id="confirmar-ativar-btn" value="#{msg['reativar.label']}" actionListener="#{usuarioEditBean.ativarUsuario()}" update="content-pg-id" styleClass="btn btn-primary"/>
+						<b:button value="#{msg['cancelar.label']}" dismiss="modal" onclick="return false;"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-modal4">
+				<b:modal title="#{msg['confirmarProrrogarAcesso.label']}" styleClass="confirmar-modal prorrogar-acesso-modal">
+					<p><h4 class="msg-confirm"><h:outputText value="#{msg['prorrogarAcesso.confirm']}"/> </h4></p>
+					<f:facet name="footer">
+						<p:commandButton id="confirmar-prorrogar-btn" value="#{msg['prorrogar.label']}" actionListener="#{usuarioEditBean.prorrogarAcesso()}" update="content-pg-id" styleClass="btn btn-primary"/>
+						<b:button value="#{msg['cancelar.label']}" dismiss="modal" onclick="return false;"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-usuario">
+				<div class="row">
+					<div class="col-sm-12">
+						<h4 class="tituloForm"><h:outputText value="#{msg['usuarioDados.label']}"/></h4>
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="form-group">
+									<b:inputText value="#{usuarioEditBean.usuario.nome}"
+											label="#{msg['nome.label']}" renderLabel="true"
+											maxlength="100" required="true" disabled="#{usuarioEditBean.disabled}"/>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<b:inputText id="loginId" value="#{usuarioEditBean.usuario.login}"
+											label="#{msg['login.label']}" renderLabel="true" maxlength="20" required="true"
+											style="text-transform: lowercase;" disabled="#{usuarioEditBean.disabled}">
+									</b:inputText>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<b:inputText id="emailId" value="#{usuarioEditBean.usuario.email}"
+											label="#{msg['email.label']}" renderLabel="true" maxlength="100"
+											validatorMessage="#{msg['emailInvalido.error']}" required="true" disabled="#{usuarioEditBean.disabled}">
+										<f:validateRegex pattern="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$" />
+									</b:inputText>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<b:selectOneMenu value="#{usuarioEditBean.usuario.roleGD}" label="#{msg['roleGD.label']}" required="true" disabled="#{usuarioEditBean.disabled}">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{usuarioEditBean.roles}" var="role" itemValue="#{role}" itemLabel="#{msg['RoleGD.'.concat(role).concat('.label')]}"/>
+									</b:selectOneMenu>
+									<b:message/>
+								</div>
+								<h:panelGroup rendered="#{usuarioEditBean.exibirArea()}">
+									<div class="form-group">
+										<b:selectOneMenu value="#{usuarioEditBean.usuario.area}" label="#{msg['area.label']}" disabled="#{usuarioEditBean.disabled}">
+											<f:selectItems value="#{usuarioEditBean.areas}" var="area" itemValue="#{area}" itemLabel="#{area.descricao}"/>
+										</b:selectOneMenu>
+										<b:message/>
+									</div>
+									<div class="form-group">
+										<h:outputLabel value="#{msg['gestorArea.label']}" for="gestorAreaId"/>
+										<h:selectOneRadio id="gestorAreaId" value="#{usuarioEditBean.usuario.gestorArea}" label="#{msg['gestorArea.label']}"
+												styleClass="radio-default" disabled="#{usuarioEditBean.disabled}">
+											<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+											<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}" />
+										</h:selectOneRadio>
+										<b:message/>
+									</div>
+								</h:panelGroup>
+								<div class="form-group">
+									<b:inputText value="#{usuarioEditBean.usuario.telefone}"
+											label="#{msg['telefone.label']}" renderLabel="true" maxlength="15" required="false"
+											styleClass="mask-phone" disabled="#{usuarioEditBean.disabled}"/>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<b:commandButton value="#{msg['salvar.label']}" styleClass="btn btn-primary btn-lg" actionListener="#{usuarioEditBean.salvar()}" ajax="true" update="content-pg-id" rendered="#{menuBean.podeEditar()}"/>
+								</div>
+							</div>
+							<b:column col-sm="6" rendered="#{not empty usuarioEditBean.usuario.id}">
+								<div class="form-group" >
+									<h:outputLabel value="#{msg['status.label']}"/>
+									<div class="form-group label-form-goup">
+										#{msg['StatusUsuario.'.concat(usuarioEditBean.usuario.status).concat('.label')]}
+									</div>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['dataCadastro.label']}"/>
+									<div class="form-group label-form-goup">
+										#{utilBean.getDateTimeStr(usuarioEditBean.usuario.dataCadastro)}&nbsp;
+									</div>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['dataUltimoAcesso.label']}"/>
+									<div class="form-group label-form-goup">
+										#{utilBean.getDateTimeStr(usuarioEditBean.usuario.dataUltimoAcesso)}&nbsp;
+									</div>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['dataExpiracao.label']}"/>
+									<div class="form-group label-form-goup">
+										#{utilBean.getDateTimeStr(usuarioEditBean.usuario.dataExpiracao)}
+									</div>
+								</div>
+								<h:panelGroup rendered="#{not empty usuarioEditBean.usuario.motivoBloqueio}">
+									<div class="form-group">
+										<h:outputLabel value="#{msg['motivoBloqueio.label']}"/>
+										<div class="form-group label-form-goup">
+											#{msg['MotivoBloqueioUsuario.'.concat(usuarioEditBean.usuario.motivoBloqueio).concat('.label')]}
+										</div>
+									</div>
+									<div class="form-group">
+										<h:outputLabel value="#{msg['dataBloqueio.label']}"/>
+										<div class="form-group label-form-goup">
+											#{utilBean.getDateTimeStr(usuarioEditBean.usuario.dataBloqueio)}
+										</div>
+									</div>
+									<div class="form-group">
+										<h:outputLabel value="#{msg['dataExpiracaoBloqueio.label']}"/>
+										<div class="form-group label-form-goup">
+											#{utilBean.getDateTimeStr(usuarioEditBean.usuario.dataExpiracaoBloqueio)}
+										</div>
+									</div>
+								</h:panelGroup>
+								<h:panelGroup rendered="#{not empty usuarioEditBean.usuario.motivoDesativacao}">
+									<div class="form-group">
+										<h:outputLabel value="#{msg['motivoDesativacao.label']}"/>
+										<div class="form-group label-form-goup">
+											#{msg['MotivoDesativacaoUsuario.'.concat(usuarioEditBean.usuario.motivoDesativacao).concat('.label')]}
+										</div>
+									</div>
+									<div class="form-group">
+										<h:outputLabel value="#{msg['dataBloqueio.label']}"/>
+										<div class="form-group label-form-goup">
+											#{utilBean.getDateTimeStr(usuarioEditBean.usuario.dataBloqueio)}
+										</div>
+									</div>
+								</h:panelGroup>
+								<div class="form-group">
+									<p:commandLink value="#{msg['reiniciarSenha.label']}"
+											onclick="openModal('reiniciar-senha-modal', 'form-modal1:confirmar-reiniciar-btn')"
+											class="btn btn-default btn-sm" rendered="#{menuBean.podeEditar()}"/>
+									<p:commandLink value="#{msg['desativarUsuario.label']}"
+											onclick="openModal('desativar-usuario-modal', 'form-modal2:motivoDesativacaoId')"
+											class="btn btn-default btn-sm" style="margin-left: 10px;"
+											rendered="#{usuarioEditBean.renderDesativarBtn and menuBean.podeEditar()}"/>
+									<p:commandLink value="#{msg['ativarUsuario.label']}"
+											onclick="openModal('ativar-usuario-modal', 'form-modal3:confirmar-ativar-btn')"
+											class="btn btn-default btn-sm" style="margin-left: 10px;"
+											rendered="#{usuarioEditBean.renderAtivarBtn and menuBean.podeEditar()}"/>
+									<p:commandLink value="#{msg['prorrogarAcesso.label']}"
+											onclick="openModal('prorrogar-acesso-modal', 'form-modal4:confirmar-prorrogar-btn')"
+											class="btn btn-default btn-sm" style="margin-left: 10px;"
+											rendered="#{menuBean.podeEditar()}"/>
+								</div>
+							</b:column>
+						</div>
+					</div>
+				</div>
+
+				<h:panelGroup rendered="#{utilBean.getValue('RoleGD', 'GD_ANALISTA').equals(usuarioEditBean.usuario.roleGD) or utilBean.getValue('RoleGD', 'GD_GESTOR').equals(usuarioEditBean.usuario.roleGD)}">
+					<div class="row">
+						<div class="col-sm-12">
+							<h4 class="tituloForm"><h:outputText value="#{msg['usuarioOpcoes.label']}"/></h4>
+							<div class="row">
+								<div class="col-sm-4">
+									<h:panelGroup rendered="#{utilBean.getValue('RoleGD', 'GD_ANALISTA').equals(usuarioEditBean.usuario.roleGD)}">
+										<div class="form-group">
+											<h:outputLabel value="#{msg['ordemAtividadesFixa.label']} *" for="ordemAtividadesFixaId"/>
+											<h:selectOneRadio id="ordemAtividadesFixaId" value="#{usuarioEditBean.usuario.ordemAtividadesFixa}" label="#{msg['ordemAtividadesFixa.label']}"
+													styleClass="radio-default" required="true">
+												<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+												<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+											</h:selectOneRadio>
+											<b:message/>
+										</div>
+										<div class="form-group">
+											<h:outputLabel value="#{msg['distribuicaoAutomaticaDemanda.label']} *" for="distribuirDemandaAutomaticamenteId"/>
+											<h:selectOneRadio id="distribuirDemandaAutomaticamenteId" value="#{usuarioEditBean.usuario.distribuirDemandaAutomaticamente}" label="#{msg['distribuicaoAutomaticaDemanda.label']}"
+															  styleClass="radio-default" required="true">
+												<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+												<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+											</h:selectOneRadio>
+											<b:message/>
+										</div>
+									</h:panelGroup>
+									<div class="form-group">
+										<h:outputLabel value="#{msg['notificarAtrasoRequisicoes.label']} *" for="notificarAtrasoRequisicoesId"/>
+										<h:selectOneRadio id="notificarAtrasoRequisicoesId" value="#{usuarioEditBean.usuario.notificarAtrasoRequisicoes}" label="#{msg['notificarAtrasoRequisicoes.label']}"
+												styleClass="radio-default" required="true">
+											<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+											<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+										</h:selectOneRadio>
+										<b:message/>
+									</div>
+									<h:panelGroup rendered="#{utilBean.getValue('RoleGD', 'GD_GESTOR').equals(usuarioEditBean.usuario.roleGD)}">
+										<div class="form-group">
+											<h:outputLabel value="#{msg['notificarAtrasoSolicitacoes.label']} *" for="notificarAtrasoSolicitacoesId"/>
+											<h:selectOneRadio id="notificarAtrasoSolicitacoesId" value="#{usuarioEditBean.usuario.notificarAtrasoSolicitacoes}" label="#{msg['notificarAtrasoSolicitacoes.label']}"
+													styleClass="radio-default" required="true">
+												<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+												<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+											</h:selectOneRadio>
+											<b:message/>
+										</div>
+									</h:panelGroup>
+									<h:panelGroup rendered="#{utilBean.getValue('RoleGD', 'GD_GESTOR').equals(usuarioEditBean.usuario.roleGD) and utilBean.getValue('RoleGD', 'GD_ADMIN').equals(usuarioEditBean.usuarioLogado.roleGD)}">
+										<div class="form-group">
+											<h:outputLabel value="#{msg['podeExcluirImagem.label']} *" for="podeExcluirImagemId"/>
+											<h:selectOneRadio id="podeExcluirImagemId" value="#{usuarioEditBean.usuario.podeExcluirImagem}" label="#{msg['podeExcluirImagem.label']}"
+															  styleClass="radio-default" required="true">
+												<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+												<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+											</h:selectOneRadio>
+											<b:message/>
+										</div>
+										<div class="form-group">
+											<h:outputLabel value="#{msg['podeRemoverObrigatoriedade.label']} *" for="podeRemoverObrigatoriedadeId"/>
+											<h:selectOneRadio id="podeRemoverObrigatoriedadeId" value="#{usuarioEditBean.usuario.podeRemoverObrigatoriedade}" label="#{msg['podeRemoverObrigatoriedade.label']}"
+															  styleClass="radio-default" required="true">
+												<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+												<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+											</h:selectOneRadio>
+											<b:message/>
+										</div>
+									</h:panelGroup>
+								</div>
+								<h:panelGroup rendered="#{utilBean.getValue('RoleGD', 'GD_ANALISTA').equals(usuarioEditBean.usuario.roleGD) or utilBean.getValue('RoleGD', 'GD_GESTOR').equals(usuarioEditBean.usuario.roleGD)}">
+									<div class="col-sm-4">
+										<div class="form-group">
+											<h:outputLabel value="#{msg['subperfil.label']}" for="SubperfilId"/>
+											<table>
+												<thead>
+												<tr>
+													<th></th>
+													<th style="padding-left: 10px; font-weight: normal;"> Descrição </th>
+													<th style="padding-left: 10px; font-weight: normal;"> Nível de Prioridade </th>
+												</tr>
+												</thead>
+												<p:repeat value="#{usuarioEditBean.subperfils}" var="subperfil">
+													<tr>
+														<td class="">
+															<input name="subperfilSelecionado" id="subperfilSelecionado#{subperfil.id}" value="#{subperfil.id}"
+																   type="checkbox" class="ui-chkbox-icon ui-icon ui-icon-blank ui-c ui-state-default"
+																   checked="#{usuarioEditBean.subperfilsSelecionados.contains(subperfil.id.toString()) ? 'checked' : ''}"
+																   onchange="$('#nivelSubperfil_#{subperfil.id}').css('display', $(this).is(':checked') ? '' : 'none')"/>
+														</td>
+														<td style="padding-left: 10px; font-size: 14px;">
+															<label for="subperfilSelecionado#{subperfil.id}" style="font-weight: normal;">#{subperfil.descricao}</label>
+														</td>
+														<td style="padding-left: 10px;">
+															<input name="nivelSubperfil_#{subperfil.id}" id="nivelSubperfil_#{subperfil.id}" type="text" class="form-control mask-number"
+																   value="#{usuarioEditBean.nivelSubperfilMap.get(subperfil.id)}"
+																   style="width: 60px; height: 20px; display: #{usuarioEditBean.subperfilsSelecionados.contains(subperfil.id.toString()) ? '' : 'none'}"/>
+														</td>
+													</tr>
+												</p:repeat>
+											</table>
+										</div>
+										<div class="form-group">
+											<h:outputLabel value="#{msg['tiposProcessos.label']}" for="tiposProcessosId"/>
+											<p:selectManyCheckbox value="#{usuarioEditBean.tiposProcessosSelecionados}" layout="pageDirection" columns="2" id="tiposProcessosId" label="#{msg['tiposProcessos.label']}">
+												<f:selectItems value="#{usuarioEditBean.tiposProcessos}" var="tp" itemLabel="#{tp.nome}" itemValue="#{tp.id}" />
+											</p:selectManyCheckbox>
+											<b:message/>
+										</div>
+									</div>
+								</h:panelGroup>
+								<h:panelGroup rendered="#{utilBean.getValue('RoleGD', 'GD_ANALISTA').equals(usuarioEditBean.usuario.roleGD) or utilBean.getValue('RoleGD', 'GD_GESTOR').equals(usuarioEditBean.usuario.roleGD)}">
+									<div class="col-sm-4">
+										<div class="form-group">
+											<h:outputLabel value="#{msg['regional.label']}" for="regionalId"/>
+											<p:selectManyCheckbox value="#{usuarioEditBean.regionaisSelecionados}" disabled="true" layout="pageDirection" columns="3" id="regionalId" label="#{msg['regional.label']}">
+												<f:selectItems value="#{usuarioEditBean.regional}" var="rg" itemLabel="#{rg.label}" itemValue="#{rg.baseRegistro.chaveUnicidade}" />
+												<f:ajax event="change" render="campusId"/>
+											</p:selectManyCheckbox>
+											<b:message/>
+										</div>
+										<div class="form-group">
+											<h:outputLabel value="#{msg['campus.label']}" for="campusId"/>
+											<p:selectManyCheckbox value="#{usuarioEditBean.campusSelecionados}" disabled="true" layout="pageDirection" columns="4" id="campusId" label="#{msg['campus.label']}">
+												<f:selectItems value="#{usuarioEditBean.campus}" var="cp" itemLabel="#{cp.label}" itemValue="#{cp.baseRegistro.chaveUnicidade}"/>
+											</p:selectManyCheckbox>
+											<b:message/>
+										</div>
+									</div>
+								</h:panelGroup>
+							</div>
+							<div class="row">
+								<div class="col-sm-12">
+									<p:commandButton value="#{msg['salvar.label']}" actionListener="#{usuarioEditBean.salvar()}"
+											style="float: right;" update="content-pg-id" styleClass="btn" rendered="#{menuBean.podeEditar()}"/>
+								</div>
+							</div>
+						</div>
+					</div>
+				</h:panelGroup>
+			</h:form>
+			<script type="text/javascript">
+			</script>
+		</ui:define>
+	</ui:composition>
+</html>

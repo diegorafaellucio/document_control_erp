@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<ui:component
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:composite="http://java.sun.com/jsf/composite"
+	>
+	<composite:interface>
+		<composite:attribute name="dataModel" required="true" type="net.wasys.getdoc.mb.faces.model.PaginDataModel" />
+	</composite:interface>
+	<composite:implementation>
+		<h:outputStylesheet>
+			body { padding-bottom: 50px; }
+			nav.navbar-fixed-bottom i.fa {
+				line-height: 48px;
+			}
+			nav.navbar-fixed-bottom span.info {
+				color: #777;
+				line-height: 48px;
+			}
+		</h:outputStylesheet>
+		<nav class="navbar navbar-default navbar-fixed-bottom">
+			<h:panelGroup
+				layout="block"
+				styleClass="row"
+				rendered="#{cc.attributes.dataModel.count gt 0}"
+				>
+				<div class="col-xs-2" align="center">
+					<h:commandLink
+						rendered="#{cc.attributes.dataModel.hasPrevious()}"
+						actionListener="#{cc.attributes.dataModel.previous()}"
+						>
+						<i class="fa fa-chevron-left" />
+					</h:commandLink>
+				</div>
+				<div class="col-xs-8" align="center">
+					<h:outputText
+						value="#{cc.attributes.dataModel.page + 1} / #{cc.attributes.dataModel.qtde}"
+						styleClass="info"
+						/>
+				</div>
+				<div class="col-xs-2" align="center">
+					<h:commandLink
+						rendered="#{cc.attributes.dataModel.hasNext()}"
+						actionListener="#{cc.attributes.dataModel.next()}"
+						>
+						<i class="fa fa-chevron-right" />
+					</h:commandLink>
+				</div>
+			</h:panelGroup>
+		</nav>
+	</composite:implementation>
+</ui:component>

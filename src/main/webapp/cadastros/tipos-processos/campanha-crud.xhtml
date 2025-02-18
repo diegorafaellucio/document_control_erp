@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:c="http://java.sun.com/jsp/jstl/core"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:b="http://bootsfaces.net/ui"
+	  xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+<f:metadata>
+	<f:viewParam name="id" value="#{campanhaCrudBean.tipoProcessoId}" />
+	<f:viewAction action="#{campanhaCrudBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/navegacao.xhtml">
+	<ui:define name="tituloPagina">#{msg['campanhasCrud.titulo']}</ui:define>
+	<ui:define name="conteudo">
+		<style type="text/css">
+			.adicionar-modal .modal-dialog {
+				width: 900px;
+				padding-top: 0px;
+			}
+
+		</style>
+		<c:set var="bean" value="#{campanhaCrudBean}" />
+		<getdoc:excluirModal id="excluirModal" metodoExcluir="#{bean.excluir()}"/>
+		<h:form id="form-campanha">
+			<p:dialog id="adicionar-modal-id" header="#{msg['adicionarCampanha.label']}" draggable="true" modal="true"
+					  resizable="false" positionType="absolute" widgetVar="adicionarModal" styleClass="adicionarModal">
+				<b:row id="adicionar-modal-content-id">
+					<div class="col-sm-12">
+						<b:messages globalOnly="true" showSummary="true"/>
+					</div>
+					<div class="col-sm-4">
+						<h:outputLabel value="#{msg['configuracaoPadrao.label']}" for="configuracaoPadrao" title="#{msg['configuracaoPadraoTooltip.label']}"/>
+						<i class="fa fa-question-circle" title="#{msg['configuracaoPadraoTooltip.label']}"></i>
+						<h:selectOneRadio id="configuracaoPadrao" value="#{bean.campanha.padrao}" styleClass="radio-default"
+										  disabled="#{!bean.campanha.padrao and bean.possuiPadrao}">
+							<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+							<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+							<p:ajax update="adicionar-modal-content-id" listener="#{bean.limpaPadrao(bean.campanha.padrao)}"/>
+						</h:selectOneRadio>
+						<b:message/>
+					</div>
+					<div class="col-sm-8">
+						<b:selectOneMenu value="#{bean.tipoProcesso}" label="#{msg['tipoProcesso.label']}" required="true" disabled="true">
+							<f:selectItem itemValue="#{bean.tipoProcesso}" itemLabel="#{bean.tipoProcesso.nome}"/>
+						</b:selectOneMenu>
+						<b:message/>
+					</div>
+					<div class="col-sm-12">
+						<div class="form-group">
+							<b:inputText value="#{bean.campanha.descricao}" placeholder="#{msg['descricao.label']}"
+										 label="#{msg['descricao.label']}" renderLabel="true" maxlength="50" required="true"/>
+							<b:message/>
+						</div>
+					</div>
+					<h:panelGroup id="baseRegistro">
+						<div class="col-sm-4">
+							<label style="margin-right: 10px;">#{msg['instituicao-ensino.label']}</label>
+							<p:selectCheckboxMenu id="instituicao" value="#{bean.instituicoesSelect}" label="" disabled="#{bean.campanha.padrao}"
+												  style="max-height: 150px; overflow: auto;" collectionType="java.util.ArrayList" filter="true" multiple="true" filterMatchMode="contains">
+								<f:selectItems value="#{bean.instituicoes}" var="inst" itemValue="#{inst.baseRegistro.chaveUnicidade}" itemLabel="#{inst.labelWithChaveUnicidade}"/>
+								<f:ajax event="change" listener="#{bean.getCampus()}" render="campus qtdInst"/>
+								<f:ajax event="toggleSelect" listener="#{bean.getCampus()}" render="campus qtdInst"/>
+							</p:selectCheckboxMenu>
+							<h:outputText id="qtdInst" value="#{bean.instituicoesSelect.size()} Selecionado#{bean.instituicoesSelect.size() > 1 ? 's' : ''}" rendered="#{bean.campanha.padrao eq false}"/>
+							<b:message/>
+						</div>
+						<div class="col-sm-4">
+							<label style="margin-right: 10px;">#{msg['campus.label']}</label>
+							<p:selectCheckboxMenu id="campus" value="#{bean.campusSelect}" label="" disabled="#{bean.campanha.padrao}"
+												  style="max-height: 150px; overflow: auto;" collectionType="java.util.ArrayList" filter="true" multiple="true" filterMatchMode="contains">
+								<f:selectItems value="#{bean.campus}" var="camp" itemValue="#{camp.baseRegistro.chaveUnicidade}" itemLabel="#{camp.labelWithChaveUnicidade}"/>
+								<f:ajax event="change" listener="#{bean.getCursos()}" render="cursos qtdCamp"/>
+								<f:ajax event="toggleSelect" listener="#{bean.getCursos()}" render="cursos qtdCamp"/>
+							</p:selectCheckboxMenu>
+							<h:outputText id="qtdCamp" value="#{bean.campusSelect.size()} Selecionado#{bean.campusSelect.size() > 1 ? 's' : ''}" rendered="#{bean.campanha.padrao eq false}"/>
+							<b:message/>
+						</div>
+						<div class="col-sm-4">
+							<label style="margin-right: 10px;">#{msg['curso.label']}</label>
+							<p:selectCheckboxMenu id="cursos" value="#{bean.cursosSelect}" label="" disabled="#{bean.campanha.padrao}" converter="entityConverter"
+												  style="max-height: 150px; overflow: auto; z-index: 99999" filter="true" multiple="true" filterMatchMode="contains">
+								<f:selectItems value="#{bean.cursos}" var="cur" itemValue="#{cur.baseRegistro.chaveUnicidade}" itemLabel="#{cur.labelWithChaveUnicidade}"/>
+								<f:ajax event="change" render="qtsCurs"/>
+								<f:ajax event="toggleSelect" render="qtsCurs"/>
+							</p:selectCheckboxMenu>
+							<h:outputText id="qtsCurs" value="#{bean.cursosSelect.size()} Selecionado#{bean.campusSelect.size() > 1 ? 's' : ''}" rendered="#{bean.campanha.padrao eq false}"/>
+							<b:message/>
+						</div>
+					</h:panelGroup>
+					<div class="col-sm-12">
+						<div class="form-group">
+							<h:outputLabel value="#{msg['vigencia.label']}*"/>
+						</div>
+					</div>
+					<div class="col-sm-1">De:</div>
+					<div class="col-sm-5">
+						<b:inputText value="#{bean.campanha.inicioVigencia}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+									 label="#{msg['inicioVigencia.label']}" renderLabel="false" required="#{!bean.campanha.padrao}" disabled="#{bean.campanha.padrao}">
+							<f:convertDateTime pattern="dd/MM/yyyy"/>
+							<f:facet name="append">
+								<i class="fa fa-calendar-o fa-12x14" />
+							</f:facet>
+						</b:inputText>
+						<b:message/>
+					</div>
+					<div class="col-sm-1">Até:</div>
+					<div class="col-sm-5">
+						<b:inputText value="#{bean.campanha.fimVigencia}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+									 label="#{msg['fimVigencia.label']}" renderLabel="false" required="#{!bean.campanha.padrao}" disabled="#{bean.campanha.padrao}">
+							<f:convertDateTime pattern="dd/MM/yyyy"/>
+							<f:facet name="append">
+								<i class="fa fa-calendar-o fa-12x14" />
+							</f:facet>
+						</b:inputText>
+						<b:message/>
+					</div>
+					<div class="col-sm-12">
+						<div class="form-group">
+							<label style="margin-right: 10px;">#{msg['equivalencias.label']}</label>
+							<p:commandLink class="btn btn-default" update="form-campanha:equivalenciasId" ajax="true" immediate="true"
+										   actionListener="#{bean.adicionarEquivalencia()}" style="padding: 6px 10px 3px 10px;" title="#{msg['adicionarEquivalencia.label']}">
+								<i class="fa fa-plus" aria-hidden="true" style="font-size: 22px; color: green;"></i>
+							</p:commandLink>
+						</div>
+					</div>
+					<h:panelGroup id="equivalenciasId">
+						<ui:repeat value="#{bean.equivalenciaVOs}" var="equivalencia" >
+							<div class="col-md-12">
+								<div class="col-md-5 noMarginBottom">
+									<b:selectOneMenu value="#{equivalencia.documentoEquivalente}" label="#{msg['documentoEquivalente.label']}" required="true">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{bean.tiposDocumentos}" var="vo" itemValue="#{vo.tipoDocumento}" itemLabel="#{vo.tipoDocumento.nome}"/>
+									</b:selectOneMenu>
+									<b:message/>
+								</div>
+								<div class="col-md-6 noMarginBottom">
+									<h:outputLabel value="#{msg['documentosEquivalidos.label']}"/>
+									<p:selectCheckboxMenu value="#{equivalencia.documentosEquivalidos}" label="" multiple="true"
+														  style="max-height: 150px; overflow: auto;" converter="entityConverter">
+										<f:selectItems value="#{bean.tiposDocumentos}" var="vo" itemValue="#{vo.tipoDocumento}" itemLabel="#{vo.tipoDocumento.nome}"/>
+									</p:selectCheckboxMenu>
+								</div>
+								<div class="col-md-1 noMarginBottom">
+									<p:commandLink class="btn btn-danger" style="margin-left: -20px;" title="Remover item" process="form-campanha:equivalenciasId"
+												   actionListener="#{campanhaCrudBean.removerEquivalencia(equivalencia)}" update="form-campanha:equivalenciasId">
+										<i class="fa fa-trash fa-1" aria-hidden="true" style="color: #fff;"></i>
+									</p:commandLink>
+								</div>
+							</div>
+						</ui:repeat>
+					</h:panelGroup>
+					<div class="col-sm-12">
+						<div class="form-group" jsf:id="obrigatoriedadesId">
+							<h:outputLabel value="#{msg['documentosObrigatorios.label']}" rendered="#{bean.tiposDocumentos ne null}" style="margin-bottom: 5px!important;"/>
+							<ui:repeat value="#{bean.tiposDocumentos}" var="vo">
+								<p><h:selectBooleanCheckbox value="#{vo.obrigatorio}" title="Obrigatório"/>
+									<h:panelGroup id="exibirNoPortal">
+										<p:commandLink style="cursor: pointer; color: #0C1021; font-size: 17px!important;" actionListener="#{bean.setExibir(vo)}" update="exibirNoPortal">
+											<i class="fa #{vo.exibirNoPortal ? ' fa-eye' : 'fa-eye-slash'}" aria-hidden="true" title="#{vo.exibirNoPortal ? 'Exibido no Portal' : 'Não Exibido no Portal'}"></i>
+										</p:commandLink>
+									</h:panelGroup>
+									#{vo.tipoDocumento.nome}</p>
+							</ui:repeat>
+						</div>
+					</div>
+					<div class="col-sm-12" style="margin-bottom: -10px;">
+						<hr></hr>
+						<div class="col-sm-6 col-sm-offset-6">
+							<div class="form-group" style="float: right;">
+								<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="PF('adicionarModal').hide();" style="margin-right: 2px;"/>
+								<p:commandButton value="#{msg['salvar.label']}" actionListener="#{campanhaCrudBean.salvar()}" update="adicionar-modal-content-id form-campanha-list" styleClass="btn"/>
+							</div>
+						</div>
+					</div>
+					<script type="text/javascript">
+						jQuery(function($) {
+							configurarMascaras();
+							configurarDatePicker();
+						});
+					</script>
+				</b:row>
+			</p:dialog>
+		</h:form>
+		<h:form id="form-campanha-list">
+			<div class="row">
+				<div class="col-sm-12">
+					<div style="float: left; margin-top: 20px;">
+						<h:outputLabel value="#{msg['tipoProcesso.label']}"/>:&nbsp;
+						<h:outputText value="#{bean.tipoProcesso.nome}"/>
+					</div>
+					<p:commandLink value="#{msg['adicionarCampanha.label']}" onclick="PF('adicionarModal').show()" class="btn btn-primary btn-lg" style="float: right;" update="form-campanha:adicionar-modal-content-id form-campanha:baseRegistro" rendered="#{menuBean.podeEditar()}">
+						<f:setPropertyActionListener target="#{bean.campanha}" value="#{null}" />
+					</p:commandLink>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-12">
+					<p:dataTable var="campanha" value="#{bean.dataModel}" rows="10" paginator="true" lazy="true"
+								 paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}" paginatorPosition="bottom"
+								 currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}">
+						<p:column headerText="ID" style="width: 100px; text-align: center;">
+							<h:outputText value="#{campanha.id}" />
+						</p:column>
+						<p:column headerText="#{msg['descricao.label']}" style="text-align: center;">
+							<h:outputText value="#{campanha.descricao}" />
+							<h:panelGroup rendered="#{campanha.padrao}">
+								<i class="fa fa-cog" title="#{msg['configuracaoPadraoCampanhaTooltip.label']}"></i>
+							</h:panelGroup>
+						</p:column>
+						<p:column headerText="#{msg['dataInicial.label']}" style="text-align: center;">
+							<h:outputText value="#{utilBean.getDateStr(campanha.inicioVigencia)}" />
+						</p:column>
+						<p:column headerText="#{msg['dataExpiracao.label']}" style="text-align: center;">
+							<h:outputText value="#{utilBean.getDateStr(campanha.fimVigencia)}" />
+						</p:column>
+						<p:column style="width: 240px;" sortable="false" rendered="#{menuBean.podeEditar()}">
+							<p:commandLink value="#{msg['editar.label']}" onclick="PF('adicionarModal').show()" class="btn btn-warning btn-editar" update="form-campanha:adicionar-modal-content-id">
+								<f:setPropertyActionListener target="#{bean.campanha}" value="#{campanha}" />
+							</p:commandLink>
+							<p:commandLink value="#{msg['excluir.label']}" onclick="openModal('excluir-modal', 'excluirModal:form-exclusao:excluir-btn')"
+										   class="btn btn-danger btn-excluir" rendered="#{menuBean.podeExcluir()}">
+								<f:setPropertyActionListener target="#{bean.campanha}" value="#{campanha}" />
+							</p:commandLink>
+						</p:column>
+					</p:dataTable>
+				</div>
+			</div>
+		</h:form>
+	</ui:define>
+</ui:composition>
+</html>

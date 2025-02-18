@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:b="http://bootsfaces.net/ui"
+	  xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+<f:metadata>
+	<f:viewAction action="#{modeloDocumentoCrudBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/navegacao.xhtml">
+	<ui:define name="tituloPagina">#{msg['modeloDocumentoCrud.titulo']}</ui:define>
+	<ui:define name="conteudo">
+		<style>
+			.adicionar-modal .modal-dialog {
+				padding-top: 0px;
+				width: 750px;
+			}
+		</style>
+		<getdoc:excluirModal id="excluirModal" metodoExcluir="#{modeloDocumentoCrudBean.excluir()}"/>
+		<h:form id="form-modeloDocumento">
+			<b:modal id="adicionar-modal-id" title="#{msg['adicionarModeloDocumento.label']}" styleClass="adicionar-modal" rendered="#{menuBean.podeEditar()}">
+				<b:row id="adicionar-modal-content-id">
+					<b:messages globalOnly="true" showSummary="true"/>
+					<div class="col-sm-12">
+						<div class="row">
+							<div class="col-sm-10">
+								<div class="form-group">
+									<b:inputText value="#{modeloDocumentoCrudBean.modeloDocumento.descricao}"
+												 label="#{msg['descricao.label']}" renderLabel="true" maxlength="100" required="false"/>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-2">
+								<div class="form-group">
+									<b:switch onText="#{msg['sim.label']}" label="#{msg['isAtivo.label']}" offText="#{msg['nao.label']}"
+											  value="#{ modeloDocumentoCrudBean.modeloDocumento.ativo }"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12">
+								<div class="form-group">
+									<b:selectOneMenu value="#{modeloDocumentoCrudBean.modeloDocumento.modeloOcr}"
+													 label="#{msg['modeloOcr.label']}">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{modeloDocumentoCrudBean.modelosOcr}" var="m"
+													   itemValue="#{m}" itemLabel="#{m.descricao}"/>
+									</b:selectOneMenu>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<h4 class="tituloForm">#{msg['opcoesDarknet.label']}</h4>
+						<div class="col-sm-12">
+							<div class="row">
+								<div class="col-sm-12">
+									<div class="form-group">
+										<b:inputText value="#{modeloDocumentoCrudBean.modeloDocumento.labelDarknet}"
+													 label="#{msg['labelDarknet.label']}" renderLabel="true" maxlength="100" required="false"/>
+										<b:message/>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-sm-9">
+									<div class="form-group">
+										<b:inputText value="#{modeloDocumentoCrudBean.modeloDocumento.percentualMininoTipificacao}"
+													 label="#{msg['percentualMinimoTipificacao.label']}" renderLabel="true" maxlength="3" styleClass="mask-number">
+											<f:convertNumber pattern="####"/>
+										</b:inputText>
+										<b:message/>
+									</div>
+								</div>
+								<div class="col-sm-3">
+									<div class="form-group pull-right">
+										<b:switch onText="#{msg['sim.label']}" label="#{msg['isDarknetHabilitada.label']}" offText="#{msg['nao.label']}"
+												  value="#{ modeloDocumentoCrudBean.modeloDocumento.darknetApiHabilitada }"/>
+										<b:message/>
+									</div>
+								</div>
+							</div>
+						</div>
+						<h4 class="tituloForm">#{msg['opcoesVision.label']}</h4>
+						<div class="col-sm-12">
+							<div class="row">
+								<div class="col-sm-12">
+									<div class="form-group">
+										<h:outputLabel value="#{msg['palavrasEsperadas.label']}" for="palavrasEsperadas-id" styleClass="control-label"/>
+										<p:autoComplete id="palavrasEsperadas-id" multiple="true" label="#{msg['palavrasEsperadas.label']}" required="false"
+														value="#{modeloDocumentoCrudBean.palavrasEsperadasList}" completeMethod="#{modeloDocumentoCrudBean.getPalavrasEsperadas}"
+														var="dest" itemLabel="#{dest}" itemValue="#{dest}" forceSelection="true" dropdown="true">
+											<h:outputText value="#{dest}" />
+										</p:autoComplete>
+										<b:message/>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-sm-12">
+									<div class="form-group">
+										<h:outputLabel value="#{msg['palavrasExcludentes.label']}" for="palavrasExcludentes-id" styleClass="control-label" style="margin-top: 16px;" />
+										<p:autoComplete id="palavrasExcludentes-id" multiple="true" label="#{msg['palavrasExcludentes.label']}" required="false"
+														value="#{modeloDocumentoCrudBean.palavrasExcludentesList}" completeMethod="#{modeloDocumentoCrudBean.getPalavrasExcludentes}"
+														var="dest2" itemLabel="#{dest2}" itemValue="#{dest2}" forceSelection="true" dropdown="true">
+											<h:outputText value="#{dest2}" />
+										</p:autoComplete>
+										<b:message/>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="form-group">
+									<div class="col-sm-offset-9 col-sm-3">
+										<div class="form-group pull-right">
+											<b:switch onText="#{msg['sim.label']}" label="#{msg['isVisionHabilitada.label']}" offText="#{msg['nao.label']}"
+													  value="#{ modeloDocumentoCrudBean.modeloDocumento.visionApiHabilitada }"/>
+											<b:message/>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<script type="text/javascript">
+						jQuery(function($) {
+							configurarMascaras();
+							configurarDatePicker();
+						});
+					</script>
+				</b:row>
+
+				<f:facet name="footer">
+					<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+					<p:commandButton value="#{msg['salvar.label']}" actionListener="#{modeloDocumentoCrudBean.salvar()}" update="adicionar-modal-content-id form-modeloDocumento-list" styleClass="btn"/>
+				</f:facet>
+			</b:modal>
+		</h:form>
+		<h:form id="form-modeloDocumento-list">
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="col-sm-1" style="margin-bottom: 0;">
+						<b:commandButton value="#{msg['exportar.label']}" actionListener="#{modeloDocumentoCrudBean.exportarPalavrasEE}" styleClass="btn btn-primary btn-md" style="margin-top: 12px;"/>
+					</div>
+					<p:commandLink value="#{msg['adicionarModeloDocumento.label']}" onclick="openModal('adicionar-modal')" class="btn btn-primary btn-lg" style="float: right;" update="form-modeloDocumento:adicionar-modal-content-id" rendered="#{menuBean.podeEditar()}">
+						<f:setPropertyActionListener target="#{modeloDocumentoCrudBean.modeloDocumento}" value="#{null}" />
+					</p:commandLink>
+				</div>
+			</div>
+			<div class="row">
+				<p:dataTable var="modeloDocumento" value="#{modeloDocumentoCrudBean.dataModel}" rows="100" paginator="true" lazy="true"
+							 paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+							 currentPageReportTemplate="Total: {totalRecords}" paginatorPosition="bottom"
+							 scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+							 stickyHeader="true" stickyTopAt=".layout-topbar">
+					<p:column headerText="ID" style="text-align: center; width: 50px;">
+						<h:outputText value="#{modeloDocumento.id}" style="text-align: center;"/>
+					</p:column>
+					<p:column headerText="#{msg['descricao.label']}" style="text-align: center;">
+						<h:outputText value="#{modeloDocumento.descricao}" style="text-align: center;"/>
+					</p:column>
+					<p:column headerText="#{msg['isDarknetHabilitada.label']}" style="width: 100px; text-align: center;">
+						<h:outputText value="#{msg['sim.label']}" rendered="#{modeloDocumento.darknetApiHabilitada}"/>
+						<h:outputText value="#{msg['nao.label']}" rendered="#{!modeloDocumento.darknetApiHabilitada}"/>
+					</p:column>
+					<p:column headerText="#{msg['labelDarknet.label']}" style="text-align: center;">
+						<h:outputText value="#{modeloDocumento.labelDarknet}" />
+					</p:column>
+					<p:column headerText="#{msg['isVisionHabilitada.label']}" style="width: 100px; text-align: center;">
+						<h:outputText value="#{msg['sim.label']}" rendered="#{modeloDocumento.visionApiHabilitada}"/>
+						<h:outputText value="#{msg['nao.label']}" rendered="#{!modeloDocumento.visionApiHabilitada}"/>
+					</p:column>
+					<p:column headerText="#{msg['isAtivo.label']}" style="width: 100px; text-align: center;">
+						<h:outputText value="#{msg['sim.label']}" rendered="#{modeloDocumento.ativo}"/>
+						<h:outputText value="#{msg['nao.label']}" rendered="#{!modeloDocumento.ativo}"/>
+					</p:column>
+					<p:column style="width: 240px;" sortable="false" rendered="#{menuBean.podeEditar()}">
+						<p:commandLink value="#{msg['editar.label']}" onclick="openModal('adicionar-modal')" class="btn btn-warning btn-editar" update="form-modeloDocumento:adicionar-modal-content-id">
+							<f:setPropertyActionListener target="#{modeloDocumentoCrudBean.modeloDocumento}" value="#{modeloDocumento}" />
+						</p:commandLink>
+						<p:commandLink value="#{msg['excluir.label']}" onclick="openModal('excluir-modal', 'excluirModal:form-exclusao:excluir-btn')" class="btn btn-danger btn-excluir" rendered="#{menuBean.podeExcluir()}">
+							<f:setPropertyActionListener target="#{modeloDocumentoCrudBean.modeloDocumento}" value="#{modeloDocumento}" />
+						</p:commandLink>
+					</p:column>
+				</p:dataTable>
+			</div>
+		</h:form>
+	</ui:define>
+</ui:composition>
+</html>

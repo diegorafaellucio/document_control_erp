@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:b="http://bootsfaces.net/ui"
+	  xmlns:p="http://primefaces.org/ui">
+<f:metadata>
+	<f:viewAction action="#{relatorioLogAnaliseIABean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/navegacao.xhtml">
+	<ui:define name="head">
+		<link href="#{request.contextPath}/resources/css/prism.css" rel="stylesheet"/>
+		<script src="#{request.contextPath}/resources/highcharts/highcharts.js"></script>
+		<script src="#{request.contextPath}/resources/highcharts/modules/data.js"></script>
+		<script src="#{request.contextPath}/resources/highcharts/modules/exporting.js"></script>
+	</ui:define>
+	<ui:define name="tituloPagina">#{msg['relatorioTipificacao.titulo']}</ui:define>
+	<ui:define name="conteudo">
+		<h:form id="form">
+			<div class="row default-form">
+				<div class="col-sm-12">
+					<div class="row">
+						<div class="col-sm-6">
+							<div class="form-group">
+								<h:outputLabel value="#{msg['periodo.label']}"/>
+								<b:panelGrid colSpans="3,1,4,1,3" style="margin-bottom: -20px; margin-left: 5px;">
+									<b:selectOneMenu value="#{relatorioLogAnaliseIABean.logAnaliseIAFiltro.considerarData}" converter="enumConverter" >
+										<f:selectItems value="#{relatorioLogAnaliseIABean.considerarDatas}" var="sp" itemLabel="#{msg['ConsiderarData.'.concat(sp).concat('.label')]}" itemValue="#{sp}" />
+									</b:selectOneMenu>
+									<h:outputText value="#{msg['de.label']}"/>
+									<b:inputText id="dataInicioId" value="#{relatorioLogAnaliseIABean.logAnaliseIAFiltro.dataInicio}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+												 label="#{msg['dataInicial.label']}" renderLabel="false" required="true">
+										<f:convertDateTime pattern="dd/MM/yyyy"/>
+										<f:facet name="append">
+											<i class="fa fa-calendar-o fa-12x14" />
+										</f:facet>
+									</b:inputText>
+									<h:outputText value="#{msg['ate.label']}"/>
+									<b:inputText id="dataFimId" value="#{relatorioLogAnaliseIABean.logAnaliseIAFiltro.dataFim}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+												 label="#{msg['dataFinal.label']}" renderLabel="false" required="true">
+										<f:convertDateTime pattern="dd/MM/yyyy"/>
+										<f:facet name="append">
+											<i class="fa fa-calendar-o fa-12x14" />
+										</f:facet>
+									</b:inputText>
+								</b:panelGrid>
+								<b:message for="dataInicioId" showSummary="false"/>
+								<b:message for="dataFimId" showSummary="false"/>
+								<script type="text/javascript">
+									jQuery(function($) {
+										configurarMascaras();
+										configurarDatePicker();
+									});
+								</script>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-12">
+							<div class="form-group" style="float: right;">
+								<b:commandButton id="buscarId" value="#{msg['buscar.label']}" styleClass="btn btn-primary btn-md" update="form" style="margin-left: 10px"
+												 actionListener="#{relatorioLogAnaliseIABean.buscar()}" />
+								<b:commandButton id="exportarId" value="#{msg['exportar.label']}" styleClass="btn btn-primary btn-md"
+												 style="margin-left: 10px" onclick="exportarInicio()"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<p:remoteCommand name="exportar" actionListener="#{relatorioLogAnaliseIABean.exportar()}" oncomplete="verificarNoBean()" />
+				<p:remoteCommand name="verificarNoBean" actionListener="#{relatorioLogAnaliseIABean.verificar()}" oncomplete="verificar()"/>
+				<b:commandButton id="baixarId" value="#{msg['baixar.label']}" style="display:none" action="#{relatorioLogAnaliseIABean.baixar}"/>
+			</div>
+			<h:panelGroup id="chartsId" >
+				<h4 class="tituloForm">
+					Processos Analisados: #{relatorioLogAnaliseIABean.totalProcessos}
+				</h4>
+				<div class="row default-form" >
+					<div class="col-sm-6">
+						<div id="statusProcessoId" style="min-width: 90%; height: 350px; margin: 0 auto; float: left;"/>
+						<script>
+							function gerarGraficoStatusProcesso(pieChartData) {
+								Highcharts.setOptions({
+									colors: ['#66a5ed', '#3784db', '#889eb8', '#124b8c', '#ebeef2']
+								});
+
+
+								Highcharts.chart('statusProcessoId', {
+									chart: {
+										plotBackgroundColor: null,
+										plotBorderWidth: null,
+										plotShadow: false,
+										type: 'pie'
+									},
+									tooltip: {
+										pointFormat: '<b>{point.percentage:.1f}%</b> <br/><b>Total {point.y}</b>'
+									},
+									title: {
+										text: pieChartData.title
+									},
+									series: pieChartData.series
+								});
+							}
+						</script>
+					</div>
+					<div class="col-sm-6">
+						<div id="acompanhamentoProcessosId" style="min-width: 90%; height: 350px; margin: 0 auto; float: left;"/>
+						<script>
+							function gerarGraficoAcompanhamentoProcessos(stackedBarChartData) {
+								console.log(stackedBarChartData)
+								console.log(stackedBarChartData.series)
+								console.log(stackedBarChartData.categories)
+
+								Highcharts.setOptions({
+									colors: ['#66a5ed', '#3784db', '#889eb8', '#124b8c', '#ebeef2']
+								});
+
+								Highcharts.chart('acompanhamentoProcessosId', {
+									chart: {
+										type: 'column'
+									},
+									title: {
+										text: 'Processos'
+									},
+									xAxis: {
+										categories: stackedBarChartData.categories
+									},
+									yAxis: {
+										min: 0,
+										title: {
+											text: 'Total de Processos'
+										},
+										stackLabels: {
+											enabled: true,
+											style: {
+												fontWeight: 'bold',
+												color: ( // theme
+														Highcharts.defaultOptions.title.style
+												) || 'gray'
+											}
+										}
+									},
+									legend: {
+										align: 'right',
+										x: -30,
+										y: 25,
+										floating: true,
+										backgroundColor:
+												Highcharts.defaultOptions.legend.backgroundColor || 'white',
+										borderColor: '#CCC',
+										borderWidth: 1,
+										shadow: false
+									},
+									tooltip: {
+										headerFormat: '<b>{point.x}</b><br/>',
+										pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.percentage:.0f}%)<br/>',
+										shared: true
+									},
+									plotOptions: {
+										column: {
+											stacking: 'normal',
+											dataLabels: {
+												enabled: true
+											}
+										}
+									},
+									series: stackedBarChartData.series
+								});
+							}
+						</script>
+					</div>
+				</div>
+				<h4 class="tituloForm">
+					Documentos Analisados: #{relatorioLogAnaliseIABean.totalDocumentos}
+				</h4>
+				<div class="row default-form" >
+					<div class="col-sm-4">
+						<div id="statusTipificacaoId" style="min-width: 90%; height: 350px; margin: 0 auto; float: left;"/>
+						<script>
+							function gerarGraficoStatusTipificacao(pieChartData) {
+								Highcharts.setOptions({
+									colors: ['#66a5ed', '#3784db', '#889eb8', '#124b8c', '#ebeef2']
+								});
+
+
+								Highcharts.chart('statusTipificacaoId', {
+									chart: {
+										plotBackgroundColor: null,
+										plotBorderWidth: null,
+										plotShadow: false,
+										type: 'pie'
+									},
+									tooltip: {
+										pointFormat: '<b>{point.percentage:.1f}%</b> <br/><b>Total {point.y}</b>'
+									},
+									title: {
+										text: pieChartData.title
+									},
+									series: pieChartData.series
+								});
+							}
+						</script>
+					</div>
+					<div class="col-sm-4">
+						<div id="statusOCRId" style="min-width: 90%; height: 350px; margin: 0 auto; float: left;"/>
+						<script>
+							function gerarGraficoStatusOCR(pieChartData) {
+								Highcharts.chart('statusOCRId', {
+									chart: {
+										plotBackgroundColor: null,
+										plotBorderWidth: null,
+										plotShadow: false,
+										type: 'pie'
+									},
+									tooltip: {
+										pointFormat: '<b>{point.percentage:.1f}%</b> <br/><b>Total {point.y}</b>'
+									},
+									title: {
+										text: pieChartData.title
+									},
+									series: pieChartData.series
+								});
+							}
+						</script>
+					</div>
+					<div class="col-sm-4">
+						<div id="statusDocumentoId" style="min-width: 90%; height: 350px; margin: 0 auto; float: left;"/>
+						<script>
+							function gerarGraficoStatusDocumentos(pieChartData) {
+								Highcharts.chart('statusDocumentoId', {
+									chart: {
+										plotBackgroundColor: null,
+										plotBorderWidth: null,
+										plotShadow: false,
+										type: 'pie'
+									},
+									tooltip: {
+										pointFormat: '<b>{point.percentage:.1f}%</b> <br/><b>Total {point.y}</b>'
+									},
+									title: {
+										text: pieChartData.title
+									},
+									series: pieChartData.series
+								});
+							}
+						</script>
+					</div>
+				</div>
+			</h:panelGroup>
+		</h:form>
+		<script type="text/javascript">
+
+			function exportarInicio() {
+				document.getElementById('form:buscarId').disabled = true;
+				document.getElementById('form:exportarId').disabled = true;
+				this.disabled = true;
+				waitingDialog.show('Aguarde...');
+				exportar();
+			}
+
+			function verificar() {
+
+				var data = OmniFaces.Ajax.data;
+				var terminou = data.terminou;
+
+				if(terminou) {
+					baixar();
+				}
+				else if (terminou == false) {
+					setTimeout(verificarNoBean, 2000);
+				}
+			}
+
+			function baixar() {
+				document.getElementById('form:baixarId').click();
+				document.getElementById('form:buscarId').disabled = false;
+				document.getElementById('form:exportarId').disabled = false;
+				waitingDialog.hide();
+			}
+
+		</script>
+	</ui:define>
+</ui:composition>
+</html>

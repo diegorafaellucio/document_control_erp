@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+    xmlns:jsf="http://xmlns.jcp.org/jsf"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:gd="http://xmlns.jcp.org/jsf/component"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+<ui:composition template="/mobile/master.xhtml">
+	<f:metadata>
+		<f:viewParam name="origem" value="#{novaRequisicaoBean.origem}" />
+		<f:event type="preRenderView" listener="#{novaRequisicaoBean.init}" />
+	</f:metadata>
+	<ui:define name="master.style">
+	</ui:define>
+	<ui:define name="master.script">
+		<c:set var="bean" value="#{novaRequisicaoBean}" />
+		<script type="text/javascript">
+			//<![CDATA[
+			Device = {
+				onReady: function() {
+					Device.initialize(#{bean.deviceInitializeScript});
+				},
+				onTapped: function(id) {
+					if (id == 1) {
+						location.href = '#{request.contextPath}/mobile/requisicao/fila.xhtml'
+					} else if (id == 2) {
+						Device.Scan.open({
+							url: '#{request.contextPath}/rest/file/recognition/upload'
+						});
+					}
+				},
+				onRecognition: function(result) {
+					var json = JSON.stringify(result);
+					onScanReady({ upload: json });
+				}
+			};
+			//]]>
+		</script>
+	</ui:define>
+	<ui:define name="master.content">
+		<div class="container">
+			<h:form style="margin-top: 15px">
+				<c:set var="bean" value="#{novaRequisicaoBean}" />
+
+				<h:outputScript rendered="#{bean.tipoProcesso.preencherViaOcr}">
+					(function($) {
+						$(function() {
+							setTimeout(function() { Device.onTapped(2); }, 250);
+						});
+					})(jQuery);
+				</h:outputScript>
+				
+				<o:commandScript 
+					name="onScanReady"
+					action="#{bean.onScanReady}"
+					render="@form"
+					/>
+				<b:messages styleClass="mensagensGlobais"/>
+				<div class="form-group">
+					<h:outputLabel 
+						value="#{msg['tipoProcesso.label']}"
+						styleClass="control-label"
+						/>
+					<h:selectOneMenu
+						id="tipoProcesso" 
+						value="#{bean.tipoProcesso}"
+						label="#{msg['tipoProcesso.label']}"
+						styleClass="form-control"
+						onchange="submit()"
+						valueChangeListener="#{bean.onTipoProcessoChange}"
+						converter="omnifaces.SelectItemsIndexConverter"
+						>
+						<f:selectItem itemValue="#{null}" itemLabel="#{msg['selecione.label']}"/>
+						<f:selectItems 
+							var="item" 
+							itemValue="#{item}" 
+							itemLabel="#{item.nome}"
+							value="#{bean.tiposProcessos}"
+							/>
+						
+					</h:selectOneMenu>
+	 			</div>
+	 			<c:forEach var="grupo" items="#{bean.grupos}">
+					<div class="secao text-danger">
+						<h:outputText value="#{grupo.nome}" />
+					</div>
+					<c:forEach var="campo" items="#{bean.getCamposBy(grupo)}">
+						<gd:campo campo="#{campo}" edit="#{true}"/>
+	               	</c:forEach>
+				</c:forEach>
+				<script type="text/javascript">
+					(function($) {
+						$(function() {
+							configurarMascaras();
+							configurarDatePicker();
+						});
+					})(jQuery);
+				</script>
+	 			<h:commandLink
+	 				actionListener="#{bean.salvar()}"
+	 				rendered="#{not empty bean.tipoProcesso}"
+	 				styleClass="btn btn-danger btn-fab br"
+	 				>
+	 				<i class="fa fa-floppy-o" />
+	 			</h:commandLink>
+				<getdoc:camposScript/>
+			</h:form>
+		</div>
+	</ui:define>
+</ui:composition>
+</html>

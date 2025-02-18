@@ -1,0 +1,110 @@
+package net.wasys.getdoc.domain.enumeration;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class RelatorioGeralCampos {
+
+	public static final List<String> CAMPOS_COD = Arrays.asList(CampoMap.CampoEnum.INSTITUICAO.getNome(), CampoMap.CampoEnum.CAMPUS.getNome(), CampoMap.CampoEnum.CURSO.getNome());
+
+	public enum ColunasEnum {
+		DOCUMENTO_NOME("Documento"),
+		DATA_DIGITALIZACAO("Data Digitalização"),
+		STATUS_DOCUMENTO("Status Documento"),
+		RELATORIO_GERAL_ID("Relatorio Geral ID"),
+		ID("ID"),
+		PROCESSO_ID("Processo ID"),
+		MOTIVO_DA_REQUISICAO("Motivo da Requisição"),
+		PROPOSTA("Proposta"),
+		CPF("CPF"),
+		NOME("Nome"),
+		NOME_SOCIAL("Nome Social"),
+		PASSAPORTE("Passaporte"),
+		IDENTIDADE("Identidade"),
+		ORGAO_EMISSOR("Orgão Emissor"),
+		DATA_EMISSAO("Data Emissão"),
+		MAE("Nome da Mãe"),
+		PAI("Nome do Pai"),
+		DATA_DE_CRIACAO("Data de Criação"),
+		HHMM("hh:mm"),
+		TEMPO_TRATATIVA("Tempo Tratativa"),
+		DATA_DE_ENVIO("Data de Envio"),
+		DATA_EM_ANALISE("Data Em Análise"),
+		PRAZO_ANALISE_H("Prazo Análise (h)"),
+		PRAZO_ANALISE("Prazo Análise"),
+		DATA_FIM_ANALISE("Data Fim Análise"),
+		DATA_ACOMPANHAMENTO("Data Acompanhamento"),
+		PRAZO_ACOMPANHAMENTO("Prazo Acompanhamento"),
+		DATA_FIM_EM_ACOMPANHAMENTO("Data Fim Em Acompanhamento"),
+		DATA_ULTIMA_TRATATIVA("Data Última Tratativa"),
+		DATA_FINALIZACAO("Data Finalização"),
+		SITUACAO("Situação"),
+		STATUS("Status"),
+		PRIORIDADE("Prioridade"),
+		ORIGEM("Origem"),
+		MODALIDADE("Modalidade"),
+		AUTOR("Autor"),
+		AUTOR_LOGIN("Autor Login"),
+		AUTOR_PERFIL("Autor Perfil"),
+		ANALISTA("Analista"),
+		ANALISTA_LOGIN("Analista Login"),
+		TEMPO_RASCUNHO("Tempo Rascunho"),
+		TEMPO_AGUARD_AN("Tempo Aguard. An."),
+		VEZES_AGUARD_AN("Vezes Aguard. An."),
+		TEMPO_PENDENTE("Tempo Pendente"),
+		VEZES_PENDENTE("Vezes Pendente"),
+		TEMPO_EM_ACOMPANHAMENTO("Tempo Em Acompanhamento"),
+		VEZES_EM_ACOMPANHAMENTO("Vezes Em Acompanhamento"),
+		TEMPO_EM_ANALISE("Tempo Em Análise"),
+		VEZES_EM_ANALISE("Vezes Em Análise"),
+		TEMPO_ATE_FIN_AN("Tempo Até Fin. An."),
+		TEMPO_ATE_FIN("Tempo Até Fin."),
+		TEMPO_SLA_CRIACAO("Tempo SLA Criação"),
+		TEMPO_SLA_CRIACAO_DIAS("Tempo SLA Criação (dias)"),
+		TEMPO_SLA_TRATATIVA("Tempo SLA Tratativa"),
+		TEMPO_SLA_TRATATIVA_DIAS("Tempo SLA Tratativa (dias)"),
+		SITUACAO_ID("Situação ID"),
+		SITUACAO_ANTERIOR("Situação Anterior"),
+		TEMPO_TOTAL("Tempo Total"),
+		DATA_SITUACAO("Data Situação"),
+		HORA_SITUACAO("Hora Situação"),
+		DATA_FIM_SITUACAO("Data Fim Situação"),
+		HORA_FIM_SITUACAO("Hora Fim Situação"),
+		ANALISTA_ANALISE_ISENCAO("Analista CSC"),
+		ETAPA("Etapa"),
+		FASE_ETAPA("Fase Etapa"),
+		INICIO_ETAPA("Data Inicio Etapa"),
+		FIM_ETAPA("Data Fim Etapa"),
+		TEMPO_TOTAL_ETAPA("Tempo Total"),
+		CONTAGEM_ETAPA_CONLUIDA("Contagem Etapa Concluída"),
+		PRAZO_ANALISE_ETAPA("Prazo Analise Etapa"),
+		SLA_ATENDIDO_ETAPA("Sla Atendido"),
+		TRATATIVAS_NAO_CONTADAS_ETAPA("Tratativas Não Contadas"),
+		SOLICITACAO_ID("Solicitação ID"),
+		AREA("Área"),
+		ACAO_TOMADA("Ação Tomada"),
+		DATA_SOLICITACAO("Data da Solicitação"),
+		PRAZO_SOLICITACAO("Prazo da Solicitação"),
+		DATA_FIM_SOLICITACAO("Data Fin. Solicitação"),
+		DATA("Data"),
+		DATA_FIM("Data Fim"),
+		USUARIOS("Usuarios Etapas"),
+		PROCESSO_LOG_ID("Processo Log ID"),
+		SITUACAO_DE("Situação de"),
+		SITUACAO_PARA("Situação para"),
+		SUBPERFIL_ATIVO("Subperfil"),
+		REVISAO_RESULTADO("Revisão de Isenção - Resultado"),
+		ACAO_FINANCIAMENTOS("Ação Financiamentos"),
+		EVIDENCIA("Alteração Ficha de Inscrição Prouni"),
+		STATUS_SITUACAO("Status Situação"),
+		IES_DE_ORIGEM("Ies de Origem");
+
+		private String nome;
+		ColunasEnum(String nome) {
+			this.nome = nome;
+		}
+		public String getNome() {
+			return nome;
+		}
+	}
+}

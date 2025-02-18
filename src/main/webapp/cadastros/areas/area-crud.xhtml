@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui">
+	<f:metadata>
+		<f:viewAction action="#{areaCrudBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="head">
+			<style>
+				.area-modal .modal-dialog {
+					width: 900px;
+				}
+				.bootstrap-tagsinput input {
+				    min-width: 0px;
+				}
+			</style>
+		</ui:define>
+		<ui:define name="tituloPagina">#{msg['areaCrud.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<h:form id="form-exclusao">
+				<b:modal title="#{msg['confirmarExclusaoTitulo.label']}" styleClass="confirmar-modal excluir-modal" rendered="#{menuBean.podeExcluir()}">
+					<p><h4 class="msg-confirm"><h:outputText value="#{msg['registroExcluir.confirm']}"/> </h4></p>
+					<f:facet name="footer">
+						<p:commandButton id="excluir-btn" value="#{msg['excluir.label']}" actionListener="#{areaCrudBean.excluir()}" update="content-pg-id" styleClass="btn btn-danger" oncomplete="closeModal('excluir-usuario-modal')"/>
+						<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-area">
+				<b:modal id="area-modal-id" title="#{msg['adicionarArea.label']}" styleClass="area-modal" rendered="#{menuBean.podeEditar()}">
+					<b:row id="area-modal-content-id">
+						<div class="col-sm-12">
+							<b:messages globalOnly="true" showSummary="true"/>
+							<div class="form-group">
+								<b:inputText value="#{areaCrudBean.area.descricao}" label="#{msg['nome.label']}" renderLabel="true" maxlength="100" required="true" disabled="#{areaCrudBean.disabled}"/>
+								<b:message/>
+							</div>
+							<div class="form-group">
+								<b:inputText value="#{areaCrudBean.area.horasPrazo}" label="#{msg['horasPrazo.label']}" renderLabel="true" maxlength="100" required="true" />
+								<b:message/>
+							</div>
+							<div class="form-group">
+								<h:outputLabel value="#{msg['isAtiva.label']}" for="ativoId"/>
+								<h:selectOneRadio id="ativoId" value="#{areaCrudBean.area.ativo}" label="#{msg['isAtiva.label']}" styleClass="radio-default" disabled="#{areaCrudBean.disabled}">
+									<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+									<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+								</h:selectOneRadio>
+								<b:message/>
+							</div>
+							<div class="row">
+								<div class="col-sm-12" style="margin-bottom: 0;">
+									<p:commandLink onclick="openModal('area-modal')" class="btn btn-default" update="form-area:subareas-id"
+											style="float: right; padding: 6px 10px 3px 10px;" title="#{msg['adicionarSubarea.label']}" >
+										<f:actionListener binding="#{areaCrudBean.addSubarea()}"/>
+										<i class="fa fa-plus" aria-hidden="true" style="font-size: 22px; color: green;"></i>
+									</p:commandLink>
+									<h5 class="tituloForm" style="margin-bottom: 10px;"><h:outputText value="#{msg['subareas.label']}"/></h5>
+								</div>
+						   	</div>
+							<h:panelGroup id="subareas-id">
+							<ui:repeat value="#{areaCrudBean.subareas}" var="sa">
+								<div class="row">
+									<div class="col-sm-3">
+										<div class="form-group">
+											<b:inputText value="#{sa.descricao}" label="#{msg['nome.label']}" renderLabel="true" maxlength="100" required="true" disabled="#{areaCrudBean.disabled}"/>
+											<b:message/>
+										</div>
+									</div>
+									<div class="col-sm-6">
+										<div class="form-group">
+											<h:outputLabel value="#{msg['emails.label']}"/>
+											<b:inputText tags="true" value="#{sa.emails}" styleClass="inputTag" required="true"
+													label="#{msg['emails.label']}" render-label="false" tiny-screen="full-width" disabled="#{areaCrudBean.disabled}"/>
+											<b:message/>
+										</div>
+									</div>
+									<div class="col-sm-2" style="padding-right: 0;">
+										<div class="form-group">
+											<h:outputLabel value="#{msg['isAtiva.label']}"/>
+											<h:selectOneRadio value="#{sa.ativo}" label="#{msg['isAtiva.label']}" styleClass="radio-default" disabled="#{areaCrudBean.disabled}">
+												<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+												<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+											</h:selectOneRadio>
+											<b:message/>
+										</div>
+									</div>
+									<div class="col-sm-1">
+										<p:commandLink class="btn btn-danger" style=" margin-top: 17px;" title="Remover item" process="form-area:subareas-id"
+													   actionListener="#{areaCrudBean.removeSubarea(sa)}" update="form-area:subareas-id">
+											<i class="fa fa-trash fa-1" aria-hidden="true" style=""></i>
+										</p:commandLink>
+									</div>
+								</div>
+							</ui:repeat>
+							</h:panelGroup>
+							<script type="text/javascript">
+								$('.inputTag').tagsinput('refresh');
+							</script>
+						</div>
+					</b:row>
+					<f:facet name="footer">
+						<p:commandButton value="#{msg['salvar.label']}" actionListener="#{areaCrudBean.salvar()}" update="area-modal-content-id form-area-list" styleClass="btn" rendered="#{menuBean.podeEditar()}"/>
+						<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-area-list">
+				<div class="row">
+					<div class="col-sm-12">
+ 						<p:commandLink value="#{msg['adicionarArea.label']}" disabled="#{areaCrudBean.disabled}" onclick="openModal('area-modal')" class="btn btn-primary btn-lg" style="float: right;" update="form-area:area-modal-content-id" rendered="#{menuBean.podeEditar()}">
+							<f:setPropertyActionListener target="#{areaCrudBean.area}" value="#{null}" />
+						</p:commandLink>
+					</div>
+				</div>
+					<div class="row">
+						<p:dataTable var="area" value="#{areaCrudBean.dataModel}" rows="20" paginator="true" lazy="true"
+								paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+								currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+								paginatorPosition="bottom" stickyHeader="true" stickyTopAt=".layout-topbar">
+							<p:column headerText="ID" style="text-align: center; width: 70px;">
+								<h:outputText value="#{area.id}" />
+							</p:column>
+							<p:column headerText="#{msg['nome.label']}" style="text-align: center;">
+								<h:outputText value="#{area.descricao}" />
+							</p:column>
+							<p:column headerText="#{msg['isAtiva.label']}" style="width: 70px; text-align: center;">
+								<h:outputText value="#{msg['sim.label']}" rendered="#{area.ativo}"/>
+								<h:outputText value="#{msg['nao.label']}" rendered="#{!area.ativo}"/>
+							</p:column>
+							<p:column style="width: 240px;" sortable="false" rendered="#{menuBean.podeEditar()}">
+								<p:commandLink value="#{msg['editar.label']}" onclick="openModal('area-modal')" class="btn btn-warning btn-editar" update="form-area:area-modal-content-id">
+									<f:setPropertyActionListener target="#{areaCrudBean.area}" value="#{area}" />
+								</p:commandLink>
+								<p:commandLink value="#{msg['excluir.label']}" disabled="#{areaCrudBean.disabled}" onclick="openModal('excluir-modal', 'form-exclusao:excluir-btn')" class="btn btn-danger btn-excluir" rendered="#{menuBean.podeExcluir()}">
+									<f:setPropertyActionListener target="#{areaCrudBean.area}" value="#{area}" />
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+					</div>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

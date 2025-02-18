@@ -1,0 +1,66 @@
+<html>
+	<head>
+		<style type="text/css">
+			.tabelaCabecalho td, th {
+				padding: 1px 5px 1px 5px;
+			}
+			.tabelaCabecalho th {
+				font-weight: bold;
+				text-align: left;
+			}
+			.tabelaCabecalho {
+				margin-left: -7px;
+			}
+		</style>
+	</head>
+	<body style="width: 100%;">
+		<center>
+			<table style="width: 650px; height: 400px; text-align: left; border: 1px #f2f2f2 solid;">
+				<tr>
+					<td style="background-color: #f2f2f2; padding: 10px 20px; height: 60px;">
+						 <img src="$logoImagemUrl" width="200px"/>
+					</td>
+				</tr>
+				<tr>
+					<td style="padding: 10px 50px 50px 50px; vertical-align: top;">
+						<h3>Existem pend&ecirc;ncias em sua requisi&ccedil;&atilde;o:</h3>
+						<table class="tabelaCabecalho">
+							<tr>
+								<th nowrap='nowrap'>Nome do Cliente:</th>
+								<td nowrap='nowrap'>$!dummyUtils.getNome($processo)</td>
+							</tr>
+							<tr>
+								<th nowrap='nowrap'>N&uacute;mero:</th>
+								<td nowrap='nowrap'>$!dummyUtils.getNumero($processo)</td>
+							</tr>
+							<tr>
+								<th nowrap='nowrap'>Forma de Ingresso:</th>
+								<td nowrap='nowrap'>$!processo.tipoProcesso.nome</td>
+							</tr>
+							#if ($link)
+							#else
+								<tr>
+									<th nowrap='nowrap'>Observa&ccedil;&atilde;o:</th>
+									<td nowrap='nowrap'>$!observacao</td>
+								</tr>
+							#end
+						</table>
+						<br><br>
+						#if ($link)
+							Clique no link abaixo para ver mais detalhes e solucionar esta pend&ecirc;ncia.
+							<br><br>
+							<a href='$link'>$link</a>
+						#end
+						<br><br>
+						Muito obrigado,
+						<br>GetDoc
+					</td>
+				</tr>
+				<tr>
+					<td style="background-color: #4f708c; height: 15px;"></td>
+				</tr>
+			</table>
+		</center>
+	</body>
+</html>
+

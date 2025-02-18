@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+
+	<composite:interface>
+		<composite:attribute name="processoRegra" type="net.wasys.getdoc.domain.entity.ProcessoRegra" required="true"/>
+	</composite:interface>
+
+	<composite:implementation>
+		<div class="row row-sumario">
+			<div class="col-sm-12">
+				<div class="row">
+					<div class="col-sm-2 noMarginBottom" style="padding-right: 0;">
+						<h:outputLabel value="Regra:&nbsp;" escape="false" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-4 noMarginBottom">
+						<a href="#{request.contextPath}/cadastros/regras/subregras/#{cc.attrs.processoRegra.regra.id}" title="Visualizar #{msg['subRegras.label']}">
+							<h:outputText value="#{cc.attrs.processoRegra.regra.nome}"/>
+						</a>
+					</div>
+					<div class="col-sm-2 noMarginBottom" style="padding-right: 0;">
+						<h:outputLabel value="Data/Versão:&nbsp;" escape="false" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-4 noMarginBottom">
+						<h:outputText value="#{utilBean.getDateTimeStr(cc.attrs.processoRegra.dataRegra)}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-2 noMarginBottom" style="padding-right: 0;">
+						<h:outputLabel value="Processo:&nbsp;" escape="false" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-4 noMarginBottom">
+						<a href="#{request.contextPath}/requisicoes/fila/edit/#{cc.attrs.processoRegra.processo.id}" title="Visualizar Processo">
+							<h:outputText value="#{cc.attrs.processoRegra.processo.id}"/>
+						</a>
+					</div>
+					<div class="col-sm-2 noMarginBottom" style="padding-right: 0;">
+						<h:outputLabel value="Data de Execução:&nbsp;" escape="false" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-4 noMarginBottom">
+						<h:outputText value="#{utilBean.getDateTimeStr(cc.attrs.processoRegra.dataExecucao)}"/>
+						<span title="Tempo de execução">
+							(<h:outputText value="#{utilBean.formatarMilisegundosParaSegundos(cc.attrs.processoRegra.tempo)}"/>)
+						</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-2 noMarginBottom" style="padding-right: 0;">
+						<h:outputLabel value="Status da Execução:&nbsp;" escape="false" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8 noMarginBottom">
+						<h:outputText value="#{msg['StatusProcessoRegra.'.concat(cc.attrs.processoRegra.status).concat('.label')]}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-2 noMarginBottom" style="padding-right: 0;">
+						<h:outputLabel value="Farol Obtido:&nbsp;" escape="false" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8 noMarginBottom">
+						<h:outputText rendered="#{StatusProcessoRegra.ERRO ne cc.attrs.processoRegra.status}"
+							value="#{msg['FarolRegra.'.concat(cc.attrs.processoRegra.farol).concat('.label')]}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-2 noMarginBottom" style="padding-right: 0;">
+						<h:outputLabel value="Mensagem Final:&nbsp;" escape="false" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8 noMarginBottom">
+						##{cc.attrs.processoRegra.subRegraFinalId} #{empty cc.attrs.processoRegra.mensagem ? "Sem mensagem." : cc.attrs.processoRegra.mensagem}
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12 noMarginBottom">
+						<h:outputLabel value="Descrição da Regra:&nbsp;" escape="false" styleClass="bf-no-message"/>
+						<pre>#{cc.attrs.processoRegra.regra.descricao}</pre>
+					</div>
+				</div>
+				<h:panelGroup rendered="#{not empty cc.attrs.processoRegra.stackTrace}">
+					<div class="row">
+						<div class="col-sm-12 noMarginBottom">
+							<h:outputLabel value="Stack trace:&nbsp;" escape="false" styleClass="bf-no-message"/>
+							<pre>#{cc.attrs.processoRegra.stackTrace}</pre>
+						</div>
+					</div>
+				</h:panelGroup>
+			</div>
+		</div>
+	</composite:implementation>
+</html>

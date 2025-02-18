@@ -1,0 +1,1260 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:b="http://bootsfaces.net/ui"
+	  xmlns:o="http://omnifaces.org/ui"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf"
+	  xmlns:c="http://java.sun.com/jsp/jstl/core"
+	  xmlns:gd="http://xmlns.jcp.org/jsf/component"
+	  xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc"
+>
+
+<script type="text/javascript" src="#{request.contextPath}/resources/js/jquery.gridly.js"></script>
+<link href="#{request.contextPath}/resources/css/jquery.gridly.css" rel="stylesheet"/>
+
+<c:set var="autorizacao" value="#{processoEditBean.autorizacao}" />
+<c:set var="processo" value="#{processoEditBean.processo}" />
+<o:commandScript name="salvarRotacao2" action="#{processoEditBean.salvarRotacao}" render="growl-id"/>
+<o:commandScript name="copiarImagem2" action="#{processoEditBean.copiarImagem}" render="growl-id pg-div-principal :form-tabs"/>
+<o:commandScript name="reprocessarOcr2" action="#{processoEditBean.reprocessarOcr}" render="growl-id :form-tabs pg-div-principal ocr-modal-content-id"/>
+<o:commandScript name="gerarHashImagem2" action="#{processoEditBean.gerarHashImagem}" render="growl-id form-visualizar:hash-imagem-modal-content-id" oncomplete="verificaHash()"/>
+<o:commandScript name="excluirImagem2" action="#{processoEditBean.excluirImagem}" render="growl-id pg-div-principal"/>
+<o:commandScript name="ajustarDocumentoCorrompido" action="#{processoEditBean.ajustarDocumentoCorrompido}" render="growl-id pg-div-principal :form-tabs :form-confirms" oncomplete="closeModal('manutencao-documento-modal')"/>
+<o:commandScript name="aprovarDocumento2" action="#{processoEditBean.aprovarDocumento}" render="growl-id pg-div-principal :form-tabs :form-confirms"/>
+<o:commandScript name="justificarDocumento2" action="#{processoEditBean.justificarDocumento}" render="growl-id pg-div-principal :form-tabs :form-confirms" oncomplete="closeModal('justificar-modal')"/>
+<o:commandScript name="cropImage2" action="#{processoEditBean.crop}" render="form-visualizar:pg-div-principal growl-id"/>
+
+<b:growl id="growl-id" placementFrom="bottom" allowDismiss="true" animationEnter="animated bounceInDown" animationExit="animated flipOutX"/>
+
+<style>
+	tr.row-g {
+		display: none;
+	}
+	.tituloFormTr {
+		color: #cc092f;
+		border-bottom: 1px solid #e5e5e5;
+		margin-bottom: 20px;
+		padding-bottom: 5px;
+		font-size: 13px !important;
+		margin-bottom: 0;
+	}
+	#form-visualizar-ev {
+		padding-left: 10px;
+		padding-right: 10px;
+	}
+	.excluirGrupo-situacao-modal .modal-dialog {
+		width: 900px !important;
+		padding-top: 0px !important;
+		height: 300px !important;
+		margin: 30px auto !important;
+		position: relative;
+	}
+
+	.excluirGrupo-situacao-modal .modal-dialog .modal-content {
+		height: 200px !important;
+	}
+
+	.excluirGrupo-situacao-modal .modal-dialog .modal-body {
+		height: 95px !important;
+	}
+
+	.ui-datatable tbody td {
+		border: 1px solid #DDDDDD;
+		text-align: center;
+		padding: 6px;
+	}
+
+	th.ui-state-default {
+		border: 1px solid #DDDDDD;
+		text-align: center;
+	}
+
+	.ui-datatable-header {
+		border: 1px solid #DDDDDD;
+		background-color: rgb(245, 245, 245);
+		color: #333333;
+	}
+
+	.ui-datatable-footer {
+		border: 1px solid #DDDDDD;
+		background-color: rgb(245, 245, 245);
+		color: #333333;
+	}
+
+	.coluna-media span {
+		font-weight: bold;
+	}
+
+	.bootstrap-switch {
+		width: 112px !important;
+	}
+
+	.bootstrap-switch-container {
+		width: 165px !important;
+	}
+
+	.bootstrap-switch-handle-on {
+		width: 55px !important;
+	}
+
+	.bootstrap-switch-handle-off {
+		width: 55px !important;
+	}
+
+	.bootstrap-switch-label {
+		width: 55px !important;
+	}
+
+    .pasta-amarela-icon {
+        padding: 2px;
+        border-radius: 4px;
+        top: 12px;
+        right: -12px;
+        color: #fff;
+        border: 1px #fff solid;
+        font-size: 11px;
+    }
+
+	.d-none {
+		display: none !important;
+	}
+</style>
+
+<b:modal title="#{msg['confirmarTitulo.label']}" styleClass="excluirGrupo-situacao-modal confirm-modal">
+	<b:messages globalOnly="true" showSummary="true" id="messages-form-confirm"/>
+	<p><h4 class="msg-confirm"><h:outputText value="#{msg['exclusaoGrupoAndDocumentos.confirm']}"/></h4></p>
+	<f:facet name="footer">
+		<b:button value="#{msg['nao.label']}" look="primary" onclick="closeModal('excluirGrupo-situacao-modal'); return false;"/>
+		<p:commandButton value="#{msg['sim.label']}" actionListener="#{processoEditBean.removerGrupoDinamicoSituacao()}" styleClass="btn btn-danger" immediate="true"
+						 update="messages-form-confirm fecharModal-panel mensagensGlobaisGroup form-visualizar:form-evidencia-visualizar:campos-situacao-panel-id form-visualizar:lista-documentos-panel-id">
+		</p:commandButton>
+	</f:facet>
+</b:modal>
+<h:panelGroup id="fecharModal-panel">
+	<h:panelGroup rendered="#{fecharModal}">
+		<script type="text/javascript">
+			$('.excluirGrupo-situacao-modal').modal('hide');
+		</script>
+	</h:panelGroup>
+</h:panelGroup>
+
+<b:modal id="copiar-imagem-modal-id" title="#{msg['copiarImagemDocumento.label']}" styleClass="copiar-imagem-modal" rendered="#{menuBean.podeEditar()}" style="z-index: 9999;">
+	<b:row id="copiar-imagem-modal-content-id">
+		<div class="row">
+			<div class="col-md-8 coluna-esq-copiar-modal">
+				<div class="gridly" id="imagens-copiar-id">
+				</div>
+			</div>
+			<div class="col-md-4">
+				<b:messages id="copiar-imagem-messages" globalOnly="true" showSummary="true"/>
+				<div class="form-group">
+					<h:outputLabel value="#{msg['copiarImagemAtualPara.label']}"/>
+				</div>
+				<div style="padding-left: 10px; margin-top: 30px;">
+					<div class="form-group">
+						<h:outputLabel value="#{msg['documentoDestino.label']}"/>
+						<select id="documentoDestino" name="documentoDestino" class="form-control"
+								style="height: 28px;">
+							<option value=""></option>
+							<ui:repeat value="#{processoEditBean.documentos}" var="doc">
+								<h:panelGroup>
+									<option value="#{doc.id}">#{doc.nome}</option>
+								</h:panelGroup>
+							</ui:repeat>
+						</select>
+					</div>
+					<div class="form-group">
+						<input type="radio" name="mover" value="false" checked="checked" id="radio-copiar"/>&nbsp;
+						<label for="radio-copiar">Copiar</label>&nbsp;&nbsp;&nbsp;
+						<input type="radio" name="mover" value="true" id="radio-mover"/>&nbsp;
+						<label for="radio-mover">Mover</label>
+					</div>
+				</div>
+			</div>
+		</div>
+	</b:row>
+	<f:facet name="footer">
+		<b:button value="#{msg['cancelar.label']}" look="primary" onclick="closeModal('copiar-imagem-modal'); return false;"/>
+		<span onclick="moverCopiarImagens($('#img1'), $('#documentoDestino')); closeModal('copiar-imagem-modal');" class="btn btn-warning">#{msg['salvar.label']}</span>
+	</f:facet>
+</b:modal>
+
+<b:modal id="manutencao-documento-modal-id" title="#{msg['manutencaoDocumentoCorrompido.label']}" styleClass="manutencao-documento-modal" rendered="#{menuBean.podeEditar()}" style="z-index: 9999;">
+	<b:row id="manutencao-documento-modal-content-id">
+		<div class="col-sm-12">
+			<b:messages id="manutencao-documento-messages" globalOnly="true" showSummary="true"/>
+			<div class="form-group">
+				<h:outputLabel value="#{msg['documentoInexistenteNoDiretorio.label']}"/>
+			</div>
+			<div style="padding-left: 30px; margin-top: 30px;">
+				<div class="form-group">
+					<h:outputLabel value="#{msg['oqueDesejaFazerComAhImagem.label']}" for="excluirId"/>
+					<h:selectOneRadio id="excluirId" value="#{processoEditBean.manutencaoDocumentoVO.excluir}" label="#{msg['excluir.label']}" styleClass="radio-default">
+						<f:selectItem itemValue="#{true}" itemLabel="#{msg['excluir.label']}"/>
+						<f:selectItem itemValue="#{false}" itemLabel="#{msg['alterarStatusDoDocumento.label']}" />
+						<f:ajax event="change" render="alterar-status-id"/>
+					</h:selectOneRadio>
+					<b:message/>
+				</div>
+				<div class="form-group" jsf:id="alterar-status-id">
+					<b:selectOneMenu value="#{processoEditBean.manutencaoDocumentoVO.status}" label="#{msg['alterarStatusDoDocumento.label']}"
+									 rendered="#{!processoEditBean.manutencaoDocumentoVO.excluir}">
+						<f:selectItem itemValue="" itemLabel=""/>
+						<f:selectItems value="#{utilBean.getValues('StatusDocumento')}" var="status" itemValue="#{status}" itemLabel="#{msg['StatusDocumento.'.concat(status).concat('.label')]}"/>
+						<f:ajax event="change" render="alterar-status-id"/>
+					</b:selectOneMenu>
+				</div>
+				<div class="form-group">
+					<h:outputLabel value="#{msg['observacao.label']} *"/>
+					<textarea name="observacao3" rows="5" cols="50" class="form-control"></textarea>
+				</div>
+			</div>
+		</div>
+	</b:row>
+	<f:facet name="footer">
+		<b:button value="#{msg['cancelar.label']}" look="primary" onclick="closeModal('manutencao-documento-modal'); return false;"/>
+		<p:commandButton value="#{msg['salvar.label']}" styleClass="btn btn-warning" onclick="manutencaoImagemInexistente($('#img1'))"/>
+	</f:facet>
+</b:modal>
+
+<b:modal id="rejeitar-modal-id" title="#{msg['rejeitarDocumento.label']}" styleClass="rejeitar-modal" rendered="#{menuBean.podeEditar()}" style="z-index: 9999;">
+	<b:row id="rejeitar-modal-content-id">
+		<ui:include src="/processos/processo-edit-modal-rejeitar-documento.xhtml"/>
+	</b:row>
+</b:modal>
+
+<b:modal id="aprovar-modal-id" title="#{msg['aprovarDocumento.label']}" styleClass="aprovar-modal" rendered="#{menuBean.podeEditar()}" style="z-index: 9999;">
+	<b:row id="aprovar-modal-content-id">
+		<ui:include src="/processos/processo-edit-modal-aprovar-documento.xhtml"/>
+	</b:row>
+</b:modal>
+
+<b:modal id="justificar-modal-id" title="#{msg['justificarDocumento.label']}" styleClass="justificar-modal" rendered="#{menuBean.podeEditar()}" style="z-index: 9999;">
+	<b:row id="justificar-modal-content-id">
+		<div class="col-sm-12">
+			<b:messages id="justificar-messages" globalOnly="true" showSummary="true"/>
+			<div style="padding-left: 30px;">
+				<div class="form-group">
+					<h:outputLabel value="#{msg['documento.label']}:"/>
+					<span id="nomeDocumento"></span>
+				</div>
+				<div class="form-group">
+					<h:outputLabel value="#{msg['observacao.label']} *"/>
+					<textarea name="observacao2" rows="5" cols="50" class="form-control"></textarea>
+				</div>
+			</div>
+		</div>
+		<h:panelGroup rendered="#{fecharModal}">
+			<script type="text/javascript">
+				$('.justificar-modal').modal('hide');
+			</script>
+		</h:panelGroup>
+	</b:row>
+	<f:facet name="footer">
+		<b:button value="#{msg['cancelar.label']}" look="default" onclick="closeModal('justificar-modal'); return false;"/>
+		<span onclick="justificarDocumento()" class="btn btn-primary">#{msg['justificar.label']}</span>
+	</f:facet>
+</b:modal>
+
+<b:modal id="ocr-modal-id" title="#{msg['resultadoOCR.label']}" styleClass="ocr-modal" rendered="#{menuBean.podeEditar()}" style="z-index: 9999;">
+	<b:row id="ocr-modal-content-id">
+		<ui:include src="/processos/processo-edit-modal-ocr.xhtml"/>
+	</b:row>
+</b:modal>
+<b:modal id="text-modal-id" title="#{msg['fullText.label']}" styleClass="text-modal" rendered="#{menuBean.podeEditar()}" style="z-index: 9999;">
+	<b:row id="text-modal-content-id">
+		<ui:include src="/processos/processo-edit-modal-text.xhtml"/>
+	</b:row>
+</b:modal>
+<b:modal id="hash-imagem-modal-id" title="#{msg['validarHash.label']}" styleClass="hash-imagem-modal" style="z-index: 9999;">
+	<b:row>
+		<div class="col-sm-12">
+			<div class="form-group" id="data-dig-id">
+				<h:outputLabel value="Hash Registrado " />
+			</div>
+			<div style="padding-left: 30px;">
+				<div class="form-group">
+					<p id="img-hash-banco-id"></p>
+					<input type="hidden" id="img-hash-input-id"/>
+				</div>
+			</div>
+		</div>
+	</b:row>
+	<b:row id="hash-imagem-modal-content-id">
+		<div class="col-sm-12">
+			<div class="form-group">
+				<h:outputLabel value="Hash Atual" id="img-hash-id"/>
+			</div>
+			<div style="padding-left: 30px;">
+				<div class="form-group">
+					<h:outputLabel value="#{processoEditBean.hashImagem}" id="hash-img-str"/>
+					<input type="hidden" value="#{processoEditBean.hashImagem}" id="hash-img-str-id"/>
+					<input type="hidden" value="#{processoEditBean.dataDigitalizacao}" id="data-dig-img-id"/>
+				</div>
+			</div>
+		</div>
+	</b:row>
+	<f:facet name="footer">
+		<b:button value="#{msg['ok.label']}" look="default" onclick="closeModal('hash-imagem-modal'); return false;"/>
+	</f:facet>
+</b:modal>
+<h:panelGroup id="pg-div-principal">
+	<div class="div-principal">
+		<div class="coluna-esq">
+			<div id="div-processo" style="width: 320px">
+				<span class='btn-close-direita' title="ocultarBarraLateral.label" onclick="ocultarBarraLateral()"><i class="fa fa-minus-square-o" aria-hidden="true"></i></span>
+				<table style="width: 100%" class="titulo">
+					<tr>
+						<td><h4 class="default-form-h4" style="margin-bottom: 0;">#{msg['processo.label']} #{utilBean.dataHoraAtual}</h4></td>
+						<td style="text-align: right;"></td>
+					</tr>
+				</table>
+				<div id="processo" style="overflow: auto;">
+					<table cellpadding="0" cellspacing="0" style="width: 100%;">
+						<tr>
+							<td colspan="2">
+								<h4 class="tituloFormTr">
+								<span onclick="mostrarMenosGrupo('dadosAluno')" style="display: none; cursor: pointer;" class="hide-grupo-#{grupo.id}">
+									<i style="padding-right: 10px;" class="fa fa-minus-square-o" aria-hidden="true"></i>
+									#{msg['dadosDoAluno.label']}
+								</span>
+									<span onclick="mostrarMaisGrupo('dadosAluno')" style="cursor: pointer;" class="show-grupo-#{grupo.id}">
+									<i style="padding-right: 10px;" class="fa fa-plus-square-o" aria-hidden="true"></i>
+										#{msg['dadosDoAluno.label']}
+								</span>
+								</h4>
+							</td>
+						</tr>
+						<tr class="row-g campos-grupo-dadosAluno valor-campo-tr">
+							<td width="130" class="valor-esq"><h:outputLabel value="#{msg['nome.label']}:" styleClass="bf-no-message"/>:</td>
+							<td title=""><b class="valorCampo"><h:outputText value="#{processoEditBean.processo.aluno.nome}"/></b></td>
+						</tr>
+						<tr class="row-g campos-grupo-dadosAluno valor-campo-tr">
+							<td width="130" class="valor-esq"><h:outputLabel value="#{msg['nomeSocial.label']}:" styleClass="bf-no-message"/>:</td>
+							<td title=""><b class="valorCampo"><h:outputText value="#{processoEditBean.processo.aluno.nomeSocial}"/></b></td>
+						</tr>
+						<tr class="row-g campos-grupo-dadosAluno valor-campo-tr">
+							<td width="130" class="valor-esq"><h:outputLabel value="#{msg['cpf.label']}:" styleClass="bf-no-message"/>:</td>
+							<td title=""><b class="valorCampo"><h:outputText value="#{processoEditBean.processo.aluno.cpf}"/></b></td>
+						</tr>
+						<tr class="row-g campos-grupo-dadosAluno valor-campo-tr">
+							<td width="130" class="valor-esq"><h:outputLabel value="#{msg['passaporte.label']}:" styleClass="bf-no-message"/>:</td>
+							<td title=""><b class="valorCampo"><h:outputText value="#{processoEditBean.processo.aluno.passaporte}"/></b></td>
+						</tr>
+						<tr class="row-g campos-grupo-dadosAluno valor-campo-tr">
+							<td width="130" class="valor-esq"><h:outputLabel value="#{msg['identidade.label']}:" styleClass="bf-no-message"/>:</td>
+							<td title=""><b class="valorCampo"><h:outputText value="#{processoEditBean.processo.aluno.identidade}"/></b></td>
+						</tr>
+						<tr class="row-g campos-grupo-dadosAluno valor-campo-tr">
+							<td width="130" class="valor-esq"><h:outputLabel value="#{msg['orgaoEmissor.label']}:" styleClass="bf-no-message"/>:</td>
+							<td title=""><b class="valorCampo"><h:outputText value="#{processoEditBean.processo.aluno.orgaoEmissor}"/></b></td>
+						</tr>
+						<tr class="row-g campos-grupo-dadosAluno valor-campo-tr">
+							<td width="130" class="valor-esq"><h:outputLabel value="#{msg['dataEmissao.label']}:" styleClass="bf-no-message"/>:</td>
+							<td title=""><b class="valorCampo"><h:outputText value="#{utilBean.getDateStr(processoEditBean.processo.aluno.dataEmissao)}"/></b></td>
+						</tr>
+						<tr class="row-g campos-grupo-dadosAluno valor-campo-tr">
+							<td width="130" class="valor-esq"><h:outputLabel value="#{msg['mae.label']}:" styleClass="bf-no-message"/>:</td>
+							<td title=""><b class="valorCampo"><h:outputText value="#{processoEditBean.processo.aluno.mae}"/></b></td>
+						</tr>
+						<tr class="row-g campos-grupo-dadosAluno valor-campo-tr">
+							<td width="130" class="valor-esq"><h:outputLabel value="#{msg['pai.label']}:" styleClass="bf-no-message"/>:</td>
+							<td title=""><b class="valorCampo"><h:outputText value="#{processoEditBean.processo.aluno.pai}"/></b></td>
+						</tr>
+						<ui:repeat value="#{processoEditBean.grupos}" var="grupo">
+							<tr>
+								<td colspan="2">
+									<h4 class="tituloFormTr">
+									<span onclick="mostrarMenosGrupo(#{grupo.id})" style="display: none; cursor: pointer;" class="hide-grupo-#{grupo.id}">
+										<i style="padding-right: 10px;" class="fa fa-minus-square-o" aria-hidden="true"></i>
+										<h:outputText value="#{grupo.nome}"/>
+									</span>
+										<span onclick="mostrarMaisGrupo(#{grupo.id})" style="cursor: pointer;" class="show-grupo-#{grupo.id}">
+										<i style="padding-right: 10px;" class="fa fa-plus-square-o" aria-hidden="true"></i>
+										<h:outputText value="#{grupo.nome}"/>
+									</span>
+									</h4>
+								</td>
+							</tr>
+							<ui:repeat value="#{processoEditBean.getCampos1(grupo)}" var="campo">
+								<tr class="row-g campos-grupo-#{grupo.id} valor-campo-tr">
+									<td width="130" class="valor-esq">#{utilBean.capitalize(campo.nome)}:</td>
+									<td title=""><b class="valorCampo">#{campo.valorLabel}</b></td>
+								</tr>
+							</ui:repeat>
+							<ui:repeat value="#{processoEditBean.getCampos2(grupo)}" var="campo">
+								<tr class="row-g campos-grupo-#{grupo.id} valor-campo-tr">
+									<td width="130" class="valor-esq">#{utilBean.capitalize(campo.nome)}:</td>
+									<td title=""><b class="valorCampo">#{campo.valorLabel}</b></td>
+								</tr>
+							</ui:repeat>
+						</ui:repeat>
+					</table>
+				</div>
+			</div>
+			<h:panelGroup id="lista-documentos-panel-id">
+				<div id="div-documentos" style="max-height: 60%; overflow: auto">
+					<div id="dados-da-versao">
+						<h4 class="tituloFormTr">
+						<span onclick="mostrarMenosGrupo('dadosDaVersao')" style="display: none; cursor: pointer;" class="hide-grupo-dadosDaVersao">
+							<i style="padding-right: 10px;" class="fa fa-minus-square-o" aria-hidden="true"></i>
+							<h:outputText value="#{msg['dadosDaVersao.label']}"/>
+						</span>
+							<span onclick="mostrarMaisGrupo('dadosDaVersao')" style="cursor: pointer;" class="show-grupo-dadosDaVersao">
+							<i style="padding-right: 10px;" class="fa fa-plus-square-o" aria-hidden="true"></i>
+							<h:outputText value="#{msg['dadosDaVersao.label']}"/>
+						</span>
+						</h4>
+						<div class="campos-grupo-dadosDaVersao valor-campo-tr">
+							<div class="row" id="data-digitalizacao-id" style="margin-top: 3px;">
+								<div class="col-md-6 noMarginBottom">
+									<p class="valor-esq">#{msg['dataDigitalizacao.label']}:</p>
+								</div>
+								<div class="col-md-6" id="data-digitalizacao-value-id" style="padding: 0px;"></div>
+							</div>
+							<div class="row" id="origem-id">
+								<div class="col-md-6 noMarginBottom">
+									<p class="valor-esq">#{msg['origem.label']}:</p>
+								</div>
+								<div class="col-md-6" id="origem-value-id" style="padding: 0px;"></div>
+							</div>
+							<div class="row" id="status-id">
+								<div class="col-md-6 noMarginBottom">
+									<p class="valor-esq">#{msg['status.label']}:</p>
+								</div>
+								<div class="col-md-6" id="status-value-id" style="padding: 0px;"></div>
+							</div>
+							<div class="row" id="pasta-amarela-id">
+								<div class="col-md-6 noMarginBottom">
+									<p class="valor-esq">#{msg['isPastaAmarela.label']}:</p>
+								</div>
+								<div class="col-md-6" id="pasta-amarela-value-id" style="padding: 0px;"></div>
+							</div>
+							<div class="row" id="modelo-documento-id">
+								<div id="modelo-documento-label-id">
+									<p class="valor-esq">#{msg['modeloDocumento.label']}:</p>
+								</div>
+								<div id="modelo-documento-value-id"></div>
+							</div>
+							<div class="row" id="motivo-rejeite-id">
+								<div class="col-md-12 noMarginBottom">
+									<p class="valor-esq">#{msg['motivoRejeite.label']}:</p>
+								</div>
+								<div class="col-md-12" id="motivo-rejeite-value"></div>
+							</div>
+							<div class="row" id="obs-motivo-rejeite-id">
+								<div class="col-md-12 noMarginBottom">
+									<p class="valor-esq">#{msg['observacao.label']}:</p>
+								</div>
+								<div class="col-md-12" id="obs-motivo-rejeite-value-id"></div>
+							</div>
+						</div>
+					</div>
+					<table style="width: 100%" class="default-form-h4">
+						<tr>
+							<td><h4>#{msg['documentos.label']}</h4></td>
+							<td style="text-align: right;">
+                            <span id='cropCancelar' class="btn btn-info btn-editar btn-comparacoes" title="#{msg['sairRecorteImagem.label']}"  onclick="cancelarCrop()" style="display: none">
+                                <i class="fa fa-times-circle" aria-hidden="true"></i>
+                            </span>
+								<span id='cropSalvar' class="btn btn-info btn-editar btn-comparacoes" title="#{msg['recorteImagem.label']}" onclick="cropImage()" style="display: none">
+                                <i class="fa fa-cut" aria-hidden="true"></i>
+                            </span>
+								<span id='movComp' class="btn btn-info btn-editar btn-comparacoes" title="#{msg['visualizarImagemDireita.label']}" onclick="moverParaDireita()" style="display: none;">
+                                <i class="fa fa-arrow-circle-right" aria-hidden="true"></i>
+                            </span>
+								<span id='initComp' class="btn btn-info btn-editar btn-comparacoes" title="#{msg['compararDocumentos.label']}" onclick="iniciarComparacao(true)">
+                                <img src="#{request.contextPath}/resources/images/comparar.png" style="width: 19px; margin-bottom: -5px;"/>
+                            </span>
+								<span id='pararComp' class="btn btn-info btn-editar btn-comparacoes" title="#{msg['pararCompararDocumentos.label']}" onclick="pararComparacao()" style="display: none;">
+                                <i class="fa fa-times-circle" aria-hidden="true"></i>
+                            </span>
+							<p:commandLink id='initCalculadora' class="btn btn-info btn-editar btn-comparacoes" actionListener="#{processoEditBean.inicializarCalculadoraRenda()}" onsuccess="iniciarCalculadora(true);" title="#{msg['calculadoraTCB.label']}"
+										   update="form-calcular-renda">
+								<i class="fa fa-calculator" aria-hidden="true"></i>
+							</p:commandLink>
+							<span id='pararCalculadora' class="btn btn-info btn-editar btn-comparacoes" title="#{msg['pararCompararDocumentos.label']}" onclick="pararCalculadora()" style="display: none;">
+								<i class="fa fa-times-circle" aria-hidden="true"></i>
+							</span>
+							<span id="initEdicao" jsf:rendered="#{podeEditar and !processoEditBean.editando and autorizacao.podeEditarCampos()}" style="margin-right: 5px;">
+                                <b:commandButton title="#{msg['editar-campos.label']}" update="form-processo" look="info" immediate="true"
+												 actionListener="#{processoEditBean.setEditandoVisualizacao(true)}" oncomplete="iniciarEdicao()"
+												 style="padding: 0 12px !important; margin-left: 0;">
+                                    <f:param name="edit" value="true"/>
+                                    <i class="fa fa-pencil" style="color: #fff;"></i>
+                                </b:commandButton>
+                            </span>
+							</td>
+						</tr>
+					</table>
+					<input type="hidden" id="documentoIdFullText" value="-1"/>
+					<ul class="list-group documentos-list" style="max-height: 250px; overflow: auto; margin-bottom: 5px;">
+						<ui:repeat value="#{processoEditBean.grupoDocumentos}" var="processoId">
+							<c:set var="abertoDocumentos" value="#{processoEditBean.verificaGrupoDocumentos(processoId)}" />
+							<div style="padding-bottom: 5px; margin-bottom: 10px; border-bottom: 1px solid #e5e5e5;">
+                            <span onclick="mostrarMenosGrupoDigitalizar(#{processoId})" style="cursor: pointer;" class="hide-grupo-#{processoId}-2">
+                                <i style="padding-right: 10px;" class="fa fa-minus-square-o" aria-hidden="true"></i>
+                                <h:outputText value="#{utilBean.getProcesso(processoId).tipoProcesso.nome}
+                                (#{abertoDocumentos} Pendentes)"/>
+                            </span>
+								<span onclick="mostrarMaisGrupoDigitalizar(#{processoId})" style="display: none; cursor: pointer;" class="show-grupo-#{processoId}-2">
+                                <i style="padding-right: 10px;" class="fa fa-plus-square-o" aria-hidden="true"></i>
+                                <h:outputText value="#{utilBean.getProcesso(processoId).tipoProcesso.nome}
+                                (#{abertoDocumentos} Pendentes)"/>
+                            </span>
+							</div>
+							<h:panelGroup rendered="#{ abertoDocumentos == 0 }">
+								<script type="text/javascript">
+									jQuery(function($) {
+										mostrarMenosGrupoDigitalizar(#{processoId});
+									});
+								</script>
+							</h:panelGroup>
+							<div class="row-g row-grupo-#{processoId}-2" style="margin-bottom: 10px;">
+								<ui:repeat value="#{processoEditBean.getDocumentosProcessoId(processoId)}" var="doc">
+									<div class="row-g valor-campo-tr campos-grupo-#{processoId}-2">
+										<h:panelGroup rendered="#{not doc.isExcluido()}">
+											<li class="list-group-item docs" id="div-doc-#{doc.id}" style="cursor: pointer;" onclick="if (#{doc.id}!=$('#documentoIdFullText').val()){$('#documentoIdFullText').val(#{doc.id});selecionarDocumento(#{doc.id}, 1);}">
+												<div style="float: left;">
+													<img alt="" title="#{msg['StatusDocumento.'.concat(doc.status).concat('.label')]}" src="#{request.contextPath}/resources/images/icons/StatusDocumento-#{doc.status}.png" class="icone-status"/>
+													<img style="width: 20px;margin-left: -5px" jsf:rendered="#{processoEditBean.verificarVencido(doc)}" alt="" title="#{msg['StatusDocumento.VENCIDO.label']}" src="#{request.contextPath}/resources/images/icons/StatusDocumento-VENCIDO.png" class="icone-status" />
+													<span jsf:rendered="#{processoEditBean.isDocumentoPastaAmarela(doc.tipoDocumento.id)}" style="background-color: #F2DA00;" class="pasta-amarela-icon">
+												<h:outputText id="pastaAmarela" value="" styleClass="fa fa-fw fa fa-warning"
+								  					style="color: #0f0f0f"/>
+													<p:tooltip style="padding: 5px; max-width: 600px;" for="pastaAmarela" escape="false">
+														<div jsf:rendered="#{not empty processoEditBean.irregularidadesPastaAmarelaMap.get(doc.tipoDocumento.id)}">
+															<h:outputLabel value="#{msg['irregularidade.label']}:"/>
+															<ul>
+															<li>#{processoEditBean.irregularidadesPastaAmarelaMap.get(doc.tipoDocumento.id)}</li>
+															</ul>
+														</div>
+													</p:tooltip>
+											</span>
+												</div>
+												<div style="padding-left: 40px;">
+													#{doc.nome}
+												</div>
+												<p:commandLink class="btn btn-default ocrIcon ocrIcon2 statusOcr#{doc.statusOcr}"
+															   style="margin-left: 5px; margin-top: -30px; float: right;"
+															   title="#{msg['StatusOcr.'.concat(doc.statusOcr).concat('.label')]}"
+															   onsuccess="openModal('ocr-modal');" onerror="alert('Erro!')"
+															   actionListener="#{processoEditBean.setDocumentoOcr(doc)}" update="form-visualizar:ocr-modal-content-id"
+															   rendered="#{not empty doc.statusOcr}">
+													<div>OCR</div>
+												</p:commandLink>
+												<o:commandScript name="setDocumentoTextPrev" action="#{processoEditBean.setDocumentoText}" oncomplete="openModal('text-modal');"/>
+												<p:commandLink class="btn btn-default ocrIcon ocrIcon2 "
+															   style="margin-right: 0px; margin-left: 5px; margin-top: -30px; float: right;"
+															   title="#{msg['fullText.label']}"
+															   onerror="alert('Erro!')"
+															   onclick="setDocumentoTextPrev( { documentoId: #{doc.id}, versao: $('#versaoSelect1').val() });"
+															   update="form-visualizar:text-modal-content-id"
+															   rendered="#{doc.possuiFullText}">
+													<div>&nbsp;T&nbsp;</div>
+												</p:commandLink>
+												<h:panelGroup rendered="#{not empty doc.irregularidadeNome and processoEditBean.autorizacao.podeVisualizarPendenciaDocumento(doc.status)}">
+													<div class="boxIrregularidade" style="display: none;" id="boxIrregularidade-#{doc.id}">
+														<p style="padding-top: 4px;">
+															#{doc.irregularidadeNome}
+														</p>
+														<h:panelGroup rendered="#{not empty doc.pendenciaJustificativa}">
+															<b>#{msg['justificativa.label']}</b>
+															<p style="padding-top: 8px;">
+																#{doc.pendenciaJustificativa}
+															</p>
+														</h:panelGroup>
+													</div>
+												</h:panelGroup>
+											</li>
+										</h:panelGroup>
+									</div>
+								</ui:repeat>
+							</div>
+						</ui:repeat>
+					</ul>
+					<div class="row">
+						<div class="col-md-12">
+							<div class="box-aprovar">
+								<div class="info-docs default-form-h4">
+									<span id="info-doc-1" style="white-space: nowrap;"></span>
+								</div>
+								<div style="float: right; padding-bottom: 0;">
+									<input type="button" id="btn-aprovar" class="btn btn-success" jsf:rendered="#{(autorizacao.telaCandidato eq false or autorizacao.podeAlterarStatusDocumentoTelaCandidato())}" onclick="aprovarDocumento($('#img1'), true)" value="#{msg['aprovar.label']}"/>
+									<input type="button" id="btn-rejeitar" class="btn btn-warning" jsf:rendered="#{autorizacao.telaCandidato eq false or autorizacao.podeAlterarStatusDocumentoTelaCandidato()}" onclick="openModal('rejeitar-modal')" value="#{msg['rejeitar.label']}" />
+									<input type="button" id="btn-justificar" class="btn btn-primary" jsf:rendered="#{autorizacao.telaCandidato eq false or autorizacao.podeAlterarStatusDocumentoTelaCandidato()}" onclick="abrirJustificar1($('#img1'))" value="#{msg['justificar.label']}" />
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<p:commandLink title="#{msg['concluirSituacao.label']}" style="margin-left: 5px; float: right;" onerror="alert('Erro!')"
+										   actionListener="#{processoEditBean.criarConclusaoSituacao()}"
+										   update="form-visualizar:form-evidencia-visualizar" onsuccess="iniciarConclusao()" class="btn btn-primary btn-lg"
+										   rendered="#{autorizacao.podeConcluirSituacaoAndVincularProcessoComSiaTelaCadidato() and not pausaBean.estaEmPausa() and !autorizacao.isIsencao(processo)}">
+								#{msg['concluirSituacao.label']}
+							</p:commandLink>
+							<p:commandLink title="#{msg['concluirSituacao.label']}" style="margin-left: 5px; float: right;" onerror="alert('Erro!')"
+										   actionListener="#{processoEditBean.criarConclusaoSituacao()}"
+										   update="form-visualizar:form-evidencia-visualizar" onsuccess="iniciarConclusao()" class="btn btn-primary btn-lg"
+										   rendered="#{autorizacao.podeConcluirSituacaoAndVincularProcessoComSiaTelaCadidato() and not pausaBean.estaEmPausa() and autorizacao.isIsencao(processo) and processoEditBean.existMateriaIsenta}">
+								#{msg['concluirSituacao.label']}
+							</p:commandLink>
+						</div>
+					</div>
+				</div>
+			</h:panelGroup>
+		</div>
+		<div class="row colina-dir-row" style="padding-left: 340px; height: 100%;">
+			<div class="coluna-dir coluna-dir1 col-sm-12">
+				<div class="comandos comandos1">
+					<span jsf:rendered="#{utilBean.isAdminRole()}" class="icone-comandos btn btn-info btn-doc-corrompido btn-editar btn-comparacoes" title="#{msg['documentoCorrompido.label']}" onclick="openModal('manutencao-documento-modal')"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>
+					<span class="btn-open-direita" title="#{msg['mostrarBarraLateral.label']}" style="display: none;" onclick="mostrarBarraLateral()"><i class="fa fa-plus-square-o" aria-hidden="true"></i></span>
+
+					<span id='zoomIn1' class="btn btn-info btn-editar btn-comparacoes icone-comandos" title="#{msg['zoomMais.label']}"><i class="fa fa-search-plus" aria-hidden="true"></i></span>
+					<span id='reset1' class="icone-comandos btn btn-info btn-editar btn-comparacoes" title="#{msg['zoomNormal.label']}"><i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i></span>
+					<span id='zoomOut1' class="icone-comandos btn btn-info btn-editar btn-comparacoes" title="#{msg['zoomMenos.label']}"><i class="fa fa-search-minus" aria-hidden="true"></i></span>
+
+					<span class="icone-comandos btn-comparacoes" style="width: 5px;"></span>
+
+					<span id="girarEsq1" class="icone-comandos btn btn-info btn-editar btn-comparacoes" title="#{msg['girarEsquerda.label']}" onclick="girar(false, 1)"><i class="fa fa-undo" aria-hidden="true"></i></span>
+					<span id="girarDir1" class="icone-comandos btn btn-info btn-editar btn-comparacoes" title="#{msg['girarDireita.label']}" onclick="girar(true, 1)"><i class="fa fa-repeat" aria-hidden="true"></i></span>
+					<span id="salvarRotac1" class="icone-comandos btn-salvar btn btn-info btn-editar btn-comparacoes" title="#{msg['salvarRotacao.label']}" onclick="salvarRotacao($('#img1'))"><i class="fa fa-floppy-o" aria-hidden="true"></i></span>
+
+					<span class="icone-comandos btn-comparacoes" style="width: 5px;"></span>
+					<span class="icone-comandos btn-exclude btn btn-info btn-editar btn-comparacoes" title="#{msg['validarHash.label']}" onclick="gerarHashImagem($('#img1'))"><i class="fa fa-hashtag" aria-hidden="true"></i></span>
+
+					<o:commandScript name="downloadDocumentoPrev" action="#{processoEditBean.downloadDocumentoPrev}"/>
+					<o:commandScript name="girarPdf" actionListener="#{processoEditBean.girarPdf}" render="form-visualizar:pg-div-principal"/>
+					<p:commandLink ajax="false" rendered="#{processoEditBean.autorizacao.telaCandidato eq false}" title="#{msg['baixarDocumento.label']}" onmousedown="downloadDocumentoPrev({ imagemId: $('#img1').attr('id-img'), versao: $('#versaoSelect1').val() })" onerror="alert('Erro!')"
+								   class="icone-comandos btn-download btn btn-info btn-editar btn-comparacoes">
+						<p:fileDownload value="#{processoEditBean.downloadDocumento()}"/>
+						<i class="fa fa-download" aria-hidden="true"></i>
+					</p:commandLink>
+					<span class="icone-comandos btn-rotatepdf btn btn-info btn-editar btn-comparacoes" title="#{msg['girarEsquerda.label']}" onclick="girarPdf({imagemId: $('#img1').attr('id-img'), direcao: 'esquerda'})" style="display: none;"><i class="fa fa-undo" aria-hidden="true"></i></span>
+					<span class="icone-comandos btn-rotatepdf btn btn-info btn-editar btn-comparacoes" title="#{msg['girarDireita.label']}" onclick="girarPdf({imagemId: $('#img1').attr('id-img'), direcao: 'direita'})" style="display: none;"><i class="fa fa-repeat" aria-hidden="true"></i></span>
+
+					<span class="icone-comandos btn-exclude btn btn-info btn-editar btn-comparacoes" title="#{msg['excluirImagemDocumento.label']}" onclick="excluirImagem($('#img1'))"><i class="fa fa-trash" aria-hidden="true"></i></span>
+					<span class="icone-comandos btn-crop-doc btn btn-info btn-editar btn-comparacoes" title="#{msg['cortar.label']}" onclick="pegaImagem();"><i class="fa fa-crop" aria-hidden="true"></i></span>
+					<span class="icone-comandos btn-cop-doc btn btn-info btn-editar btn-comparacoes" title="#{msg['copiarImagemDocumento.label']}" onclick="carregaImagensCopiarModal()"><i class="fa fa-clipboard" aria-hidden="true"></i></span>
+					<span class="icone-comandos btn-comparacoes" style="width: 5px;"></span>
+					<div class="documentoSelectDiv">
+						<select id="documentoSelect1" name="documentoSelect1" class="documentoSelect form-control" onchange="selecionarDocumento($(this).val(), 1)" style="display: none;">
+							<ui:repeat value="#{processoEditBean.documentos}" var="doc">
+								<h:panelGroup rendered="#{not doc.isExcluido()}">
+									<option value="#{doc.id}">#{doc.nome}</option>
+								</h:panelGroup>
+							</ui:repeat>
+						</select>
+					</div>
+				</div>
+				<div class="paginacao">
+				<span class="btn btn-primary btn-pagina" onclick="paginaAnterior(1);"  style="height: 37px !important;">
+					&laquo;
+				</span>
+					<input type="text" id="input-pagina1" placeholder="0 de 0" class="input-pagina form-control" style="height: 37px !important; width:40% !important"/>
+					<span class="btn btn-primary btn-pagina" onclick="proximaPagina(1);" style="height: 37px !important;">
+					&raquo;
+				</span>
+					<select id="versaoSelect1" class="documentoSelect form-control" style="margin-top: 5px; width: 70%" onchange="selecionarDocumento2($('#documentoSelect1').val(), 1, $(this).val())" >
+					</select>
+				</div>
+				<div class="section" id="section-img1">
+					<div id="crop-div" style="display: none; height: 100%; width: auto; padding: 1%">
+						<div class="scale-crop" align="center" jsf:id="crop-imagem-div">
+							<img id="crop-image"/>
+						</div>
+						<div>
+							<h:inputHidden id="id-x"/>
+							<h:inputHidden id="id-y"/>
+							<h:inputHidden id="id-w"/>
+							<h:inputHidden id="id-h"/>
+						</div>
+					</div>
+					<div class="panzoom">
+						<img id="img1" alt="" border="0" style="max-width: 70%; max-height: 700px; padding-top: 60px;"/>
+					</div>
+					<div style="height: 100%; display: none;">
+						<object id="img1Obj" type="application/pdf" width="100%" height="100%" style="max-height: 100%; padding-top: 5px; padding-bottom: 5px;"></object>
+					</div>
+				</div>
+			</div>
+			<div class="coluna-dir coluna-dir2 col-sm-6" style="display: none; padding-right: 0; width: 0%; overflow-y: scroll; overflow-x: hidden;">
+			<span id="form-visualizar-ev">
+			<h:form id="form-evidencia-visualizar">
+				<b:row rendered="#{not empty processoEditBean.evidenciaVO}">
+					<b:growl id="growl-evidencia-visualizar-id" placementFrom="bottom" allowDismiss="true" animationEnter="animated bounceInDown" animationExit="animated flipOutX"/>
+					<div class="col-sm-12" style="margin-bottom: 0;">
+						<b:messages id="messages-evidencia" globalOnly="true" showSummary="true"/>
+						<h:panelGroup rendered="#{processoEditBean.evidenciaVO.showSituacao}">
+							<div class="row">
+								<div class="col-md-6 noMarginBottom">
+									<div class="form-group" style="margin-bottom: 5px;">
+										<h:outputLabel value="Tarefa atual:"/>
+										<br/>
+										<b:inputText value="#{processoEditBean.processo.situacao.nome}" disabled="true"/>
+									</div>
+								</div>
+								<div class="col-md-6 noMarginBottom">
+									<span class="glyphicon glyphicon-menu-right" style="margin-left: -22px; float: left; margin-top: 34px; color: blue; font-weight: bold;"></span>
+									<div class="form-group">
+										<b:selectOneMenu id="situacao-nova-id" value="#{processoEditBean.evidenciaVO.situacao}" label="Enviar para próxima tarefa:" required="true"
+														 oncomplete="preparaScriptsCampos()">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{processoEditBean.situacoes}" var="situacao" itemValue="#{situacao}" itemLabel="#{situacao.nome}"/>
+											<f:ajax event="change" execute="situacao-nova-id" render="campos-situacao-panel-id observacaoTmp-id"
+													listener="#{processoEditBean.selecionaNovaSituacao}"/>
+										</b:selectOneMenu>
+										<b:message/>
+									</div>
+								</div>
+							</div>
+						</h:panelGroup>
+						<h:panelGroup id="campos-situacao-panel-id">
+							<div style="margin-bottom: 10px; height: 60px;" jsf:rendered="#{processoEditBean.evidenciaVO.showEmail}">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['destinatarios.label']}" for="destinatarios3-id" styleClass="control-label"/>
+									<p:autoComplete id="destinatarios3-id" multiple="true" label="#{msg['destinatarios.label']}"
+													placeholder="#{msg['placeholderTagsDestinatarios.label']}"
+													value="#{processoEditBean.evidenciaVO.destinatariosList}" completeMethod="#{processoEditBean.getEmailsPossiveis}"
+													var="dest" itemLabel="#{dest}" itemValue="#{dest}" forceSelection="true" dropdown="true">
+										<h:outputText value="#{dest}" />
+									</p:autoComplete>
+									<b:message/>
+								</div>
+							</div>
+							<h:panelGroup rendered="#{processoEditBean.evidenciaVO.showPrazoDias}">
+								<div class="form-group">
+									<b:inputText value="#{processoEditBean.evidenciaVO.prazoDias}" styleClass="mask-number" label="#{msg['prazoDias.label']}" required="true"/>
+									<b:message/>
+								</div>
+							</h:panelGroup>
+							<div style="margin-bottom: 10px;" jsf:rendered="#{not empty processoEditBean.pendenciasCkeckList}">
+								<h:outputLabel value="Pendências do Checklist:"/><br/>
+								<div style="color: #cc092f; margin-bottom: 10px;">
+									<p:repeat var="ajuda" value="#{processoEditBean.pendenciasCkeckList}" varStatus="status">
+										<div style="#{ajuda.pendencia ? 'color:red' : ''}" jsf:rendered="#{ajuda.resposta eq 'NAO'}">
+											<i class="fa fa-circle" style="font-size: 8px;"></i>
+											#{ajuda.texto}
+											<h:panelGroup rendered="#{not empty ajuda.tipoDocumento}">
+												(#{ajuda.tipoDocumento.nome})
+											</h:panelGroup>
+										</div>
+									</p:repeat>
+								</div>
+							</div>
+							<div jsf:rendered="#{processoEditBean.pendenciasCheckListNaoCompleto}" style="color: #cc092f;">
+								<h:outputLabel value="O ckecklist não está completamente preenchido." />
+							</div>
+							<h:panelGroup rendered="#{processoEditBean.evidenciaVO.situacao.encaminhado}">
+								<div class="form-group">
+									<b:selectOneMenu label="#{msg['area.label']}" required="true" valueChangeListener="#{processoEditBean.selecionaAreaSolicitacao}" update="subarea2-id">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{processoEditBean.areas}" var="area" itemValue="#{area}" itemLabel="#{area.descricao}"/>
+										<f:ajax event="change" execute="@this" render="subarea2-id"/>
+									</b:selectOneMenu>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<b:selectOneMenu id="subarea2-id" value="#{processoEditBean.evidenciaVO.subarea}" label="#{msg['subarea.label']}" required="true" styleClass="form-control">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{processoEditBean.subareas}" var="subarea" itemValue="#{subarea}" itemLabel="#{subarea.descricao}"/>
+									</b:selectOneMenu>
+									<b:message/>
+								</div>
+							</h:panelGroup>
+                            <h:panelGroup id="campos-grupos-id">
+                                <b:growl id="growl2-id" placementFrom="bottom" allowDismiss="true" animationEnter="animated bounceInDown" animationExit="animated flipOutX"/>
+                                <c:forEach var="grupoVO" items="#{processoEditBean.getGruposSituacaoVO()}">
+                                    <h4 class="tituloForm">
+                                        <h:outputText value="#{grupoVO.grupoSuperior.nome}"/>
+                                        <h:panelGroup rendered="#{grupoVO.grupoPai}">
+                                            <p:commandLink onerror="alert('Erro!')" class="btn icon-btn btn-info" update="growl2-id campos-grupos-id" process="campos-grupos-id"
+														   style="padding: 0px 8px 0px 6px !important; border-radius:50px !important;margin-left: 10px;height: 33px"
+														   title="#{msg['adicionarNovo.label']}" actionListener="#{processoEditBean.adicionarGrupoDinamicoSituacao(grupoVO.tipoCampoGrupoId)}"
+														   oncomplete="preparaScriptsCampos()">
+                                                <span class="glyphicon btn-glyphicon glyphicon-plus img-circle text-info"
+													  style="padding:5px; background:#ffffff;"></span>
+												#{msg['adicionarGrupo.label']}
+                                            </p:commandLink>
+                                        </h:panelGroup>
+                                    </h4>
+                                    <div style="margin-left: 0;">
+                                        <!-- campos do grupo superior-->
+										<c:forEach var="vo" items="#{processoEditBean.getCamposSituacaoVO(grupoVO.grupoSuperior)}">
+                                            <div class="row" style="margin-bottom: 0;">
+                                                <h:panelGroup rendered="#{vo.colunaUnica}">
+                                                    <div class="col-sm-12 noMarginBottom" style="padding-left: 30px;">
+                                                        <gd:campo campo="#{vo.campo1}" edit="#{vo.campo1.editavel}"/>
+                                                    </div>
+                                                </h:panelGroup>
+                                                <h:panelGroup rendered="#{not vo.colunaUnica}">
+                                                    <div id="#{vo.campo1.id}" class="col-sm-6 noMarginBottom" style="padding-left: 30px;">
+                                                        <gd:campo campo="#{vo.campo1}" edit="#{vo.campo1.editavel}"/>
+                                                    </div>
+                                                    <h:panelGroup rendered="#{not empty vo.campo2}">
+                                                        <div id="campo-id-#{vo.campo2.id}" class="col-sm-6 noMarginBottom" style="padding-left: 0;">
+                                                            <gd:campo campo="#{vo.campo2}" edit="#{vo.campo2.editavel}"/>
+                                                        </div>
+                                                    </h:panelGroup>
+                                                </h:panelGroup>
+                                            </div>
+                                        </c:forEach>
+										<!-- campos dos subgrupos -->
+										<c:forEach var="grupo" items="#{grupoVO.gruposFilhos}">
+                                            <div class="row">
+                                                <h4 style="padding-bottom: 5px; padding-left: 30px; font-weight: 700;">#{grupo.nome}
+													<h:panelGroup rendered="#{processoEditBean.autorizacao.podeRemoverGrupo(grupo)}">
+                                                        <p:commandLink style="padding: 0px 8px 0px 6px !important; border-radius:50px !important;margin-left: -5px;height: 33px; text-decoration: none;"
+																	   actionListener="#{processoEditBean.setGrupoExcluir(grupo)}"
+																	   title="#{msg['removerGrupo.label']}"
+																	   process="@this"
+																	   oncomplete="openModal('excluirGrupo-situacao-modal');">
+                                                            <span class="glyphicon btn-glyphicon glyphicon-trash text-danger" style="padding:2px;"></span>
+                                                        </p:commandLink>
+                                                    </h:panelGroup>
+                                                </h4>
+                                            </div>
+                                            <c:forEach var="vo" items="#{processoEditBean.getCamposSituacaoVO(grupo)}">
+                                                <div class="row" style="margin-bottom: 0;">
+                                                    <h:panelGroup rendered="#{vo.colunaUnica}">
+                                                        <div class="col-sm-12 noMarginBottom" style="padding-left: 30px;">
+                                                            <gd:campo campo="#{vo.campo1}" edit="#{vo.campo1.editavel}"/>
+                                                        </div>
+                                                    </h:panelGroup>
+                                                    <h:panelGroup rendered="#{not vo.colunaUnica}">
+                                                        <div id="#{vo.campo1.id}" class="col-sm-6 noMarginBottom" style="padding-left: 30px;">
+                                                            <gd:campo campo="#{vo.campo1}" edit="#{vo.campo1.editavel}"/>
+                                                        </div>
+                                                        <h:panelGroup rendered="#{not empty vo.campo2}">
+                                                            <div id="campo-id-#{vo.campo2.id}" class="col-sm-6 noMarginBottom" style="padding-left: 0;">
+                                                                <gd:campo campo="#{vo.campo2}" edit="#{vo.campo2.editavel}"/>
+                                                            </div>
+                                                        </h:panelGroup>
+                                                    </h:panelGroup>
+                                                </div>
+                                            </c:forEach>
+                                        </c:forEach>
+                                    </div>
+                                </c:forEach>
+                                <getdoc:camposScript/>
+                                <script type="text/javascript">
+                                    jQuery(function($) {
+										configurarMascaras();
+										configurarDatePicker();
+										configurarCopiar();
+									});
+                                </script>
+                            </h:panelGroup>
+							<div class="btn-group" style="float: right; margin-top: -10px;">
+								<p:commandLink onerror="alert('Erro!')" actionListener="#{processoEditBean.evidenciaVO.setShowEmail(true)}"
+											   process="@this" update="form-visualizar:form-evidencia-visualizar:campos-situacao-panel-id"
+											   styleClass="btn btn-primary">
+									<span class="glyphicon glyphicon-send"></span>
+								</p:commandLink>
+								<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									Textos Padrões <span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu">
+									<p:repeat var="tp" value="#{processoEditBean.textosPadroes}">
+										<li>
+											<p:commandLink onerror="alert('Erro!')" actionListener="#{processoEditBean.adicionarTexto(tp)}"
+														   process="@this form-visualizar:form-evidencia-visualizar:campos-situacao-panel-id" update="form-visualizar:form-evidencia-visualizar:observacaoTmp-id">
+												<span class="glyphicon glyphicon-plus"></span>
+												#{tp.nome}
+											</p:commandLink>
+										</li>
+									</p:repeat>
+								</ul>
+							</div>
+						</h:panelGroup>
+						<div class="form-group">
+							<h:panelGroup id="observacaoTmp-id">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['observacao.label']}"/>
+									<getdoc:textEditor value="#{processoEditBean.evidenciaVO.observacaoTmp}"/>
+									<b:message/>
+								</div>
+							</h:panelGroup>
+						</div>
+						<div class="form-group">
+							<h:outputLabel for="anexo" value="#{msg['anexos.label']}"/>
+							<h:panelGroup id="lista-anexos-evidencia">
+								<ui:repeat value="#{processoEditBean.evidenciaVO.arquivos}" var="anexo8">
+									<div style="padding-bottom: 5px;">
+										<p:commandLink class="btn btn-default" onerror="alert('Erro!')" process="@this"
+													   actionListener="#{processoEditBean.removerAnexo(anexo8)}"
+													   update="form-visualizar:form-evidencia-visualizar:lista-anexos-evidencia">
+											x
+										</p:commandLink>
+										<span style="padding-left: 5px;">#{anexo8.name}</span>
+										<span style="padding-left: 15px;">#{anexo8.length}</span>
+									</div>
+								</ui:repeat>
+							</h:panelGroup>
+							<h:form id="form-anexo-upload" enctype="multipart/form-data" >
+								<p:fileUpload
+										id="anexo" styleClass="anexo-evidencia"
+										cancelLabel="#{msg['cancelar.label']}"
+										label="#{msg['escolherArquivo.label']}"
+										auto="true" update="form-visualizar:form-evidencia-visualizar:lista-anexos-evidencia form-visualizar:form-evidencia-visualizar:growl-evidencia-visualizar-id form-anexo-upload"
+										listener="#{processoEditBean.uploadAnexo}"
+										oncomplete="$('#ajaxLoaderImg').hide()"
+										multiple="true" fileLimit="5" sizeLimit="#{utilBean.getFileSizeLimit()}"/>
+								<script type="text/javascript">
+                                    //<![CDATA[
+									var disabled = window.addEventListener;
+									$(".ui-fileupload-buttonbar", ".anexo-evidencia").append(
+											"<span class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left ui-state-hover" + (disabled ? "ui-state-disabled" : "") + "'" +
+											(disabled? "onclick='clickPrint(\"divPrintEv\", uploadPrintEv)'" : "disabled='disabled'") + ">" +
+											"	<span class='ui-button-icon-left ui-icon ui-c ui-icon-image'></span>" +
+											"	<span class='ui-button-text ui-c'>Colar Imagem</span>" +
+											"</span>"
+									);
+									//]]>
+								</script>
+							</h:form>
+							<o:commandScript name="uploadPrintEv" action="#{processoEditBean.uploadPrintEvidencia}" render="lista-anexos-evidencia form-anexo-upload growl-evidencia-visualizar-id"/>
+							<b:message/>
+						</div>
+						<div class="form-group" style="float: right; padding-left: 10px">
+							<b:button value="#{msg['cancelar.label']}" onclick="pararComparacao()"/>
+							<p:commandButton value="#{msg['salvar.label']}" styleClass="btn"
+											 actionListener="#{processoEditBean.salvarEvidencia()}" onerror="alert('Erro!')" process="@form"
+											 update="form-visualizar:growl-id mensagensGlobaisGroup">
+							</p:commandButton>
+						</div>
+					</div>
+				</b:row>
+			</h:form>
+			</span>
+				<div class="comandos comandos2">
+					<span id='zoomIn2' class="btn btn-info btn-editar btn-comparacoes icone-comandos" title="#{msg['zoomMais.label']}"><i class="fa fa-search-plus" aria-hidden="true"></i></span>
+					<span id='reset2' class="icone-comandos btn btn-info btn-editar btn-comparacoes" title="#{msg['zoomNormal.label']}"><i class="glyphicon glyphicon-resize-full" aria-hidden="true"></i></span>
+					<span id='zoomOut2' class="icone-comandos btn btn-info btn-editar btn-comparacoes" title="#{msg['zoomMenos.label']}"><i class="fa fa-search-minus" aria-hidden="true"></i></span>
+
+					<span class="icone-comandos btn-comparacoes" style="width: 5px;"></span>
+
+					<span id="girarEsq2" class="icone-comandos btn btn-info btn-editar btn-comparacoes" title="#{msg['girarEsquerda.label']}" onclick="girar(false, 2)"><i class="fa fa-undo" aria-hidden="true"></i></span>
+					<span id="girarDir2" class="icone-comandos btn btn-info btn-editar btn-comparacoes" title="#{msg['girarDireita.label']}" onclick="girar(true, 2)"><i class="fa fa-repeat" aria-hidden="true"></i></span>
+
+					<span class="icone-comandos btn-comparacoes" style="width: 5px;"></span>
+
+					<div class="documentoSelectDiv">
+						<select id="documentoSelect2" class="documentoSelect form-control" onchange="selecionarDocumento($(this).val(), 2)" style="display: none;">
+							<ui:repeat value="#{processoEditBean.documentos}" var="doc">
+								<option value="#{doc.id}">#{doc.nome}</option>
+							</ui:repeat>
+						</select>
+					</div>
+				</div>
+				<div class="paginacao">
+				<span class="btn btn-primary btn-pagina" onclick="paginaAnterior(2);"  style="height: 37px !important;">
+					&laquo;
+				</span>
+					<input type="text" id="input-pagina2" placeholder="0 de 0" class="input-pagina form-control" style="height: 37px !important; width: 40% !important;"/>
+					<span class="btn btn-primary btn-pagina" onclick="proximaPagina(2);" style="height: 37px !important;">
+					&raquo;
+				</span>
+					<select id="versaoSelect2" class="documentoSelect form-control" style="margin-top: 5px; width: 70% !important;" onchange="selecionarDocumento2($('#documentoSelect2').val(), 2, $(this).val())" >
+					</select>
+				</div>
+				<div class="section" id="section-img2">
+					<div class="panzoom">
+						<img id="img2" src="" border="" style="max-width: 70%; max-height: 700px; padding-top: 60px;"/>
+					</div>
+					<div style="height: 100%; display: none;">
+						<object id="img2Obj" type="application/pdf" width="100%" height="100%" style="max-width: 70%; max-height: 100%; padding-top: 5px; padding-bottom: 5px;"></object>
+					</div>
+				</div>
+			</div>
+			<div class="coluna-dir coluna-dir-calculadora col-sm-6" style="display: none; padding-right: 0; width: 0%; overflow-y: scroll; overflow-x: hidden;">
+				<h:form id="form-calcular-renda">
+					<div class="col-sm-12">
+						<div class="col-sm-4">
+							<div class="form-group">
+								<b:selectOneMenu id="vigencia-salario-minimo-id" name="vigencia-salario-minimo-id"
+												 value="#{processoEditBean.salarioMinimoSelecionado}"
+												 label="#{msg['vigenciaSalarioMinimo.label']}" required="true">
+									<f:selectItem itemValue="" itemLabel=""/>
+									<f:selectItems value="#{processoEditBean.salariosMinimos}" var="br" itemValue="#{br}" itemLabel="#{br.vigencia}"/>
+									<f:ajax event="change"
+											render="valor-salario-minimo-id valor-multiplicador form-visualizar:form-calcular-renda:validador"
+											listener="#{processoEditBean.atualizarRendimentoMembrosFamiliares()}"/>
+								</b:selectOneMenu>
+								<b:message/>
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<div class="form-group">
+								<h:panelGroup id="valor-multiplicador" styleClass="form-group">
+									<b:inputText name="valor-multiplicador" value="#{processoEditBean.salarioMinimoSelecionado.multiplicador}" styleClass="salario_minimo"
+												 label="#{msg['multiplicador.label']}" readonly="true" />
+								</h:panelGroup>
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<div class="form-group">
+								<h:panelGroup id="valor-salario-minimo-id" styleClass="form-group">
+									<b:inputText name="salario_minimo_mensal_id"
+												 value="#{processoEditBean.salarioMinimoSelecionado.salarioMaximoPermitido}"
+												 styleClass="salario_minimo"
+												 label="#{msg['limiteSalarioFamiliar.label']}" readonly="true"/>
+								</h:panelGroup>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-12" jsf:rendered="#{not empty processoEditBean.rendimentoComposicaoFamiliar}">
+						<p:remoteCommand name="refreshFooter" update="rendimentos:footer-rendas"/>
+						<p:dataTable id="rendimentos" var="vo"
+									 value="#{processoEditBean.rendimentoComposicaoFamiliar.rendimentos}" editable="true"
+									 editMode="cell" >
+							<f:facet name="header">
+								<h:outputText value="#{msg['calculadoraRendaTCB.label']}" />
+							</f:facet>
+
+							<p:ajax event="cellEdit" listener="#{processoEditBean.onCellEdit}" update="form-visualizar:form-calcular-renda:validador" oncomplete="refreshFooter();" />
+
+							<p:column headerText="#{msg['parentesco.label']}">
+								<h:outputText value="#{vo.parentesco}" />
+								<p:commandButton style="display: none" value="atualizar-media" id="atualizar-media"  process="@this" ajax="true" immediate="true" update="media-holerites"/>
+							</p:column>
+							<p:column headerText="#{msg['rendimento.label']} 1">
+								<p:cellEditor>
+									<f:facet name="output"><h:outputText value="#{vo.rendimento1}" /></f:facet>
+									<f:facet name="input"><p:inputText value="#{vo.rendimento1}" style="width:100%" styleClass="mask-money" /></f:facet>
+								</p:cellEditor>
+							</p:column>
+							<p:column headerText="#{msg['rendimento.label']} 2">
+								<p:cellEditor>
+									<f:facet name="output"><h:outputText value="#{vo.rendimento2}" /></f:facet>
+									<f:facet name="input"><p:inputText value="#{vo.rendimento2}" style="width:100%" styleClass="mask-money" /></f:facet>
+								</p:cellEditor>
+							</p:column>
+							<p:column headerText="#{msg['rendimento.label']} 3">
+								<p:cellEditor>
+									<f:facet name="output"><h:outputText value="#{vo.rendimento3}" /></f:facet>
+									<f:facet name="input"><p:inputText value="#{vo.rendimento3}" style="width:100%" styleClass="mask-money" /></f:facet>
+								</p:cellEditor>
+							</p:column>
+							<p:column headerText="#{msg['rendimento.label']} 4">
+								<p:cellEditor>
+									<f:facet name="output"><h:outputText value="#{vo.rendimento4}" /></f:facet>
+									<f:facet name="input"><p:inputText value="#{vo.rendimento4}" style="width:100%" styleClass="mask-money" /></f:facet>
+								</p:cellEditor>
+							</p:column>
+							<p:column headerText="#{msg['rendimento.label']} 5">
+								<p:cellEditor>
+									<f:facet name="output"><h:outputText value="#{vo.rendimento5}" /></f:facet>
+									<f:facet name="input"><p:inputText value="#{vo.rendimento5}" style="width:100%" styleClass="mask-money" /></f:facet>
+								</p:cellEditor>
+							</p:column>
+							<p:column headerText="#{msg['rendimento.label']} 6">
+								<p:cellEditor>
+									<f:facet name="output"><h:outputText value="#{vo.rendimento6}" /></f:facet>
+									<f:facet name="input"><p:inputText value="#{vo.rendimento6}" style="width:100%" styleClass="mask-money" /></f:facet>
+								</p:cellEditor>
+							</p:column>
+							<p:column headerText="#{msg['media.label']}" styleClass="coluna-media">
+								<h:outputText id="media-holerites" value="#{vo.media}" style="font-weight: bold" />
+							</p:column>
+							<f:facet name="footer">
+								<div jsf:id="footer-rendas" style="display: flex;">
+									<div class="tooltip_templates" style="display: none;">
+										<span id="tooltip-renda-total" class="tooltipContent">
+											Soma de todos valores da coluna "#{msg['media.label']}".
+										</span>
+									</div>
+									<div class="tooltip_templates" style="display: none;">
+										<span id="tooltip-renda-per-capta" class="tooltipContent">
+											Soma de todos valores da coluna "#{msg['media.label']}" divido pela quantidade de "#{msg['parentesco.label']}".
+										</span>
+									</div>
+									<div class="tooltip_templates" style="display: none;">
+										<span id="tooltip-qnt-salarios-minimos" class="tooltipContent">
+											"#{msg['rendaPerCapta.label']}" divido pelo "#{msg['limiteSalarioFamiliar.label']}".
+										</span>
+									</div>
+									<div class="col-sm-4">
+										<h:outputLabel title="#{msg['rendaTotal.label']}" value="#{msg['rendaTotal.label']}:&nbsp;" />
+										<h:outputText id="renda-total" title="#{msg['rendaTotal.label']}" value="#{processoEditBean.rendimentoComposicaoFamiliar.rendaTotal}" />
+										<span class="tooltipar" data-tooltip-content="#tooltip-renda-total" style="cursor: pointer">
+										<i class="fa fa-question-circle"></i>
+									</span>
+									</div>
+									<div class="col-sm-4">
+										<h:outputLabel title="#{msg['rendaPerCapta.label']}" value="#{msg['rendaPerCapta.label']}:&nbsp;" />
+										<h:outputText id="renda-per-capta" title="#{msg['rendaPerCapta.label']}" value="#{processoEditBean.rendimentoComposicaoFamiliar.rendaPerCapta}" />
+										<span class="tooltipar" data-tooltip-content="#tooltip-renda-per-capta" style="cursor: pointer">
+										<i class="fa fa-question-circle"></i>
+									</span>
+									</div>
+									<div class="col-sm-4">
+										<h:outputLabel title="#{msg['qtdeSalariosMinimos.label']}" value="#{msg['qtdeSalariosMinimos.label']}:&nbsp;" />
+										<h:outputText id="qnt-salarios-minimos" title="#{msg['qtdeSalariosMinimos.label']}" value="#{processoEditBean.rendimentoComposicaoFamiliar.qtdeSalariosMinimos}" />
+										<span class="tooltipar" data-tooltip-content="#tooltip-qnt-salarios-minimos" style="cursor: pointer">
+										<i class="fa fa-question-circle"></i>
+									</span>
+									</div>
+									<script type="text/javascript">
+                                        jQuery(function($) {
+                                            configurarMascaras();
+                                        });
+
+                                        $(document).ready(function() {
+                                            $('.tooltipar').tooltipster({
+                                                theme: 'tooltipster-punk',
+                                                animation: 'grow',
+                                                interactive: true
+                                            });
+                                        });
+									</script>
+								</div>
+							</f:facet>
+						</p:dataTable>
+						<script type="text/javascript">
+                            jQuery(function($) {
+                                configurarMascaras();
+                            });
+						</script>
+					</div>
+					<div class="col-sm-12" style="margin-top: 15px;" >
+						<div style="float: left;">
+							<div class="tooltip_templates" style="display: none;">
+						<span id="tooltip-validador" class="tooltipContent">
+							Valida se "#{msg['rendaPerCapta.label']}" é menor ou igual ao "#{msg['limiteSalarioFamiliar.label']}".
+						</span>
+							</div>
+							<h:outputLabel value="#{msg['validador.label']}" />
+							<span class="tooltipar" data-tooltip-content="#tooltip-validador" style="cursor: pointer">
+							<i class="fa fa-question-circle"></i>
+						</span>
+							<h:panelGroup id="validador">
+								<b:switch value="#{processoEditBean.rendimentoComposicaoFamiliar.validador}" onText="OK" onColor="success" offText="NOK" offColor="danger" disabled="true" />
+							</h:panelGroup>
+						</div>
+						<p:commandButton value="#{msg['salvar.label']}" styleClass="btn" process="@form" style="float: right;"
+										 actionListener="#{processoEditBean.salvarCalculoSalarioMinimo()}" onerror="alert('Erro inesperado ao salvar cálculo de renda TCB.')"
+										 update="form-tabs form-visualizar:growl-id">
+						</p:commandButton>
+						<p:commandButton value="#{msg['limpar.label']}" styleClass="btn" style="float: right;" process="@form" immediate="true"
+										 actionListener="#{processoEditBean.limparCalculadoraRenda()}" onerror="alert('Erro inesperado ao limpar cálculo de renda TCB.')"
+										 update="form-calcular-renda" />
+					</div>
+				</h:form>
+			</div>
+		</div>
+	</div>
+	<div id="imgLoader" style="display: none;"></div>
+	<script type="text/javascript">
+		//<![CDATA[
+
+		jQuery('#input-pagina1').bind("keypress", function (e) {
+			if (e.keyCode == 13) {
+				e.preventDefault();
+				escolherPagina(1, $('#input-pagina1').val());
+			}
+		});
+		jQuery('#input-pagina2').bind("keypress", function (e) {
+			if (e.keyCode == 13) {
+				e.preventDefault();
+				escolherPagina(2, $('#input-pagina2').val());
+			}
+		});
+
+		var documentosMap = #{processoEditBean.documentosMapJson};
+		var documentos = #{processoEditBean.documentosJson};
+
+		var idxPaginaAtual1 = 0;
+		var idxPaginaAtual2 = 0;
+
+		jQuery(function($) {
+
+			var mapa = documentosMap;
+			var i = 0;
+			for(idx in mapa) {
+				var documentoVO = mapa[idx];
+				var imagensMap = documentoVO.imagens;
+				var imgs = imagensMap[documentoVO.versaoAtual];
+				for(idx in imgs) {
+					img = imgs[idx];
+					caminho = img.caminho;
+					setTimeout("$('#imgLoader').append('<img src=\"" + caminho + "\"/>');", 1000 * i++);
+				}
+			}
+
+			const element = document.querySelector('#img1').parentNode;
+			const panzoom = Panzoom(element);
+
+			$('#zoomIn1').on('click', panzoom.zoomIn)
+			$('#zoomOut1').on('click', panzoom.zoomOut)
+			$('#reset1').on('click', panzoom.reset)
+
+			element.addEventListener('mousewheel', panzoom.zoomWithWheel);
+
+			const element1 = document.querySelector('#img2').parentNode;
+			const panzoom1 = Panzoom(element1);
+
+			$('#zoomIn2').on('click', panzoom1.zoomIn)
+			$('#zoomOut2').on('click', panzoom1.zoomOut)
+			$('#reset2').on('click', panzoom1.reset)
+
+
+
+			var colEsq = $('.coluna-esq');
+			var divDocs = $('#div-documentos');
+			var divProcesso = $('#div-processo');
+
+			divProcesso.css('max-height', colEsq.outerHeight() - divDocs.outerHeight());
+			divProcesso.css('overflow', 'auto');
+			$('.coluna-dir2').css('max-height', colEsq.outerHeight());
+
+			$('#div-doc-#{processoEditBean.documento.id}').click();
+			var scollPosition = $("#div-doc-#{processoEditBean.documento.id}").offset().top - $(".documentos-list").offset().top
+			$(".documentos-list").animate({
+				scrollTop: scollPosition
+			});
+
+			var doc2Id = "#{request.getAttribute('doc2Id')}";
+			var doc2Index = "#{request.getAttribute('doc2Index')}";
+
+			if (doc2Id || doc2Index) {
+				iniciarComparacao(false);
+				if (doc2Id) {
+					selecionarDocumento(doc2Id, 2);
+				}
+				if(doc2Index) {
+					mudarPagina(null, 2, doc2Index);
+				}
+			}
+
+			var idx1 = #{processoEditBean.indiceImagem1};
+			var idx2 = #{processoEditBean.indiceImagem2};
+			if(idx1 > 0) {
+				mudarPagina(null, 1, idx1);
+			}
+			if(idx2 > 0) {
+				mudarPagina(null, 2, idx2);
+			}
+
+			configurarCopiar('.div-principal');
+		});
+
+		var modal = $('.visualizar-modal');
+		var header = $('.modal-header', modal);
+		$('.close', header).click(function() {
+			var divColuna = $("#section-img1");
+			divColuna.find(".panzoom").show();
+			divColuna.find("#crop-div").hide();
+			//   exitFullscreen();
+		});
+		//]]>
+	</script>
+
+</h:panelGroup>
+
+</html>

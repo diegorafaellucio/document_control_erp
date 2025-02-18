@@ -1,0 +1,48 @@
+<html>
+	<head>
+		<style type="text/css">
+			.tabelaAtrasos {
+				border-collapse: collapse;
+			}
+			.tabelaAtrasos td, th {
+				border: 1px black solid;
+				padding: 1px 5px 1px 5px;
+			}
+			.tabelaAtrasos a {
+				color: #3c4749;
+			}
+			.tabelaAtrasos th {
+				font-weight: bold;
+			}
+			.dataPrazo {
+				color: red;
+			}
+		</style>
+	</head>
+	<body style="width: 100%;">
+		<center>
+			<table style="width: 650px; height: 400px; text-align: left; border: 1px #f2f2f2 solid;">
+				<tr>
+					<td style="background-color: #f2f2f2; padding: 10px 20px; height: 60px;">
+						<img src="$logoImagemUrl" width="200px"/>
+					</td>
+				</tr>
+				<tr>
+					<td style="padding: 10px 50px 50px 50px;">
+						<h1>Notifica&ccedil;&atilde;o de Reinicializa&ccedil;&atilde;o de Senha</h1>
+						<p>Sua senha foi reinicializada por: <b>$autor</b></p>
+						<p>Seu login: $login</p>
+						<p style="padding-bottom: 25px;">Acesse o sistema utilizando <i>$login</i> como senha.</p>
+						<a href="$urlSistema?logoff" style="padding: 10px 16px; font-size: 18px; line-height: 1.33; border-radius: 6px; color: #fff; background-color: #428bca; border-color: #357ebd; vertical-align: middle; border: 1px solid transparent; text-decoration: none; font-weight: 400; font-family: 'Roboto', sans-serif;">
+							Acessar o Sistema
+						</a>
+					</td>
+				</tr>
+				<tr>
+					<td style="background-color: #4f708c; height: 15px;"></td>
+				</tr>
+			</table>
+		</center>
+	</body>
+</html>
+

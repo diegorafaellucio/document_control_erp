@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+		xmlns="http://www.springframework.org/schema/beans"
+		xmlns:mvc="http://www.springframework.org/schema/mvc"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:aop="http://www.springframework.org/schema/aop"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xmlns:tx="http://www.springframework.org/schema/tx"
+		xmlns:task="http://www.springframework.org/schema/task"
+		xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/mvc
+      	http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+		http://www.springframework.org/schema/task
+		http://www.springframework.org/schema/task/spring-task-4.0.xsd
+	">
+	
+	<mvc:annotation-driven>
+		<mvc:message-converters>
+			<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+				<property name="objectMapper">
+					<bean class="net.wasys.util.rest.jackson.ObjectMapper" />
+				</property>
+			</bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+
+	<mvc:interceptors>
+		<bean class="net.wasys.getdoc.mb.spring.handler.HandlerInterceptorRestAdapter" />
+		<bean class="net.wasys.util.ocrws.OcrWsHandlerInterceptorAdapter" />
+		<bean class="net.wasys.getdoc.rest.config.SuperInterceptorRestAdapter" />
+	</mvc:interceptors>
+
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="10485760"/> <!-- 10MB -->
+		<!--<property name="uploadTempDir" value=""/>-->
+	</bean>
+
+	<bean id="resource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>mobile</value>
+				<value>getdoc</value>
+				<value>webservice</value>
+				<value>net.wasys.getdoc.messages.msg</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="resourceMessage" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>net.wasys.getdoc.messages.msg</value>
+				<value>webservice</value>
+			</list>
+		</property>
+	</bean>
+	<!-- Config para o ambiente - HML2 -->
+	<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/getdocJDBC"/>
+	</bean>
+	<!-- Config para o ambiente - LOCAL e SB -->
+<!--	<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">-->
+<!--		<property name="jndiName" value="java:comp/env/getdocJDBC"/>-->
+<!--	</bean>-->
+
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<qualifier value="sf"/>
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:hibernate.cfg.xml" />
+	</bean>
+
+	<bean id="dataSourceBi" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/getdocBiJDBC"/>
+	</bean>
+
+	<bean id="sessionFactoryBi" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<qualifier value="sfBi"/>
+		<property name="dataSource" ref="dataSourceBi" />
+		<property name="configLocation" value="classpath:hibernate.cfg.xml" />
+	</bean>
+
+    <aop:aspectj-autoproxy />
+
+    <context:component-scan base-package="net.wasys.getdoc">
+        <context:include-filter type="annotation" expression="org.aspectj.lang.annotation.Aspect"/>
+    </context:component-scan>
+
+	<bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	
+	<!-- Transacao com @Transaction -->
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+
+	<context:annotation-config/>
+
+	<!-- @Scheduled -->
+	<task:annotation-driven/>
+	<task:scheduler id="batchScheduler" pool-size="100" />
+
+</beans>

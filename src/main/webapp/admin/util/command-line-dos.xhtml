@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:o="http://omnifaces.org/ui">
+	<ui:composition template="/templates/border-util.xhtml">
+		<ui:define name="titulo">Command Line DOS</ui:define>
+		<ui:define name="conteudo">
+			<h:form>
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-xs-12 col-sm-3 col-md-3 col-lg-2"></div>
+						<div class="col-xs-12 col-sm-6 col-md-6 col-lg-8">
+							<div>
+								<div class="panel panel-default">
+									<div class="panel-heading">
+										<h3 class="panel-title">Prompt DOS</h3>
+									</div>
+									<div class="panel-body">
+										<h:form>
+										<div class="form-group">
+											<div id="prompt" style="white-space: pre;">#{commandLineDosBean.ultimaMensagem}</div>
+										</div>
+										<div class="row">
+											<div class="col-xs-10 col-md-10 col-sm-10 col-lg-10" align="right">
+												<label for="inputCommand" class="sr-only">Command</label>
+												<input type="text" id="inputCommand" class="form-control" placeholder="Command" name="cmd"/>
+											</div>
+											<div class="col-xs-2 col-md-2 col-sm-2 col-lg-2" align="left">
+												<b:commandButton actionListener="#{commandLineDosBean.executarComando()}" title="Executar">
+													<f:ajax></f:ajax>
+													<i class="fa fa-play" aria-hidden="true"></i>
+												</b:commandButton>
+											</div>
+										</div>
+										</h:form>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-12 col-sm-3 col-md-3 col-lg-2"></div>
+					</div>
+				</div>
+				<span id="finalDaPagina"></span>
+				<o:commandScript name="escutar" actionListener="#{commandLineDosBean.escutar()}" oncomplete="preencher()" />
+			</h:form>
+			<script>
+
+				$("#inputCommand").on("keydown", function(event) {
+					if(event.which == 13) {
+						enviarComando();
+					}
+				});
+
+				function enviarComando() {
+
+					var cmdVal = $('#inputCommand').val();
+					jQuery.post('$context$path', {cmd: cmdVal}, function (data) {
+						if(data) {
+							location.href = '$context$path';
+						}
+					});
+				}
+
+				function preencher() {
+
+					var data = OmniFaces.Ajax.data;
+					var resultado = data.resultado;
+
+					//console.log($('#prompt').size() + " - " + resultado);
+
+					if(resultado) {
+
+						$('#prompt').append(resultado);
+
+						var deslocamento = $('#finalDaPagina').offset().top;
+						$('html, body').scrollTop(deslocamento);
+					}
+
+					setTimeout("escutar()", resultado ? 50 : 1000);
+				}
+
+				escutar();
+
+			</script>
+		</ui:define>
+	</ui:composition>
+</html>

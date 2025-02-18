@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf"
+	  xmlns:b="http://bootsfaces.net/ui"
+	  xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+<f:metadata>
+	<f:viewAction action="#{filaConfiguracaoCrudBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/navegacao.xhtml">
+	<ui:define name="tituloPagina">#{msg['filaConfiguracaoCrud.titulo']}</ui:define>
+	<ui:define name="conteudo">
+		<style>
+			.adicionar-modal .modal-dialog {
+				width: 700px;
+				padding-top: 0px;
+			}
+		</style>
+		<getdoc:excluirModal id="excluirModal" metodoExcluir="#{filaConfiguracaoCrudBean.excluir()}"/>
+		<h:form id="form-filaConfiguracao">
+			<b:modal id="adicionar-modal-id" title="#{msg['adicionarConfiguracaoFila.label']}" styleClass="adicionar-modal" rendered="#{menuBean.podeEditar()}">
+				<b:row id="adicionar-modal-content-id">
+					<div class="col-sm-12">
+						<b:messages globalOnly="true" showSummary="true"/>
+						<div class="row">
+							<div class="col-sm-9">
+								<b:inputText value="#{filaConfiguracaoCrudBean.filaConfiguracao.descricao}" placeholder="#{msg['descricao.label']}"
+									label="#{msg['descricao.label']}" renderLabel="true"
+									maxlength="50" required="true"/>
+								<b:message/>
+							</div>
+							<div class="col-sm-3" >
+								<h:outputLabel value="#{msg['configuracaoPadrao.label']}" for="configuracaoPadrao" title="#{msg['configuracaoPadraoTooltip.label']}"/>
+								<i class="fa fa-question-circle" title="#{msg['configuracaoPadraoTooltip.label']}"></i>
+								<h:selectOneRadio id="configuracaoPadrao" value="#{filaConfiguracaoCrudBean.filaConfiguracao.padrao}" styleClass="radio-default"
+										disabled="#{!filaConfiguracaoCrudBean.filaConfiguracao.padrao and filaConfiguracaoCrudBean.possuiPadrao}">
+									<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+									<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									<p:ajax update="status-id switches-id"/>
+								</h:selectOneRadio>
+							</div>
+						</div>
+						<div class="row">
+							<div class="form-group" jsf:id="status-id">
+								<h:panelGroup rendered="#{!filaConfiguracaoCrudBean.filaConfiguracao.padrao}">
+									<h:outputLabel value="#{msg['status.label']}"/>
+									<p:selectCheckboxMenu value="#{filaConfiguracaoCrudBean.statusSelecionados}"
+														  style="form-control bf-no-message has-success" label="" multiple="true"
+														  filter="false" panelStyle="width:250px" converter="enumConverter" >
+										<f:selectItems value="#{filaConfiguracaoCrudBean.statusPossiveis}" var="sp" itemLabel="#{msg['StatusProcesso.'.concat(sp).concat('.label')]}" itemValue="#{sp}" />
+									</p:selectCheckboxMenu>
+									<b:message/>
+								</h:panelGroup>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label style="margin-right: 10px;">#{msg['colunaPersonalizada.label']}</label>
+									<p:commandLink class="btn btn-default" update="form-filaConfiguracao:colunasId" ajax="true" immediate="true"
+												   actionListener="#{filaConfiguracaoCrudBean.adicionarColuna()}"
+												   style="padding: 6px 10px 3px 10px;" title="#{msg['adicionarColuna.label']}">
+										<i class="fa fa-plus" aria-hidden="true" style="font-size: 22px; color: green;"></i>
+									</p:commandLink>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<b:switch caption="#{msg['exibirColunaAnalista.label']} " id="verificarProximaRequisicao1" onText="#{msg['sim.label']}" offText="#{msg['nao.label']}"
+											  value="#{filaConfiguracaoCrudBean.filaConfiguracao.exibirColunaAnalista}" dir="rtl"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<h:panelGroup id="colunasId" rendered="#{filaConfiguracaoCrudBean.colunas ne null}">
+							<ui:repeat value="#{filaConfiguracaoCrudBean.colunas}" var="coluna" >
+								<div class="row">
+									<div class="col-md-4 noMarginBottom">
+										<h:outputLabel value="Nome da Coluna"/>
+									</div>
+									<div class="col-md-5 noMarginBottom">
+										<h:outputLabel value="#{msg['campos.label']}"/>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-md-4">
+										<b:inputText value="#{coluna.nome}" />
+									</div>
+									<div class="col-md-7">
+										<p:selectCheckboxMenu value="#{coluna.campos}" label="" multiple="true">
+											<f:selectItems value="#{filaConfiguracaoCrudBean.camposPossiveis}"/>
+										</p:selectCheckboxMenu>
+									</div>
+									<div class="col-md-1">
+										<p:commandLink class="btn btn-danger" style="margin-left: -20px;" title="Remover item" process="form-filaConfiguracao:colunasId"
+												actionListener="#{filaConfiguracaoCrudBean.removerColuna(coluna)}" update="form-filaConfiguracao:colunasId">
+											<i class="fa fa-trash fa-1" aria-hidden="true" style=""></i>
+										</p:commandLink>
+									</div>
+								</div>
+							</ui:repeat>
+						</h:panelGroup>
+						<div jsf:id="switches-id">
+							<h:panelGroup rendered="#{!filaConfiguracaoCrudBean.filaConfiguracao.padrao}">
+								<div class="form-group" style="padding-top: 20px;">
+									<h:outputLabel value="#{msg['exibirNaoAssociados.label']}:" for="exibirNaoAssociados"/><br />
+									<b:switch id="exibirNaoAssociados" onText="#{msg['sim.label']}" offText="#{msg['nao.label']}"
+											  value="#{filaConfiguracaoCrudBean.filaConfiguracao.exibirNaoAssociados}"/>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['exibirAssociadosOutros.label']}:" for="exibirAssociadosOutros"/><br />
+									<b:switch id="exibirAssociadosOutros" onText="#{msg['sim.label']}" offText="#{msg['nao.label']}"
+											  value="#{filaConfiguracaoCrudBean.filaConfiguracao.exibirAssociadosOutros}"/>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['permissaoEditarOutros.label']}:" for="permissaoEditarOutros"/><br />
+									<b:switch id="permissaoEditarOutros" onText="#{msg['sim.label']}" offText="#{msg['nao.label']}"
+											  value="#{filaConfiguracaoCrudBean.filaConfiguracao.permissaoEditarOutros}"/>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['verificarProximaRequisicao.label']}:" for="verificarProximaRequisicao"/><br />
+									<b:switch id="verificarProximaRequisicao" onText="#{msg['sim.label']}" offText="#{msg['nao.label']}"
+											  value="#{filaConfiguracaoCrudBean.filaConfiguracao.verificarProximaRequisicao}"/>
+									<b:message/>
+								</div>
+							</h:panelGroup>
+						</div>
+					</div>
+					<script type="text/javascript">
+                        jQuery(function($) {
+                            configurarMascaras();
+                        });
+					</script>
+				</b:row>
+
+				<f:facet name="footer">
+					<p:commandButton value="#{msg['restaurarPadrao.label']}" actionListener="#{filaConfiguracaoCrudBean.restaurarPadraoFilaAnalista()}" update="adicionar-modal-content-id form-filaConfiguracao-list" styleClass="btn"/>
+					<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+					<p:commandButton value="#{msg['salvar.label']}" actionListener="#{filaConfiguracaoCrudBean.salvar()}" update="adicionar-modal-content-id form-filaConfiguracao-list" styleClass="btn"/>
+				</f:facet>
+			</b:modal>
+		</h:form>
+		<h:form id="form-filaConfiguracao-list">
+			<div class="row">
+				<div class="col-sm-12">
+					<p:commandLink value="#{msg['adicionarConfiguracaoFila.label']}" onclick="openModal('adicionar-modal')" class="btn btn-primary btn-lg" style="float: right;" update="form-filaConfiguracao:adicionar-modal-content-id" rendered="#{menuBean.podeEditar()}">
+						<f:setPropertyActionListener target="#{filaConfiguracaoCrudBean.filaConfiguracao}" value="#{null}" />
+					</p:commandLink>
+				</div>
+			</div>
+
+				<div class="row">
+					<p:dataTable var="filaConfiguracao" value="#{filaConfiguracaoCrudBean.dataModel}" rows="10" paginator="true" lazy="true"
+								 paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+								 currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+								 paginatorPosition="bottom" stickyHeader="true" stickyTopAt=".layout-topbar">
+						<p:column headerText="#{msg['descricao.label']}" style="text-align: center;">
+							<h:outputText value="#{filaConfiguracao.descricao}" />
+							<h:panelGroup rendered="#{filaConfiguracao.padrao}">
+								<i class="fa fa-cog" title="#{msg['configuracaoPadraoTooltip.label']}"></i>
+							</h:panelGroup>
+						</p:column>
+						<p:column headerText="#{msg['exibirNaoAssociados.label']}" style="text-align: center;">
+							<h:outputText value="X" rendered="#{filaConfiguracao.exibirNaoAssociados}" />
+						</p:column>
+						<p:column headerText="#{msg['exibirAssociadosOutros.label']}" style="text-align: center;">
+							<h:outputText value="X" rendered="#{filaConfiguracao.exibirAssociadosOutros}" />
+						</p:column>
+						<p:column headerText="#{msg['permissaoEditarOutros.label']}" style="text-align: center;">
+							<h:outputText value="X" rendered="#{filaConfiguracao.permissaoEditarOutros}" />
+						</p:column>
+						<p:column headerText="#{msg['verificarProximaRequisicao.label']}" style="text-align: center;">
+							<h:outputText value="X" rendered="#{filaConfiguracao.verificarProximaRequisicao}" />
+						</p:column>
+						<p:column style="width: 240px;" sortable="false" rendered="#{menuBean.podeEditar()}">
+							<p:commandLink value="#{msg['editar.label']}" onclick="openModal('adicionar-modal')" class="btn btn-warning btn-editar" update="form-filaConfiguracao:adicionar-modal-content-id">
+								<f:setPropertyActionListener target="#{filaConfiguracaoCrudBean.filaConfiguracao}" value="#{filaConfiguracao}" />
+							</p:commandLink>
+							<p:commandLink value="#{msg['excluir.label']}" onclick="openModal('excluir-modal', 'excluirModal:form-exclusao:excluir-btn')"
+										   class="btn btn-danger btn-excluir" rendered="#{menuBean.podeExcluir()}">
+								<f:setPropertyActionListener target="#{filaConfiguracaoCrudBean.filaConfiguracao}" value="#{filaConfiguracao}" />
+							</p:commandLink>
+						</p:column>
+					</p:dataTable>
+				</div>
+		</h:form>
+	</ui:define>
+</ui:composition>
+</html>

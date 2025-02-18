@@ -1,0 +1,960 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:b="http://bootsfaces.net/ui"
+      xmlns:o="http://omnifaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+<f:metadata>
+    <f:viewAction action="#{dashboardDiarioBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/navegacao.xhtml">
+    <ui:include src="/WEB-INF/include/footer.xhtml"/>
+    <ui:define name="head">
+        <link href="#{request.contextPath}/resources/css/prism.css" rel="stylesheet"/>
+        <script src="#{request.contextPath}/resources/highcharts/highcharts.js"></script>
+        <script src="#{request.contextPath}/resources/highcharts/modules/data.js"></script>
+        <script src="#{request.contextPath}/resources/highcharts/modules/exporting.js"></script>
+    </ui:define>
+    <ui:define name="tituloPagina">#{msg['dashboardDiario.label']}</ui:define>
+    <ui:define name="conteudo">
+        <h:form id="form-dashboard">
+            <c:set var="bean" value="#{dashboardDiarioBean}" />
+            <div class="row default-form">
+                <div class="col-sm-10">
+                    <h4 class="tituloForm" style="margin-top: 13px;"><h:outputText value="#{msg['dashboardDiario.label']}"/></h4>
+                </div>
+                <div class="col-sm-2" style="margin-top: 0; padding-left: 5px;">
+                    <p:commandLink id="btn-filtrar-id" value="#{msg['filtrar.label']}" onclick="showHideFiltro()" styleClass="btn btn-primary btn-md"
+                                   style="margin-right: 15px; background-color: #d3d3d3;" process="@this" update="btn-filtrar-id" />
+                    <p:commandLink id="reloadAutomaticoId" actionListener="#{bean.reloadAutomatico()}" process="@this" update="reloadAutomaticoId" styleClass="btn btn-md"
+                                   style="margin-right: 5px; background-color: #{bean.reloadAutomatico ? '#d3d3d3' : '#fff'}" title="Atualizar a cada 5 min.">
+                        <i class="fa fa-clock-o" style="font-size: 16px; color: #{bean.reloadAutomatico ? '#000' : '#337ab7'}"></i>
+                    </p:commandLink>
+                    <p:commandLink id="modoTelaCheiaId" actionListener="#{bean.modoTelaCheia()}" process="@this" update="modoTelaCheiaId" styleClass="btn btn-md"
+                                   style="background-color: #{bean.modoTelaCheia ? '#d3d3d3' : '#fff'}" title="Tela cheia">
+                        <i class="fa fa-expand" style="font-size: 16px; color: #{bean.modoTelaCheia ? '#000' : '#337ab7'}"></i>
+                    </p:commandLink>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <b:messages id="message" globalOnly="true" showSummary="true"/>
+            </div>
+            <h:panelGroup id="filtros-id">
+                <div class="row">
+                    <div class="col-sm-1" ></div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <h:outputLabel value="#{msg['periodo.label']}"/>
+                            <b:panelGrid colSpans="1,5,1,5" style="margin-bottom: -20px; margin-left: 5px;">
+                                <h:outputText value="#{msg['de.label']}"/>
+                                <b:inputText id="dataInicioId" value="#{bean.filtro.dataInicioDia}" placeholder="dd/mm/aaaa" styleClass="mask-date" label="#{msg['dataInicial.label']}" renderLabel="false">
+                                    <f:convertDateTime pattern="dd/MM/yyyy"/>
+                                    <f:facet name="append">
+                                        <i class="fa fa-calendar-o fa-12x14" />
+                                    </f:facet>
+                                </b:inputText>
+                                <h:outputText value="#{msg['ate.label']}"/>
+                                <b:inputText id="dataFimId" value="#{bean.filtro.dataFimDia}" placeholder="dd/mm/aaaa" styleClass="mask-date" label="#{msg['dataFinal.label']}" renderLabel="false">
+                                    <f:convertDateTime pattern="dd/MM/yyyy"/>
+                                    <f:facet name="append">
+                                        <i class="fa fa-calendar-o fa-12x14" />
+                                    </f:facet>
+                                </b:inputText>
+                            </b:panelGrid>
+                            <b:message for="dataInicioId" showSummary="false"/>
+                            <b:message for="dataFimId" showSummary="false"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <h:outputLabel value="#{msg['tipoProcesso.label']}" />
+                            <p:selectCheckboxMenu value="#{bean.filtro.tiposProcessoId}" label="#{msg['tipoProcesso.label']}"
+                                                  style="form-control bf-no-message has-success" multiple="true" converter="javax.faces.Long">
+                                <f:selectItems value="#{bean.tiposProcesso}" var="item" itemLabel="#{item.nome}" itemValue="#{item.id}"/>
+                            </p:selectCheckboxMenu>
+                            <b:message/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-1" ></div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <h:outputLabel value="#{msg['regional.label']}" />
+                            <h:selectOneMenu styleClass="form-control" value="#{bean.filtro.regional}" >
+                                <f:selectItem itemValue="" itemLabel=""/>
+                                <f:selectItems value="#{bean.regionais}" var="regional" itemValue="#{regional.baseRegistro.chaveUnicidade}" itemLabel="#{regional.label}"/>
+                                <f:ajax event="change" render="filtros-id" listener="#{bean.findCampusList}"/>
+                            </h:selectOneMenu>
+                        <b:message/>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <h:outputLabel value="#{msg['campus.label']}" />
+                            <h:selectOneMenu styleClass="form-control" value="#{bean.filtro.campus}">
+                                <f:selectItem itemValue="" itemLabel=""/>
+                                <f:selectItems value="#{bean.campusList}" var="campus" itemValue="#{campus.baseRegistro.chaveUnicidade}" itemLabel="#{campus.label}"/>
+                                <f:ajax event="change" render="filtros-id" listener="#{bean.findCursos}"/>
+                            </h:selectOneMenu>
+                            <b:message/>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <h:outputLabel value="#{msg['curso.label']}" />
+                            <h:selectOneMenu styleClass="form-control" value="#{bean.filtro.curso}">
+                                <f:selectItem itemValue="" itemLabel=""/>
+                                <f:selectItems value="#{bean.cursos}" var="curso" itemValue="#{curso.baseRegistro.chaveUnicidade}" itemLabel="#{curso.label}"/>
+                            </h:selectOneMenu>
+                            <b:message/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-1" ></div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <o:importConstants type="net.wasys.getdoc.domain.enumeration.Origem" />
+                            <b:selectOneMenu value="#{bean.filtro.origemProcesso}" label="#{msg['origem.label']}">
+                                <f:selectItem itemValue="" itemLabel=""/>
+                                <f:selectItem itemValue="#{Origem.PORTAL_GRADUCAO}" itemLabel="Portal Graduação"/>
+                                <f:selectItem itemValue="#{Origem.PORTAL_POS_GRADUACAO}" itemLabel="Portal Pós-Graduação"/>
+                                <f:selectItem itemValue="#{Origem.WEB}" itemLabel="Sala Matrícula"/>
+                            </b:selectOneMenu>
+                            <b:message/>
+                        </div>
+                    </div>
+                    <div class="col-sm-3"></div>
+                    <div class="col-sm-3">
+                        <div class="form-group" style="padding-top: 15px">
+                            <p:commandLink id="buscar-id" action="#{bean.buscar()}" value="#{msg['buscar.label']}" update="form-dashboard:message"
+                                styleClass="btn btn-primary btn-md" style="float: right;" />
+                        </div>
+                    </div>
+                </div>
+            </h:panelGroup>
+            <h:panelGroup id="charts-id" style="display: none">
+            <div class="row default-form" >
+                <div class="col-sm-6">
+                    <h4 style="margin: 0; color: #cc092f; border-bottom: none;"><h:outputText value="#{msg['totalInscritos.label']}"/></h4>
+                    <div id="inscritoPorHora" style="height: 230px; margin: 0"></div>
+                    <p:remoteCommand name="loadSituacaoPorHora" actionListener="#{bean.geraGraficoSituacaoPorHora()}"/>
+                    <script type="text/javascript">
+                        function drawInscritoPorHora(qtdPorHora, mediaMensal, yMax, totalDia, totalMes) {
+                            Highcharts.setOptions({
+                                colors: ["#7cb5ec", "#90ed7d", "#f7a35c", "#91e8e1", "#f15c80", "#e4d354", "#2b908f", "#f45b5b", "#91e8e1", "#8085e9"],
+                            });
+                            Highcharts.chart('inscritoPorHora', {
+                                title: false,
+                                exporting: false,
+                                credits: false,
+                                chart: {
+                                    type: 'areaspline',
+                                },
+                                xAxis: {
+                                    labels: {
+                                        rotation: 315
+                                    },
+                                    categories: [
+                                        '0h', '1h', '2h', '3h', '4h', '5h', '6h', '7h', '8h', '9h', '10h', '11h', '12h', '13h', '14h', '15h', '16h', '17h', '18h', '19h', '20h', '21h', '22h', '23h'
+                                    ]
+                                },
+                                yAxis: {
+                                    allowDecimals: false,
+                                    max: yMax,
+                                    min: 0,
+                                    title: {
+                                        text: null
+                                    }
+                                },
+                                legend: {
+                                    itemStyle: {
+                                        fontWeight: 'normal',
+                                        fontSize: 11,
+                                    },
+                                },
+                                tooltip: {
+                                    shared: true,
+                                    valueDecimals: 1,
+                                    valueSuffix: ' inscritos'
+                                },
+                                series: [{
+                                    name: 'Dia (' + totalDia + ')',
+                                    data: qtdPorHora,
+                                    color: '#e4d354',
+                                    fillOpacity: 0.5,
+                                    marker: {
+                                        radius: 2
+                                    }
+                                }, {
+                                    name: 'Mês (' + totalMes + ')',
+                                    data: mediaMensal,
+                                    fillOpacity: 0.0,
+                                    marker: {
+                                        radius: 2
+                                    },
+                                    dashStyle: 'dash',
+                                    color: 'rgba(90, 90, 90, 1)'
+                                }]
+                            });
+                        }
+                    </script>
+                </div>
+                <div class="col-sm-6">
+                    <h4 style="margin: 0; color: #cc092f; border-bottom: none;"><h:outputText value="#{msg['docPendente.label']}"/></h4>
+                    <div id="docPendentePorHora" style="height: 230px; margin: 0"></div>
+                    <script type="text/javascript">
+						function drawPendentePorHora(qtdPorHora, mediaMensal, yMax, totalDia, totalMes) {
+							Highcharts.chart('docPendentePorHora', {
+								title: false,
+								exporting: false,
+								credits: false,
+								chart: {
+									type: 'areaspline',
+								},
+								xAxis: {
+									labels: {
+										rotation: 315
+									},
+									categories: [
+										'0h', '1h', '2h', '3h', '4h', '5h', '6h', '7h', '8h', '9h', '10h', '11h', '12h', '13h', '14h', '15h', '16h', '17h', '18h', '19h', '20h', '21h', '22h', '23h'
+									]
+								},
+								yAxis: {
+									allowDecimals: false,
+									max: yMax,
+									min: 0,
+									title: {
+										text: null
+									}
+								},
+								legend: {
+									itemStyle: {
+										fontWeight: 'normal',
+										fontSize: 11,
+									}
+								},
+								tooltip: {
+									shared: true,
+									valueDecimals: 1,
+									valueSuffix: ' pendentes'
+								},
+								series: [{
+									name: 'Dia (' + totalDia + ')',
+									data: qtdPorHora,
+									color: '#f7a35c',
+									fillOpacity: 0.5,
+									marker: {
+										radius: 2
+									}
+								}, {
+									name: 'Mês (' + totalMes + ')',
+									data: mediaMensal,
+									fillOpacity: 0.0,
+									marker: {
+										radius: 2
+									},
+									dashStyle: 'dash',
+									color: 'rgba(90, 90, 90, 1)'
+								}]
+							});
+						}
+                    </script>
+                </div>
+            </div>
+            <div class="row default-form" >
+                <div class="col-sm-6">
+                    <h4 style="margin: 0; color: #cc092f; border-bottom: none;"><h:outputText value="#{msg['emConferencia.label']}"/></h4>
+                    <div id="emConferenciaPorHora" style="height: 230px; margin: 0"></div>
+                    <script type="text/javascript">
+						function drawEmConferenciaPorHora(qtdPorHora, mediaMensal, yMax, totalDia, totalMes) {
+							Highcharts.chart('emConferenciaPorHora', {
+								title: false,
+								exporting: false,
+								credits: false,
+								chart: {
+									type: 'areaspline',
+								},
+								xAxis: {
+									labels: {
+										rotation: 315
+									},
+									categories: [
+										'0h', '1h', '2h', '3h', '4h', '5h', '6h', '7h', '8h', '9h', '10h', '11h', '12h', '13h', '14h', '15h', '16h', '17h', '18h', '19h', '20h', '21h', '22h', '23h'
+									]
+								},
+								yAxis: {
+									allowDecimals: false,
+									max: yMax,
+									min: 0,
+									title: {
+										text: null
+									}
+								},
+								legend: {
+									itemStyle: {
+										fontWeight: 'normal',
+										fontSize: 11,
+									}
+								},
+								tooltip: {
+									shared: true,
+									valueDecimals: 1,
+									valueSuffix: ' em conferências'
+								},
+								series: [{
+									name: 'Dia (' + totalDia + ')',
+									data: qtdPorHora,
+									fillOpacity: 0.5,
+									marker: {
+										radius: 2
+									}
+								}, {
+									name: 'Mês (' + totalMes + ')',
+									data: mediaMensal,
+									fillOpacity: 0.0,
+									marker: {
+										radius: 2
+									},
+									dashStyle: 'dash',
+									color: 'rgba(90, 90, 90, 1)'
+								}]
+							});
+						}
+                    </script>
+                </div>
+                <div class="col-sm-6">
+                    <h4 style="margin: 0; color: #cc092f; border-bottom: none;"><h:outputText value="#{msg['docAprovado.label']}"/></h4>
+                    <div id="docAprovadoPorHora" style="height: 230px; margin: 0"></div>
+                    <script type="text/javascript">
+                        function drawAprovadoPorHora(qtdPorHora, mediaMensal, yMax, totalDia, totalMes) {
+                            Highcharts.chart('docAprovadoPorHora', {
+                                title: false,
+                                exporting: false,
+                                credits: false,
+                                chart: {
+                                    type: 'areaspline'
+                                },
+                                xAxis: {
+                                    categories: [
+                                        '7h', '8h', '9h', '10h', '11h', '12h', '13h', '14h', '15h', '16h', '17h', '18h', '19h'
+                                    ]
+                                },
+                                yAxis: {
+                                    allowDecimals: false,
+                                    max: yMax,
+                                    min: 0,
+                                    title: {
+                                        text: null
+                                    }
+                                },
+                                legend: {
+                                    itemStyle: {
+                                        fontWeight: 'normal',
+                                        fontSize: 11,
+                                    }
+                                },
+                                tooltip: {
+                                    shared: true,
+                                    valueDecimals: 1,
+                                    valueSuffix: ' aprovados'
+                                },
+                                series: [{
+                                    name: 'Dia (' + totalDia + ')',
+                                    data: qtdPorHora,
+                                    color: '#90ed7d',
+                                    fillOpacity: 0.5,
+                                    marker: {
+                                        radius: 3
+                                    }
+                                }, {
+                                    name: 'Mês (' + totalMes + ')',
+                                    data: mediaMensal,
+                                    fillOpacity: 0.0,
+                                    marker: {
+                                        radius: 3
+                                    },
+                                    dashStyle: 'dash',
+                                    color: 'rgba(90, 90, 90, 1)'
+                                }]
+                            });
+                        }
+                    </script>
+                </div>
+            </div>
+            <div class="row default-form" >
+                <div class="col-sm-4">
+                    <h4 style="margin: 0; color: #cc092f; border-bottom: none;"><h:outputText value="#{msg['inscritos.label']} - #{msg['tipoProcesso.label']}"/></h4>
+                    <div id="inscritoTipoProcesso" style="height: 230px; margin: 0"></div>
+                    <p:remoteCommand name="loadInscritoTipoProcesso" actionListener="#{bean.geraGraficoInscritoTipoProcesso()}"/>
+                    <script type="text/javascript">
+                        function drawInscritoTipoProcesso(inscritoTipoProcesso, total) {
+                            Highcharts.chart('inscritoTipoProcesso', {
+                                title: false,
+                                exporting: false,
+                                credits: false,
+                                chart: {
+                                    plotBackgroundColor: null,
+                                    plotBorderWidth: null,
+                                    plotShadow: false,
+                                    marginTop: -10,
+                                    marginBottom: 0,
+                                    type: 'pie'
+                                },
+                                plotOptions: {
+                                    pie: {
+                                        showInLegend: true,
+                                        dataLabels: {
+                                            distance: -5,
+                                            formatter:function() {
+                                                if (total == 0){
+                                                    return "NA"
+                                                }
+                                                var pcnt = (this.y / total) * 100;
+                                                if(pcnt >= 4){
+                                                    return pcnt.toFixed(0) + '%';
+                                                }
+                                                return null;
+                                            },
+                                            style: {
+                                                fontSize : '14px',
+                                                fontWeight: 'normal'
+                                            },
+                                        },
+                                    }
+                                },
+                                tooltip: {
+                                    pointFormat: '{point.y}: <b>{point.percentage:.1f}%</b>'
+                                },
+                                legend: {
+                                    align: 'left',
+                                    verticalAlign: 'top',
+                                    layout: 'vertical',
+                                    x: 0,
+                                    y: 0,
+                                    itemStyle: {
+                                        fontWeight: 'normal',
+                                    },
+                                    labelFormatter: function () {
+                                        return this.name.substr(0, 20) + '<b> (' + this.y + ')</b>'
+                                    }
+                                },
+                                series: [{
+                                    type: 'pie',
+                                    name: false,
+                                    innerSize: '60%',
+                                    colorByPoint: true,
+                                    data: inscritoTipoProcesso
+                                }]
+                            });
+                        }
+                    </script>
+                </div>
+                <div class="col-sm-4">
+                    <h4 style="margin: 0; color: #cc092f; border-bottom: none;"><h:outputText value="#{msg['digitalizado.label']} - #{msg['tipoProcesso.label']}"/></h4>
+                    <div id="digitalizadoTipoProcesso" style="height: 230px; margin: 0"></div>
+                    <p:remoteCommand name="loadDigitalizadoTipoProcesso" actionListener="#{bean.geraGraficoDigitalizadoTipoProcesso()}"/>
+                    <script type="text/javascript">
+                        function drawDigitalizadoTipoProcesso(digitalizadoTipoProcesso, total) {
+                            Highcharts.chart('digitalizadoTipoProcesso', {
+                                title: false,
+                                exporting: false,
+                                credits: false,
+                                chart: {
+                                    plotBackgroundColor: null,
+                                    plotBorderWidth: null,
+                                    plotShadow: false,
+                                    marginTop: -10,
+                                    marginBottom: 0,
+                                    type: 'pie'
+                                },
+                                plotOptions: {
+                                    pie: {
+                                        showInLegend: true,
+                                        dataLabels: {
+                                            distance: -5,
+                                            formatter:function() {
+                                                if (total == 0){
+                                                    return "NA"
+                                                }
+                                                var pcnt = (this.y / total) * 100;
+                                                if(pcnt >= 4){
+                                                    return pcnt.toFixed(0) + '%';
+                                                }
+                                                return null;
+                                            },
+                                            style: {
+                                                fontSize : '14px',
+                                                fontWeight: 'normal'
+                                            },
+                                        },
+                                    }
+                                },
+                                tooltip: {
+                                    pointFormat: '{point.y}: <b>{point.percentage:.1f}%</b>'
+                                },
+                                legend: {
+                                    align: 'left',
+                                    verticalAlign: 'top',
+                                    layout: 'vertical',
+                                    x: 0,
+                                    y: 0,
+                                    itemStyle: {
+                                        fontWeight: 'normal',
+                                    },
+                                    labelFormatter: function () {
+                                        return this.name.substr(0, 20) + '<b> (' + this.y + ')</b>'
+                                    }
+                                },
+                                series: [{
+                                    type: 'pie',
+                                    name: false,
+                                    innerSize: '60%',
+                                    colorByPoint: true,
+                                    data: digitalizadoTipoProcesso
+                                }]
+                            });
+                        }
+                    </script>
+                </div>
+                <div class="col-sm-4">
+                    <h4 style="margin: 0; color: #cc092f; border-bottom: none;"><h:outputText value="#{msg['conferido.label']} - #{msg['tipoProcesso.label']}"/></h4>
+                    <div id="conferidoTipoProcesso" style="height: 230px; margin: 0"></div>
+                    <p:remoteCommand name="loadConferidoTipoProcesso" actionListener="#{bean.geraGraficoConferidoTipoProcesso()}"/>
+                    <script type="text/javascript">
+                        function drawConferidoTipoProcesso(conferidoTipoProcesso, total) {
+                            Highcharts.chart('conferidoTipoProcesso', {
+                                title: false,
+                                exporting: false,
+                                credits: false,
+                                chart: {
+                                    plotBackgroundColor: null,
+                                    plotBorderWidth: null,
+                                    plotShadow: false,
+                                    type: 'pie'
+                                },
+                                plotOptions: {
+                                    pie: {
+                                        showInLegend: true,
+                                        dataLabels: {
+                                            distance: -5,
+                                            formatter:function() {
+                                                if (total == 0){
+                                                    return "NA"
+                                                }
+                                                var pcnt = (this.y / total) * 100;
+                                                if(pcnt >= 4){
+                                                    return pcnt.toFixed(0) + '%';
+                                                }
+                                                return null;
+                                            },
+                                            style: {
+                                                fontSize : '14px',
+                                                fontWeight: 'normal'
+                                            },
+                                        },
+                                    }
+                                },
+                                tooltip: {
+                                    pointFormat: '{point.y}: <b>{point.percentage:.1f}%</b>'
+                                },
+                                legend: {
+                                    align: 'left',
+                                    verticalAlign: 'top',
+                                    layout: 'vertical',
+                                    x: 0,
+                                    y: 0,
+                                    itemStyle: {
+                                        fontWeight: 'normal',
+                                    },
+                                    labelFormatter: function () {
+                                        return this.name + '<b> (' + this.y + ')</b>'
+                                    }
+                                },
+                                series: [{
+                                    type: 'pie',
+                                    name: false,
+                                    innerSize: '60%',
+                                    colorByPoint: true,
+                                    data: conferidoTipoProcesso
+                                }]
+                            });
+                        }
+                    </script>
+                </div>
+            </div>
+            <div class="row default-form" >
+                <div class="col-sm-4">
+                    <h4  id="pendenciaTitle" style="margin: 0; color: #cc092f; border-bottom: none;"></h4>
+                    <div id="pendencia" style="height: 200px; margin: 0"></div>
+                    <p:remoteCommand name="loadPendenciaPorDocumento" actionListener="#{bean.geraGraficoPendenciaPorDocumento()}"/>
+                    <script type="text/javascript">
+                        function drawPendenciaPorDocumento(pendenciaPorDocumento) {
+                            document.getElementById("pendenciaTitle").innerHTML = "Pendências por Documento"
+                            Highcharts.chart('pendencia', {
+                                exporting: false,
+                                credits: false,
+                                tooltip: false,
+                                title: false,
+                                chart: {
+                                    type: "bar",
+                                },
+                                xAxis: {
+                                    labels: {
+                                        enabled: false
+                                    },
+                                    title: {
+                                        text: null
+                                    },
+                                    tickLength: 0,
+                                },
+                                yAxis: {
+                                    title: {
+                                        text: null
+                                    },
+                                    labels: {
+                                        enabled: false
+                                    },
+                                    gridLineColor: "transparent"
+                                },
+                                tooltip: {
+                                    enabled: false
+                                },
+                                plotOptions: {
+                                    bar: {
+                                        dataLabels: {
+                                            enabled: true,
+                                            inside: true,
+                                            useHTML: true,
+                                            align: 'left',
+                                            formatter: function () {
+                                                return this.series.name + ' (' + this.y + ')';
+                                            },
+                                            style:{
+                                                color: '#434348',
+                                                fontWeight: 'normal'
+                                            }
+                                        }
+                                    },
+                                    series: {
+                                        groupPadding: 0,
+                                    }
+                                },
+                                legend: {
+                                    enabled: false
+                                },
+                                credits: {
+                                    enabled: false
+                                },
+                                series: pendenciaPorDocumento
+                            });
+                        }
+                    </script>
+                    <p:remoteCommand name="loadPendenciaPorIrregularidade" actionListener="#{bean.geraGraficoPendenciaPorIrregularidade()}"/>
+                    <script type="text/javascript">
+                        function drawPendenciaPorIrregularidade(pendenciaPorIrregularidade, porcentoPendenciado) {
+                            document.getElementById("pendenciaTitle").innerHTML = "Pendências por Irregularidade"
+                            Highcharts.chart('pendencia', {
+                                title: false,
+                                exporting: false,
+                                credits: false,
+                                tooltip: false,
+                                chart: {
+                                    type: "bar",
+                                },
+                                xAxis: {
+                                    labels: {
+                                        enabled: false
+                                    },
+                                    title: {
+                                        text: null
+                                    },
+                                    tickLength: 0,
+                                },
+                                yAxis: {
+                                    title: {
+                                        text: null
+                                    },
+                                    labels: {
+                                        enabled: false
+                                    },
+                                    gridLineColor: "transparent"
+                                },
+                                tooltip: {
+                                    enabled: false
+                                },
+                                plotOptions: {
+                                    bar: {
+                                        dataLabels: {
+                                            enabled: true,
+                                            inside: true,
+                                            useHTML: true,
+                                            align: 'left',
+                                            formatter: function () {
+                                                return this.series.name + ' (' + this.y + ')';
+                                            },
+                                            style:{
+                                                color: '#434348',
+                                                fontWeight: 'normal'
+                                            }
+                                        }
+                                    },
+                                    series: {
+                                        groupPadding: 0,
+                                    }
+                                },
+                                legend: {
+                                    enabled: false
+                                },
+                                credits: {
+                                    enabled: false
+                                },
+                                series: pendenciaPorIrregularidade
+                            });
+                        }
+                    </script>
+                </div>
+                <div class="col-sm-4">
+                    <h4 style="margin: 0; color: #cc092f; border-bottom: none;"><h:outputText value="#{msg['digitalizado.label']} - #{msg['tempoOperacao.label']}"/></h4>
+                    <div id="tempoOperacao" style="height: 230px; margin: 0"></div>
+                    <p:remoteCommand name="loadTempoOperacao" actionListener="#{bean.geraGraficoTempoOperacao()}"/>
+                    <script type="text/javascript">
+                        function drawTempoOperacao(digitalizado, formatacao) {
+                            digitalizado[12] = {y: digitalizado[12], color:'#055caf'};
+                            digitalizado[13] = {y: digitalizado[13], color:'#055caf'};
+                            Highcharts.chart('tempoOperacao', {
+                                title: false,
+                                exporting: false,
+                                credits: false,
+                                chart: {
+                                    type: 'column'
+                                },
+                                xAxis: {
+                                    categories: ['7h', '8h', '9h', '10h', '11h', '12h', '13h', '14h', '15h', '16h', '17h', '18h', 'Dia', 'Mês']
+                                },
+                                yAxis: {
+                                    labels: {
+                                        formatter: function () {
+                                            if(formatacao == 'minuto'){
+                                                return Highcharts.numberFormat(this.value * 60, 0)  + 'min';
+                                            }
+                                            else if(formatacao == 'hora'){
+                                                return Highcharts.numberFormat(this.value, 0)  + 'hrs';
+                                            }
+                                            else if(formatacao == 'dia'){
+                                                return Highcharts.numberFormat(this.value / 24, 0)  + 'dias';
+                                            }
+                                        },
+                                    },
+                                    title: {
+                                        text: null
+                                    },
+                                    stackLabels: {
+                                        enabled: true,
+                                        formatter: function() {
+                                            if(this.total == 0){
+                                                return null;
+                                            }
+                                            else if(formatacao == 'minuto'){
+                                                return Highcharts.numberFormat(this.total * 60, 0);
+                                            }
+                                            else if(formatacao == 'hora'){
+                                                return Highcharts.numberFormat(this.total, 0);
+                                            }
+                                            else if(formatacao == 'dia'){
+                                                return Highcharts.numberFormat(this.total / 24, 0);
+                                            }
+                                        },
+                                        style :{
+                                            fontSize: 14,
+                                            fontWeight: 'normal'
+                                        }
+                                    }
+                                },
+                                legend: {
+                                    itemStyle: {
+                                        fontWeight: 'normal',
+                                        fontSize: 11,
+                                    },
+                                },
+                                tooltip: false,
+                                plotOptions: {
+                                    column: {
+                                        stacking: 'normal'
+                                    }
+                                },
+                                series: [{
+                                    name: 'Digitalizado',
+                                    data: digitalizado,
+                                }]
+                            });
+                        }
+                    </script>
+                </div>
+                <div class="col-sm-4">
+                    <h4 style="margin: 0; color: #cc092f; border-bottom: none;"><h:outputText value="#{msg['conferido.label']} - #{msg['tempoOperacao.label']}"/></h4>
+                    <div id="tempoOperacaoConferido" style="height: 230px; margin: 0"></div>
+                    <p:remoteCommand name="loadTempoOperacaoConferido" actionListener="#{bean.geraGraficoTempoOperacaoConferido()}"/>
+                    <script type="text/javascript">
+                        function drawTempoOperacaoConferido(conferido, formatacao) {
+                            conferido[12] = {y: conferido[12], color:'#ff7400'};
+                            conferido[13] = {y: conferido[13], color:'#ff7400'};
+                            Highcharts.chart('tempoOperacaoConferido', {
+                                title: false,
+                                exporting: false,
+                                credits: false,
+                                chart: {
+                                    type: 'column'
+                                },
+                                xAxis: {
+                                    categories: ['7h', '8h', '9h', '10h', '11h', '12h', '13h', '14h', '15h', '16h', '17h', '18h', 'Dia', 'Mês']
+                                },
+                                yAxis: {
+                                    labels: {
+                                        formatter: function () {
+                                            if(formatacao == 'minuto'){
+                                                return Highcharts.numberFormat(this.value * 60, 0)  + 'min';
+                                            }
+                                            else if(formatacao == 'hora'){
+                                                return Highcharts.numberFormat(this.value, 0)  + 'hrs';
+                                            }
+                                            else if(formatacao == 'dia'){
+                                                return Highcharts.numberFormat(this.value / 24, 0)  + 'dias';
+                                            }
+                                        },
+                                    },
+                                    title: {
+                                        text: null
+                                    },
+                                    stackLabels: {
+                                        enabled: true,
+                                        formatter: function() {
+                                            if(this.total == 0){
+                                                return null;
+                                            }
+                                            else if(formatacao == 'minuto'){
+                                                return Highcharts.numberFormat(this.total * 60, 0);
+                                            }
+                                            else if(formatacao == 'hora'){
+                                                return Highcharts.numberFormat(this.total, 0);
+                                            }
+                                            else if(formatacao == 'dia'){
+                                                return Highcharts.numberFormat(this.total / 24, 0);
+                                            }
+                                        },
+                                        style :{
+                                            fontSize: 14,
+                                            fontWeight: 'normal'
+                                        }
+                                    }
+                                },
+                                legend: {
+                                    itemStyle: {
+                                        fontWeight: 'normal',
+                                        fontSize: 11,
+                                    },
+                                },
+                                tooltip: false,
+                                plotOptions: {
+                                    column: {
+                                        stacking: 'normal'
+                                    }
+                                },
+                                series: [{
+                                    name: 'Conferido',
+                                    data: conferido,
+                                    color: '#f7a35c',
+                                }]
+                            });
+                        }
+                    </script>
+                </div>
+            </div>
+            </h:panelGroup>
+        </h:form>
+        <script type="text/javascript">
+            var timeoutPendenciaCharts;
+
+            function loadGraficos() {
+                loadSituacaoPorHora();
+                loadInscritoTipoProcesso();
+                loadDigitalizadoTipoProcesso();
+                loadConferidoTipoProcesso();
+                clearTimeout(timeoutPendenciaCharts);
+                loadPendencia();
+                loadTempoOperacao();
+            }
+
+            function loadPendencia() {
+                loadPendenciaPorDocumento();
+                timeoutPendenciaCharts = setTimeout("loadPendencia2()", 20000); //20seg
+            }
+
+            function loadPendencia2() {
+                loadPendenciaPorIrregularidade();
+                timeoutPendenciaCharts = setTimeout("loadPendencia()", 20000); //20seg
+            }
+
+            var timeout;
+
+            function startReloadAutomatico() {
+                document.getElementById("form-dashboard:buscar-id").click();
+                timeout = setTimeout("startReloadAutomatico()",300000); //5 minutos
+            }
+
+            function stopReloadAutomatico() {
+                clearTimeout(timeout);
+            }
+
+            function showCharts() {
+                document.getElementById("form-dashboard:charts-id").style.display = "block";
+            }
+
+            function showFiltro() {
+                document.getElementById("form-dashboard:filtros-id").style.display = "block";
+                document.getElementById("form-dashboard:btn-filtrar-id").style.backgroundColor = '#d3d3d3';
+            }
+            function hideFiltro() {
+                document.getElementById("form-dashboard:filtros-id").style.display = "none";
+                document.getElementById("form-dashboard:btn-filtrar-id").style.backgroundColor = '#337ab7';
+            }
+            function showHideFiltro(){
+                var display = document.getElementById("form-dashboard:filtros-id").style.display;
+
+                if(display == "none"){
+                    showFiltro();
+                }
+                else if(display == "block") {
+                    hideFiltro();
+                }
+            }
+
+            function start(){
+                hideFiltro();
+                showCharts();
+                loadGraficos();
+            }
+
+            function openFullscreen() {
+                document.getElementById("header").style.display = "none";
+                document.getElementById("content").style.paddingTop = "70px";
+                document.getElementById("footer").style.display = "none";
+                document.getElementById("content").style.paddingBottom = "15px";
+                document.documentElement.requestFullscreen();
+            }
+            function exitFullscreen() {
+                document.getElementById("header").style.display = "block";
+                document.getElementById("content").style.paddingTop = "10px";
+                document.getElementById("footer").style.display = "block";
+                document.getElementById("content").style.paddingBottom = "100px";
+                document.exitFullscreen();
+            }
+        </script>
+    </ui:define>
+</ui:composition>
+</html>

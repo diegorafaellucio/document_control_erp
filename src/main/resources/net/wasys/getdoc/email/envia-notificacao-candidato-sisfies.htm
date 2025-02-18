@@ -1,0 +1,208 @@
+<html lang="pt">
+<head>
+	<title>FIES</title>
+	<meta charset="UTF-8">
+	<meta http-equiv="Content-Type" content="text/html">
+	<meta name="viewport" content="width=device-width"/>
+	<style type="text/css">
+		.tabelaCandidato {
+			font-family: Arial, Verdana, Tahoma,serif;
+			font-size: 12px;
+			color: #000000;
+			padding: 10px 20px;
+			border-bottom: 2px solid #FFFFFF;
+		}
+		.cabecalho {
+			font-size: 15px;
+			color: #ffffff;
+			font-family: Arial, Verdana, Tahoma,serif;
+			padding-left: 10px;
+			align-content: center;
+		}
+		.nomeDocumento {
+			color: #0447ff;
+		}
+		.obs-doc {
+			color: #666666;
+		}
+		.texto-padrao {
+			font-size: 14px;
+			font-family: Arial, Verdana, Tahoma,serif;
+			padding-left: 35px;
+			margin-bottom: 30px;
+		}
+		.logo {
+			background-image: url(https://i.ibb.co/K7R9JFf/Banner-fies.jpg);
+			background-repeat: no-repeat;
+		}
+
+		/**TEXTO PADRAO**/
+
+		.ql-size-small{font-size: 10px;}
+		.ql-size-normal{font-size:13px;}
+		.ql-size-large{font-size: 18px;}
+		.ql-size-huge{font-size: 32px;}
+		pre {width:500px;padding: 9.5px;margin: 0 0 10px;font-size: 13px;line-height: 1.42857143;color: #333;background-color: #f5f5f5;border: 1px solid #ccc;border-radius: 4px;white-space: pre-wrap}
+		blockquote {padding: 10px 20px;margin: 0 0 20px;font-size: 17.5px;border-left: 5px solid #eee;}
+		.ql-indent-1 {padding-left: 3em;}
+		.ql-indent-2 {padding-left: 6em;}
+		.ql-indent-3 {padding-left: 9em;}
+		.ql-indent-4 {padding-left: 12em;}
+		.ql-indent-5 {padding-left: 15em;}
+		.ql-indent-6 {padding-left: 18em;}
+		.ql-indent-7 {padding-left: 21em;}
+		.ql-indent-8 {padding-left: 24em;}
+	</style>
+</head>
+<body>
+<table align="center" style="font-family: Arial,serif;" width="600" border="0" cellspacing="0" cellpadding="0">
+	<tbody>
+	<tr>
+		<td class="logo" style="font-family: Arial,serif;"><p>&nbsp;</p>
+			<p>&nbsp;</p>
+			<p>&nbsp;</p>
+			<p>&nbsp;</p>
+			<p style="padding-left: 35px;"><b>Olá, $nomeAluno!</b></p>
+			<p>&nbsp;</p>
+			<div class="texto-padrao">
+				$texto
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td align="center" style="font-family: arial,serif; font-size: 15px; color:#000;">
+			<table align="center" bgcolor="#edf1e3" width="500" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td bgcolor="#1baebe">
+						<table width="500" border="0" cellspacing="5" cellpadding="0">
+							<tr>
+								<td width="46" align="center"><img src="https://i.ibb.co/qx2MJ4S/ico-2.jpg" width="36" height="37" alt=""/></td>
+								<td class="cabecalho" width="454"><strong>Documentos do CANDIDATO </strong><br></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				#foreach($doc in $documentosObrigatorios)
+					<tr>
+						<td class="tabelaCandidato"><strong style="color:#1baebe">&#9658;</strong> <span class="nomeDocumento">$doc.nome</span><br>
+							<strong class="obs-doc">$!doc.tipoDocumento.observacaoParaNotificacao</strong></td>
+					</tr>
+				#end
+			</table>
+			<p align="right" style="font-family: arial,serif; font-size: 12px; color: #666666; padding-right: 50px;">*Todos os documentos são obrigatórios</p>
+			<p>&nbsp;</p>
+			<p><img src="https://i.ibb.co/dbWJfR9/ico-4.jpg" width="60" height="53" alt=""/><br>
+				<strong style="font-size: 18px;">Atenção:</strong><br>
+				Alguns documentos podem ser solicitados em casos especiais durante a<br>
+				entrevista a ser realizada no Local: <strong>$localOferta</strong>. </p>
+			<p>&nbsp;</p>
+			<table align="center" bgcolor="#edf1e3" width="500" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td bgcolor="#8fbf38">
+						<table width="500" border="0" cellspacing="5" cellpadding="0">
+							<tr>
+								<td width="46" align="center"><img src="https://i.ibb.co/d6DmKFt/ico-1.jpg" width="36" height="36" alt=""/></td>
+								<td class="cabecalho" width="454" ><strong>Documentos do CANDIDATO *casos especiais </strong><br>
+									<em>*PORTARIA MEC Nº 209, DE 2018</em></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				#foreach($doc in $documentosCasosEspeciais)
+					<tr>
+						<td class="tabelaCandidato"><strong style="color:#1baebe">&#9658;</strong> <span class="nomeDocumento">$doc.nome</span><br>
+							<strong class="obs-doc">$!doc.tipoDocumento.observacaoParaNotificacao</strong></td>
+					</tr>
+				#end
+			</table>
+			<p>&nbsp;</p>
+			<table align="center" bgcolor="#edf1e3" width="500" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td bgcolor="#8fbf38">
+						<table width="500" border="0" cellspacing="5" cellpadding="0">
+							<tr>
+								<td width="46" align="center"><img src="https://i.ibb.co/d6DmKFt/ico-1.jpg" width="36" height="36" alt=""/></td>
+								<td class="cabecalho" width="454" ><strong>Documentos do Grupo Familiar</strong><br>
+									<em>*Caso existam integrantes no grupo familiar</em></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				#foreach($doc in $documentosComposicaoFamiliar)
+					<tr>
+						<td class="tabelaCandidato"><strong style="color:#1baebe">&#9658;</strong> <span class="nomeDocumento">$doc.nome</span><br>
+							<strong class="obs-doc">$!doc.tipoDocumento.observacaoParaNotificacao</strong></td>
+					</tr>
+				#end
+			</table>
+			<p><img src="https://i.ibb.co/dbWJfR9/ico-4.jpg" width="60" height="53" alt=""/><br>
+				<strong style="font-size: 18px;">Atenção:<br>
+				</strong>Outros documentos podem ser solicitados pelo representante do FIES<br>
+				no momento da Entrevista de acordo com a Portaria MEC nº 209, de 2018.</p>
+			<p>&nbsp;</p></td>
+	</tr>
+	<tr>
+		<td align="center" bgcolor="#f5f5f5" style="font-family: arial,serif; font-size: 15px; color:#000; padding: 20px;"><strong>Ficou alguma dúvida?</strong><br>
+			Confira <a href="http://fies.mec.gov.br">aqui</a> o manual do aluno FIES.</td>
+	</tr>
+	<tr>
+		<td style="font-family: arial,serif; font-size: 15px; color:#000;"><p>&nbsp;</p>
+			<p align="center">Aguardamos o seu retorno e estamos ansiosos para ver você realizando<br>
+				o sonho da graduação aqui na Estácio.</p>
+			<p align="center"><strong>Muito obrigado!</strong></p>
+			<p align="center">&nbsp;</p>
+			<table align="center" width="400" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td width="205" style="border-right:1px solid #cccccc;"><img src="https://i.ibb.co/gPqN4Ft/logo-est.jpg" width="160" height="47" alt=""/></td>
+					<td width="195" align="center"><img src="https://i.ibb.co/ygLHfvX/fies-04.jpg" width="99" height="57" alt=""/></td>
+				</tr>
+			</table>
+			<p align="center">&nbsp;</p></td>
+	</tr>
+	<tr>
+		<td style="font-family: arial,serif; font-size: 15px; color:#000;">
+			<table align="center" width="600" border="0" cellspacing="0" cellpadding="0">
+				<tr>
+					<td colspan="2">
+						<img  style="vertical-align: bottom;" src="https://i.ibb.co/V3GXWNj/banner-rodape.jpg" width="600" height="94" alt=""/>
+					</td>
+				</tr>
+				<tr>
+					<td width="428"  style="vertical-align: top"><img style="vertical-align: top" src="https://i.ibb.co/LzjMq42/banner-rodape2.jpg" width="428" height="76" alt=""/></td>
+					<td width="172" align="right"><strong>Siga a Estácio</strong>
+						<table width="150" border="0" cellspacing="0" cellpadding="0">
+							<tr>
+								<td>
+									<a href="http://www.facebook.com/br.estacio">
+										<img src="https://i.ibb.co/Vj6sW4k/face.jpg" width="36" height="38" alt=""/>
+									</a>
+								</td>
+								<td>
+									<a href="http://www.youtube.com/estacio">
+										<img src="https://i.ibb.co/18kztYd/yt.jpg" width="37" height="38" alt=""/>
+									</a>
+								</td>
+								<td>
+									<a href="http://www.linkedin.com/company/estacio">
+										<img src="https://i.ibb.co/W5XQRRn/in.jpg" width="36" height="38" alt=""/>
+									</a>
+								</td>
+								<td>
+									<a href="http://instagram.com/estacio_brasil">
+										<img src="https://i.ibb.co/qB8b5vm/insta.jpg" width="36" height="38" alt=""/>
+									</a>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+			<br>
+			<p><br>
+				A portaria 1/015 do MEC prevê que, se a situação socioeconômica do candidato e grupo familiar for alterada até o dia da entrevista, ele deve apresentar a documentação de sua situação atual, e o representante deve informar no termo de concessão da bolsa.
+			</p>
+		</td>
+	</tr>
+</table>
+</body>
+</html>

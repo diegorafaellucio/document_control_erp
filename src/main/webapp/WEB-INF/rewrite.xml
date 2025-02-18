@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rewrite>
+	<joins>
+		<join path="/home/" view="/home/home.xhtml"/>
+		<join path="/recuperacao-senha/" view="/recuperacao-senha.xhtml"/>
+		<join path="/trocar-senha/" view="/trocar-senha.xhtml"/>
+		<join path="/trocar-senha/{key}" view="/trocar-senha.xhtml"/>
+		<join path="/download/" view="/download.xhtml"/>
+		<join path="/download/{pasta}" view="/download.xhtml"/>
+
+		<join path="/cadastros/alunos/" view="/cadastros/alunos/aluno-crud.xhtml"/>
+		<join path="/cadastros/ckecklists/" view="/cadastros/ajudas/ajuda-list.xhtml"/>
+		<join path="/cadastros/ckecklists/edit/" view="/cadastros/ajudas/ajuda-crud.xhtml"/>
+		<join path="/cadastros/ckecklists/edit/{id}" view="/cadastros/ajudas/ajuda-crud.xhtml"/>
+
+		<join path="/cadastros/usuarios/" view="/cadastros/usuarios/usuario-list.xhtml"/>
+		<join path="/cadastros/usuarios/edit/" view="/cadastros/usuarios/usuario-edit.xhtml"/>
+		<join path="/cadastros/usuarios/edit/{id}" view="/cadastros/usuarios/usuario-edit.xhtml"/>
+
+		<join path="/cadastros/subperfis/" view="/cadastros/subperfis/subperfil-crud.xhtml"/>
+		<join path="/cadastros/status-laboral/" view="/cadastros/status-laboral/status-laboral-crud.xhtml"/>
+
+		<join path="/cadastros/tipos-processos/" view="/cadastros/tipos-processos/tipo-processo-crud.xhtml"/>
+		<join path="/cadastros/tipos-processos/documentos/" view="/cadastros/tipos-processos/tipo-documentos-crud.xhtml"/>
+		<join path="/cadastros/tipos-processos/documentos/{id}" view="/cadastros/tipos-processos/tipo-documentos-crud.xhtml"/>
+		<join path="/cadastros/tipos-processos/campos/"     view="/cadastros/tipos-processos/tipo-campos-crud.xhtml"/>
+		<join path="/cadastros/tipos-processos/campos/{id}" view="/cadastros/tipos-processos/tipo-campos-crud.xhtml"/>
+		<join path="/cadastros/tipos-processos/campanhas/"     view="/cadastros/tipos-processos/campanha-crud.xhtml"/>
+		<join path="/cadastros/tipos-processos/campanhas/{id}" view="/cadastros/tipos-processos/campanha-crud.xhtml"/>
+		<join path="/cadastros/tipos-processos/situacoes/" view="/cadastros/situacoes/situacao-crud.xhtml"/>
+		<join path="/cadastros/tipos-processos/situacoes/{id}" view="/cadastros/situacoes/situacao-crud.xhtml"/>
+		<join path="/processos/importacao/" view="/processos/importacao-processos.xhtml"/>
+
+		<join path="/requisicoes/novo/" view="/processos/processo-novo.xhtml"/>
+		<join path="/requisicoes/novo/{id}" view="/processos/processo-novo.xhtml"/>
+		<join path="/requisicoes/fila/" view="/processos/processo-fila.xhtml"/>
+		<join path="/requisicoes/fila/edit/" view="/processos/processo-fila-edit.xhtml"/>
+		<join path="/requisicoes/fila/edit/{id}" view="/processos/processo-fila-edit.xhtml"/>
+		<join path="/requisicoes/" view="/processos/processo-list.xhtml"/>
+		<join path="/requisicoes/candidato/" view="/processos/candidato-list.xhtml"/>
+		<join path="/relatorio/listagem/" view="/relatorios/relatorio-processo-listagem.xhtml"/>
+		<join path="/requisicoes/edit/"     view="/processos/processo-list-edit.xhtml"/>
+		<join path="/requisicoes/edit/{id}" view="/processos/processo-list-edit.xhtml"/>
+
+		<join path="/cliente/requisicoes/" view="/cliente/processo-cliente-list.xhtml"/>
+		<join path="/cliente/nova-requisicao/" view="/cliente/processo-cliente-novo.xhtml"/>
+
+		<join path="/cadastros/feriados/" view="/cadastros/feriados/feriado-crud.xhtml"/>
+		<join path="/cadastros/filas/" view="/cadastros/filas/fila-crud.xhtml"/>
+		<join path="/cadastros/modelos-documento/" view="/cadastros/modelos-documento/modelo-documento-crud.xhtml"/>
+		<join path="/cadastros/categorias-documento/" view="/cadastros/categorias-documento/categoria-documento-crud.xhtml"/>
+		<join path="/cadastros/irregularidades/" view="/cadastros/irregularidades/irregularidade-crud.xhtml"/>
+		<join path="/cadastros/modelos-ocr/" view="/cadastros/modelos-ocr/modelo-ocr-crud.xhtml"/>
+		<join path="/cadastros/modelos-ocr/campos/" view="/cadastros/modelos-ocr/campo-modelo-ocr-crud.xhtml"/>
+		<join path="/cadastros/modelos-ocr/campos/{id}" view="/cadastros/modelos-ocr/campo-modelo-ocr-crud.xhtml"/>
+		<join path="/cadastros/tipos-evidencias/" view="/cadastros/tipos-evidencias/tipo-evidencia-crud.xhtml"/>
+		<join path="/cadastros/etapas/" view="/cadastros/etapas/etapa-crud.xhtml"/>
+		<join path="/cadastros/areas/" view="/cadastros/areas/area-crud.xhtml"/>
+		<join path="/cadastros/calendario/" view="/cadastros/calendario/calendario-crud.xhtml"/>
+		<join path="/cadastros/textos-padroes/" view="/cadastros/textos-padroes/texto-padrao-crud.xhtml"/>
+		<join path="/cadastros/regras/" view="/cadastros/regras/regra-crud.xhtml"/>
+		<join path="/cadastros/regras/teste/{id}" view="/cadastros/regras/regra-teste.xhtml"/>
+		<join path="/cadastros/regras/subregras/{id}" view="/cadastros/regras/subregra-crud.xhtml"/>
+
+		<join path="/cadastros/bases-internas/" view="/cadastros/bases-internas/base-interna-crud.xhtml"/>
+		<join path="/cadastros/bases-internas/view/{id}" view="/cadastros/bases-internas/base-interna-view.xhtml"/>
+
+		<join path="/cadastros/grupo-modelo-documento/" view="/cadastros/grupo-modelo-documento/grupo-modelo-documento-crud.xhtml"/>
+		<join path="/cadastros/categoria-grupo-modelo-documento/" view="/cadastros/categoria-grupo-modelo-documento/categoria-grupo-modelo-documento-crud.xhtml"/>
+
+		<join path="/relatorios/dashboard/" view="/relatorios/dashboard.xhtml"/>
+		<join path="/relatorios/dashboard-diario/" view="/relatorios/dashboard-diario.xhtml"/>
+		<join path="/relatorios/dashboard-intraday/" view="/relatorios/dashboard-intraday.xhtml"/>
+		<join path="/relatorios/dashboard-mensal/" view="/relatorios/dashboard-mensal.xhtml"/>
+		<join path="/relatorios/geral/" view="/relatorios/relatorio-geral.xhtml"/>
+		<join path="/relatorios/licenciamento/" view="/relatorios/relatorio-licenciamento.xhtml"/>
+		<join path="/relatorios/licenciamento_ocr/" view="/relatorios/relatorio-licenciamento-ocr.xhtml"/>
+		<join path="/relatorios/acompanhamento/" view="/relatorios/relatorio-acompanhamento.xhtml"/>
+		<join path="/relatorios/acompanhamento/emaberto/" view="/relatorios/relatorio-acompanhamento-em-aberto.xhtml"/>
+		<join path="/relatorios/eficiencia/areas/" view="/relatorios/relatorio-eficiencia-areas.xhtml"/>
+		<join path="/relatorios/produtividade/" view="/relatorios/relatorio-produtividade.xhtml"/>
+		<join path="/relatorios/produtividade/prouni/" view="/relatorios/relatorio-produtividade-prouni.xhtml"/>
+		<join path="/relatorios/atividade/" view="/relatorios/relatorio-atividades.xhtml"/>
+		<join path="/relatorios/ocr/" view="/relatorios/relatorio-ocr.xhtml"/>
+		<join path="/relatorios/regras/" view="/relatorios/relatorio-execucao-regras.xhtml"/>
+		<join path="/relatorios/regras/execucao/{id}" view="/relatorios/relatorio-execucao-regras-log.xhtml"/>
+		<join path="/relatorios/consulta-externa/" view="/relatorios/relatorio-consultaExterna.xhtml"/>
+		<join path="/relatorios/pendencia/documento-alunos/" view="/relatorios/relatorio-pendencia-documento.xhtml"/>
+		<join path="/relatorios/tipificacao/" view="/relatorios/relatorio-tipificacao.xhtml"/>
+		<join path="/relatorios/isencao-disciplinas/" view="/relatorios/relatorio-isencao-disciplinas.xhtml"/>
+		<join path="/relatorios/isencao-disciplinas-medicina/" view="/relatorios/relatorio-isencao-disciplinas-medicina.xhtml"/>
+		<join path="/relatorios/tipificacao/" view="/relatorios/relatorio-tipificacao.xhtml"/>
+		<join path="/relatorios/status-laboral/" view="/relatorios/relatorio-status-laboral.xhtml"/>
+		<join path="/relatorios/login-log/" view="/relatorios/relatorio-login-log.xhtml"/>
+		<join path="/relatorios/operacao/" view="/relatorios/relatorio-operacao.xhtml"/>
+		<join path="/relatorios/analise-ia/" view="/relatorios/relatorio-analise-ia.xhtml"/>
+
+		<join path="/admin/configuracoes/" view="/admin/configuracoes.xhtml"/>
+		<join path="/admin/configuracoes-consulta-externa/" view="/admin/configuracoes-consulta-externa.xhtml"/>
+		<join path="/admin/customizacoes/" view="/admin/customizacoes.xhtml"/>
+		<join path="/admin/emails-pop3/" view="/admin/emails-pop3/email-pop3-list.xhtml"/>
+		<join path="/admin/logs-alteracoes/" view="/admin/logs-alteracoes/log-alteracao-list.xhtml"/>
+		<join path="/admin/logs-alteracoes/view/{id}" view="/admin/logs-alteracoes/log-alteracao-view.xhtml"/>
+		<join path="/admin/logs-importacoes/" view="/admin/logs-importacoes/logs-importacoes-list.xhtml"/>
+		<join path="/admin/admin-ajuda/" view="/admin/admin-ajuda.xhtml"/>
+		<join path="/admin/configuracao-login-azure/" view="/admin/configuracao-login-azure.xhtml"/>
+		<join path="/admin/configuracao-geracao-relatorio/" view="/admin/configuracao-geracao-relatorio.xhtml"/>
+		<join path="/admin/configuracao_ocr/" view="/admin/configuracao-ocr/configuracao-ocr.xhtml"/>
+		<join path="/admin/configuracao-ocr/configuracao-ocr-ies/" view="/admin/configuracao-ocr/configuracao-ocr-instituicao.xhtml"/>
+		<join path="/admin/configuracao-ocr/configuracao-ocr-ies/{id}" view="/admin/configuracao-ocr/configuracao-ocr-instituicao.xhtml"/>
+
+		<join path="/consultas/aluno/" view="/consultas/consulta-taxonomia-siga.xhtml"/>
+		<join path="/consultas/aluno/{id}" view="/consultas/consulta-taxonomia-aluno.xhtml"/>
+		<join path="/consultas/candidato" view="/consultas/consulta-candidato.xhtml"/>
+		<join path="/consultas/candidato/" view="/consultas/consulta-candidato.xhtml"/>
+		<join path="/consultas/candidato/{id}" view="/consultas/consulta-candidato.xhtml"/>
+	</joins>
+</rewrite>

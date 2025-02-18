@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf">
+	<f:metadata>
+		<f:viewAction action="#{relatorioExecucaoRegrasBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['relatorioExecucaoRegras.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<o:importConstants type="net.wasys.getdoc.domain.enumeration.FarolRegra" />
+			<h:form id="form-regra-search">
+				<div class="row default-form">
+					<div class="col-sm-12">
+						<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+						<div class="row">
+							<div class="col-sm-1" ></div>
+							<div class="col-sm-5" >
+								<div class="form-group">
+									<b:inputText value="#{relatorioExecucaoRegrasBean.filtro.processoId}"
+											label="#{msg['numero.label']}" styleClass="mask-number"/>
+									<b:message/>
+								</div>
+						 	</div>
+						 	<div class="col-sm-5 form-group" >
+								<b:selectOneMenu styleClass="form-control" value="#{relatorioExecucaoRegrasBean.filtro.regraNome}" label="#{msg['regra.label']}">
+									<f:selectItem itemValue="" itemLabel=""/>
+									<f:selectItems value="#{relatorioExecucaoRegrasBean.regrasNomes}" var="r" itemValue="#{r}" itemLabel="#{r}"/>
+								</b:selectOneMenu>
+							</div>
+						 </div>
+						 <div class="row">
+						 	<div class="col-sm-8" ></div>
+						 	<div class="col-sm-2" >
+							 	<div class="form-group" style="float: right;">
+									<b:commandButton value="#{msg['limpar.label']}" styleClass="btn btn-primary btn-md" ajax="true"
+										actionListener="#{relatorioExecucaoRegrasBean.limpar()}"
+										update="form-regra:tabela-id" style="margin-top: 24px;"/>
+								</div>
+							</div>
+							<div class="col-sm-2" >
+								<b:commandButton value="#{msg['buscar.label']}" styleClass="btn btn-primary btn-md" ajax="true"
+									actionListener="#{relatorioExecucaoRegrasBean.buscar(false)}"
+									update="form-regra:tabela-id" style="margin-top: 24px;"/>
+						 	</div>
+						</div>
+					 </div>
+				</div>
+			</h:form>
+			<h:form id="form-regra">
+				<div class="row">
+					<p:dataTable id="tabela-id" var="item" value="#{relatorioExecucaoRegrasBean.dataModel}" rows="50"
+								 scrollable="false" binding="#{ utilBean.lazyDataTable }">
+						<p:column headerText="#{msg['dataExecucao.label']}" style="text-align: center; width: 160px;">
+							<h:outputText value="#{utilBean.getDateTimeStr(item.dataExecucao)}" />
+						</p:column>
+						<p:column headerText="#{msg['numero.label']}" style="text-align: center; width: 60px;">
+							<h:outputText value="#{item.processo.id}" />
+						</p:column>
+						<p:column headerText="#{msg['regra.label']}" style="text-align: center; width: 160px;">
+							<h:commandLink action="#{relatorioExecucaoRegrasBean.detalhes(item.regra.id)}">
+								<h:outputText value="#{item.regra.nome}"/>
+							</h:commandLink>
+						</p:column>
+						<p:column headerText="#{msg['farol.label']}" style="text-align: center; width: 110px;">
+							<div jsf:rendered="#{item.farol eq FarolRegra.VERMELHO}" >
+								<h:outputText value="#{msg['FarolRegra.VERMELHO.label']}" />
+							</div>
+							<div jsf:rendered="#{item.farol eq FarolRegra.AMARELO}" >
+								<h:outputText value="#{msg['FarolRegra.AMARELO.label']}" />
+							</div>
+							<div jsf:rendered="#{item.farol eq FarolRegra.VERDE}" >
+								<h:outputText value="#{msg['FarolRegra.VERDE.label']}" />
+							</div>
+						</p:column>
+						<p:column headerText="#{msg['status.label']}" style="text-align: center; width: 50px;">
+							<h:outputText value="#{item.status}" />
+						</p:column>
+						<p:column headerText="Tempo de Execução" style="text-align: center; width: 60px;">
+							<h:outputText value="#{item.tempo}" /> ms
+						</p:column>
+						<p:column style="width: 65px;" sortable="false">
+							<a href="#{request.contextPath}/relatorios/regras/execucao/#{item.id}" class="btn btn-info btn-editar">
+								<h:outputText value="#{msg['log.label']}"/>
+							</a>
+						</p:column>
+					</p:dataTable>
+				</div>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:b="http://bootsfaces.net/ui"
+>
+	<f:metadata>
+		<f:viewAction action="#{configuracaoEditBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['configuracoes.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<h:form id="form">
+				<div class="row">
+					<div class="col-sm-12">
+						<h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="#{msg['configuracaoDeImagem.label']}"/></h4>
+					</div>
+					<div class="col-sm-12">
+						<div class="col-sm-offset-2 col-sm-7" style="margin-bottom: 0;">
+							<h4 class="tituloForm" style="color: black"><h:outputText value="#{msg['extensoesPermitidas.label']}"/></h4>
+						</div>
+					</div>
+					<div class="col-sm-12">
+						<div class="col-sm-offset-3 col-sm-6" style="margin-bottom: 0;">
+							<div class="row">
+								<b:inputText tags="true" value="#{configuracaoEditBean.map['EXTENSOES_WHITE_LIST']}"
+									placeholder="#{msg['placeholderTagsOpcoes.label']}" styleClass="inputTag"
+									label="#{msg['whiteList.label']}" tiny-screen="full-width" />
+							</div>
+							<div class="row">
+								<b:inputText tags="true" value="#{configuracaoEditBean.map['EXTENSOES_BLACK_LIST']}"
+									placeholder="#{msg['placeholderTagsOpcoes.label']}" styleClass="inputTag"
+									label="#{msg['blackList.label']}" tiny-screen="full-width" />
+							</div>
+							<script type="text/javascript">
+								$('.inputTag').tagsinput('refresh');
+							</script>
+						</div>
+					</div>
+					<div class="col-sm-12">
+						<div class="col-sm-offset-2 col-sm-7" style="margin-bottom: 0;">
+							<h4 class="tituloForm" style="color: black"><h:outputText value="#{msg['compressaoImagem.label']}"/></h4>
+						</div>
+						<div class="col-sm-3"></div>
+						<div class="col-sm-offset-3 col-sm-6" style="margin-bottom: 0;">
+							<h:outputLabel value="#{msg['comprimirImagem.label']}" for="comprimirImagemId"/>
+							<h:selectOneRadio id="comprimirImagemId" value="#{configuracaoEditBean.map['COMPRIMIR_IMAGEM']}"
+											  styleClass="radio-default" required="true" tabindex="7">
+								<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+								<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+							</h:selectOneRadio>
+							<b:message/>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="#{msg['expediente.label']}"/></h4>
+					<div class="col-sm-3"></div>
+					<div class="col-sm-6">
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="form-group">
+									<b:inputText id="chegadaManha" value="#{configuracaoEditBean.map['CHEGADA_MANHA']}" styleClass="mask-time" tabindex="1"
+											label="#{msg['chegadaManha.label']}" size="7" maxlength="5" required="true"/>
+									<b:message/>
+									<b:inputText id="chegadaTarde" value="#{configuracaoEditBean.map['CHEGADA_TARDE']}" styleClass="mask-time" tabindex="3"
+											label="#{msg['chegadaTarde.label']}" size="7" maxlength="5" required="true"/>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-6">
+								<div class="form-group">
+									<b:inputText id="saidaManha" value="#{configuracaoEditBean.map['SAIDA_MANHA']}" styleClass="mask-time" tabindex="2"
+											label="#{msg['saidaManha.label']}" size="7" maxlength="5" required="true"/>
+									<b:message/>
+									<b:inputText id="saidaTarde" value="#{configuracaoEditBean.map['SAIDA_TARDE']}" styleClass="mask-time" tabindex="4"
+											label="#{msg['saidaTarde.label']}" size="7" maxlength="5" required="true"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-3"></div>
+				</div>
+				<div class="row">
+					<h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="#{msg['horarioAcessoSistema.label']}"/></h4>
+					<div class="col-sm-3"></div>
+					<div class="col-sm-6" style="margin-bottom: 0;">
+						<div class="row">
+							<div class="col-sm-6" style="margin-bottom: 0;">
+								<div class="form-group">
+									<b:inputText id="horarioAbertura" value="#{configuracaoEditBean.map['HORARIO_ABERTURA']}" styleClass="mask-time" tabindex="5"
+											label="#{msg['horarioAbertura.label']}" size="7" maxlength="5" required="true"/>
+									<b:message/>
+									<h:outputLabel value="#{msg['permitirFinalSemanaFeriado.label']}" for="permitirFdsFId"/>
+									<h:selectOneRadio id="permitirFdsFId" value="#{configuracaoEditBean.map['PERMITIR_ACESSO_FINAL_SEMANA_FERIADO']}"
+											styleClass="radio-default" required="true" tabindex="7">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-6" style="margin-bottom: 0;">
+								<div class="form-group">
+									<b:inputText id="horarioFechamento" value="#{configuracaoEditBean.map['HORARIO_FECHAMENTO']}" styleClass="mask-time" tabindex="6"
+											label="#{msg['horarioFechamento.label']}" size="7" maxlength="5" required="true"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-3"></div>
+				</div>
+				<div class="row">
+					<h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="#{msg['buscaProximoProcessoAnalista.label']}"/></h4>
+					<div class="col-sm-3"></div>
+					<div class="col-sm-6" style="margin-bottom: 0;">
+						<div class="row">
+							<div class="col-sm-6" style="margin-bottom: 0;">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['lockProximoProcesso.label']}" for="permitirPPP-id"/>
+									<h:selectOneRadio id="permitirPPP-id" value="#{configuracaoEditBean.map['HABILITAR_LOCK_PROXIMO_PROCESSO']}"
+													  styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-6" style="margin-bottom: 0;">
+								<div class="form-group">
+									<b:inputText id="intervaloDistribuicaoAutomatica" value="#{configuracaoEditBean.map['INTERVALO_DISTRIBUICAO_AUTOMATICA']}" styleClass="mask-number"
+												 label="Intervalo de Distribuição Automática (seg.)" size="7" maxlength="5" required="true"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-6" style="margin-bottom: 0;">
+								<div class="form-group">
+									<b:inputText id="intervaloNotificacaoSemDemanda" value="#{configuracaoEditBean.map['INTERVALO_NOTIFICACAO_SEM_DEMANDA']}" styleClass="mask-number"
+												 label="Intervalo de notificação sem demanda (min.)" size="7" maxlength="5" required="true"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-3"></div>
+				</div>
+				<div class="row">
+					<h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="#{msg['emailPadrao.label']}"/></h4>
+					<div class="col-sm-3"></div>
+					<div class="col-sm-6" style="margin-bottom: 0;">
+						<div class="row">
+							<div class="col-sm-12" style="margin-bottom: 0;">
+								<div class="form-group">
+									<b:inputText id="emailPadrao" value="#{configuracaoEditBean.map['EMAIL_PADRAO']}" tabindex="5"
+												 label="#{msg['email.label']}" type="email"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-3"></div>
+				</div>
+				<div class="row">
+					<h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="#{msg['emailsNoficacaoJobs.label']}"/></h4>
+					<div class="col-sm-3"></div>
+					<div class="col-sm-6" style="margin-bottom: 0;">
+						<div class="row">
+							<div class="col-sm-12" style="margin-bottom: 0;">
+								<div class="form-group">
+									<b:inputText tags="true" value="#{configuracaoEditBean.map['EMAILS_ENVIO_ANALISE_JOB']}"
+												 placeholder="#{msg['placeholderTagsOpcoes.label']}" styleClass="inputTag"
+												 label="#{msg['emailsNoficacaoJobs.label']}" tiny-screen="full-width" type="email" />
+									<b:message/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-3"></div>
+				</div>
+				<div class="row">
+					<h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="#{msg['emailsNotificacao.label']}"/></h4>
+					<div class="col-sm-3"></div>
+					<div class="col-sm-6" style="margin-bottom: 0;">
+						<div class="row">
+							<div class="col-sm-12" style="margin-bottom: 0;">
+								<div class="form-group">
+									<b:inputText tags="true" value="#{configuracaoEditBean.map['EMAILS_NOTIFICACAO']}"
+												 placeholder="#{msg['instrucoesOpcoesEmails.label']}" styleClass="inputTag"
+												 label="#{msg['emails.label']}" tiny-screen="full-width" />
+									<b:message/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-3"></div>
+				</div>
+				<div class="row">
+					<div class="col-sm-3"></div>
+					<div class="col-sm-6">
+						<div class="form-group" style="float: right;">
+							<p:commandButton value="#{msg['salvar.label']}" styleClass="btn" action="#{configuracaoEditBean.salvar}" update="content-pg-id"/>
+						</div>
+					</div>
+					<div class="col-sm-3"></div>
+				</div>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

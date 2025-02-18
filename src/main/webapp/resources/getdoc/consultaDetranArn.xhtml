@@ -1,0 +1,572 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+
+	<composite:interface>
+		<composite:attribute name="resultadoConsulta" type="net.wasys.getdoc.domain.vo.ResultadoConsultaVO" required="true"/>
+	</composite:interface>
+
+	<composite:implementation>
+		<div class="row" style="margin-left: 0">
+			<div class="col-sm-6 row-g row-grupo-#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: -0;">
+				<div class="row">
+					<div class="col-sm-6">
+						<h:outputLabel value="Dados do Veiculo" styleClass="bf-no-message"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Placa:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.dadosVeiculo.placa}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Renavam:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.dadosVeiculo.renavam}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Tipo:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.dadosVeiculo.tipo}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Combustível:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.dadosVeiculo.combustivel}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Marca:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.dadosVeiculo.marca}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Ano Fabricação:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.dadosVeiculo.anoFabricacao}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Especie:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.dadosVeiculo.especie}"/>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6 row-g row-grupo-#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value=""/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Municipio: " styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.dadosVeiculo.municipio}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Chassi:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.dadosVeiculo.chassi}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Procedência:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.dadosVeiculo.procedencia}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Cor:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.dadosVeiculo.cor}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Categoria:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.dadosVeiculo.categoria}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Ano Modelo:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.dadosVeiculo.anoModelo}"/>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row" style="margin-left: 0">
+			<div class="col-sm-6 row-g row-grupo-#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+				<div class="row">
+					<div class="col-sm-6">
+						<h:outputLabel value="Dados do Proprietário" styleClass="bf-no-message"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Nome do Proprietário:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.dadosProprietario.nomeProprietario}"/>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6 row-g row-grupo-#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value=""/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Nome do Proprietário Anterior:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.dadosProprietario.nomeProprietarioAnterior}"/>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row" style="margin-left: 0">
+			<div class="col-sm-6 row-g row-grupo-#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+				<div class="row">
+					<div class="col-sm-6">
+						<h:outputLabel value="Gravames" styleClass="bf-no-message"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Restrição Financeira:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.gravames.restricaoFinanceira}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Arrendatario Financiado:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.gravames.arrendatarioFinanciado}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Data Inclusão Financiamento:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.gravames.dataInclusaoFinanciamento}"/>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6 row-g row-grupo-#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value=""/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Agente:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.gravames.agente}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="CPF/CNPJ Financiamento:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.gravames.cnpjcpfFinanc}"/>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row" style="margin-left: 0">
+			<div class="col-sm-6 row-g row-grupo-#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+				<div class="row">
+					<div class="col-sm-6">
+						<h:outputLabel value="Intenção Gravames" styleClass="bf-no-message"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Restrição Financeira:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.intencaoGravame.restricaoFinanceira}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Nome Financiado:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.intencaoGravame.nomeFinanciado}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Data Inclusão Financiamento:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.intencaoGravame.restricaoFinanceira}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Data Inclusão" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.intencaoGravame.dataInclusao}"/>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6 row-g row-grupo-#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value=""/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Agente Financeiro:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.intencaoGravame.agenteFinanceiro}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="CPF/CNPJ Financiamento:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.intencaoGravame.cnpjcpfFinanc}"/>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row" style="margin-left: 0">
+			<div class="col-sm-6 row-g row-grupo-#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+				<div class="row">
+					<div class="col-sm-6">
+						<h:outputLabel value="Debito Multas" styleClass="bf-no-message"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Dersa:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.debitoMultas.dersa}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Detran:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.debitoMultas.detran}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Renainf:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.debitoMultas.renainf}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Polícia Rodoviaria Federal" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.debitoMultas.policiaRodoviariaFederal}"/>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6 row-g row-grupo-#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value=""/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="DER:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.debitoMultas.der}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="CETESB:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.debitoMultas.cetesb}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Municipais:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.debitoMultas.municipais}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="IPVA:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.debitoMultas.ipva}"/>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row" style="margin-left: 0">
+			<div class="col-sm-6 row-g row-grupo-#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+				<div class="row">
+					<div class="col-sm-6">
+						<h:outputLabel value="Restrições" styleClass="bf-no-message"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Restrições Furto:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.restricoes.restricoesFurto}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Restrições Administrativas:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.restricoes.restricoesAdministrativas}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Restrições Tributarias:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.restricoes.restricoesTributaria}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Inspeção Ambiental:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.restricoes.inspecaoAmbiental}"/>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6 row-g row-grupo-#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value=""/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Bloqueio Guincho:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.restricoes.bloqueioGuincho}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Restrições Judiciais" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.restricoes.restricoesJudicial}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Bloqueio Renajud:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.restricoes.bloqueiosRenajud}"/>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row" style="margin-left: 0">
+			<div class="col-sm-6 row-g row-grupo-#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+				<div class="row">
+					<div class="col-sm-6">
+						<h:outputLabel value="CRV/CRLV Atualização" styleClass="bf-no-message"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Exercício Licenciamento:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.crvCrlvAtualizacao.exercicioLicenciamento}"/>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6 row-g row-grupo-#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value=""/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Data Licenciamento:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.crvCrlvAtualizacao.dataLicenciamento}"/>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row" style="margin-left: 0">
+			<div class="col-sm-6 row-g row-grupo-#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+				<div class="row">
+					<div class="col-sm-6">
+						<h:outputLabel value="Comunicação Vendas" styleClass="bf-no-message"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Comunicação:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.comunicacaoVendas.comunicacao}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Tipo Documento Comprador:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.comunicacaoVendas.tipoDocumentoComprador}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Data Venda:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.comunicacaoVendas.dataVenda}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Data Protocolo Detran:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.comunicacaoVendas.dataProtocoloDetran}"/>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-6 row-g row-grupo-#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value=""/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Inclusão:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.comunicacaoVendas.inclusao}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="CPF/CNPJ Comprador:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.comunicacaoVendas.cnpjcpfComprador}"/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-4">
+						<h:outputLabel value="Data Nota Fiscal:" styleClass="bf-no-message"/>
+					</div>
+					<div class="col-sm-8">
+						<h:outputText value="#{cc.attrs.resultadoConsulta.detranArn.comunicacaoVendas.dataNotaFiscal}"/>
+					</div>
+				</div>
+			</div>
+		</div>
+	</composite:implementation>
+</html>

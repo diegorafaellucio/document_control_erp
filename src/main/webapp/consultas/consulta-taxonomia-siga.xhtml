@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:b="http://bootsfaces.net/ui"
+	  xmlns:o="http://omnifaces.org/ui"
+	  xmlns:c="http://java.sun.com/jsp/jstl/core"
+	  xmlns:gd="http://xmlns.jcp.org/jsf/component"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf"
+	  xmlns:pa="http://java.sun.com/jsf/passthrough"
+	  xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+<f:metadata>
+	<f:viewParam name="id" value="#{consultaTaxonomiaSigaBean.id}" />
+	<f:viewAction action="#{consultaTaxonomiaSigaBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/navegacao.xhtml">
+	<ui:define name="tituloPagina">#{msg['consultaAlunoCandidato.titulo']}</ui:define>
+	<ui:define name="conteudo">
+		<link href="#{request.contextPath}/resources/css/visualizacao.css" rel="stylesheet" type="text/css" />
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/tooltipster.bundle.min.css" />
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-punk.min.css" />
+		<script type="text/javascript" src="#{request.contextPath}/resources/tooltipster/js/tooltipster.bundle.min.js"></script>
+		<style type="text/css">
+			.ui-treetable table {
+				table-layout: fixed
+			}
+			.ui-dialog table {
+				margin-left:auto;
+				margin-right:auto;
+			}
+			tr:hover {
+				background: #e7f3ff !important;
+			}
+			.ui-widget-content {
+				border: gainsboro;
+			}
+			span.qtd {
+				background: #cccccc;
+				border-radius: 0.8em;
+				-moz-border-radius: 0.8em;
+				-webkit-border-radius: 0.8em;
+				color: #ffffff;
+				display: inline-block;
+				font-weight: bold;
+				line-height: 1.5em;
+				margin-right: 5px;
+				text-align: center;
+				width: 1.5em;
+			}
+		</style>
+		<h:form id="form">
+			<div class="row default-form">
+				<div class="col-sm-12">
+					<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+					<div class="row">
+						<div class="col-sm-1" ></div>
+						<div class="col-sm-4">
+							<div class="form-group">
+								<b:inputText value="#{consultaTaxonomiaSigaBean.filtro.cpfCnpj}" label="#{msg['TipoEntradaCampo.CPF.label']}" styleClass="mask-cpf"/>
+							</div>
+						</div>
+						<div class="form-group col-sm-3">
+							<b:inputText value="#{consultaTaxonomiaSigaBean.filtro.nome}" label="#{msg['nome.label']}"/>
+						</div>
+						<div class="form-group col-sm-3">
+							<b:inputText value="#{consultaTaxonomiaSigaBean.filtro.matricula}" label="#{msg['matricula.label']}" styleClass="mask-number"/>
+						</div>
+						<div class="col-sm-1"></div>
+						<script type="text/javascript">
+							jQuery(function($) {
+								configurarMascaras();
+							});
+						</script>
+					</div>
+					<div class="row">
+						<div class="col-sm-1"></div>
+						<div class="col-sm-10">
+							<div class="form-group" style="float: right;">
+								<b:commandButton id="buscarId" action="#{consultaTaxonomiaSigaBean.buscar()}" value="#{msg['buscar.label']}"
+												 styleClass="btn btn-primary btn-md"/>
+							</div>
+						</div>
+						<div class="col-sm-1"></div>
+					</div>
+					<h:panelGroup rendered="#{not empty consultaTaxonomiaSigaBean.aluno}">
+						<div class="col-sm-10 col-sm-offset-1 noMarginBottom">
+							<h4 class="tituloForm"><h:outputText value="Candidato"/>	</h4>
+							<div class="row-g row-grupo-#{consultaTaxonomiaSigaBean.aluno.id}" style="margin-left: 0;">
+								<div class="row campos-grupo-#{consultaTaxonomiaSigaBean.aluno.id}" style="margin-bottom: 0;">
+									<h:panelGroup>
+										<div class="col-sm-12 noMarginBottom" style="padding-left: 30px;">
+											<h:outputLabel value="#{msg['TipoEntradaCampo.CPF.label']}: " />
+											<h:panelGroup >
+												<h:outputText value=" #{consultaTaxonomiaSigaBean.aluno.cpf}" />
+											</h:panelGroup>
+
+											<h:outputLabel value="#{msg['nomeCompleto.label']}: " style="padding-left: 40px"/>
+											<h:panelGroup >
+												<h:outputText value=" #{consultaTaxonomiaSigaBean.aluno.nome}" />
+											</h:panelGroup>
+										</div>
+									</h:panelGroup>
+								</div>
+							</div>
+						</div>
+					</h:panelGroup>
+
+					<h:panelGroup rendered="#{not empty consultaTaxonomiaSigaBean.alunos}">
+						<div class="col-sm-10 col-sm-offset-1 noMarginBottom">
+							<h4 class="tituloForm"><h:outputText value="Candidatos"/></h4>
+							<p:dataTable id="tabela-ID" var="alu" value="#{consultaTaxonomiaSigaBean.alunos}" rows="50" paginator="true"
+										 paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+										 currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+										 paginatorPosition="bottom">
+								<p:column headerText="#{msg['TipoEntradaCampo.CPF.label']}" style="text-align: center;">
+									<h:outputText value="#{alu.cpf}" />
+								</p:column>
+								<p:column headerText="#{msg['aluno.label']}" style="text-align: center;">
+									<h:outputText value="#{alu.nome}" />
+								</p:column>
+								<p:column style="width: 125px;" sortable="false">
+									<a href="#{request.contextPath}/consultas/aluno/#{alu.id}"  target="_blank" class="btn btn-info btn-editar">
+										<h:outputText value="#{msg['abrir.label']}"/>
+									</a>
+								</p:column>
+							</p:dataTable>
+						</div>
+					</h:panelGroup>
+
+					<h:panelGroup rendered="#{consultaTaxonomiaSigaBean.processo != null}">
+						<div class="col-sm-10 col-sm-offset-1">
+							<h:panelGroup rendered="#{!consultaTaxonomiaSigaBean.expandir}">
+								<p:commandLink style="cursor: pointer; margin-left: -20px; position: absolute; margin-top: 75px; color: #0C1021"
+											   actionListener="#{consultaTaxonomiaSigaBean.setExpandir(true)}" update=":form">
+									<i class="fa fa-plus-square" aria-hidden="true"></i>
+								</p:commandLink>
+							</h:panelGroup>
+							<h:panelGroup rendered="#{consultaTaxonomiaSigaBean.expandir}">
+								<p:commandLink style="cursor: pointer; margin-left: -20px; position: absolute; margin-top: 75px; color: #0C1021"
+											   actionListener="#{consultaTaxonomiaSigaBean.setExpandir(false)}" update=":form">
+									<i class="fa fa-minus-square" aria-hidden="true"></i>
+								</p:commandLink>
+							</h:panelGroup>
+						</div>
+					</h:panelGroup>
+					<h:panelGroup rendered="#{ empty consultaTaxonomiaSigaBean.alunos}">
+						<div class="col-sm-10 col-sm-offset-1" style="margin-top: 30px;">
+							<p:treeTable value="#{consultaTaxonomiaSigaBean.root}" var="vo" emptyMessage="#{msg['emptyMessage.label']}">
+								<f:facet name="header">
+									Resultado
+								</f:facet>
+								<p:column headerText="Classe">
+									<h:outputText value="#{vo.classe}" />
+									<span class="qtd">#{vo.qtdDocumentos}</span>
+									<h:panelGroup rendered="#{consultaTaxonomiaSigaBean.getMapQtd(vo.classe) > 0}">
+										<span class="qtd">#{consultaTaxonomiaSigaBean.getMapQtd(vo.classe)}</span>
+									</h:panelGroup>
+									<h:panelGroup rendered="#{vo.documento ne null}">
+										<p:commandLink class="btn btn-default btnDocumento pull-right" style="padding: 0 !important;" onsuccess="$('#visualizar-modal').modal()"
+													   actionListener="#{consultaTaxonomiaSigaBean.setDocumentoSelecionado(vo.documento)}" update="form:form-consultar-documento">
+											<i class="fa fa-picture-o" aria-hidden="true" style="font-size: 16px;"></i>
+										</p:commandLink>
+										<h:outputText value="#{vo.documento.nome}" style="margin-top: 10px !important; float: left; margin-left: 30px;" />
+									</h:panelGroup>
+								</p:column>
+								<p:column headerText="Processo" style="width: 80px; text-align: center;">
+									<a href="#{request.contextPath}/requisicoes/edit/#{vo.documento.processo.id}" target="_blank">
+										<h:outputText value="#{vo.documento.processo.id}" />
+									</a>
+								</p:column>
+								<p:column headerText="Físico/Digital" style="width: 100px; text-align: center;">
+									<h:outputText value="Físico" rendered="#{not empty vo.documento}"/>
+								</p:column>
+								<p:column headerText="Data Digitalização" style="width: 120px; text-align: center;">
+									<h:outputText value="#{utilBean.getDateTimeStr(vo.documento.dataDigitalizacao)}"/>
+								</p:column>
+								<p:column headerText="Validade" style="width: 110px; text-align: center;">
+									<h:outputText value="#{utilBean.getDateStr(vo.dataValidade)}"/>
+								</p:column>
+								<p:column headerText="Assinado?" style="width: 80px; text-align: center;">
+									<h:selectBooleanCheckbox value="true" rendered="#{not empty vo.documento}" disabled="true"/>
+								</p:column>
+							</p:treeTable>
+						</div>
+					</h:panelGroup>
+					<div class="col-sm-1"></div>
+				</div>
+			</div>
+			<div id="visualizar-modal" style="display: none;" class="modal">
+				<h:panelGroup id="form-consultar-documento">
+					<div style="position: absolute; left: 50%; top: 30%;" jsf:rendered="#{empty consultaTaxonomiaSigaBean.documentoSelecionado}">
+						<img src="#{request.contextPath}/resources/images/loader.gif" alt=""/>
+					</div>
+					<h:panelGroup rendered="#{not empty consultaTaxonomiaSigaBean.documentoSelecionado}">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close" style="position: absolute; right: 10px;">
+							<span aria-hidden="true">&times;</span>
+						</button>
+						<iframe src="#{request.contextPath}#{consultaTaxonomiaSigaBean.getUrlVisualizacaoDocumentoSelecionado()}" width="100%" height="100%"></iframe>
+					</h:panelGroup>
+				</h:panelGroup>
+			</div>
+			<script type="text/javascript">
+				var total = $('.total');
+				total.css('font-weight', 'bold');
+				$('td', total.parent().parent()).css('font-weight', 'bold');
+
+				$(document).ready(function() {
+					$('.tooltipar').tooltipster({
+						theme: 'tooltipster-punk',
+						animation: 'grow',
+						interactive: true
+					});
+				});
+			</script>
+		</h:form>
+	</ui:define>
+</ui:composition>
+</html>

@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:jsf="http://xmlns.jcp.org/jsf"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+      xmlns:b="http://bootsfaces.net/ui">
+<f:metadata>
+    <f:viewAction action="#{bacalhauBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/border-util.xhtml">
+    <ui:define name="head">
+        <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/tooltipster.bundle.min.css"/>
+        <link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-punk.min.css"/>
+        <script type="text/javascript" src="#{request.contextPath}/resources/tooltipster/js/tooltipster.bundle.min.js"></script>
+        <style type="">
+            .container {
+                width: 100%;
+                padding-left: 30px;
+                padding-right: 30px;
+            }
+
+            .form-exception .modal-dialog {
+                width: 1200px;
+            }
+
+            #info-tipo-regitro-table th {
+                text-align: right !important;
+            }
+
+            .tooltipContent {
+                color: #fff;
+            }
+
+            .tooltipster-sidetip.tooltipster-punk .tooltipster-box {
+                background-color: #333;
+            }
+
+            .modal-parameters .modal-dialog {
+                width: 900px;
+                padding-top: 0px;
+            }
+        </style>
+    </ui:define>
+    <ui:define name="titulo">Bacalhau</ui:define>
+    <ui:define name="conteudo">
+        <p:ajaxStatus onstart="$('#ajaxLoaderImg').show()" onsuccess="$('#ajaxLoaderImg').hide()"/>
+        <div id='ajaxLoaderImg'
+             style="position: fixed; display: block; bottom: 0; right: 0; z-index: 99999; display: none;">
+            <img src="#{request.contextPath}/resources/images/loader.gif" alt="loader"/>
+        </div>
+        <div class="row">
+            <div class="col-sm-12" style="padding: 0;">
+                <h4 class="tituloForm">
+                    <span onclick="mostrarMenosGrupo('job')" style="cursor: pointer;" class="hide-grupo-job">
+                        <i style="padding-right: 10px;" class="fa fa-minus-square-o"></i>
+                        <h:outputText value="Executar Job Diário"/>
+                        <i class="fa fa-question-circle tooltipar" data-tooltip-content="#tooltipRequisicoesContent" aria-hidden="true"></i>
+                    </span>
+                    <p:commandLink style="color: #cc092f; font-size: 14px !important;" oncomplete="mostrarMaisGrupo('job'); showHideDataFim();" ajax="true" actionListener="#{bacalhauBean.carregarExecucaoJob()}" update="job-id">
+                        <span style="cursor: pointer;" class="show-grupo-job">
+                            <i style="padding-right: 10px;" class="fa fa-plus-square-o"></i>
+                            <h:outputText value="Executar Job Diário"/>
+                            <i class="fa fa-question-circle tooltipar" data-tooltip-content="#tooltipBacalhauDiarioJobContent" aria-hidden="true"></i>
+                        </span>
+                    </p:commandLink>
+                </h4>
+                <div class="tooltip_templates" style="display: none;">
+                    <span id="tooltipBacalhauDiarioJobContent" class="tooltipContent">
+                        Executa job BacalhauDiarioJob.<br/>
+                        Este job gera um relatório das imagens faltantes de documentos, anexos e anexos de e-mails.<br/>
+                        Os reltórios ficam disponíveis em <i>#{bacalhauBean.bacalhauDiarioPath}</i>.
+                    </span>
+                </div>
+            </div>
+            <div jsf:id="job-id" class="col-sm-12 noMarginBottom">
+                <div class="row campos-grupo-job" style="margin-right: 0px;">
+                    <h:form id="form-acao">
+                        <div class="row">
+                            <div class="col-sm-1"></div>
+                            <div class="col-sm-4 noMarginBottom">
+                                <div class="form-group">
+                                    <h:outputLabel value="Data Referência Bacalhau"/>
+                                    <b:panelGrid colSpans="1,5,1,5" style="margin-bottom: -20px; margin-left: 5px;">
+                                        <h:outputText value=""/>
+                                        <b:inputText id="dataExecInicio" value="#{bacalhauBean.dataExecIni}"
+                                                     placeholder="dd/mm/aaaa" styleClass="mask-date"
+                                                     label="#{msg['dataInicial.label']}" renderLabel="false">
+                                            <f:convertDateTime pattern="dd/MM/yyyy"/>
+                                            <f:facet name="append">
+                                                <i class="fa fa-calendar-o fa-12x14"/>
+                                            </f:facet>
+                                        </b:inputText>
+                                        <h:outputText value="#{msg['ate.label']}" styleClass="dataFimAteClass"/>
+                                        <b:inputText id="dataExecFim" value="#{bacalhauBean.dataExecFim}"
+                                                     placeholder="dd/mm/aaaa" styleClass="mask-date dataFimClass"
+                                                     label="#{msg['dataFinal.label']}" renderLabel="false">
+                                            <f:convertDateTime pattern="dd/MM/yyyy"/>
+                                            <f:facet name="append">
+                                                <i class="fa fa-calendar-o fa-12x14"/>
+                                            </f:facet>
+                                        </b:inputText>
+                                    </b:panelGrid>
+                                    <b:message for="dataExecInicio" showSummary="false"/>
+                                    <b:message for="dataExecFim" showSummary="false"/>
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <b:switch value="#{bacalhauBean.porPeriodo}" label="Por Período" styleClass="porPeriodoClass"
+                                          onText="#{msg['sim.label']}" offText="#{msg['nao.label']}"
+                                          onchange="showHideDataFim()"/>
+                                <script type="application/javascript">
+                                    function showHideDataFim() {
+                                        let checked = $('.porPeriodoClass').is(':checked');
+                                        $('.dataFimAteClass').css('display', checked ? '' : 'none');
+                                        $('.dataFimClass').parent().css('display', checked ? '' : 'none');
+                                    }
+                                </script>
+                            </div>
+                            <div class="col-sm-1">
+                                <div style="margin-top: 15px; text-align: left;">
+                                    <b:commandButton value="Executar" action="#{bacalhauBean.executarJob()}" styleClass="btn btn-primary"/>
+                                </div>
+                            </div>
+                            <div class="col-md-3 noMarginBottom">
+                                <h:outputLabel value="Data da Última Execução:"/> #{utilBean.getDateTimeStr(bacalhauBean.jobDiarioVO.dataUltimaExecucao)}<br/>
+                                <h:outputLabel value="#{bacalhauBean.jobDiarioVO.valor ? 'Habilitado' : 'Não Habilitado'}"/><br/>
+                                <h:outputLabel value="Cron:"/> #{bacalhauBean.jobDiarioVO.cron}<br/>
+                                <h:outputLabel value="Próxima Execução:"/> #{utilBean.getDateTimeStr(bacalhauBean.jobDiarioVO.proximaDataExecucao)}<br/>
+                                <h:outputLabel value="Server Habilitado:"/> #{bacalhauBean.jobDiarioVO.server}<br/>
+                                <h:panelGroup rendered="#{not empty bacalhauBean.jobDiarioVO.exception}">
+                                    <div class="tooltip_templates" style="display: none;">
+                                        <span id="tooltipContent-#{bacalhauBean.jobDiarioVO.hashCode()}" class="tooltipContent">
+                                            <h:outputText value="#{utilBean.stringToHTML(bacalhauBean.jobDiarioVO.exception)}" escape="false"/>
+                                        </span>
+                                    </div>
+                                    <i class="fa fa-exclamation-triangle alert alert-danger alert-exception tooltipar" aria-hidden="true"
+                                       style="right: 0; top: 0; position: absolute;"
+                                       data-tooltip-content="#tooltipContent-#{bacalhauBean.jobDiarioVO.hashCode()}"></i>
+                                </h:panelGroup>
+                            </div>
+                            <div class="col-sm-1"></div>
+                        </div>
+                    </h:form>
+                </div>
+            </div>
+            <div class="col-sm-12" style="padding: 0;">
+                <h4 class="tituloForm">
+                    <span onclick="mostrarMenosGrupo('imagem')" style="cursor: pointer;" class="hide-grupo-imagem">
+                        <i style="padding-right: 10px;" class="fa fa-minus-square-o"></i>
+                        <h:outputText value="Bacalhau Geral"/>
+                        <i class="fa fa-question-circle tooltipar" data-tooltip-content="#tooltipBacalhauGeralJobContent" aria-hidden="true"></i>
+                    </span>
+                    <p:commandLink style="color: #cc092f; font-size: 14px !important;" oncomplete="mostrarMaisGrupo('imagem')" ajax="true" actionListener="#{bacalhauBean.carregarExecucaoJob()}" update="form-acao-recuperar-imagem">
+                        <span style="cursor: pointer;" class="show-grupo-imagem">
+                            <i style="padding-right: 10px;" class="fa fa-plus-square-o"></i>
+                            <h:outputText value="Bacalhau Geral"/>
+                            <i class="fa fa-question-circle tooltipar" data-tooltip-content="#tooltipBacalhauGeralJobContent" aria-hidden="true"></i>
+                        </span>
+                    </p:commandLink>
+                </h4>
+                <div class="tooltip_templates" style="display: none;">
+                    <span id="tooltipBacalhauGeralJobContent" class="tooltipContent">
+                        Agenda job BacalhauGeralAgendadoJob.<br/>
+                        O job executa entre 00:00 e 7:00h.<br/>
+                        Dele é gerado um relatório das imagens faltantes de documentos.<br/>
+                        Ele também tenta recuperar as imagens perdidas, verificando se elas ainda constam no cache.<br/>
+                        O reltório fica disponível na tabela <i>bacalhau_imagem_perdida</i>, ou abaixo na aba Log Bacalhau Geral.
+                    </span>
+                </div>
+            </div>
+            <div jsf:id="imagem-id" class="col-sm-12 noMarginBottom">
+                <div class="row campos-grupo-imagem" style="margin-right: 0px;">
+                    <h:form id="form-acao-recuperar-imagem">
+                        <div class="row">
+                            <div class="col-sm-1"></div>
+                            <div class="col-sm-6">
+                                <h:outputLabel  value="#{msg['ultimaImagemProcessada.label']}:"/>
+                                <h:outputText style="margin-left: 5px" value="#{bacalhauBean.ultimaImagemProcessadaParaRecuperar.id}" rendered="#{not empty bacalhauBean.ultimaImagemProcessadaParaRecuperar}"/>
+                                <br/>
+                                <h:outputLabel  value="Digitalizada em:"/>
+                                <h:outputText style="margin-left: 5px" value="#{utilBean.getDateTimeStr(bacalhauBean.ultimaImagemProcessadaParaRecuperar.documento.dataDigitalizacao)}" rendered="#{not empty bacalhauBean.ultimaImagemProcessadaParaRecuperar}" />
+                            </div>
+                            <div class="col-sm-1">
+                                <div style="text-align: left;" title="#{bacalhauBean.bacalhauGeralAgendado ? 'Bacalhau Geral já está agendado.' : ''}">
+                                    <p:commandLink action="#{bacalhauBean.agendarBacalhauGeral}" class="btn btn-primary" process="form-acao-recuperar-imagem"
+                                                   update="form-acao-recuperar-imagem" value="Agendar" disabled="#{bacalhauBean.bacalhauGeralAgendado}">
+                                        <p:confirm header="Confirmação" message="Você tem certeza que deseja prosseguir?" icon="fa fa-exclamation-circle" />
+                                    </p:commandLink>
+                                </div>
+                            </div>
+                            <div class="col-md-3 noMarginBottom">
+                                <h:outputLabel value="Data da Última Execução:"/> #{utilBean.getDateTimeStr(bacalhauBean.jobGeralVO.dataUltimaExecucao)}<br/>
+                                <h:outputLabel value="#{bacalhauBean.jobGeralVO.valor ? 'Habilitado' : 'Não Habilitado'}"/><br/>
+                                <h:outputLabel value="Cron:"/> #{bacalhauBean.jobGeralVO.cron}<br/>
+                                <h:outputLabel value="Próxima Execução:"/> #{utilBean.getDateTimeStr(bacalhauBean.jobGeralVO.proximaDataExecucao)}<br/>
+                                <h:outputLabel value="Server Habilitado:"/> #{bacalhauBean.jobGeralVO.server}<br/>
+                                <h:panelGroup rendered="#{not empty bacalhauBean.jobGeralVO.exception}">
+                                    <div class="tooltip_templates" style="display: none;">
+                                    <span id="tooltipContent-#{bacalhauBean.jobGeralVO.hashCode()}" class="tooltipContent">
+                                        <h:outputText value="#{utilBean.stringToHTML(bacalhauBean.jobGeralVO.exception)}" escape="false"/>
+                                    </span>
+                                    </div>
+                                    <i class="fa fa-exclamation-triangle alert alert-danger alert-exception tooltipar" aria-hidden="true"
+                                       style="right: 0; top: 0; position: absolute;"
+                                       data-tooltip-content="#tooltipContent-#{bacalhauBean.jobGeralVO.hashCode()}"></i>
+                                </h:panelGroup>
+                            </div>
+                            <div class="col-sm-1"></div>
+                        </div>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12" style="padding: 0;">
+                <h4 class="tituloForm">
+                    <span onclick="mostrarMenosGrupo('emails')" style="cursor: pointer;" class="hide-grupo-emails">
+                        <i style="padding-right: 10px;" class="fa fa-minus-square-o"></i>
+                        <h:outputText value="Emails"/>
+                    </span>
+                    <p:commandLink update="emails-id" style="color: #cc092f; font-size: 14px !important;" oncomplete="mostrarMaisGrupo('emails')" ajax="true">
+                        <span style="cursor: pointer;" class="show-grupo-emails">
+                            <i style="padding-right: 10px;" class="fa fa-plus-square-o"></i>
+                            <h:outputText value="Emails"/>
+                        </span>
+                    </p:commandLink>
+                </h4>
+            </div>
+            <div jsf:id="emails-id" class="col-sm-12">
+                <div class="row campos-grupo-emails" style="margin-right: 0px;">
+                    <h:form id="form-email">
+                        <div class="row">
+                            <div class="col-sm-1"></div>
+                            <div class="col-sm-5 noMarginBottom">
+                                <div class="form-group">
+                                    <h:outputLabel value="Inserir email"/>
+                                    <b:panelGrid colSpans="1,5,1,5" style="margin-bottom: -20px; margin-left: 5px;">
+                                        <h:outputText value="Nome"/>
+                                        <b:inputText id="nomeEmail" value="#{bacalhauBean.email.nome}" label="Nome"
+                                                     renderLabel="false"/>
+                                        <h:outputText value="Email"/>
+                                        <b:inputText id="emailEmail" value="#{bacalhauBean.email.email}" label="Email"
+                                                     renderLabel="false"/>
+                                    </b:panelGrid>
+                                    <b:message for="nomeEmail" showSummary="false"/>
+                                    <b:message for="emailEmail" showSummary="false"/>
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <div style="margin-top: 15px; text-align: right;">
+                                    <b:commandButton value="Gravar" actionListener="#{bacalhauBean.gravarEmail}"
+                                                     styleClass="btn btn-primary btn-md" ajax="true"
+                                                     update="tableEmail-id,form-email"/>
+                                </div>
+                            </div>
+                            <div class="col-sm-1"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-1"></div>
+                            <div class="col-sm-10">
+                                <p:dataTable id="tableEmail-id" var="emails" value="#{bacalhauBean.emailDataModel}"
+                                             rows="100" paginator="true" lazy="true"
+                                             paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+                                             currentPageReportTemplate="Total: {totalRecords}" scrollable="false"
+                                             emptyMessage="#{msg['emptyMessage.label']}"
+                                             paginatorPosition="bottom" rowIndexVar="rowIndex">
+                                    <p:column headerText="Nome" style="width: 120px;text-align: center;">
+                                        <h:outputText value="#{emails.nome}"/>
+                                    </p:column>
+                                    <p:column headerText="Email" style="width: 120px;text-align: center;">
+                                        <h:outputText value="#{emails.email}"/>
+                                    </p:column>
+                                    <p:column headerText="Email" style="width: 120px;text-align: center;">
+                                        <b:commandButton value="Remover" action="#{bacalhauBean.excluirEmail(emails)}"
+                                                         styleClass="btn btn-danger btn-md" ajax="true"
+                                                         update="tableEmail-id"/>
+                                    </p:column>
+                                </p:dataTable>
+                            </div>
+                            <div class="col-sm-1"></div>
+                        </div>
+                    </h:form>
+                </div>
+            </div>
+            <script type="text/javascript">
+				$('.hide-grupo-info').hide();
+				$('.hide-grupo-emails').hide();
+				$('.hide-grupo-imagem').hide();
+				$('.campos-grupo-info').hide();
+				$('.campos-grupo-emails').hide();
+				$('.campos-grupo-imagem').hide();
+				$('.hide-grupo-job').hide();
+				$('.campos-grupo-job').hide();
+            </script>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <b:tabView styleClass="tabViewClass" contentClass="tabViewClass"
+                           contentStyle="border-right: 1px solid #ddd;border-left: 1px solid #ddd;border-bottom: 1px solid #ddd;padding:10px">
+                    <b:tab title="#{msg['logsExecucao.label']}" id="tab-imagens-id" >
+                        <h:form id="form-bacalhau">
+                            <p:growl id="message" showDetail="true" />
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" styleClass="text-center">
+                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="fa fa-times" style="float: right;"/>
+                                <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="fa fa-check" style="float: right;" />
+                            </p:confirmDialog>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+                                    <div class="row">
+                                        <div class="col-sm-5 noMarginBottom">
+                                            <div class="form-group">
+                                                <h:outputLabel value="#{msg['periodo.label']}"/>
+                                                <b:panelGrid colSpans="1,5,1,5" style="margin-bottom: -20px; margin-left: 5px;">
+                                                    <h:outputText value="#{msg['de.label']}"/>
+                                                    <b:inputText id="dataInicioId" value="#{bacalhauBean.filtro.dataInicio}"
+                                                                 placeholder="dd/mm/aaaa" styleClass="mask-date"
+                                                                 label="#{msg['dataInicial.label']}" renderLabel="false">
+                                                        <f:convertDateTime pattern="dd/MM/yyyy"/>
+                                                        <f:facet name="append">
+                                                            <i class="fa fa-calendar-o fa-12x14"/>
+                                                        </f:facet>
+                                                    </b:inputText>
+                                                    <h:outputText value="#{msg['ate.label']}"/>
+                                                    <b:inputText id="dataFimId" value="#{bacalhauBean.filtro.dataFim}"
+                                                                 placeholder="dd/mm/aaaa" styleClass="dataFimId mask-date"
+                                                                 label="#{msg['dataFinal.label']}"
+                                                                 renderLabel="false">
+                                                        <f:convertDateTime pattern="dd/MM/yyyy"/>
+                                                        <f:facet name="append">
+                                                            <i class="fa fa-calendar-o fa-12x14"/>
+                                                        </f:facet>
+                                                    </b:inputText>
+                                                </b:panelGrid>
+                                                <b:message for="dataInicioId" showSummary="false"/>
+                                                <b:message for="dataFimId" showSummary="false"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <b:switch value="#{bacalhauBean.filtro.apenasErros}" label="Apenas Erros"
+                                                      onText="#{msg['sim.label']}" offText="#{msg['nao.label']}"/>
+                                        </div>
+                                        <div class="col-sm-1">
+                                            <div style="margin-top: 15px;">
+                                                <b:commandButton value="#{msg['buscar.label']}" actionListener="#{bacalhauBean.buscar}"
+                                                                 styleClass="btn btn-primary btn-md" ajax="true" update="table-id"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </h:form>
+                        <p:dataTable id="table-id" var="log" value="#{bacalhauBean.dataModel}" rows="100" paginator="true"
+                                     lazy="true"
+                                     paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+                                     currentPageReportTemplate="Total: {totalRecords}" scrollable="false"
+                                     emptyMessage="#{msg['emptyMessage.label']}"
+                                     paginatorPosition="bottom" rowIndexVar="rowIndex">
+                            <p:column headerText="Data" sortBy="#{log.data}" style="width: 120px;">
+                                <h:outputText value="#{utilBean.getDateTimeStr(log.data)}"/>
+                            </p:column>
+                            <p:column headerText="Total Arquivos" sortBy="#{log.totalArquivos}"
+                                      style="width: 50px; text-align: center;">
+                                <h:outputText value="#{log.totalArquivos}"/>
+                            </p:column>
+                            <p:column headerText="Total Erros" sortBy="#{log.totalErros}"
+                                      style="width: 50px; text-align: center;">
+                                <h:outputText value="#{log.totalErros}"/>
+                            </p:column>
+
+                            <p:column headerText="Tipo Execução" sortBy="#{log.tipoExecucao}"
+                                      style="width: 130px; text-align: center;">
+                                <h:outputText value="#{log.tipoExecucao}"/>
+                            </p:column>
+                            <p:column headerText="Arquivos" style="width: 100px;">
+                                <h:panelGroup rendered="#{not empty log.arquivosErro}">
+                                    <b:modal title="Arquivos" styleClass="modal-parameters form-parameters-#{log.id}">
+                                        <p>
+                                            <h:outputText value="#{bacalhauBean.toJsonFormat(log.arquivosErro)}"
+                                                          escape="false"/>
+                                        </p>
+                                        <f:facet name="footer">
+                                            <b:button value="#{msg['fechar.label']}" look="primary" dismiss="modal"
+                                                      onclick="return false;"/>
+                                        </f:facet>
+                                    </b:modal>
+                                    <p:commandLink onclick="openModal('form-parameters-#{log.id}');" style="float: right;">
+                                        <i class="fa fa-ellipsis-h"></i>
+                                    </p:commandLink>
+                                </h:panelGroup>
+                            </p:column>
+                        </p:dataTable>
+                    </b:tab>
+                    <b:tab title="Log Bacalhau Geral" id="tab-imagensPerdidaId">
+                        <b:tabView styleClass="tabViewClass" contentClass="tabViewClass"
+                                   contentStyle="border-right: 1px solid #ddd;border-left: 1px solid #ddd;border-bottom: 1px solid #ddd;padding:10px">
+                            <b:tab title="Acompanhamento" id="tab-imagensPerdidaId2">
+                                <h:form id="form-bacalhau-imagens-perdida">
+                                    <h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+                                    <div class="row">
+                                        <div class="col-sm-2">
+                                            <b:switch value="#{bacalhauBean.filtro.apenasErros}" label="Apenas Erros"
+                                                      onText="#{msg['sim.label']}" offText="#{msg['nao.label']}"/>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <b:switch value="#{bacalhauBean.filtro.recuperadaDoCache}" label="Apenas Recuperada do Cache"
+                                                      onText="#{msg['sim.label']}" offText="#{msg['nao.label']}"/>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <b:switch value="#{bacalhauBean.filtro.ahRecuperar}" label="Apenas Pendentes"
+                                                      onText="#{msg['sim.label']}" offText="#{msg['nao.label']}"/>
+                                        </div>
+                                        <div class="col-sm-2">
+                                            <b:selectOneMenu value="#{bacalhauBean.filtro.tipoExecucaoBacalhau}" label="Tipo Execução">
+                                                <f:selectItem itemValue="" itemLabel=""/>
+                                                <f:selectItems value="#{utilBean.getValues('TipoExecucaoBacalhau')}" var="tb" itemValue="#{tb}" itemLabel="#{tb}"/>
+                                            </b:selectOneMenu>
+                                        </div>
+                                        <div class="col-sm-2 pull-right">
+                                            <p:commandLink value="#{msg['exportar.label']}" action="#{bacalhauBean.excelExport}" styleClass="btn btn-primary btn-md"
+                                                           oncomplete="document.getElementById('form-bacalhau-imagens-perdida:exportarId').click();" />
+                                            <h:commandLink id="exportarId" action="#{bacalhauBean.excelDownload}" style="display:none;" update="table-id-imagens-perdida"/>
+                                            <b:commandButton id="buscar" value="#{msg['buscar.label']}" actionListener="#{bacalhauBean.buscar}"
+                                                             style="margin-left: 10px" styleClass="btn btn-primary btn-md" ajax="true" update="table-id-imagens-perdida"/>
+                                        </div>
+                                    </div>
+                                </h:form>
+                                <p:dataTable id="table-id-imagens-perdida" var="bi" value="#{bacalhauBean.imagemPerdidaDataModel}" rows="50" paginator="true" lazy="true"
+                                             paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+                                             currentPageReportTemplate="Total: {totalRecords}" scrollable="false"
+                                             emptyMessage="#{msg['emptyMessage.label']}"
+                                             paginatorPosition="bottom" rowIndexVar="rowIndex">
+                                    <p:column headerText="#{msg['processo.label']}" style="width: 90px; text-align: center;">
+                                        <a href="#{request.contextPath}/requisicoes/edit/#{bi.imagem.documento.processo.id}" target="_blank" style="color: #333333;" title="##{bi.imagem.documento.processo.id}">
+                                            #{bi.imagem.documento.processo.id}
+                                            <i class="fa fa-external-link" aria-hidden="true"></i>
+                                        </a>
+                                    </p:column>
+                                    <p:column headerText="Data" style="width: 120px;">
+                                        <h:outputText value="#{utilBean.getDateTimeStr(bi.data)}"/>
+                                    </p:column>
+                                    <p:column headerText="#{msg['documento.label']}" style="width: 250px; text-align: center;">
+                                        <h:outputText value="#{bi.imagem.documento.nome}"/>
+                                    </p:column>
+                                    <p:column headerText="#{msg['versao.label']}" style="width: 75px; text-align: center;">
+                                        <h:outputText value="#{bi.imagem.versao}"/> (atual <h:outputText value="#{bi.imagem.documento.versaoAtual}"/>)
+                                    </p:column>
+                                    <p:column headerText="#{msg['caminhoStorage.label']}" style="width: 350px; text-align: center;">
+                                        <h:outputText value="#{bi.imagem.caminho}"/>
+                                    </p:column>
+                                    <p:column headerText="#{msg['caminhoCache.label']}" style="width: 350px; text-align: center;">
+                                        <h:outputText value="#{bi.caminhoCache}"/>
+                                    </p:column>
+                                    <p:column headerText="#{msg['recuperadaDoCache.label']}" style="width: 100px; text-align: center;">
+                                        <h:outputText value="#{msg['sim.label']}" rendered="#{bi.recuperadaDoCache}"/>
+                                        <h:outputText value="#{msg['nao.label']}" rendered="#{not empty bi.recuperadaDoCache and !bi.recuperadaDoCache}"/>
+                                        <h:outputText value="#{msg['pendente.label']}" rendered="#{empty bi.recuperadaDoCache and !bi.recuperadaDoCache}"/>
+                                    </p:column>
+                                    <p:column headerText="#{msg['descricaoErro.label']}" style="width: 130px; text-align: center;">
+                                        <h:outputText value="#{bi.erro}"/>
+                                    </p:column>
+                                </p:dataTable>
+                            </b:tab>
+                            <b:tab title="Status Processamento" id="tab-imagensPerdidaId-status">
+                                <c:set value="#{bacalhauBean.statusBacalhauGeralMap}" var="map"/>
+                                <c:set value="#{bacalhauBean.statusBacalhauGeralPercent}" var="map1"/>
+                                <c:set value="#{map.get('checked')}" var="checked"/>
+                                <c:set value="#{map.get('faltam')}" var="faltam"/>
+                                <c:set value="#{map.get('imagensPerdidas')}" var="imagensPerdidas"/>
+                                <c:set value="#{map.get('imagensRecuperadas')}" var="imagensRecuperadas"/>
+                                <c:set value="#{map.get('imagensNaoRecuperadas')}" var="imagensNaoRecuperadas"/>
+                                <c:set value="#{faltam + checked}" var="total"/>
+                                <c:set value="#{map1.get('faltamPercent')}" var="faltamPerc"/>
+                                <c:set value="#{map1.get('finalizouPercent')}" var="finalizouPercent"/>
+                                <c:set value="#{map1.get('imagensPerdidasPercent')}" var="imagensPerdidasPercent"/>
+                                <c:set value="#{map1.get('imagensRecuperadasPercent')}" var="imagensRecuperadasPercent"/>
+                                <c:set value="#{map1.get('imagensNaoRecuperadasPercent')}" var="imagensNaoRecuperadasPercent"/>
+                                <c:set value="#{map1.get('imagensNaoRecuperadas2Percent')}" var="imagensNaoRecuperadas2Percent"/>
+                                <h:form id="form-bacalhau-imagens-perdida-status-id">
+                                    <div class="row" style="margin-top: 10px;">
+                                        <div class="col col-md-12">
+                                            <p:commandLink class="btn btn-default" update="form-bacalhau-imagens-perdida-status-id"
+                                                           style="float: right; padding: 6px 10px 3px 10px;" title="Atualizar Dados">
+                                                <f:actionListener binding="#{bacalhauBean.carregarInformacoesBacalhauGeral()}"/>
+                                                <i class="fa fa-refresh" aria-hidden="true"></i>
+                                            </p:commandLink>
+                                        </div>
+                                        <div class="col col-md-12">
+                                            <h5 style="margin-top: 0px;">Status de integridade das imagens</h5>
+                                            #{msg['pendentes.label']} (<h:outputText value="#{faltam}"><f:convertNumber type="number" groupingUsed="true" pattern="###,###"/></h:outputText>) <span class="pull-right strong"> ${faltamPerc} % </span>
+                                            <div class="progress">
+                                                <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100" style="width:${faltamPerc}%">${faltamPerc}%</div>
+                                            </div>
+                                            #{msg['finalizados.label']} (<h:outputText value="#{checked}"><f:convertNumber type="number" groupingUsed="true" pattern="###,###"/></h:outputText>) <span class="pull-right strong"> #{finalizouPercent} % </span>
+                                            <div class="progress">
+                                                <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="width:#{finalizouPercent}%">#{finalizouPercent}%</div>
+                                            </div>
+                                            #{msg['imagensPerdidas.label']} (<h:outputText value="#{imagensNaoRecuperadas}"><f:convertNumber type="number" groupingUsed="true" pattern="###,###"/></h:outputText>) <span class="pull-right strong"> #{imagensNaoRecuperadasPercent} % </span>
+                                            <div class="progress">
+                                                <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="width:#{imagensNaoRecuperadasPercent}%">#{imagensNaoRecuperadasPercent}%</div>
+                                            </div>
+
+                                            <h5 style="margin-top: 40px;">Status de recuperação de imagens (#{imagensPerdidas}, #{imagensPerdidasPercent}%)</h5>
+                                            #{msg['imagensRecuperadasCache.label']} (<h:outputText value="#{imagensRecuperadas}"><f:convertNumber type="number" groupingUsed="true" pattern="###,###"/></h:outputText>) <span class="pull-right strong"> #{imagensRecuperadasPercent} % </span>
+                                            <div class="progress">
+                                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="width:#{imagensRecuperadasPercent}%">#{imagensRecuperadasPercent}%</div>
+                                            </div>
+                                            #{msg['imagensNaoRecuperadasDoCache.label']} (<h:outputText value="#{imagensNaoRecuperadas}"><f:convertNumber type="number" groupingUsed="true" pattern="###,###"/></h:outputText>) <span class="pull-right strong"> #{imagensNaoRecuperadas2Percent} % </span>
+                                            <div class="progress">
+                                                <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="width:#{imagensNaoRecuperadas2Percent}%">#{imagensNaoRecuperadas2Percent}%</div>
+                                            </div>
+                                        </div>
+                                        <div class="col col-md-12">
+                                            <h4 class="pull-right"> Total de Imagens Atual:
+                                                <h:outputText value="#{total}"><f:convertNumber type="number" groupingUsed="true" pattern="###,###"/> </h:outputText>
+                                            </h4>
+                                        </div>
+                                    </div>
+                                </h:form>
+                            </b:tab>
+                        </b:tabView>
+                    </b:tab>
+                </b:tabView>
+            </div>
+        </div>
+        <script type="application/javascript">
+            $(document).ready(function() {
+                $('.tooltipar').tooltipster({
+                    theme: 'tooltipster-punk',
+                    animation: 'grow',
+                    interactive: true
+                });
+            });
+        </script>
+    </ui:define>
+</ui:composition>
+</html>

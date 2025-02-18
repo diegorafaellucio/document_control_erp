@@ -1,0 +1,111 @@
+
+.fluxograma2 {
+	border: none;
+}
+
+.fluxograma2 .ui-tree-container {
+	border: none;
+}
+
+.fluxograma2 .ui-treenode {
+	border-left: 1px #eee solid;
+}
+
+.fluxograma2 .ui-state-highlight {
+	background-color: #e6e6e6;
+	background-image: none;
+	color: #333333;
+}
+
+.fluxograma2 .btn-edit {
+	padding: 2px 3px;
+	text-decoration: none;
+	font-size: 14px;
+}
+
+.fluxograma2 .btn-edit-add {
+	font-size: 16px;
+}
+
+.fluxograma2 .ui-treenode-label {
+    cursor: default !important;
+    border: 1px #fff solid;
+}
+
+.pergunta {
+	color: white;
+	text-shadow: 1px 1px 2px black, 0 0 25px blue, 0 0 5px darkblue;
+}
+
+.pergunta-icon {
+	color: #8085e9a3;
+}
+
+.dica {
+	color: white;
+	text-shadow: 1px 1px 2px, 0 0 15px orange, 0 0 5px darkblue;
+	font-size: smaller;
+}
+
+.dica-icon {
+	color: #2b908f7d;
+}
+
+.row-large {
+	line-height: 2.2; 
+}
+
+.pendencia {
+	color: #c14f50;
+}
+
+.fa-check {
+	color: green;
+}
+
+.fa-close {
+	color: red;
+}
+
+.sim {
+	color: #3e77ae;
+	font-style: italic;
+}
+
+.nao {
+	color: #d7833c;
+	font-style: italic;
+}
+
+.ok {
+	color: #825f8e;
+	font-style: oblique;
+}
+
+.btn-tipo {
+	color: #d9534f;
+	border-color: #ac2925;
+	background-color: #fff;
+}
+
+.btn-tipo:hover {
+	color: #fff;
+	border-color: #ac2925;
+	background-color: #d9534f;
+}
+
+.btn-tipo.active {
+	color: #fff;
+	border-color: #ac2925;
+	background-color: #c9302c;
+}
+
+.btn-tipo.active:hover {
+	color: #fff;
+	border-color: #761c19;
+	background-color: #ac2925;
+}
+
+textarea {
+	resize: none;
+}

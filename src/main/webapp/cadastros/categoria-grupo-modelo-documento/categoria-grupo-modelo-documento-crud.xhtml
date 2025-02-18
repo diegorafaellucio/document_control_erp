@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:b="http://bootsfaces.net/ui"
+	  xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+<f:metadata>
+	<f:viewAction action="#{categoriaGrupoDocumentoCrudBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/navegacao.xhtml">
+	<ui:define name="tituloPagina">#{msg['modeloDocumentoGrupoCrud.titulo']}</ui:define>
+	<ui:define name="conteudo">
+		<style>
+			.adicionar-modal .modal-dialog {
+				padding-top: 0px;
+				width: 850px;
+			}
+		</style>
+		<getdoc:excluirModal id="excluirModal" metodoExcluir="#{categoriaGrupoDocumentoCrudBean.excluir()}"/>
+		<h:form id="form-modeloDocumento">
+			<b:modal id="adicionar-modal-id" title="#{msg['adicionarModeloDocumento.label']}" styleClass="adicionar-modal" rendered="#{menuBean.podeEditar()}">
+				<b:row id="adicionar-modal-content-id">
+					<b:messages globalOnly="true" showSummary="true"/>
+					<div class="col-sm-12">
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{categoriaGrupoDocumentoCrudBean.categoriaGrupoModeloDocumento.descricao}"
+												 label="#{msg['nome.label']}" renderLabel="true" maxlength="100" required="false"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<script type="text/javascript">
+						jQuery(function($) {
+							configurarMascaras();
+							configurarDatePicker();
+						});
+					</script>
+				</b:row>
+
+				<f:facet name="footer">
+					<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+					<p:commandButton value="#{msg['salvar.label']}" actionListener="#{categoriaGrupoDocumentoCrudBean.salvar()}" update="adicionar-modal-content-id form-modeloDocumento-list" styleClass="btn"/>
+				</f:facet>
+			</b:modal>
+		</h:form>
+		<h:form id="form-modeloDocumento-list">
+			<div class="row">
+				<div class="col-sm-12">
+					<p:commandLink value="#{msg['adicionarModeloDocumento.label']}" onclick="openModal('adicionar-modal')" class="btn btn-primary btn-lg" style="float: right;" update="form-modeloDocumento:adicionar-modal-content-id" rendered="#{menuBean.podeEditar()}">
+						<f:setPropertyActionListener target="#{categoriaGrupoDocumentoCrudBean.categoriaGrupoModeloDocumento}" value="#{null}" />
+					</p:commandLink>
+				</div>
+			</div>
+			<div class="row">
+				<p:dataTable var="grupoModeloDocumento" value="#{categoriaGrupoDocumentoCrudBean.dataModel}" rows="100" paginator="true" lazy="true"
+							 paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+							 currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+							 paginatorPosition="bottom" stickyHeader="true" stickyTopAt=".layout-topbar">
+					<p:column headerText="Id" style="text-align: center; width: 10%;" >
+						<h:outputText value="#{grupoModeloDocumento.id}" />
+					</p:column>
+					<p:column headerText="#{msg['nome.label']}" style="text-align: center;">
+						<h:outputText value="#{grupoModeloDocumento.descricao}" />
+					</p:column>
+					<p:column style="width: 240px;" sortable="false" rendered="#{menuBean.podeEditar()}">
+						<p:commandLink value="#{msg['editar.label']}" onclick="openModal('adicionar-modal')" class="btn btn-warning btn-editar" update="form-modeloDocumento:adicionar-modal-content-id">
+							<f:setPropertyActionListener target="#{categoriaGrupoDocumentoCrudBean.categoriaGrupoModeloDocumento}" value="#{grupoModeloDocumento}" />
+						</p:commandLink>
+						<p:commandLink value="#{msg['excluir.label']}" onclick="openModal('excluir-modal', 'excluirModal:form-exclusao:excluir-btn')" class="btn btn-danger btn-excluir" rendered="#{menuBean.podeExcluir()}">
+							<f:setPropertyActionListener target="#{categoriaGrupoDocumentoCrudBean.categoriaGrupoModeloDocumento}" value="#{grupoModeloDocumento}" />
+						</p:commandLink>
+					</p:column>
+				</p:dataTable>
+			</div>
+		</h:form>
+	</ui:define>
+</ui:composition>
+</html>

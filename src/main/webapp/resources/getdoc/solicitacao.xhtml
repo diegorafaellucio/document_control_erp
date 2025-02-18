@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+
+	<composite:interface>
+		<composite:attribute name="cc.attrs.vo" type="net.wasys.getdoc.domain.vo.SolicitacaoVO" required="true"/>
+		<composite:attribute name="bean" type="net.wasys.getdoc.bean.ProcessoEditBean" required="true"/>
+		<composite:attribute name="mostrarTudo"/>
+	</composite:interface>
+
+	<composite:implementation>
+
+		<div style="margin-bottom: 20px">
+			<div style="border-bottom: 1px #ccc solid;">
+				<div style="padding: 0 0 10px 0; color: #cc092f;">
+					Solicitação para #{cc.attrs.vo.solicitacao.subarea.area.descricao} / #{cc.attrs.vo.solicitacao.subarea.descricao}. #{utilBean.getDateTimeStr(cc.attrs.vo.logCriacao.data)}.
+				</div>
+				<img alt="" title="#{msg['StatusSolicitacao.'.concat(cc.attrs.vo.solicitacao.status).concat('.label')]}" style="float: left;" width="27px"
+						src="#{request.contextPath}/resources/images/icons/StatusSolicitacao-#{cc.attrs.vo.solicitacao.status}.png"/>
+				<div style="padding-left: 50px;">
+					<div style="border: 1px #ccc solid; padding: 10px 20px 0 20px; margin-bottom: 10px;">
+						<div style="color: #5bc0de;">
+							<h:panelGroup rendered="#{empty cc.attrs.vo.solicitacao.dataResposta}">
+								Atender até #{utilBean.getDateTimeStr(cc.attrs.vo.solicitacao.prazoLimite)}h. Tempo restante: #{cc.attrs.vo.horasRestantes}h.
+							</h:panelGroup>
+							<h:panelGroup rendered="#{not empty cc.attrs.vo.solicitacao.dataResposta}">
+								<h:panelGroup rendered="#{cc.attrs.vo.solicitacao.status.equals(utilBean.getValue('StatusSolicitacao', 'RESPONDIDA'))}">
+									Solicitação respondida em #{utilBean.getDateTimeStr(cc.attrs.vo.solicitacao.dataResposta)}h.
+								</h:panelGroup>
+								<h:panelGroup rendered="#{cc.attrs.vo.solicitacao.status.equals(utilBean.getValue('StatusSolicitacao', 'RECUSADA'))}">
+									Solicitação recusada pela área em #{utilBean.getDateTimeStr(cc.attrs.vo.solicitacao.dataResposta)}h.
+								</h:panelGroup>
+							</h:panelGroup>
+						</div>
+						<h:panelGroup styleClass="observacaoMin_#{cc.attrs.vo.solicitacao.id}" style="1px black solid; padding-bottom: 10px;" layout="block" rendered="#{not cc.attrs.mostrarTudo}">
+							<h:outputText value="#{cc.attrs.vo.observacaoHtmlMin}" escape="false"/>
+						</h:panelGroup>
+						<div class="#{not cc.attrs.mostrarTudo ? 'observacao_'.concat(cc.attrs.vo.solicitacao.id) : ''}" style="1px black solid;">
+							<h:outputText value="#{utilBean.stringToHTML(cc.attrs.vo.logCriacao.observacao)}" escape="false"/>
+						</div>
+						<div class="#{not cc.attrs.mostrarTudo ? 'observacao_'.concat(cc.attrs.vo.solicitacao.id) : ''}" style="padding-top: 10px;">
+							<ui:repeat value="#{cc.attrs.vo.logCriacao.anexos.toArray()}" var="anexoLogM">
+								<h:panelGroup rendered="#{utilBean.isExtensaoImagem(anexoLogM.extensao)}">
+									<span class="btn btn-default popImg linkAnexo" imgPath="#{utilBean.getPathImagem(anexoLogM)}" style="margin-right: 10px; margin-bottom: 10px;">
+										<i class="fa fa-file-image-o" aria-hidden="true"></i>
+										#{anexoLogM.nome}
+										#{utilBean.toFileSize(anexoLogM.tamanho)}
+									</span>
+								</h:panelGroup>
+								<h:panelGroup rendered="#{not utilBean.isExtensaoImagem(anexoLogM.extensao)}">
+									<span class="btn btn-default" style="margin-right: 10px; margin-bottom: 10px;">
+										<h:commandLink action="#{cc.attrs.bean.downloadAnexo(anexoLogM)}" styleClass="linkAnexo">
+											<i class="fa fa-file-o" aria-hidden="true"></i>
+											#{anexoLogM.nome}
+											#{utilBean.toFileSize(anexoLogM.tamanho)}
+										</h:commandLink>
+									</span>
+								</h:panelGroup>
+							</ui:repeat>
+						</div>
+					</div>
+					<ui:repeat value="#{cc.attrs.vo.logs}" var="log">
+						<div class="#{not cc.attrs.mostrarTudo ? 'observacao_'.concat(cc.attrs.vo.solicitacao.id) : ''}" style="border: 1px #ccc solid; margin: 15px 0 15px 30px; padding: 10px 20px 0 20px; padding-bottom: 0;">
+							<div style="color: #5bc0de;">
+								#{msg['RoleGD.'.concat(log.usuario.roleGD).concat('.label')]} -
+								#{msg['AcaoProcesso.'.concat(log.acao).concat('.label')]} -
+								#{utilBean.getDateTimeStr(log.data)}h.
+							</div>
+							<h:outputText value="#{utilBean.stringToHTML(log.observacao)}" escape="false"/>
+							<div style="padding-top: 10px;">
+								<ui:repeat value="#{log.anexos.toArray()}" var="anexo">
+									<h:panelGroup rendered="#{utilBean.isExtensaoImagem(anexo.extensao)}">
+										<span class="btn btn-default popImg linkAnexo" imgPath="#{utilBean.getPathImagem(anexo)}" style="margin-right: 10px; margin-bottom: 10px;">
+											<i class="fa fa-file-image-o" aria-hidden="true"></i>
+											#{anexo.nome}
+											#{utilBean.toFileSize(anexo.tamanho)}
+										</span>
+									</h:panelGroup>
+									<h:panelGroup rendered="#{not utilBean.isExtensaoImagem(anexo.extensao)}">
+										<span class="btn btn-default" style="margin-right: 10px; margin-bottom: 10px;">
+											<h:commandLink action="#{cc.attrs.bean.downloadAnexo(anexo)}" styleClass="linkAnexo">
+												<i class="fa fa-file-o" aria-hidden="true"></i>
+												#{anexo.nome}
+												#{utilBean.toFileSize(anexo.tamanho)}
+											</h:commandLink>
+										</span>
+									</h:panelGroup>
+								</ui:repeat>
+							</div>
+						</div>
+					</ui:repeat>
+					<div style="height: 50px;">
+						<div style="float: right;">
+							<p:commandLink class="btn btn-default" onerror="alert('Erro!')"
+									actionListener="#{cc.attrs.bean.aceitarRespostaSolicitacao(cc.attrs.vo.solicitacao)}"
+									onsuccess="openModal('solicitacao-modal'); $('h4', '.solicitacao-modal').html('#{msg['AcaoProcesso.SOLICITACAO_ACEITE_RESPOSTA.label']}')"
+									update="form-solicitacao:solicitacao-modal-content-id form-processo form-tabs"
+									rendered="#{cc.attrs.bean.autorizacao.podeAceitarSolicitacao(cc.attrs.vo.solicitacao)}">
+								<h:panelGroup rendered="#{cc.attrs.vo.solicitacao.status.equals(utilBean.getValue('StatusSolicitacao', 'RESPONDIDA'))}">
+									#{msg['aceitarResposta.label']}
+									<i class="fa fa-check" aria-hidden="true"></i>
+								</h:panelGroup>
+								<h:panelGroup rendered="#{cc.attrs.vo.solicitacao.status.equals(utilBean.getValue('StatusSolicitacao', 'RECUSADA'))}">
+									#{msg['aceitarRecusa.label']}
+									<i class="fa fa-check" aria-hidden="true"></i>
+								</h:panelGroup>
+							</p:commandLink>
+							<p:commandLink class="btn btn-default" onerror="alert('Erro!')" style="margin-left: 10px;"
+									actionListener="#{cc.attrs.bean.naoAceitarRespostaSolicitacao(cc.attrs.vo.solicitacao)}"
+									onsuccess="openModal('solicitacao-modal'); $('h4', '.solicitacao-modal').html('#{msg['AcaoProcesso.SOLICITACAO_NAO_ACEITE_RESPOSTA.label']}')"
+									update="form-solicitacao:solicitacao-modal-content-id form-processo form-tabs"
+									rendered="#{cc.attrs.bean.autorizacao.podeNaoAceitar(cc.attrs.vo.solicitacao)}">
+								#{msg['naoAceitar.label']}
+								<i class="fa fa-ban" aria-hidden="true"></i>
+							</p:commandLink>
+							<p:commandLink class="btn btn-default"
+									actionListener="#{cc.attrs.bean.responderSolicitacao(cc.attrs.vo.solicitacao)}"
+									onsuccess="openModal('solicitacao-modal'); $('h4', '.solicitacao-modal').html('#{msg['AcaoProcesso.SOLICITACAO_REGISTRO_RESPOSTA.label']}')" onerror="alert('Erro!')"
+									update="form-solicitacao:solicitacao-modal-content-id form-processo form-tabs" rendered="#{cc.attrs.bean.autorizacao.podeResponderSolicitacao(cc.attrs.vo.solicitacao)}">
+								#{msg['registrarResposta.label']}
+								<i class="fa fa-check" aria-hidden="true"></i>
+							</p:commandLink>
+							<p:commandLink class="btn btn-default"
+									actionListener="#{cc.attrs.bean.recusarSolicitacao(cc.attrs.vo.solicitacao)}" style="margin-left: 10px;"
+									onsuccess="openModal('solicitacao-modal'); $('h4', '.solicitacao-modal').html('#{msg['AcaoProcesso.SOLICITACAO_RECUSA_SOLICITACAO.label']}')" onerror="alert('Erro!')"
+									update="form-solicitacao:solicitacao-modal-content-id form-processo form-tabs" rendered="#{cc.attrs.bean.autorizacao.podeRecusarSolicitacao(cc.attrs.vo.solicitacao)}">
+								#{msg['recusarSolicitacao.label']}
+								<i class="fa fa-ban" aria-hidden="true"></i>
+							</p:commandLink>
+						</div>
+						<h:panelGroup rendered="#{not cc.attrs.mostrarTudo}">
+							<a class="#{not cc.attrs.mostrarTudo ? 'observacao_'.concat(cc.attrs.vo.solicitacao.id) : ''}" href="#" onclick="mostrarMenosSolicitacao(#{cc.attrs.vo.solicitacao.id}); return false;"
+									title="#{msg['verMenos.label']}" style="display: block; margin-left: 30px;">
+								<i class="fa fa-minus-square-o" aria-hidden="true"></i>
+							</a>
+							<a class="#{not cc.attrs.mostrarTudo ? 'observacaoMin_'.concat(cc.attrs.vo.solicitacao.id) : ''}" href="#" onclick="mostrarMaisSolicitacao(#{cc.attrs.vo.solicitacao.id}); return false;"
+									title="#{msg['verMais.label']}" style="display: block; margin-top: 10px;">
+								<i class="fa fa-plus-square-o" aria-hidden="true"></i>
+							</a>
+						</h:panelGroup>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			$('.observacao_#{cc.attrs.vo.solicitacao.id}').hide(),
+			$('.observacaoMin_#{cc.attrs.vo.solicitacao.id}').show()
+		</script>
+	</composite:implementation>
+</html>

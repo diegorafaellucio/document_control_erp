@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+	<f:metadata>
+		<f:viewParam name="id" value="#{campoModeloOcrCrudBean.modeloOcrId}" />
+		<f:viewAction action="#{campoModeloOcrCrudBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['campoModeloOcr.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<style>
+				.adicionar-modal .modal-dialog {
+				    padding-top: 0px;
+					width: 850px;
+				}
+			</style>
+			<getdoc:excluirModal id="excluirModal" metodoExcluir="#{campoModeloOcrCrudBean.excluir()}" update="form-tipoDocumento-list mensagensGlobaisGroup"/>
+			<h:form id="form-campoModeloOcr">
+				<b:modal id="adicionar-modal-id" title="#{msg['adicionarCampoModeloOcr.label']}" styleClass="adicionar-modal" rendered="#{menuBean.podeEditar()}">
+					<b:row id="adicionar-modal-content-id">
+                        <div class="col-sm-12">
+                            <b:messages globalOnly="true" showSummary="true"/>
+							<div class="form-group">
+								<b:inputText value="#{campoModeloOcrCrudBean.campoModeloOcr.nome}" label="Nome" renderLabel="true"
+											 maxlength="100" required="true" style="text-transform: uppercase"/>
+								<b:message/>
+							</div>
+							<div class="form-group">
+								<b:inputText value="#{campoModeloOcrCrudBean.campoModeloOcr.descricao}" label="#{msg['campoModeloOcrDescricao.label']}" renderLabel="true"
+										maxlength="100" required="true" style="text-transform: uppercase"/>
+								<b:message/>
+							</div>
+							<div class="form-group">
+								<b:inputText value="#{campoModeloOcrCrudBean.campoModeloOcr.labelOcr}" label="#{msg['campoModeloOcrLabelOcr.label']}" renderLabel="true"
+											 maxlength="100" required="true"/>
+								<b:message/>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-4">
+								<div class="form-group">
+									<b:selectOneMenu value="#{campoModeloOcrCrudBean.campoModeloOcr.valorTipo}" label="Tipo Comparação:">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{campoModeloOcrCrudBean.tipoComparacaoList}" var="item" itemLabel="#{msg['ValorTipoEnum.'.concat(item).concat('.label')]}" itemValue="#{item}" />
+										<p:ajax event="change" process="@this" update="inputSimilaridade,inputCampoNumerico,inputBaseInternaSimilaridade"/>
+									</b:selectOneMenu>
+								</div>
+							</div>
+							<div class="col-sm-2">
+								<div class="form-group">
+									<h:outputLabel for="radioAtivo" value="Ativo?" style="width: 15%;" />
+									<p:selectOneRadio id="radioAtivo" unselectable="false" value="#{campoModeloOcrCrudBean.campoModeloOcr.ativo}">
+										<f:selectItem itemLabel="Sim" itemValue="true"/>
+										<f:selectItem itemLabel="Não" itemValue="false"/>
+									</p:selectOneRadio>
+								</div>
+							</div>
+							<div class="col-sm-2">
+								<div class="form-group">
+									<h:outputLabel for="radioFulltext" value="Fulltext?" style="width: 25%;" />
+									<p:selectOneRadio id="radioFulltext" unselectable="false" value="#{campoModeloOcrCrudBean.campoModeloOcr.fulltext}">
+										<f:selectItem itemLabel="Sim" itemValue="true"/>
+										<f:selectItem itemLabel="Não" itemValue="false"/>
+									</p:selectOneRadio>
+								</div>
+							</div>
+						</div>
+						<h:panelGroup id="inputSimilaridade" layout="block">
+							<div class="form-group">
+								<div class="col-sm-4">
+									<b:selectOneMenu value="#{campoModeloOcrCrudBean.campoModeloOcr.campoProcesso}" label="Campo processo" rendered="#{campoModeloOcrCrudBean.campoModeloOcr.valorTipo eq 'SIMILARIDADE'}">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{campoModeloOcrCrudBean.valorComparacaoSimilaridadeList}" var="sp" itemLabel="#{msg['CampoComparacaoSimiliridade.'.concat(sp).concat('.label')]}" itemValue="#{sp}" />
+									</b:selectOneMenu>
+								</div>
+								<div class="col-sm-4">
+									<b:selectOneMenu value="#{campoModeloOcrCrudBean.campoModeloOcr.valorOperador}" label="Operador" rendered="#{campoModeloOcrCrudBean.campoModeloOcr.valorTipo eq 'SIMILARIDADE'}">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{campoModeloOcrCrudBean.operadorList}" var="sp" itemLabel="#{msg['OperadorEnum.'.concat(sp).concat('.label')]}" itemValue="#{sp}" />
+									</b:selectOneMenu>
+								</div>
+								<div class="col-sm-4">
+									<b:inputText value="#{campoModeloOcrCrudBean.campoModeloOcr.valorAprovacao}" label="Valor" renderLabel="true" rendered="#{campoModeloOcrCrudBean.campoModeloOcr.valorTipo eq 'SIMILARIDADE'}"/>
+								</div>
+							</div>
+						</h:panelGroup>
+						<h:panelGroup id="inputCampoNumerico" layout="block">
+								<div class="form-group">
+									<div class="col-sm-6">
+										<b:selectOneMenu value="#{campoModeloOcrCrudBean.campoModeloOcr.valorOperador}" label="Operador" rendered="#{campoModeloOcrCrudBean.campoModeloOcr.valorTipo eq 'INTEGER' or campoModeloOcrCrudBean.campoModeloOcr.valorTipo eq 'DOUBLE'}">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{campoModeloOcrCrudBean.operadorList}" var="sp" itemLabel="#{msg['OperadorEnum.'.concat(sp).concat('.label')]}" itemValue="#{sp}" />
+										</b:selectOneMenu>
+									</div>
+									<div class="col-sm-6">
+										<b:inputText value="#{campoModeloOcrCrudBean.campoModeloOcr.valorAprovacao}" label="Valor para comparação" renderLabel="true"
+												 maxlength="100" required="false" rendered="#{campoModeloOcrCrudBean.campoModeloOcr.valorTipo eq 'INTEGER' or campoModeloOcrCrudBean.campoModeloOcr.valorTipo eq 'DOUBLE'}"/>
+									</div>
+								</div>
+							</h:panelGroup>
+							<h:panelGroup id="inputBaseInternaSimilaridade" layout="block">
+								<div class="form-group">
+									<div class="col-sm-4">
+										<b:selectOneMenu value="#{campoModeloOcrCrudBean.campoModeloOcr.campoProcesso}" label="Base Comparação" rendered="#{campoModeloOcrCrudBean.campoModeloOcr.valorTipo eq 'BASE_INTERNA'}">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{campoModeloOcrCrudBean.baseInternas}" var="sp" itemLabel="#{sp.nome}" itemValue="#{sp.id}" />
+										</b:selectOneMenu>
+									</div>
+									<div class="col-sm-4">
+										<b:selectOneMenu value="#{campoModeloOcrCrudBean.campoModeloOcr.valorOperador}" label="Operador" rendered="#{campoModeloOcrCrudBean.campoModeloOcr.valorTipo eq 'BASE_INTERNA'}">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{campoModeloOcrCrudBean.operadorList}" var="sp" itemLabel="#{msg['OperadorEnum.'.concat(sp).concat('.label')]}" itemValue="#{sp}" />
+										</b:selectOneMenu>
+									</div>
+									<div class="col-sm-4">
+										<b:inputText value="#{campoModeloOcrCrudBean.campoModeloOcr.valorAprovacao}" label="Valor" renderLabel="true" rendered="#{campoModeloOcrCrudBean.campoModeloOcr.valorTipo eq 'BASE_INTERNA'}"/>
+									</div>
+								</div>
+							</h:panelGroup>
+					</b:row>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+                        <p:commandButton value="#{msg['salvar.label']}" actionListener="#{campoModeloOcrCrudBean.salvar()}" update="adicionar-modal-content-id form-tipoDocumento-list mensagensGlobaisGroup" styleClass="btn"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-tipoDocumento-list">
+				<div class="row">
+					<div class="col-sm-12">
+						<div style="float: left; margin-top: 20px;">
+							<h:outputLabel value="#{msg['tipoProcesso.label']}"/>:&nbsp;
+							<h:outputText value="#{tipoDocumentoCrudBean.tipoProcesso.nome}"/>
+						</div>
+ 						<p:commandLink value="#{msg['adicionarCampoModeloOcr.label']}" onclick="openModal('adicionar-modal')" class="btn btn-primary btn-lg" style="float: right;" update="form-campoModeloOcr:adicionar-modal-content-id" rendered="#{menuBean.podeEditar()}">
+							<f:setPropertyActionListener target="#{tipoDocumentoCrudBean.tipoDocumento}" value="#{null}" />
+						</p:commandLink>
+					</div>
+				</div>
+				<h:panelGroup id="row-tabela">
+				<div class="row">
+					<p:dataTable var="campoModeloOcr" value="#{campoModeloOcrCrudBean.dataModel}" rows="100" lazy="true"
+							paginatorTemplate="{CurrentPageReport}"
+							currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+							paginatorPosition="bottom" stickyHeader="true" stickyTopAt=".layout-topbar">
+						<p:column headerText="ID" style="text-align: center; width: 70px;">
+							<h:outputText value="#{campoModeloOcr.id}" />
+							<i class="fa fa-check-square" aria-hidden="true" title="Aceite de Contrato"
+									style="font-size: 10px; color: black; margin-left: 5px; float: right; top: 21px; position: absolute;"
+									jsf:rendered="#{tipoDocumento.aceiteContrato}"></i>
+						</p:column>
+						<p:column headerText="Nome" style="text-align: center; width: 80px;">
+							<h:outputText value="#{campoModeloOcr.nome}" />
+						</p:column>
+						<p:column headerText="#{msg['campoModeloOcrDescricao.label']}" style="text-align: center; width: 230px;">
+							<h:outputText value="#{campoModeloOcr.descricao}" />
+						</p:column>
+						<p:column headerText="#{msg['campoModeloOcrLabelOcr.label']}" style="width: 80px; text-align: center;">
+							<h:outputText value="#{campoModeloOcr.labelOcr}" />
+						</p:column>
+						<p:column style="width: 100px;" sortable="false" rendered="#{menuBean.podeEditar()}">
+							<p:commandLink value="#{msg['editar.label']}" onclick="openModal('adicionar-modal')" class="btn btn-warning btn-editar" update="form-campoModeloOcr:adicionar-modal-content-id">
+								<f:setPropertyActionListener target="#{campoModeloOcrCrudBean.campoModeloOcr}" value="#{campoModeloOcr}" />
+							</p:commandLink>
+							<p:commandLink value="#{msg['excluir.label']}" onclick="openModal('excluir-modal', 'excluirModal:form-exclusao:excluir-btn')" class="btn btn-danger btn-excluir" rendered="#{menuBean.podeExcluir()}">
+								<f:setPropertyActionListener target="#{campoModeloOcrCrudBean.campoModeloOcr}" value="#{campoModeloOcr}" />
+							</p:commandLink>
+						</p:column>
+					</p:dataTable>
+					</div>
+				</h:panelGroup>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

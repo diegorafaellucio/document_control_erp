@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:b="http://bootsfaces.net/ui"
+      xmlns:jsf="http://xmlns.jcp.org/jsf"
+      xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc"
+      xmlns:o="http://omnifaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      >
+<f:metadata>
+    <f:viewAction action="#{relatorioPendenciaDocumentoBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+    <f:viewAction action="#{relatorioPendenciaDocumentoFiltroBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/navegacao.xhtml">
+    <ui:define name="head">
+        <link href="#{request.contextPath}/resources/css/prism.css" rel="stylesheet"/>
+    </ui:define>
+    <ui:define name="tituloPagina">#{msg['menu-relatorio-pendencia-documento.label']}</ui:define>
+    <ui:define name="conteudo">
+        <style type="text/css">
+            .ui-datatable-footer {
+                padding: 0!important;
+                font-weight: normal;
+            }
+            .ui-datatable table {
+                border-collapse: collapse;
+                width: 100%;
+                table-layout: auto!important;
+            }
+            .ui-autocomplete-input.ui-autocomplete-dd-input {
+                padding-right: 2.4em;
+                border-top: 0 !important;
+                border-left: 0 !important;
+                border-right: 0 !important;
+            }
+            .ui-autocomplete-dropdown {
+                margin-top: 0px;
+                height: 32px !important;
+                background: #fff !important;
+                border: 0px !important;
+                border-top: 0 !important;
+            }
+
+            .geracao-relatorio-modal .modal-dialog {
+                width: 1030px;
+            }
+
+        </style>
+        <h:form id="form-documento">
+            <b:modal id="form-documentos-modal-id" title="#{msg['documentos.label']}" styleClass="form-documentos-modal">
+                <h:panelGroup id="form-documentos-modal-content-id">
+                    <b:row rendered="#{relatorioPendenciaDocumentoBean.documentoSelecionadoVO ne null}">
+                        <div class="row" >
+                            <div class="col-sm-12">
+                                <p:dataTable var="doc" value="#{relatorioPendenciaDocumentoBean.documentoSelecionadoVO.documentos}" paginator="false" scollable="false" >
+                                    <p:column headerText="#{msg['documento.label']}" width="300" style="text-align: center;">
+                                        <h:outputText value="#{doc}" />
+                                    </p:column>
+                                </p:dataTable>
+                            </div>
+                        </div>
+                    </b:row>
+                </h:panelGroup>
+                <f:facet name="footer">
+                    <b:button value="#{msg['fechar.label']}" look="primary" dismiss="modal" onclick="closeModal('form-documentos-modal'); return false;"/>
+                </f:facet>
+            </b:modal>
+        </h:form>
+        <h:form id="form-geracao-relatorio">
+            <b:modal id="form-geracao-relatorio-modal-id" title="#{msg['execucoesGeracaoRelatorio.label']}" styleClass="geracao-relatorio-modal">
+                <h:panelGroup id="form-geracao-relatorio-modal-content-id">
+                    <b:row>
+                        <div class="col-sm-12">
+                            <p:dataTable id="execucoes-datatable-id" var="vo" value="#{relatorioPendenciaDocumentoBean.execucaoGeracaoRelatorioDataModel}" rows="10" paginator="true" lazy="true"
+                                         paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+                                         currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+                                         paginatorPosition="bottom" >
+                                <p:column headerText="#{msg['id.label']}" style="text-align: center;" >
+                                    <h:outputText value="#{vo.id}" />
+                                </p:column>
+                                <p:column headerText="#{msg['nomeArquivo.label']}" style="text-align: center; width: 250px;" >
+                                    <h:outputText value="#{vo.nome}" />
+                                </p:column>
+                                <p:column headerText="#{msg['horario.label']}" style="text-align: center;">
+                                    <h:outputText value="#{vo.horario}" />
+                                </p:column>
+                                <p:column headerText="#{msg['inicio.label']}" style="text-align: center;">
+                                    <h:outputText value="#{utilBean.getDateTimeStr(vo.inicio)}" />
+                                </p:column>
+                                <p:column headerText="#{msg['fim.label']}" style="text-align: center;">
+                                    <h:outputText value="#{utilBean.getDateTimeStr(vo.fim)}" />
+                                </p:column>
+                                <p:column headerText="#{msg['observacao.label']}" style="text-align: center;">
+                                    <h:outputText value="#{vo.observacao}" />
+                                </p:column>
+                                <p:column headerText="#{msg['isSucesso.label']}" style="text-align: center;">
+                                    <h:outputText value="#{empty vo.sucesso ? '' : vo.sucesso ? msg['sim.label'] : msg['nao.label']}" />
+                                </p:column>
+                                <p:column headerText="#{msg['isExecutando.label']}" style="text-align: center;">
+                                    <h:outputText value="#{vo.executando ? msg['sim.label'] : msg['nao.label']}" />
+                                </p:column>
+                                <p:column headerText="#{msg['extensao.label']}" style="text-align: center;">
+                                    <h:outputText value="#{vo.extensao}" />
+                                </p:column>
+                                <p:column headerText="#{msg['arquivo.label']}" style="text-align: center;">
+                                    <p:commandLink ajax="false" title="#{msg['baixarRelatorio.label']}" onerror="alert('Erro!')" rendered="#{not empty vo.caminhoArquivo}"
+                                                   class="btn btn-info">
+                                        <p:fileDownload value="#{relatorioPendenciaDocumentoBean.baixarRelatorioGerado(vo.id)}"/>
+                                        <i class="fa fa-download" aria-hidden="false" style="color:  #FFFFFF"></i>
+                                    </p:commandLink>
+                                </p:column>
+                            </p:dataTable>
+                        </div>
+                    </b:row>
+                </h:panelGroup>
+                <f:facet name="footer">
+                    <b:button value="#{msg['fechar.label']}" look="primary" dismiss="modal" onclick="closeModal('geracao-relatorio-modal'); return false;"/>
+                </f:facet>
+            </b:modal>
+        </h:form>
+        <h:form id="form">
+            <div class="row default-form">
+                <div class="col-sm-12">
+                    <h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+                    <getdoc:relatorioPendenciaDocumentoFiltro filtro="#{relatorioPendenciaDocumentoBean.filtro}" bean="#{relatorioPendenciaDocumentoFiltroBean}" />
+                </div>
+            </div>
+            <div class="row" style="margin-top: 15px;">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <p:commandLink styleClass="btn btn-md" oncomplete="openModal('geracao-relatorio-modal');"
+                                       update="form-geracao-relatorio:form-geracao-relatorio-modal-content-id" rendered="#{utilBean.usuarioLogado.isAdminRole() or utilBean.usuarioLogado.isGestorRole()}"
+                                       style="float: left" title="#{msg['baixarRelatorio.label']}">
+                            <i class="fa fa-download" style="font-size: 16px;"></i>
+                        </p:commandLink>
+                        <b:commandButton value="#{msg['limpar.label']}" actionListener="#{processoListBean.limpar()}"
+                                         style="float: right; margin-left: 10px;"
+                                         styleClass="btn btn-primary btn-md" ajax="true" update="content-pg-id"/>
+                        <p:commandLink id="buscarId" action="#{relatorioPendenciaDocumentoBean.buscar}"
+                                       value="#{msg['buscar.label']}"
+                                       style="float: right; margin-left: 10px" class="btn btn-primary btn-salvar"
+                                       update="tabela-ID mensagensGlobaisGroup"/>
+                        <b:commandButton id="exportarId" value="#{msg['exportar.label']}"
+                                         styleClass="btn btn-primary btn-md"
+                                         style="float: right; margin-left: 10px" onclick="exportarRel()" type="button"/>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <p:dataTable id="tabela-ID" var="rpd" value="#{relatorioPendenciaDocumentoBean.relatorioPendenciaDocumentoVOS}"
+                                 rows="10"
+                                 scrollable="false" binding="#{ utilBean.lazyDataTable }">
+                        <p:column headerText="ID" style="text-align: left;">
+                            <h:outputText value="#{rpd.processoId}"/>
+                        </p:column>
+                        <p:column headerText="#{msg['aluno.label']}" width="200" style="text-align: left;">
+                            <h:outputText value="#{rpd.nomeAluno}"/>
+                        </p:column>
+                        <p:column headerText="#{msg['TipoEntradaCampo.CPF.label']}" width="120" style="text-align: center;">
+                            <h:outputText value="#{rpd.cpf}"/>
+                        </p:column>
+                        <p:column headerText="#{msg['sequenciaCandidato.label']}" width="120" style="text-align: center;">
+                            <h:outputText value="#{rpd.numCandidato}"/>
+                        </p:column>
+                        <p:column headerText="#{msg['tipo-curso.label']}" width="150" style="text-align: center;">
+                            <h:outputText value="#{rpd.tipoCurso}"/>
+                        </p:column>
+                        <p:column headerText="#{msg['curso.label']}" style="text-align: center;">
+                            <h:outputText value="#{rpd.nomeCurso}"/>
+                        </p:column>
+                        <p:column headerText="#{msg['periodo-ingresso.label']}" width="140" style="text-align: center;">
+                            <h:outputText value="#{rpd.periodoIngresso}"/>
+                        </p:column>
+                        <p:column headerText="#{msg['documento.label']}" style="text-align: center;">
+                            <h:outputText value="#{rpd.nomeDocumento}"/>
+                        </p:column>
+                        <p:column headerText="#{msg['status.label']}" style="text-align: center;">
+                            <h:outputText value="#{rpd.statusDocumento}"/>
+                        </p:column>
+                        <p:column headerText="#{msg['documentos.label']}" style="text-align: center;">
+                            <p:commandLink onclick="openModal('form-documentos-modal');" styleClass="btn-documentos-obrigatorios"
+                                           title="Clique Para Visualizar"
+                                           actionListener="#{relatorioPendenciaDocumentoBean.setDocumentoSelecionadoVO(rpd)}"
+                                           update="form-documento:form-documentos-modal-content-id">
+                                <img src="#{request.contextPath}/resources/images/icons/StatusDocumento-DIGITALIZADO.png" alt=""
+                                     style="width: 26px;"/>
+                                <span class="badge">
+										<h:outputText value="#{rpd.documentos eq null ? 0 : rpd.documentos.size()}"/>
+									</span>
+                            </p:commandLink>
+                        </p:column>
+                    </p:dataTable>
+                </div>
+            </div>
+            <p:remoteCommand name="exportar" actionListener="#{relatorioPendenciaDocumentoBean.exportar()}"
+                             oncomplete="verificarNoBean()" update="mensagensGlobaisGroup"/>
+            <p:remoteCommand name="verificarNoBean" actionListener="#{relatorioPendenciaDocumentoBean.verificar()}"
+                             oncomplete="verificar()"/>
+            <b:commandButton id="baixarId" value="#{msg['baixar.label']}" style="display:none"
+                             action="#{relatorioPendenciaDocumentoBean.baixar}"/>
+		</h:form>
+
+        <script type="text/javascript">
+
+            function exportarRel() {
+                document.getElementById('form:buscarId').disabled = true;
+                document.getElementById('form:exportarId').disabled = true;
+                this.disabled = true;
+                waitingDialog.show('Aguarde...');
+                exportar();
+            }
+
+            function baixar() {
+                document.getElementById('form:baixarId').click();
+                document.getElementById('form:buscarId').disabled = false;
+                document.getElementById('form:exportarId').disabled = false;
+                waitingDialog.hide();
+            }
+
+            function cancelarExportacao() {
+                document.getElementById('form:buscarId').disabled = false;
+                document.getElementById('form:exportarId').disabled = false;
+                waitingDialog.hide();
+            }
+
+            function verificar() {
+
+                var data = OmniFaces.Ajax.data;
+                var terminou = data.terminou;
+
+                if(terminou) {
+                    baixar();
+                }
+                else if (terminou == false) {
+                    setTimeout(verificarNoBean, 2000);
+                }
+                else{
+                    cancelarExportacao();
+                }
+            }
+        </script>
+        <script type="text/javascript" jsf:rendered="#{not empty relatorioPendenciaDocumentoBean.exporter}">
+            document.getElementById('form:buscarId').disabled = true;
+            document.getElementById('form:exportarId').disabled = true;
+            this.disabled = true;
+            waitingDialog.show('Aguarde...');
+            verificarNoBean();
+        </script>
+    </ui:define>
+</ui:composition>
+</html>

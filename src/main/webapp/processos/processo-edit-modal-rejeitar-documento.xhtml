@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:c="http://java.sun.com/jsp/jstl/core"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:b="http://bootsfaces.net/ui"
+	  xmlns:p="http://primefaces.org/ui"
+>
+<h:panelGroup id="pg-modal-rejeitar">
+	<script type="text/javascript" src="#{request.contextPath}/resources/tooltipster/js/tooltipster.bundle.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/tooltipster.bundle.min.css" />
+	<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-shadow.min.css" />
+	<script type="text/javascript" src="#{request.contextPath}/resources/tooltipster/js/tooltipster.bundle.min.js"></script>
+	<div class="col-sm-12">
+		<b:messages id="rejeitar-messages" globalOnly="true" showSummary="true"/>
+		<div class="form-group">
+			<h:outputLabel value="#{msg['irregularidade.label']}" for="irregularidade" styleClass="bf-no-message"/>
+			<p:autoComplete id="irregularidade" converter="entityConverter" style="border: none !important;" scrollHeight="235"
+							value="#{processoEditBean.irregularidade}" completeMethod="#{processoEditBean.getIrregularidadesAutoComplete}"
+							var="i" itemValue="#{i}" itemLabel="#{i.nome}" forceSelection="true" dropdown="true"
+							widgetVar="foo" onclick="PF('foo').search(PF('foo').input.val());">
+				<p:column rendered="#{!i.irregularidadePastaAmarela}">
+					<span class="fa fa-fw fa fa-ban" style="width: 30px; height: 20px; color:#F90000"/>
+					<h:outputText style="vertical-align: middle; margin-left: .5rem" value="#{i.nome}"/>
+				</p:column>
+				<p:column rendered="#{i.irregularidadePastaAmarela}">
+					<span class="fa fa-fw fa fa-warning" style="width: 30px; height: 20px; color:#F2DA00"/>
+					<h:outputText style="vertical-align: middle; margin-left: .5rem" value="#{i.nome}"/>
+				</p:column>
+			</p:autoComplete>
+			<b:message/>
+		</div>
+		<div class="form-group">
+			<b:selectOneMenu value="#{processoEditBean.modeloDocumento}" label="#{msg['modeloDocumento.label']}"
+							 converter="entityConverter">
+				<f:selectItem itemValue="" itemLabel=""/>
+				<f:selectItems value="#{processoEditBean.modelosDocumentos}" var="md" itemValue="#{md}" itemLabel="#{md.descricao}"/>
+			</b:selectOneMenu>
+			<b:message/>
+		</div>
+		<div class="form-group">
+			<h:outputLabel value="#{msg['observacao.label']}"/>
+			<p:inputTextarea id="texto-modal-input" value="#{processoEditBean.observacaoIrregularidade}" label="#{msg['observacao.label']}"
+							 maxlength="500" styleClass="form-control" rows="3"/>
+		</div>
+	</div>
+	<div class="col-sm-12" style="padding-left: 65%;">
+		<b:button value="#{msg['cancelar.label']}" look="primary" onclick="closeModal('rejeitar-modal'); return false;"/>
+		<p:commandButton value="#{msg['rejeitar.label']}" action="#{processoEditBean.rejeitarDocumento()}" update="rejeitar-modal-content-id visualizar-modal-content-id form-tabs" style="background-color: #f0ad4e; border: 1px solid #f0ad4e;" styleClass="btn btn-warning"/>
+	</div>
+</h:panelGroup>
+</html>

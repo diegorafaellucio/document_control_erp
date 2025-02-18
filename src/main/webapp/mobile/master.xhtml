@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html 
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	>
+	<h:head>
+	
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		
+	    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+	    
+		<!-- Style jQuery/Bootstrap -->
+		<link type="text/css" rel="stylesheet" href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+		<link type="text/css" rel="stylesheet" href="#{request.contextPath}/resources/css/font-awesome.min.css" />
+			
+		<!-- Script jQuery/Bootstrap -->
+		<script type="text/javascript" src="#{request.contextPath}/resources/js/jquery.js"></script>
+		<script type="text/javascript" src="#{request.contextPath}/resources/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="#{request.contextPath}/resources/js/jquery.mask.min.js"></script>
+		<script type="text/javascript" src="#{request.contextPath}/resources/datepicker/js/bootstrap-datepicker.js"></script>
+		<script type="text/javascript" src="#{request.contextPath}/resources/datepicker/js/bootstrap-datepicker.pt-BR.js"></script>
+		
+		<!-- Styles App -->
+		<link href="#{request.contextPath}/resources/mobile/css/master.css" rel="stylesheet"/>
+		
+		<!-- Faces Script -->
+		<h:outputScript library="javax.faces" name="jsf.js" />
+		
+		<!-- Script App -->
+		<script type="text/javascript" src="#{request.contextPath}/resources/js/main.js"></script>
+		<script type="text/javascript" src="#{request.contextPath}/resources/mobile/js/app.js"></script>
+		
+		<!-- Content Style, Script -->
+		<ui:insert name="master.style" />
+		<ui:insert name="master.script" />
+		
+	</h:head>
+	<h:body>
+	
+		<ui:insert name="master.content" />	
+		
+		<script type="text/javascript">
+			//<![CDATA[
+			(function($) {
+				$(function() {
+					Toast.show(#{requestScope.deviceToast});
+				});
+			})(jQuery);
+			
+			jsf.ajax.addOnEvent(function(data) {
+				switch (data.status) {
+					case 'begin':
+						if (Device && Device.Progress) {
+							Device.Progress.show();
+						}
+					break;
+					case 'complete':
+						if (Device && Device.Progress) {
+							Device.Progress.hide();
+						}
+					break;
+				}
+			});
+			
+			jsf.ajax.addOnError(function(data) {
+				log(data)
+				if (Device && Device.Progress) {
+					Device.Progress.hide();
+				}
+				if (data.responseCode == 0) {
+					alert('Não foi possível conectar ao servidor!');
+				} else {
+					if (data.status == 'serverError') {
+						if (data.errorName && data.errorName.indexOf('ViewExpiredException') > -1) {
+							alert('O tempo de comunicação com o servidor expirou!');
+							window.location.reload();
+						} else {
+							alert('Ocorreu um erro interno no servidor!');
+						}
+					}
+				}
+			});
+			//]]>
+		</script>
+		
+		<div id="toast"></div>
+		
+	</h:body>
+</html>

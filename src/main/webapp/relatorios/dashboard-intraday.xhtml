@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:b="http://bootsfaces.net/ui"
+      xmlns:o="http://omnifaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:of="http://omnifaces.org/functions">
+<f:metadata>
+    <f:viewAction action="#{dashboardIntradayBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/navegacao.xhtml">
+    <ui:include src="/WEB-INF/include/footer.xhtml"/>
+    <ui:define name="head">
+        <link href="#{request.contextPath}/resources/css/prism.css" rel="stylesheet"/>
+        <script src="#{request.contextPath}/resources/highcharts/highcharts.js"></script>
+        <script src="#{request.contextPath}/resources/highcharts/modules/data.js"></script>
+        <script src="#{request.contextPath}/resources/highcharts/modules/exporting.js"></script>
+    </ui:define>
+    <ui:define name="tituloPagina">#{msg['dashboardIntraday.label']}</ui:define>
+    <ui:define name="conteudo">
+        <h:form id="form-dashboard">
+            <c:set var="bean" value="#{dashboardIntradayBean}" />
+            <div class="row default-form">
+                <div class="col-sm-10">
+                    <h4 class="tituloForm" style="margin-top: 13px;"><h:outputText value="#{msg['dashboardIntraday.label']}"/></h4>
+                </div>
+                <div class="col-sm-2" style="margin-top: 0; padding-left: 5px;">
+                    <p:commandLink id="btn-filtrar-id" value="#{msg['filtrar.label']}" onclick="showHideFiltro()" styleClass="btn btn-primary btn-md"
+                                   style="margin-right: 15px; background-color: #d3d3d3;" process="@this" />
+                    <p:commandLink id="reloadAutomaticoId" actionListener="#{bean.reloadAutomatico()}" process="@this" update="reloadAutomaticoId" styleClass="btn btn-md"
+                                   style="margin-right: 5px; background-color: #{bean.reloadAutomatico ? '#d3d3d3' : '#fff'}" title="Atualizar a cada 5 min.">
+                        <i class="fa fa-clock-o" style="font-size: 16px; color: #{bean.reloadAutomatico ? '#000' : '#337ab7'}"></i>
+                    </p:commandLink>
+                    <p:commandLink id="modoTelaCheiaId" actionListener="#{bean.modoTelaCheia()}" process="@this" update="modoTelaCheiaId" styleClass="btn btn-md"
+                                   style="background-color: #{bean.modoTelaCheia ? '#d3d3d3' : '#fff'}" title="Tela cheia">
+                        <i class="fa fa-expand" style="font-size: 16px; color: #{bean.modoTelaCheia ? '#000' : '#337ab7'}"></i>
+                    </p:commandLink>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <b:messages id="message" globalOnly="true" showSummary="true"/>
+            </div>
+            <h:panelGroup id="filtros-id">
+                <div class="row">
+                    <div class="col-sm-1" ></div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <h:outputLabel value="#{msg['periodo.label']}"/>
+                            <b:panelGrid colSpans="1,5,1,5" style="margin-bottom: -20px; margin-left: 5px;">
+                                <h:outputText value="#{msg['de.label']}"/>
+                                <b:inputText id="dataInicioId" value="#{bean.filtro.dataInicioDia}" placeholder="dd/mm/aaaa" styleClass="mask-date" label="#{msg['dataInicial.label']}" renderLabel="false">
+                                    <f:convertDateTime pattern="dd/MM/yyyy"/>
+                                    <f:facet name="append">
+                                        <i class="fa fa-calendar-o fa-12x14" />
+                                    </f:facet>
+                                </b:inputText>
+                                <h:outputText value="#{msg['ate.label']}"/>
+                                <b:inputText id="dataFimId" value="#{bean.filtro.dataFimDia}" placeholder="dd/mm/aaaa" styleClass="mask-date" label="#{msg['dataFinal.label']}" renderLabel="false">
+                                    <f:convertDateTime pattern="dd/MM/yyyy"/>
+                                    <f:facet name="append">
+                                        <i class="fa fa-calendar-o fa-12x14" />
+                                    </f:facet>
+                                </b:inputText>
+                            </b:panelGrid>
+                            <b:message for="dataInicioId" showSummary="false"/>
+                            <b:message for="dataFimId" showSummary="false"/>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <h:outputLabel value="#{msg['tipoProcesso.label']}" />
+                            <p:selectCheckboxMenu value="#{bean.filtro.tiposProcessoId}" label="#{msg['tipoProcesso.label']}"
+                                                  style="form-control bf-no-message has-success" multiple="true" converter="javax.faces.Long">
+                                <f:selectItems value="#{bean.tiposProcesso}" var="item" itemLabel="#{item.nome}" itemValue="#{item.id}"/>
+                            </p:selectCheckboxMenu>
+                            <b:message/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-1" ></div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <h:outputLabel value="#{msg['regional.label']}" />
+                            <h:selectOneMenu styleClass="form-control" value="#{bean.filtro.regional}" >
+                                <f:selectItem itemValue="" itemLabel=""/>
+                                <f:selectItems value="#{bean.regionais}" var="regional" itemValue="#{regional.baseRegistro.chaveUnicidade}" itemLabel="#{regional.label}"/>
+                                <f:ajax event="change" render="filtros-id" listener="#{bean.findCampusList}"/>
+                            </h:selectOneMenu>
+                            <b:message/>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <h:outputLabel value="#{msg['campus.label']}" />
+                            <h:selectOneMenu styleClass="form-control" value="#{bean.filtro.campus}">
+                                <f:selectItem itemValue="" itemLabel=""/>
+                                <f:selectItems value="#{bean.campusList}" var="campus" itemValue="#{campus.baseRegistro.chaveUnicidade}" itemLabel="#{campus.label}"/>
+                                <f:ajax event="change" render="filtros-id" listener="#{bean.findCursos}"/>
+                            </h:selectOneMenu>
+                            <b:message/>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <h:outputLabel value="#{msg['curso.label']}" />
+                            <h:selectOneMenu styleClass="form-control" value="#{bean.filtro.curso}">
+                                <f:selectItem itemValue="" itemLabel=""/>
+                                <f:selectItems value="#{bean.cursos}" var="curso" itemValue="#{curso.baseRegistro.chaveUnicidade}" itemLabel="#{curso.label}"/>
+                            </h:selectOneMenu>
+                            <b:message/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-1" ></div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <o:importConstants type="net.wasys.getdoc.domain.enumeration.Origem" />
+                            <b:selectOneMenu value="#{bean.filtro.origemProcesso}" label="#{msg['origem.label']}">
+                                <f:selectItem itemValue="" itemLabel=""/>
+                                <f:selectItem itemValue="#{Origem.PORTAL_GRADUCAO}" itemLabel="Portal Graduação"/>
+                                <f:selectItem itemValue="#{Origem.PORTAL_POS_GRADUACAO}" itemLabel="Portal Pós-Graduação"/>
+                                <f:selectItem itemValue="#{Origem.WEB}" itemLabel="Sala Matrícula"/>
+                            </b:selectOneMenu>
+                            <b:message/>
+                        </div>
+                    </div>
+                    <div class="col-sm-3"></div>
+                    <div class="col-sm-3">
+                        <div class="form-group" style="padding-top: 15px">
+                            <p:commandLink id="buscar-id" action="#{bean.buscar()}" value="#{msg['buscar.label']}" update="form-dashboard:message charts-id"
+                                           styleClass="btn btn-primary btn-md" style="float: right;" />
+                        </div>
+                    </div>
+                </div>
+            </h:panelGroup>
+            <h:panelGroup id="charts-id" style="display: none">
+                <div class="row default-form">
+                    <div class="col-sm-12">
+                        <c:set value="#{bean.dashboardIntradayVO.getTipoProcessoPorDia()}" var="tipoProcessoPorDia"/>
+                        <p:dataTable class="table" id="intraday" var="key" value="#{tipoProcessoPorDia.qtdPorDia.keySet()}">
+                            <p:column headerText="#{msg['tipoProcesso.label']}" style="text-align: center; width: 100px; border:1px solid #ddd;">
+                                <h:outputText value="#{key}"/>
+                            </p:column>
+                            <c:forEach begin="0" end="0" varStatus="real">
+                                <p:column headerText="Real" style="text-align: center; width: 100px; border:1px solid #ddd;">
+                                    <h:outputText value="#{tipoProcessoPorDia.qtdPorDia.get(key).get(real.index)}">
+                                        <f:convertNumber pattern="###,###,###" />
+                                    </h:outputText>
+                                </p:column>
+                            </c:forEach>
+                            <c:forEach begin="1" end="31" varStatus="loop">
+                                <p:column headerText="#{loop.index}/#{bean.getMes(loop.index)}" style="text-align: center; width: 50px; border:1px solid #ddd;" rendered="#{tipoProcessoPorDia.getTotalPorDia().get(loop.index-1) != 0}">
+                                    <h:outputText value="#{tipoProcessoPorDia.qtdPorDia.get(key).get(loop.index)}">
+                                        <f:convertNumber pattern="###,###,###" />
+                                    </h:outputText>
+                                </p:column>
+                            </c:forEach>
+                            <p:columnGroup type="footer">
+                                <p:row>
+                                    <p:column footerText="Total"/>
+                                    <p:column footerText="#{of:formatNumber(tipoProcessoPorDia.getTotalPeriodo(), '###,###,###')}" />
+                                    <c:forEach begin="0" end="30" varStatus="total">
+                                        <p:column footerText="#{of:formatNumber(tipoProcessoPorDia.getTotalPorDia().get(total.index), '###,###,###')}" rendered="#{tipoProcessoPorDia.getTotalPorDia().get(total.index) != 0}"/>
+                                    </c:forEach>
+                                </p:row>
+                            </p:columnGroup>
+                        </p:dataTable>
+                    </div>
+                </div>
+                <div class="row default-form" >
+                    <div class="col-sm-12">
+                        <h4 style="margin: 0; color: #cc092f; border-bottom: none;"><h:outputText value="#{msg['intraday.label']}"/></h4>
+                        <div id="conferidoPorDia" style="height: 230px; margin: 0"></div>
+                        <script type="text/javascript">
+							function drawConferidoPorDia(qtdPorDia, yMax, totalDia) {
+								Highcharts.chart('conferidoPorDia', {
+									title: false,
+									exporting: false,
+									credits: false,
+									chart: {
+										type: 'column'
+									},
+									xAxis: {
+										categories: [
+											'01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31'
+										]
+									},
+									yAxis: {
+										allowDecimals: false,
+										max: yMax,
+										min: 0,
+										title: {
+											text: null
+										}
+									},
+									legend: {
+										itemStyle: {
+											fontWeight: 'normal',
+											fontSize: 11,
+										}
+									},
+									tooltip: {
+										shared: true,
+										valueDecimals: 0,
+										valueSuffix: ' Enviados'
+									},
+									series: [{
+										name: 'Total (' + Highcharts.numberFormat(totalDia, 0) + ')',
+										data: qtdPorDia,
+										color: '#92d050',
+										fillOpacity: 0.5,
+										marker: {
+											radius: 3
+										}
+									}]
+								});
+							}
+                        </script>
+                    </div>
+                </div>
+                <div class="row default-form">
+                    <div class="col-sm-12">
+                        <c:set value="#{bean.dashboardIntradayVO.getTipoProcessoPorDiaTratado()}" var="tipoProcessoPorDiaTratado"/>
+                        <p:dataTable class="table" id="intraday2" var="key" value="#{tipoProcessoPorDiaTratado.qtdPorDia.keySet()}">
+                            <p:column headerText="#{msg['tipoProcesso.label']}" style="text-align: center; width: 100px; border:1px solid #ddd;">
+                                <h:outputText value="#{key}"/>
+                            </p:column>
+                            <c:forEach begin="0" end="0" varStatus="real">
+                                <p:column headerText="Real" style="text-align: center; width: 80px; border:1px solid #ddd;">
+                                    <h:outputText value="#{tipoProcessoPorDiaTratado.qtdPorDia.get(key).get(real.index)}">
+                                        <f:convertNumber pattern="###,###,###" />
+                                    </h:outputText>
+                                </p:column>
+                            </c:forEach>
+                            <c:forEach begin="1" end="31" varStatus="loop">
+                                <p:column headerText="#{loop.index}/#{bean.getMes(loop.index)}" style="text-align: center; width: 50px; border:1px solid #ddd;" rendered="#{bean.dashboardIntradayVO.getProdutividadePorDia().get(loop.index) != 0}">
+                                    <h:outputText value="#{tipoProcessoPorDiaTratado.qtdPorDia.get(key).get(loop.index)}">
+                                        <f:convertNumber pattern="###,###,###" />
+                                    </h:outputText>
+                                </p:column>
+                            </c:forEach>
+                            <p:columnGroup type="footer">
+                                <p:row>
+                                    <p:column footerText="Tratados"/>
+                                    <p:column footerText="#{of:formatNumber(tipoProcessoPorDiaTratado.getTotalPeriodo(), '###,###,###')}"/>
+                                    <c:forEach begin="0" end="30" varStatus="total">
+                                        <p:column footerText="#{of:formatNumber(tipoProcessoPorDiaTratado.getTotalPorDia().get(total.index), '###,###,###')}" rendered="#{bean.dashboardIntradayVO.getProdutividadePorDia().get(total.index+1) != 0}"/>
+                                    </c:forEach>
+                                </p:row>
+                                <p:row>
+                                    <p:column footerText="Não Tratados"/>
+                                    <p:column footerText="#{of:formatNumber(tipoProcessoPorDia.getTotalPeriodo() - tipoProcessoPorDiaTratado.getTotalPeriodo(), '###,###,###')}"/>
+                                    <c:forEach begin="0" end="30" varStatus="total">
+                                        <p:column footerText="#{of:formatNumber(tipoProcessoPorDia.getTotalPorDia().get(total.index) - tipoProcessoPorDiaTratado.getTotalPorDia().get(total.index), '###,###,###')}" rendered="#{bean.dashboardIntradayVO.getProdutividadePorDia().get(total.index+1) != 0}"/>
+                                    </c:forEach>
+                                </p:row>
+                                <p:row>
+                                    <p:column footerText="Produtividade"/>
+                                    <p:column footerText="#{of:formatNumber(bean.dashboardIntradayVO.getProdutividadePorDia().get(0), '###,###,###')}"/>
+                                    <c:forEach begin="1" end="31" varStatus="total">
+                                        <p:column footerText="#{of:formatNumber(bean.dashboardIntradayVO.getProdutividadePorDia().get(total.index), '###,###,###')}" rendered="#{bean.dashboardIntradayVO.getProdutividadePorDia().get(total.index) != 0}"/>
+                                    </c:forEach>
+                                </p:row>
+                            </p:columnGroup>
+                        </p:dataTable>
+                    </div>
+                </div>
+                <div class="row default-form" >
+                    <div class="col-sm-12">
+                        <h:outputText value="Aging de processo #{bean.getAgingProcesso()} horas" style="background-color: #f2f2f2; font-size: 18px;"/> &nbsp; <h:outputText value="SLA acordado 24 horas" style="background-color: #f2f2f2; font-size: 18px;"/>
+                    </div>
+                </div>
+                <div class="row default-form" >
+                    <div class="col-sm-12">
+                        <h4 style="margin: 0; color: #cc092f; border-bottom: none;"><h:outputText value="#{msg['intrahora.label']}"/></h4>
+                        <div id="tempoOperacaoConferido" style="height: 230px; margin: 0"></div>
+                        <script type="text/javascript">
+							function drawTempoOperacaoConferido(conferido, formatacao) {
+								conferido[12] = {y: conferido[12], color:'#ff7400'};
+								conferido[13] = {y: conferido[13], color:'#ff7400'};
+								Highcharts.chart('tempoOperacaoConferido', {
+									title: false,
+									exporting: false,
+									credits: false,
+									chart: {
+										type: 'column'
+									},
+									xAxis: {
+										categories: ['7h', '8h', '9h', '10h', '11h', '12h', '13h', '14h', '15h', '16h', '17h', '18h', 'Dia', 'Mês']
+									},
+									yAxis: {
+										labels: {
+											formatter: function () {
+												if(formatacao == 'minuto'){
+													return Highcharts.numberFormat(this.value * 60, 0)  + 'min';
+												}
+												else if(formatacao == 'hora'){
+													return Highcharts.numberFormat(this.value, 0)  + 'hrs';
+												}
+												else if(formatacao == 'dia'){
+													return Highcharts.numberFormat(this.value / 24, 0)  + 'dias';
+												}
+											},
+										},
+										title: {
+											text: null
+										},
+										stackLabels: {
+											enabled: true,
+											formatter: function() {
+												if(this.total == 0){
+													return null;
+												}
+												else if(formatacao == 'minuto'){
+													return Highcharts.numberFormat(this.total * 60, 0);
+												}
+												else if(formatacao == 'hora'){
+													return Highcharts.numberFormat(this.total, 2);
+												}
+												else if(formatacao == 'dia'){
+													return Highcharts.numberFormat(this.total / 24, 0);
+												}
+											},
+											style :{
+												fontSize: 14,
+												fontWeight: 'normal'
+											}
+										}
+									},
+									legend: {
+										itemStyle: {
+											fontWeight: 'normal',
+											fontSize: 11,
+										},
+									},
+									tooltip: {
+										shared: true,
+										valueDecimals: 2,
+										valueSuffix: ' Horas',
+									},
+									plotOptions: {
+										column: {
+											stacking: 'normal'
+										}
+									},
+                                    series: [{
+										name: 'Conferido',
+										data: conferido,
+										color: '#f7a35c',
+									}]
+								});
+							}
+                        </script>
+                    </div>
+                </div>
+            </h:panelGroup>
+        </h:form>
+        <script type="text/javascript">
+
+			var timeout;
+
+			function startReloadAutomatico() {
+				document.getElementById("form-dashboard:buscar-id").click();
+				timeout = setTimeout("startReloadAutomatico()",300000); //5 minutos
+			}
+
+			function stopReloadAutomatico() {
+				clearTimeout(timeout);
+			}
+
+			function showCharts() {
+				document.getElementById("form-dashboard:charts-id").style.display = "block";
+			}
+
+			function showFiltro() {
+				document.getElementById("form-dashboard:filtros-id").style.display = "block";
+				document.getElementById("form-dashboard:btn-filtrar-id").style.backgroundColor = '#d3d3d3';
+			}
+			function hideFiltro() {
+				document.getElementById("form-dashboard:filtros-id").style.display = "none";
+				document.getElementById("form-dashboard:btn-filtrar-id").style.backgroundColor = '#337ab7';
+			}
+			function showHideFiltro(){
+				var display = document.getElementById("form-dashboard:filtros-id").style.display;
+
+				if(display == "none"){
+					showFiltro();
+				}
+				else if(display == "block") {
+					hideFiltro();
+				}
+			}
+
+			function start(){
+				hideFiltro();
+				showCharts();
+			}
+
+			function openFullscreen() {
+				document.getElementById("header").style.display = "none";
+				document.getElementById("content").style.paddingTop = "70px";
+				document.getElementById("footer").style.display = "none";
+				document.getElementById("content").style.paddingBottom = "15px";
+				document.documentElement.requestFullscreen();
+			}
+			function exitFullscreen() {
+				document.getElementById("header").style.display = "block";
+				document.getElementById("content").style.paddingTop = "10px";
+				document.getElementById("footer").style.display = "block";
+				document.getElementById("content").style.paddingBottom = "100px";
+				document.exitFullscreen();
+			}
+        </script>
+    </ui:define>
+</ui:composition>
+</html>

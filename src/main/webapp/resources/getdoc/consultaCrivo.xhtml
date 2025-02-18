@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:b="http://bootsfaces.net/ui"
+	  xmlns:c="http://java.sun.com/jsp/jstl/core"
+	  xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf"
+	  xmlns:composite="http://java.sun.com/jsf/composite">
+
+	<composite:interface>
+		<composite:attribute name="resultadoConsulta" type="net.wasys.getdoc.domain.vo.ResultadoConsultaVO" required="true"/>
+	</composite:interface>
+
+	<composite:implementation>
+		<div class="row campos-grupo-rc#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+			<div class="col-sm-12 noMarginBottom">
+				<div style="width: 170px; float: left; padding-left: 30px;">
+					<h:outputLabel value="Código da Operacao:" styleClass="bf-no-message"/>
+				</div>
+				<div style="float: left; margin-bottom: 5px;">
+					#{resultadoConsulta.valores['CodigoOperacao']}
+				</div>
+			</div>
+		</div>
+		<ui:repeat var="entry1" value="#{utilBean.toList(resultadoConsulta.parametros.entrySet())}">
+			<div class="row campos-grupo-rc#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+				<div class="col-sm-12 noMarginBottom">
+					<div style="width: 170px; float: left; padding-left: 30px;">
+						<h:outputLabel value="#{entry1.key}:" styleClass="bf-no-message"/>
+					</div>
+					<div style="float: left; margin-bottom: 5px;">
+						#{entry1.value}
+					</div>
+				</div>
+			</div>
+		</ui:repeat>
+		<div class="row campos-grupo-rc#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 10px;">
+			<div class="col-sm-12 noMarginBottom"></div>
+		</div>
+		<ui:repeat var="entry2" value="#{utilBean.toList(resultadoConsulta.valores['Respostas'].entrySet())}">
+			<ui:repeat var="resp" value="#{entry2.value}" varStatus="status">
+				<div class="row campos-grupo-rc#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+					<div class="col-sm-12 noMarginBottom">
+						<div style="width: 400px; float: left; padding-left: 30px;">
+							<h:outputLabel value="#{resp['Criterio']}" styleClass="bf-no-message"/>
+						</div>
+						<div style="float: left; margin-bottom: 5px; width: 200px; text-align: center;" id="semaforo_crivo_#{status.index}">
+							#{resp['Resposta']}
+							<script type="text/javascript">
+								//<![CDATA[
+								var resposta = "#{resp['Resposta']}";
+								resposta = resposta.toUpperCase();
+
+								if(resposta.endsWith("Não Confere".toUpperCase())) {
+									$('#semaforo_crivo_#{status.index}').addClass('sinalizacaoVermelha');
+								}
+								else if(resposta === "Nada Consta".toUpperCase() || resposta.endsWith("Confere".toUpperCase()) || resposta === "Ativo".toUpperCase()){
+									$('#semaforo_crivo_#{status.index}').addClass('sinalizacaoVerde');
+								}
+								else if(resposta === "Análise".toUpperCase()){
+									$('#semaforo_crivo_#{status.index}').addClass('sinalizacaoAmarela');
+								}
+								//]]>
+							</script>
+						</div>
+					</div>
+				</div>
+			</ui:repeat>
+		</ui:repeat>
+		<div class="row campos-grupo-rc#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+			<div class="col-sm-12 noMarginBottom">
+				<ui:repeat var="entry3" value="#{utilBean.toList(resultadoConsulta.valores['Drivers'].entrySet())}">
+					<ui:repeat var="driver" value="#{entry3.value}">
+						<div class="row" style="margin-left: 20px;">
+							<div class="col-sm-12" style="margin-top: 10px; margin-bottom: 0;">
+								<h:outputLabel value="#{driver['Nome']}" styleClass="bf-no-message"/>
+							</div>
+						</div>
+						<ui:repeat var="entry4" value="#{utilBean.toList(driver['Produtos'].entrySet())}">
+							<ui:repeat var="prod" value="#{entry4.value}">
+								<ui:repeat var="entry5" value="#{utilBean.toList(prod['Variaveis'].entrySet())}">
+									<ui:repeat var="variavel" value="#{entry5.value}">
+										<div class="row" style="margin-left: 40px;">
+											<div class="col-sm-6 noMarginBottom">
+												#{variavel['Nome']}
+											</div>
+											<div class="col-sm-6 noMarginBottom" style="padding-left: 0;">
+												#{variavel['Valor']}
+											</div>
+										</div>
+									</ui:repeat>
+								</ui:repeat>
+							</ui:repeat>
+						</ui:repeat>
+					</ui:repeat>
+				</ui:repeat>
+			</div>
+		</div>
+		<script type="text/javascript">
+			//<![CDATA[
+			function sinalizarSemaforo(resposta){
+
+			}
+			//]]>
+		</script>
+	</composite:implementation>
+</html>

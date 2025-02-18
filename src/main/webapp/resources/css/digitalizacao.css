@@ -1,0 +1,117 @@
+
+.digitalizarTwain-modal .modal-dialog {
+	width: 1200px;
+	height: 740px;
+	padding: 20px;
+	padding-top: 0px;
+}
+
+span .digitalizarTwain-modal-content-id .modal-dialog {
+    padding: 0;
+    margin: auto;
+}
+
+.digitalizarTwain-modal .modal-dialog .modal-content {
+	height: 100%;
+}
+
+.digitalizarTwain-modal .modal-dialog .modal-body {
+    height: 100%;
+    padding-bottom: 40px;
+}
+
+.digitalizarTwain-modal {
+	padding-left: 0 !important;
+}
+
+.digitalizarTwain-modal * {
+	vertical-align:baseline;
+}
+
+.digitalizarTwain-modal a{
+    text-decoration: none;
+}
+
+.digitalizarTwain-modal .modal-header h4 {
+    color: #cc092f;
+    margin-top: -5px;
+}
+
+.digitalizarTwain-modal .modal-header .close {
+    color: #cc092f;
+    margin-top: -10px;
+    opacity: .6;
+    font-weight: normal;
+}
+
+.digitalizarTwain-modal .div-principal {
+	width: 1100px;
+    position: relative;
+    padding-bottom: 20px;
+    min-height: 660px;
+    max-height: 100%;
+}
+
+.digitalizarTwain-modal .coluna-esq {
+    float: left;
+    height: 100%;
+    width: 630px;
+}
+
+.digitalizarTwain-modal .coluna-dir {
+    float: left;
+    height: 100%;
+    width: 440px;
+    margin-left: 20px;
+}
+
+.digitalizarTwain-modal .span-conteudo {
+    min-height: 660px;
+    max-height: 100%;
+    width: 100%;
+    display: block;
+    overflow: auto;
+}
+
+.digitalizarTwain-modal .edit-icon {
+	width: 35px;
+    padding: 4px 0px;
+}
+
+.digitalizarTwain-modal .btn-associacao {
+	width: 28px;
+    padding: 2px 0px;
+    margin-bottom: 2px;
+}
+
+.digitalizarTwain-modal .botao {
+	width: 40px;
+	height: 30px;
+	display: inline;
+	padding: 0;
+	text-align: center;
+}
+
+.digitalizarTwain-modal .lista-documentos td {
+	vertical-align: middle;
+	padding-top: 5px;
+}
+
+.digitalizarTwain-modal .lista-documentos img {
+	padding-top: 3px;
+}
+
+.digitalizarTwain-modal .icone-comandos.btn-info i {
+	color: #fff !important;
+}
+
+.digitalizarTwain-modal .icone-comandos {
+	padding: 0 !important;
+}
+
+.adicionarDocumento-dtw-modal .modal-dialog {
+    width: 600px;
+    height: auto;
+    position: relative;
+    margin: 100px auto;
+}

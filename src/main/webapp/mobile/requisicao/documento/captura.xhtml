@@ -1,0 +1,166 @@
+<ui:composition template="/mobile/master.xhtml"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	>
+	<f:metadata>
+		<f:viewParam name="id" value="#{capturaDocumentoBean.id}" />
+		<f:viewParam name="origem" value="#{capturaDocumentoBean.origem}" />
+		<f:event type="preRenderView" listener="#{capturaDocumentoBean.init}" />
+	</f:metadata>
+	<ui:define name="master.style">
+		<style type="text/css">
+			.container-fluid {
+				padding: 0px;
+			}
+			div.carousel {
+				border-radius: 5px;
+			}
+			.carousel-top {
+				position: absolute;
+			    z-index: 10;
+			    top: 0;
+			}
+			.carousel-top.right {
+			    right: 0;
+			}
+			.carousel-top.right > span.badge {
+				margin: 4px
+			}
+			i.fa.fa-exclamation-triangle {
+				color: red; 
+				font-size: 20px;
+			}
+		</style>
+	</ui:define>
+	<ui:define name="master.script">
+		<c:set var="bean" value="#{capturaDocumentoBean}" />
+		<script type="text/javascript">
+			//<![CDATA[
+			View = {
+				onCameraClick: function() {
+					Device.Image.upload({
+						url: '#{request.contextPath}/rest/upload',
+						types: ['png', 'jpg', 'jpeg']
+					});
+				},
+				onExcluirClick: function() {
+					var id = $('div.carousel-inner > div.item.active').attr('id').replace(/item:/, '');
+					if (Utils.isNotEmpty(id)) {
+						onExcluir({ imagemId: id });
+					}
+				},
+				showModalExcluir: function() {
+					$('div#excluir-modal').modal();
+				}
+			};
+			Device = {
+				onReady: function() {
+					Device.initialize(#{bean.deviceInitializeScript});
+				},
+				onTapped: function(id) {
+					if (id == 1) {
+						View.onCameraClick();
+					} else if (id == 2) {
+						location.href = '#{request.contextPath}/mobile/requisicao/documento/lista.xhtml?id=#{bean.id}&origem=#{bean.origem}'
+					}
+				},
+				onUpload: function(result) {
+					var json = JSON.stringify(result);
+					onUpload({ upload: json });
+				}
+			};
+			//]]>
+		</script>
+	</ui:define>
+	<ui:define name="master.content">
+		<c:set var="bean" value="#{capturaDocumentoBean}" />
+		<c:set var="regra" value="#{bean.regra}" />
+		<c:set var="imagens" value="#{bean.imagens}" />
+		<div class="container">
+			<h:form styleClass="form-horizontal">
+				<o:commandScript 
+					name="onUpload"
+					action="#{bean.onUpload}"
+					render="@form"
+					/>
+				<o:commandScript 
+					name="onExcluir"
+					action="#{bean.onExcluir}"
+					oncomplete="View.showModalExcluir()"
+					/>
+				<div id="carousel-document" class="carousel slide" data-ride="carousel" data-interval="false">
+					<!-- Indicators -->
+				  	<ol class="carousel-indicators">
+				  		<ui:repeat var="imagem" value="#{imagens}" varStatus="loop">
+				  			<li data-target="#carousel-document" data-slide-to="#{loop.index}" class="#{loop.index eq 0 ? 'active' : ''}" />
+				  		</ui:repeat>
+				  	</ol>
+	  				<!-- Wrapper for slides -->
+	  				<div class="carousel-inner" role="listbox">
+	  					<ui:repeat var="imagem" value="#{imagens}" varStatus="loop">
+	  						<div id="#{not empty imagem.id ? 'item:'.concat(imagem.id) : ''}" class="item #{loop.index eq 0 ? 'active' : ''}" align="center">
+	  							<h:panelGroup
+	  								layout="block"
+	  								rendered="#{imagens.size() > 1}"
+	  								styleClass="carousel-top right"
+	  								>
+		    						<span class="badge">
+										<h:outputText
+											value="#{loop.index + 1} / #{imagens.size()}"
+											/>
+									</span>
+	  							</h:panelGroup>
+		      					<img src="#{imagem.caminho}" onclick="Device.Image.open('#{imagem.caminho}')" class="img-responsive" />
+		      					<h:commandLink
+									actionListener="#{bean.excluir(imagem)}"
+					 				styleClass="btn btn-danger btn-fab bl"
+					 				style="z-index: 999999"
+					 				>
+					 				<i class="fa fa-trash-o" />
+					 			</h:commandLink>
+		    				</div>
+	  					</ui:repeat>
+	  				</div>
+	  				<!-- Controls -->
+	  				<h:outputLink
+	  					value="#carousel-document"
+	  					styleClass="left carousel-control"
+	  					pt:role="button"
+	  					pt:data-slide="prev"
+	  					rendered="#{imagens.size() > 1}">
+	    				<span class="glyphicon glyphicon-chevron-left" aria-hidden="true" />
+	  				</h:outputLink>
+	  				<h:outputLink
+	  					value="#carousel-document"
+	  					styleClass="right carousel-control"
+	  					pt:role="button"
+	  					pt:data-slide="next"
+	  					rendered="#{imagens.size() > 1}">
+	    				<span class="glyphicon glyphicon-chevron-right" aria-hidden="true" />
+	  				</h:outputLink>
+	  				<script type="text/javascript">
+		  				(function($) {
+		  					$(function() {
+		  						$('div.carousel-inner > div.item > img').css({
+		  							height: ($(window).height())			
+		  						});
+		  					});
+		  				})(jQuery);
+	  				</script>
+				</div>
+				<h:commandLink
+					actionListener="#{bean.salvar()}"
+	 				styleClass="btn btn-primary btn-fab br"
+	 				rendered="#{not empty imagens}"
+	 				>
+	 				<i class="fa fa-floppy-o" />
+	 			</h:commandLink>
+			</h:form>
+		</div>
+	</ui:define>
+</ui:composition>

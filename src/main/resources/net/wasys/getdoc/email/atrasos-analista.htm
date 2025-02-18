@@ -1,0 +1,63 @@
+<html>
+	<head>
+		<style type="text/css">
+			.tabelaAtrasos {
+				border-collapse: collapse;
+			}
+			.tabelaAtrasos td, th {
+				border: 1px black solid;
+				padding: 1px 5px 1px 5px;
+			}
+			.tabelaAtrasos a {
+				color: #3c4749;
+			}
+			.tabelaAtrasos th {
+				font-weight: bold;
+			}
+			.dataPrazo {
+				color: red;
+			}
+		</style>
+	</head>
+	<body style="width: 100%;">
+		<center>
+			<table style="width: 650px; height: 400px; text-align: left; border: 1px #f2f2f2 solid;">
+				<tr>
+					<td style="background-color: #f2f2f2; padding: 10px 20px; height: 60px;">
+						 <img src="$logoImagemUrl" width="200px"/>
+					</td>
+				</tr>
+				<tr>
+					<td style="padding: 10px 50px 50px 50px; vertical-align: top;">
+						<h3>$processos.size() requisi&ccedil;&otilde;es est&atilde;o atrasadas, aguardando sua tratativa:</h3>
+						<table class="tabelaAtrasos">
+							<tr>
+								<th nowrap='nowrap'>Tempo em Atraso</th>
+								<th nowrap='nowrap'>N&ordm;</th>
+								<th nowrap='nowrap'>Data de Envio</th>
+								<th nowrap='nowrap'>Motivo da Requisi&ccedil;&atilde;o</th>
+								<th nowrap='nowrap'>N&uacute;mero</th>
+							</tr>
+							#foreach($proc in $processos)
+								<tr>
+									<td nowrap='nowrap' class="dataPrazo">$proc.horasRestantes</td>
+									<td nowrap='nowrap'>$proc.processo.id</td>
+									<td nowrap='nowrap'>$dummyUtils.formatDateTime($proc.processo.dataEnvioAnalise)</td>
+									<td nowrap='nowrap'>$proc.processo.tipoProcesso.nome</td>
+									<td nowrap='nowrap'>$proc.numero</td>
+								</tr>
+							#end
+						</table>
+						<br><br>
+						Muito obrigado,
+						<br>GetDoc
+					</td>
+				</tr>
+				<tr>
+					<td style="background-color: #4f708c; height: 15px;"></td>
+				</tr>
+			</table>
+		</center>
+	</body>
+</html>
+

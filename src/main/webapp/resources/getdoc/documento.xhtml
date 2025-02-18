@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+	<composite:interface>
+		<composite:attribute name="documento" type="net.wasys.getdoc.domain.vo.DocumentoVO" required="true"/>
+		<composite:attribute name="bean" type="net.wasys.getdoc.bean.ProcessoEditBean" required="true"/>
+		<composite:attribute name="showDataValidade" type="java.lang.Boolean" required="false" default="#{true}"/>
+	</composite:interface>
+	<composite:implementation>
+		<style type="text/css">
+			.tooltipContent {
+				color: #fff;
+			}
+			.tooltipster-sidetip.tooltipster-punk .tooltipster-box {
+				background-color: #0f487f;
+			}
+		</style>
+		<c:set var="doc" value="#{cc.attrs.documento}"/>
+		<li class="list-group-item">
+			<div class="row">
+				<div class="col-sm-6" style="margin-bottom: 0;">
+					<div style="float: left; position: relative;">
+						<i class="fa fa-asterisk doc-required" aria-hidden="true" title="Documento obrigatório" jsf:rendered="#{doc.obrigatorio}"></i>
+						<img alt="" title="#{msg['StatusDocumento.'.concat(doc.status).concat('.label')]}" src="#{request.contextPath}/resources/images/icons/StatusDocumento-#{doc.status}.png" width="27px"/>
+						<img style="margin-top: 13px;margin-left: -6px;" jsf:rendered="#{processoEditBean.verificarVencido(doc)}" alt="" title="#{msg['StatusDocumento.VENCIDO.label']}" src="#{request.contextPath}/resources/images/icons/StatusDocumento-VENCIDO.png" class="icone-status" width="20px"/>
+						<span jsf:rendered="#{cc.attrs.bean.getCorEquivalencia(doc.tipoDocumento.id) ne null}" style="background-color:#{cc.attrs.bean.getCorEquivalencia(doc.tipoDocumento.id)};} " class="equivalencia-icon">
+							<h:outputText id="equivalentes" value="" styleClass="fa fa-fw fa fa-retweet"/>
+							<p:tooltip style="padding: 5px; max-width: 600px;" for="equivalentes" escape="false">
+								<div jsf:rendered="#{not empty cc.attrs.bean.documentosEquivalentes.get(doc.tipoDocumento.id)}">
+									<h:outputLabel value="#{msg['equivalencias.label']}"/>
+									<ul>
+										<ui:repeat value="#{cc.attrs.bean.documentosEquivalentes.get(doc.tipoDocumento.id)}" var="tipoDocumentoId">
+											<li>#{cc.attrs.bean.getNomeDocumento(tipoDocumentoId)}</li>
+										</ui:repeat>
+									</ul>
+								</div>
+								<div jsf:rendered="#{not empty cc.attrs.bean.documentosEquivalidos.get(doc.tipoDocumento.id)}">
+									<h:outputLabel value="#{msg['equivalidos.label']}"/>
+									<ul>
+										<ui:repeat value="#{cc.attrs.bean.documentosEquivalidos.get(doc.tipoDocumento.id)}" var="tipoDocumentoId">
+											<li>#{cc.attrs.bean.getNomeDocumento(tipoDocumentoId)}</li>
+										</ui:repeat>
+									</ul>
+								</div>
+							</p:tooltip>
+						</span>
+						<span jsf:rendered="#{cc.attrs.bean.isDocumentoPastaAmarela(doc.tipoDocumento.id)}" style="background-color: #F2DA00" class="equivalencia-icon">
+							<h:outputText id="pastaAmarela" value="" styleClass="fa fa-fw fa fa-warning" style="color: #0f0f0f"/>
+							<p:tooltip style="padding: 5px; max-width: 600px;" for="pastaAmarela" escape="false">
+								<div jsf:rendered="#{not empty cc.attrs.bean.irregularidadesPastaAmarelaMap.get(doc.tipoDocumento.id)}">
+									<h:outputLabel value="#{msg['irregularidade.label']}:"/>
+									<ul>
+										<li>#{cc.attrs.bean.irregularidadesPastaAmarelaMap.get(doc.tipoDocumento.id)}</li>
+									</ul>
+								</div>
+							</p:tooltip>
+						</span>
+					</div>
+					<div style="padding-left: 50px;">
+						<b doc_id="#{doc.id}" title="ID: #{doc.id}, Tipo Doc: #{doc.tipoDocumento.id}, Modelo: ${doc.modeloDocumentoId}.">
+							#{doc.nome}
+						</b>
+						<span jsf:rendered="#{not empty doc.tipoDocumento.descricao}">
+								<h:outputText id="descricaoDocumento" value="" styleClass="fa fa-fw fa-question-circle"/>
+								<p:tooltip style="padding: 5px; max-width: 600px;"
+										   for="descricaoDocumento" value="#{doc.tipoDocumento.descricao}"
+										   escape="false"/>
+							</span>
+						<span jsf:rendered="#{doc.grupoRelacionadoApagado}">
+								<h:outputText id="grupoRelacionadoApagado" value="" styleClass="fa fa-fw fa-exclamation-circle"/>
+								<p:tooltip style="padding: 5px; max-width: 600px;"
+										   for="grupoRelacionadoApagado" value="#{msg['informativoGrupoRelacionadoApagado.label']}"
+										   escape="false"/>
+						</span>
+						<br/>
+						<div style="font-size: 12px;">
+							#{msg['imagens.label']}: #{doc.countImagens} &nbsp; Versão: #{doc.versaoAtual}<br/>
+							#{msg['dataDigitalizacao.label']}: #{utilBean.getDateTimeStr(doc.dataDigitalizacao)} &nbsp; #{msg['origem.label']}: #{msg['Origem.'.concat(doc.origem).concat('.label')]}
+							<h:outputLabel for="data-validade-expiracao-id" style="font-weight: normal;" value="#{msg['dataValidadeExpiracao.label']}:&nbsp;" rendered="#{not empty doc.validadeExpiracao and cc.attrs.showDataValidade}" />
+							<h:outputText id="data-validade-expiracao-id" rendered="#{not empty doc.validadeExpiracao and cc.attrs.showDataValidade}" title="#{msg['dataValidadeExpiracao.label']}" value="#{utilBean.getDateStr(doc.validadeExpiracao)}" />
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-4" style="margin-bottom: 0;">
+					<h:panelGroup rendered="#{not empty doc.irregularidadeNome and cc.attrs.bean.autorizacao.podeVisualizarPendenciaDocumento(doc.status)}">
+						<div style="font-size: 12px; width: auto;">
+							<table jsf:rendered="#{doc.status.name().equals('PENDENTE')}">
+								<tr>
+									<td>
+										<b>#{doc.irregularidadeNome}</b><br/>
+									</td>
+									<h:panelGroup rendered="#{not empty doc.pendenciaJustificativa}">
+										<td style="vertical-align: top; padding-left: 15px;">
+											<b>#{msg['justificativa.label']}</b><br/>
+											#{doc.pendenciaJustificativa}
+										</td>
+									</h:panelGroup>
+								</tr>
+							</table>
+						</div>
+					</h:panelGroup>
+				</div>
+				<div class="col-sm-2" style="margin-bottom: 0;">
+					<div style="float: right; text-align: right;">
+						<p:commandLink class="btn btn-default btnDocumento" title="#{msg['alterarObrigatoriedade.label']}" onerror="alert('Erro!')"
+									   style="color: blue; margin-left: 5px; margin-bottom: 5px;"
+									   onsuccess="openModal('alterar-obrigatoriedade-modal');"
+									   actionListener="#{cc.attrs.bean.setDocumento(doc)}"
+									   update="form-alterarObrigatoriedade:alterar-obrigatoriedade-modal-content-id"
+									   rendered="#{!doc.documentoOutros and cc.attrs.bean.usuarioLogado.podeRemoverObrigatoriedade}">
+							<span class="fa-stack" jsf:rendered="#{doc.obrigatorio}" style="margin-left: -10px; margin-top: -3px">
+								<i class="fas fa-asterisk fa-stack-1x"></i>
+								<i class="fas fa-ban fa-stack-2x" style="color:Tomato"></i>
+							</span>
+							<span class="fa-stack" jsf:rendered="#{!doc.obrigatorio}" style="margin-left: -10px; margin-top: -3px">
+								<i class="fas fa-asterisk fa-stack-1x" aria-hidden="true"></i>
+							</span>
+						</p:commandLink>
+						<p:commandLink class="btn btn-default btnDocumento statusFacial#{doc.statusFacial}"
+								actionListener="#{cc.attrs.bean.prepararReconhecimentoFacial(doc)}" title="#{msg['reconhecimentoFacial.label']}"
+								onsuccess="openModal('reconhecimentoFacial-modal');" onerror="alert('Erro!')"
+								style="margin-left: 5px; margin-bottom: 5px; padding: 0 !important;"
+								update="form-reconhecimentoFacial:reconhecimentoFacial-modal-content-id" rendered="#{doc.faceReconhecida}">
+							<h:panelGroup rendered="#{not empty doc.statusFacial}">
+								<img alt="" src="#{request.contextPath}/resources/images/facial-branco.png" width="16px"/>
+							</h:panelGroup>
+							<h:panelGroup rendered="#{empty doc.statusFacial}">
+								<img alt="" src="#{request.contextPath}/resources/images/facial-cinza.png" width="16px"/>
+							</h:panelGroup>
+						</p:commandLink>
+						<p:commandLink class="btn btn-default btnDocumento" title="#{msg['justificar.label']}" onerror="alert('Erro!')"
+								style="color: blue; margin-left: 5px; margin-bottom: 5px;"
+							    onsuccess="openModal('justificar2-modal');"
+							    actionListener="#{cc.attrs.bean.setDocumento(doc)}"
+							    update="form-justificarDocumento:justificar2-modal-content-id"
+								rendered="#{doc.justificavel and cc.attrs.bean.autorizacao.telaCandidato eq false}">
+							<i class="fa fa-reply" aria-hidden="true"></i>
+						</p:commandLink>
+						<p:commandLink class="btn btn-default btnDocumento" style="color: red; margin-left: 5px; margin-bottom: 5px;"
+								title="#{msg['excluirDocumento.label']}" onerror="alert('Erro!')"
+								actionListener="#{cc.attrs.bean.setDocumento(doc)}"
+								oncomplete="openModal('excluirDocumento-modal');"
+								rendered="#{(podeEditar and cc.attrs.bean.autorizacao.podeExcluirDocumento(doc) and not doc.obrigatorio and (doc.status eq 'INCLUIDO' or doc.status eq 'DIGITALIZADO')) or (podeEditar and cc.attrs.bean.autorizacao.podeExcluirDocumento(doc) and doc.grupoRelacionadoApagado)}">
+							<i class="fa fa-trash" aria-hidden="true"></i>
+						</p:commandLink>
+						<p:commandLink class="btn btn-default btnDocumento ocrIcon statusOcr#{doc.statusOcr}" onclick="document.documentElement.requestFullscreen();"
+								actionListener="#{cc.attrs.bean.setDocumento(doc)}" title="#{msg['StatusOcr.'.concat(doc.statusOcr).concat('.label')]}"
+								onsuccess="openModal('visualizar-modal');" onerror="alert('Erro!')"
+								style="margin-left: 5px; margin-bottom: 5px; padding: 0 !important;"
+								update="form-visualizar:visualizar-modal-content-id" rendered="#{not empty doc.statusOcr}">
+							<div>OCR</div>
+						</p:commandLink>
+						<p:commandLink class="btn btn-default btnDocumento" actionListener="#{cc.attrs.bean.criarDigitalizacao(doc.id)}"
+								onsuccess="openModal('digitalizar-modal');" onerror="alert('Erro!')" title="#{msg['capturarDocumento.label']}"
+								update="form-digitalizar:digitalizar-modal-content-id"
+								style="margin-left: 5px; margin-bottom: 5px; padding: 0 !important;"
+								rendered="#{podeEditar and cc.attrs.bean.autorizacao.podeDigitalizarDocumento(doc) and doc.digitalizavel}">
+							<i class="fa fa-camera" aria-hidden="true" style="font-size: 16px;"></i>
+						</p:commandLink>
+						<p:commandLink class="btn btn-default btnDocumento" onclick="document.documentElement.requestFullscreen();"
+								actionListener="#{cc.attrs.bean.setDocumento(doc)}" title="#{msg['abrir.label']}"
+								onsuccess="openModal('visualizar-modal');" onerror="alert('Erro!')" style="margin-left: 5px; margin-bottom: 5px;"
+								update="form-visualizar:visualizar-modal-content-id"
+								rendered="#{cc.attrs.bean.autorizacao.podeVisualizarDocumento()}">
+							<i class="fa fa-picture-o" aria-hidden="true"></i>
+						</p:commandLink>
+					</div>
+				</div>
+			</div>
+		</li>
+	</composite:implementation>
+</html>

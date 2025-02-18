@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+
+	<composite:interface>
+		<composite:attribute name="cc.attrs.vo" type="net.wasys.getdoc.domain.vo.EmailVO" required="true"/>
+		<composite:attribute name="bean" type="net.wasys.getdoc.bean.ProcessoEditBean" required="true"/>
+		<composite:attribute name="mostrarTudo"/>
+	</composite:interface>
+
+	<composite:implementation>
+
+		<div style="border-bottom: 1px #ccc solid; margin-bottom: 20px;">
+			<div style="padding: 10px 0;">
+				E-mail enviado #{utilBean.getDateTimeStr(cc.attrs.vo.emailEnviado.dataEnvio)}h.
+			</div>
+			<i class="fa fa-paper-plane" aria-hidden="true" style="font-size: 24px; float: left; margin-top: 5px; margin-left: 10px;"></i>
+			<div style="padding-left: 50px;">
+				<div style="border: 1px #ccc solid; padding: 10px 20px 12px 20px; width: 100%; margin-bottom: 10px;">
+					<div>
+						<span style="color: #5bc0de;">Para: </span>
+						<span style="color: #aaa;">#{cc.attrs.vo.emailEnviado.destinatarios}</span>
+						<span style="color: #5bc0de;">Assunto: </span>
+						<span style="color: #aaa;">#{cc.attrs.vo.emailEnviado.codigo} #{cc.attrs.vo.emailEnviado.assunto}</span>
+					</div>
+					<span class="textoEmailEnviado_curto_#{cc.attrs.vo.emailEnviado.id}">
+						<h:outputText value="#{cc.attrs.vo.logCriacao.observacaoCurta}" escape="false"/>
+					</span>
+					<span class="textoEmailEnviado_longo_#{cc.attrs.vo.emailEnviado.id}" style="display: none;">
+						<h:outputText value="#{utilBean.stringToHTML(cc.attrs.vo.logCriacao.observacao)}" escape="false"/>
+					</span>
+					<a href="#" onclick="mostrarMaisEmailEnviado(#{cc.attrs.vo.emailEnviado.id}); return false;" class="textoEmailEnviado_curto_#{cc.attrs.vo.emailEnviado.id}"
+							style="float: right;">
+						<i style="padding-right: 10px; cursor: pointer;" class="fa fa-plus-square-o" aria-hidden="true"></i>
+					</a>
+					<a href="#" onclick="mostrarMenosEmailEnviado(#{cc.attrs.vo.emailEnviado.id}); return false;" class="textoEmailEnviado_longo_#{cc.attrs.vo.emailEnviado.id}"
+							style="display: none; float: right;">
+						<i style="padding-right: 10px; cursor: pointer;" class="fa fa-minus-square-o" aria-hidden="true"></i>
+					</a>
+					<div>
+						<ui:repeat value="#{cc.attrs.vo.logCriacao.anexos.toArray()}" var="anexo3">
+							<h:panelGroup rendered="#{utilBean.isExtensaoImagem(anexo3.extensao)}">
+								<span class="btn btn-default popImg linkAnexo" imgPath="#{utilBean.getPathImagem(anexo3)}" style="margin-right: 10px; margin-bottom: 10px;">
+									<i class="fa fa-file-image-o" aria-hidden="true"></i>
+									#{anexo3.nome}
+									#{utilBean.toFileSize(anexo3.tamanho)}
+								</span>
+        						<h:panelGroup id="pg-div-principal">
+									<div class="div-principal">
+										<div class="row colina-dir-row" style="padding-left: 340px; height: 100%;">
+											<div class="modal fade" id="imagemodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+												<b:modal id="visualizar-modal-id-email" title="#{msg['viewDocumentos.label']}" styleClass="visualizar-modal">
+													<h:panelGroup id="visualizar-modal-content-id">
+														<h:panelGroup rendered="#{not empty processoEditBean.documento}">
+															<div class="section" id="section-img1">
+																<div class="panzoom">
+																	<img id="img1" src="#{utilBean.getPathImagem(anexo)}" alt="" border="0" style="max-width: 70%; max-height: 700px; padding-top: 60px;"/>
+																</div>
+															</div>
+														</h:panelGroup>
+													</h:panelGroup>
+												</b:modal>
+											</div>
+										</div>
+									</div>
+									<div id="imgLoader" style="display: none;"></div>
+									<script type="text/javascript">
+									//<![CDATA[
+									var img1Panzoom = $('#img1').parent().panzoom({
+										$zoomIn: $('#zoomIn1'),
+										$zoomOut: $('#zoomOut1'),
+										$reset: $('#reset1')
+									});
+					
+									img1Panzoom.parent().on('mousewheel.focal', function(e) {
+										e.preventDefault();
+										var delta = e.delta || e.originalEvent.wheelDelta;
+										var zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
+										img1Panzoom.panzoom('zoom', zoomOut, {
+											increment : 0.1,
+											animate : false,
+											focal : e
+										});
+									});
+									//]]>
+									</script>
+								</h:panelGroup>
+							</h:panelGroup>
+							<h:panelGroup rendered="#{not utilBean.isExtensaoImagem(anexo3.extensao)}">
+								<span class="btn btn-default" style="margin-right: 10px; margin-bottom: 10px;">
+									<h:commandLink action="#{cc.attrs.bean.downloadAnexo(anexo3)}" styleClass="linkAnexo">
+										<i class="fa fa-file-o" aria-hidden="true"></i>
+										#{anexo3.nome}
+										#{utilBean.toFileSize(anexo3.tamanho)}
+									</h:commandLink>
+								</span>
+							</h:panelGroup>
+						</ui:repeat>
+					</div>
+				</div>
+				<ui:repeat value="#{cc.attrs.vo.emailsRecebidos}" var="er">
+					<h:panelGroup rendered="#{empty er.dataLeitura}" layout="block" style="float: left; padding-top: 20px;">
+						<c:set var="podeMarcarEmailLido" value="#{menuBean.podeEditar() and processoEditBean.autorizacao.podeMarcarEmailLido()}"/>
+						<h:panelGroup rendered="#{podeMarcarEmailLido}">
+							<p:commandLink style="color: red;"
+									title="#{msg['marcarLido.label']}" onerror="alert('Erro!')"
+									actionListener="#{processoEditBean.marcarEmailRecebidoComoLido(er)}"
+									update="form-tabs">
+								<img src="#{request.contextPath}/resources/images/icons/carta-fechada.png" style="float: left;"/>
+							</p:commandLink>
+						</h:panelGroup>
+						<h:panelGroup rendered="#{not podeMarcarEmailLido}">
+							<img title="#{msg['emailLido.label']}" src="#{request.contextPath}/resources/images/icons/carta-fechada.png" style="float: left;"/>
+						</h:panelGroup>
+					</h:panelGroup>
+					<h:panelGroup rendered="#{not empty er.dataLeitura}" layout="block" style="float: left; padding-top: 20px;">
+						<c:set var="podeMarcarEmailNaoLido" value="#{menuBean.podeEditar() and processoEditBean.autorizacao.podeMarcarEmailNaoLido()}"/>
+						<h:panelGroup rendered="#{podeMarcarEmailNaoLido}">
+							<p:commandLink style="color: red;"
+									title="#{msg['marcarNaoLido.label']}" onerror="alert('Erro!')"
+									actionListener="#{processoEditBean.marcarEmailRecebidoComoNaoLido(er)}"
+									update="form-tabs">
+								<img src="#{request.contextPath}/resources/images/icons/carta-aberta.png" style="float: left;"/>
+							</p:commandLink>
+						</h:panelGroup>
+						<h:panelGroup rendered="#{not podeMarcarEmailNaoLido}">
+								<img title="#{msg['emailNaoLido.label']}" src="#{request.contextPath}/resources/images/icons/carta-aberta.png" style="float: left;"/>
+						</h:panelGroup>
+					</h:panelGroup>
+					<div style="border: 1px #ccc solid; margin: 15px 0 15px 30px; padding: 10px 20px 12px 20px;">
+						<span style="color: #5bc0de;">
+							#{utilBean.getDateTimeStr(er.sentDate)}h De: #{er.emailFrom}
+						</span>
+						<div style="color: #aaa;">
+							#{er.subject}
+						</div>
+						<h:panelGroup rendered="#{not empty er.dataLeitura}" layout="blobk" style="padding-top: 10px; color: #5bc0de;">
+							<ui:repeat value="#{er.anexos.toArray()}" var="anexo2">
+								<h:panelGroup rendered="#{utilBean.isExtensaoImagem(anexo2.extensao)}">
+									<span class="btn btn-default popImg linkAnexo" imgPath="#{utilBean.getPathImagem(anexo2)}" style="margin-right: 10px; margin-bottom: 10px;">
+										<i class="fa fa-file-image-o" aria-hidden="true"></i>
+										#{anexo2.fileName}
+										#{utilBean.toFileSize(anexo2.tamanho)}
+									</span>
+								</h:panelGroup>
+								<h:panelGroup rendered="#{not utilBean.isExtensaoImagem(anexo2.extensao)}">
+									<span class="btn btn-defaultlinkAnexo" style="margin-right: 10px; margin-bottom: 10px;">
+										<h:commandLink action="#{cc.attrs.bean.downloadAnexoEmail(anexo2)}" styleClass="linkAnexo">
+											<i class="fa fa-file-o" aria-hidden="true"></i>
+											#{anexo2.fileName}
+											#{utilBean.toFileSize(anexo2.tamanho)}
+										</h:commandLink>
+									</span>
+								</h:panelGroup>
+							</ui:repeat>
+						</h:panelGroup>
+						<p:commandLink onerror="alert('Erro!')" style="float: right; margin-top: -20px;"
+								actionListener="#{processoEditBean.setEmailRecebido(er)}"
+								onsuccess="openModal('email-recebido-modal');"
+								update="form-email-recebido:email-recebido-modal-content-id form-tabs">
+							<i class="fa fa-plus-square-o" aria-hidden="true" style="font-size: 14px;"></i>
+						</p:commandLink>
+					</div>
+				</ui:repeat>
+			</div>
+		</div>
+
+	</composite:implementation>
+</html>

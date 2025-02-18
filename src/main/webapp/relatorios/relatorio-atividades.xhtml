@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf"
+	  xmlns:b="http://bootsfaces.net/ui" xmlns:c="http://java.sun.com/jsp/jstl/core">
+<f:metadata>
+	<f:viewAction action="#{relatorioAtividadesBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/navegacao.xhtml">
+	<ui:define name="tituloPagina">#{msg['relatorioAtividade.titulo']}</ui:define>
+	<ui:define name="conteudo">
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/tooltipster.bundle.min.css" />
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-punk.min.css" />
+		<script type="text/javascript" src="#{request.contextPath}/resources/tooltipster/js/tooltipster.bundle.min.js"></script>
+		<style type="text/css">
+			.sinteticoRow {
+				border-top: none;
+				margin: 0;
+				height: 22px;
+				width: 230%;
+			}
+			.sinteticoRow:before {
+				content: none;
+			}
+			.sinteticoRow:after {
+				content: none;
+			}
+			.sinteticoRowTitulo {
+				float: left;
+				width: 175px;
+				margin-bottom: 0 !important;
+				height: 22px;
+				padding: 5px 6px 0px;
+				overflow: hidden;
+				border-bottom: 1px #ccc solid;
+			}
+			.sinteticoRowAtiv {
+				height: 26px;
+				position: relative;
+				width: 100%;
+				border-bottom: 1px #ccc solid;
+				margin-bottom: 0 !important;
+			}
+			.sinteticoRowAtiv div {
+				position: absolute;
+				width: 40px;
+				height: 22px;
+				padding-top: 2px;
+				text-align: left;
+			}
+			.sinteticoRowProc {
+				border-bottom: 1px #ccc solid;
+				border-right: 1px #ccc solid;
+				border-left: 1px #ccc solid;
+				left: 0;
+				margin-top: 0px;
+				position: relative;
+				margin-left: 175px;
+				height: 22px;
+				width: 100%;
+				margin-bottom: 0 !important;
+				background: repeating-linear-gradient(
+						45deg,
+						transparent,
+						transparent 6px,
+						#efefef 4px,
+						#efefef 8px
+				);
+			}
+			.sinteticoRowProc div {
+				position: absolute;
+				height: 22px;
+				padding-top: 4px;
+				text-align: center;
+				overflow: hidden;
+				margin: 0;
+			}
+			.sinteticoRowProc div.even {
+				background-color: #7cb5ec;
+				color: #fff;
+				font-weight: 200;
+			}
+			.sinteticoRowProc div.odd {
+				background-color: #5891c8;
+				color: #fff;
+				font-weight: 200;
+			}
+		</style>
+		<h:form id="form">
+			<div class="row default-form">
+				<div class="col-sm-12">
+					<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+					<div class="row">
+						<div class="col-sm-1" ></div>
+						<div class="col-sm-5">
+							<div class="form-group">
+								<h:outputLabel value="#{msg['periodo.label']}"/>
+								<b:panelGrid colSpans="1,5,1,5" style="margin-bottom: -20px; margin-left: 5px;">
+									<h:outputText value="#{msg['de.label']}"/>
+									<b:inputText id="dataInicioId" value="#{relatorioAtividadesBean.filtro.dataInicio}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+												 label="#{msg['dataInicial.label']}" renderLabel="false" required="true">
+										<f:convertDateTime pattern="dd/MM/yyyy"/>
+										<f:facet name="append">
+											<i class="fa fa-calendar-o fa-12x14" />
+										</f:facet>
+									</b:inputText>
+									<h:outputText value="#{msg['ate.label']}"/>
+									<b:inputText id="dataFimId" value="#{relatorioAtividadesBean.filtro.dataFim}" placeholder="dd/mm/aaaa" styleClass="mask-date" label="#{msg['dataFinal.label']}"
+												 renderLabel="false" required="true">
+										<f:convertDateTime pattern="dd/MM/yyyy"/>
+										<f:facet name="append">
+											<i class="fa fa-calendar-o fa-12x14" />
+										</f:facet>
+									</b:inputText>
+								</b:panelGrid>
+								<b:message for="dataInicioId" showSummary="false"/>
+								<b:message for="dataFimId" showSummary="false"/>
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<div class="form-group">
+								<b:selectOneMenu value="#{relatorioAtividadesBean.filtro.tipo}" label="#{msg['tipo.label']}">
+									<f:selectItem itemValue="" itemLabel=""/>
+									<f:selectItem itemLabel="Analítico" itemValue="ANALITICO"/>
+									<f:selectItem itemLabel="Sintético" itemValue="SINTETICO"/>
+									<f:ajax event="change" render="campos-tipo-id botoes-id"/>
+								</b:selectOneMenu>
+							</div>
+						</div>
+						<div class="col-sm-1"></div>
+					</div>
+					<div class="row" jsf:id="campos-tipo-id">
+						<div class="col-sm-1" ></div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<div class="form-group">
+									<b:selectOneMenu value="#{relatorioAtividadesBean.filtro.analista}" label="#{msg['analista.label']}">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{relatorioAtividadesBean.analistas}" var="usu" itemValue="#{usu}" itemLabel="#{usu.nome}"/>
+									</b:selectOneMenu>
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h:outputLabel value="#{msg['acao.label']}" rendered="#{relatorioAtividadesBean.filtro.tipo eq 'ANALITICO'}"/>
+								<p:selectCheckboxMenu value="#{relatorioAtividadesBean.filtro.acaoArray}"
+													  style="form-control bf-no-message has-success" label="" multiple="true"
+													  filter="false" panelStyle="width:250px" converter="enumConverter"
+													  rendered="#{relatorioAtividadesBean.filtro.tipo eq 'ANALITICO'}">
+									<f:selectItems value="#{relatorioAtividadesBean.getAcoesProcesso()}" var="sp" itemLabel="#{msg['AcaoProcesso.'.concat(sp).concat('.label')]}" itemValue="#{sp}" />
+								</p:selectCheckboxMenu>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<h:outputLabel value="#{msg['status.label']}" rendered="#{relatorioAtividadesBean.filtro.tipo eq 'ANALITICO'}"/>
+							<p:selectCheckboxMenu value="#{relatorioAtividadesBean.filtro.statusArray}"
+												  style="form-control bf-no-message has-success" label="" multiple="true"
+												  filter="false" panelStyle="width:250px" converter="enumConverter"
+												  rendered="#{relatorioAtividadesBean.filtro.tipo eq 'ANALITICO'}">
+								<f:selectItems value="#{utilBean.getValues('StatusProcesso')}" var="sp" itemLabel="#{msg['StatusProcesso.'.concat(sp).concat('.label')]}" itemValue="#{sp}" />
+							</p:selectCheckboxMenu>
+						</div>
+						<div class="col-sm-1"></div>
+					</div>
+					<div class="row" jsf:id="botoes-id">
+						<div class="col-sm-1"></div>
+						<div class="col-sm-6">
+						</div>
+						<div class="col-sm-4">
+							<div class="form-group" style="float: right;">
+								<b:commandButton id="exportarId" value="#{msg['exportar.label']}" styleClass="btn btn-primary btn-md" type="button" onclick="exportarInicio()"
+												 rendered="#{relatorioAtividadesBean.filtro.tipo eq 'ANALITICO'}"/>
+								<b:commandButton id="buscarId" value="#{msg['buscar.label']}" styleClass="btn btn-primary btn-md" update="tabela-ID"
+												 style="margin-left: 10px" action="#{relatorioAtividadesBean.buscar()}" oncomplete="configurarTooltip()" onerror="alert('Erro!')"/>
+							</div>
+						</div>
+						<div class="col-sm-1"></div>
+					</div>
+				</div>
+			</div>
+			<div class="row" >
+				<div class="col-sm-12" jsf:id="tabela-ID">
+					<p:dataTable var="log" value="#{relatorioAtividadesBean.dataModel}" rows="50"
+								 scrollable="false" binding="#{ utilBean.lazyDataTable }"
+								 rendered="#{relatorioAtividadesBean.filtro.tipo eq 'ANALITICO'}">
+						<p:column headerText="#{msg['processoId.label']}" style="text-align: center; width: 120px;">
+							<img title="#{msg['StatusProcesso.'.concat(log.processo.status).concat('.label')]}" class="status-processo statusPrazo-"
+								 src="#{request.contextPath}/resources/images/icons/StatusProcesso-#{log.processo.status}.png" width="28px"/>
+							<a href="#{request.contextPath}/requisicoes/fila/edit/#{log.processo.id}" target="_blank">#{log.processo.id}</a>
+						</p:column>
+						<p:column headerText="#{msg['status.label']}" style="text-align: center; width: 140px;">
+							<h:outputText value="#{msg['StatusProcesso.'.concat(log.processo.status).concat('.label')]}" />
+						</p:column>
+						<p:column headerText="#{msg['dataCriacao.label']}" style="text-align: center; width: 120px;">
+							<h:outputText value="#{utilBean.getDateTimeStr(log.processo.dataCriacao)}" />
+						</p:column>
+						<p:column headerText="#{msg['analista.label']}" style="text-align: center;" >
+							<h:outputText value="#{log.usuario.nome}" />
+						</p:column>
+						<p:column headerText="#{msg['dataAtividade.label']}" style="text-align: center; width: 120px;">
+							<h:outputText value="#{utilBean.getDateTimeStr(log.data)}" />
+						</p:column>
+						<p:column headerText="#{msg['acao.label']}" style="text-align: center;">
+							<h:outputText value="#{msg['AcaoProcesso.'.concat(log.acao).concat('.label')]}" />
+							<h:panelGroup rendered="#{not empty log.tipoEvidencia}">
+								- <h:outputText value="#{log.tipoEvidencia.descricao}" />
+							</h:panelGroup>
+						</p:column>
+					</p:dataTable>
+
+					<div style="overflow: auto; padding-bottom: 10px;" jsf:rendered="#{relatorioAtividadesBean.filtro.tipo eq 'SINTETICO'}">
+						<div class="row sinteticoRow" style="height: 22px; border: none; margin-left: 1px; display: inline-block;">
+							<div class="sinteticoRowTitulo" style="padding-top: 8px; height: 22px; border: none;">
+								<span style="ui-column-title">Analista</span>
+							</div>
+							<div class="sinteticoRowAtiv" style="padding-top: 6px;">
+								<c:set var="leftHora" value="175"/>
+								<c:forEach var="hora" items="#{relatorioAtividadesBean.sinteticoVO.horas}">
+									<div style="border: none; left: #{leftHora}px;">#{hora}</div>
+									<c:set var="leftHora" value="#{leftHora + 40}"/>
+								</c:forEach>
+							</div>
+						</div>
+						<p:repeat value="#{relatorioAtividadesBean.sinteticoVO.atividadesMap.keySet().toArray()}" var="key" varStatus="status0">
+							<div class="row sinteticoRow">
+								<div class="sinteticoRowTitulo">
+									<span>#{relatorioAtividadesBean.sinteticoVO.getKeyFormatada(key)}</span>
+								</div>
+								<div class="sinteticoRowProc">
+									<p:repeat value="#{relatorioAtividadesBean.sinteticoVO.getAtividades(key)}" var="atividade" varStatus="status">
+										<div class="#{status.index % 2 eq 0 ? 'even' : 'odd'} tooltipar"
+											 style="
+														width: #{atividade.minutosLimite gt 0 ? atividade.minutosLimite * 2 : 2}px;
+														left: #{atividade.minutosDesdeInicio * 2}px;
+													"
+											 data-tooltip-content="#tooltipContent-#{status0.index}-#{status.index}">
+											#{atividade.count}
+										</div>
+										<div class="tooltip_templates" style="display: none;">
+												<span id="tooltipContent-#{status0.index}-#{status.index}" class="tooltipContent tooltipTable">
+													Atividades: #{atividade.count}.
+													Processo:
+													<a href="#{request.contextPath}/requisicoes/fila/edit/#{atividade.processoId}" target="_blank" style="color: #fff;">
+														#{not empty atividade.processoNumero ? atividade.processoNumero : atividade.processoId }
+													</a>
+													De #{atividade.horaInicio} a #{atividade.horaFim} (#{atividade.minutos}min)
+													<table class="relatorioTable" style="width: 660px">
+														<tr>
+															<th style="width: 60px; text-align: center;">Hora</th>
+															<th style="width: 200px; text-align: center;">Ação</th>
+															<th style="width: 400px; text-align: center;">Observação</th>
+														</tr>
+														<p:repeat value="#{atividade.acoes}" var="acao">
+															<tr>
+																<td style="text-align: center;">#{acao[0]}</td>
+																<td>#{msg['AcaoProcesso.'.concat(acao[1]).concat('.label')]}</td>
+																<td>#{utilBean.htmlToString(acao[2])}</td>
+															</tr>
+														</p:repeat>
+													</table>
+												</span>
+										</div>
+									</p:repeat>
+								</div>
+							</div>
+						</p:repeat>
+						<script type="application/javascript">
+
+							function configurarTooltip() {
+								$('.tooltipar').tooltipster({
+									theme: 'tooltipster-punk',
+									animation: 'grow',
+									interactive: true
+								});
+							}
+
+							$(document).ready(function() {
+								configurarTooltip();
+							});
+
+						</script>
+					</div>
+				</div>
+			</div>
+			<p:remoteCommand name="exportar" actionListener="#{relatorioAtividadesBean.exportar()}" oncomplete="verificarNoBean()" />
+			<p:remoteCommand name="verificarNoBean" actionListener="#{relatorioAtividadesBean.verificar()}" oncomplete="verificar()"/>
+			<b:commandButton id="baixar-id" style="display: none;" action="#{relatorioAtividadesBean.baixar}"/>
+		</h:form>
+		<script type="text/javascript">
+			//overhide pra não bloquear
+			function bloquearCampos() {}
+
+			function exportarInicio() {
+				this.disabled = true;
+				waitingDialog.show('Aguarde...');
+				exportar();
+			}
+
+			function baixar() {
+				document.getElementById('form:baixar-id').click();
+				waitingDialog.hide();
+			}
+
+			function verificar() {
+
+				var data = OmniFaces.Ajax.data;
+				var terminou = data.terminou;
+
+				if(terminou) {
+					baixar();
+				}
+				else if (terminou == false) {
+					setTimeout(verificarNoBean, 2000);
+				}
+			}
+
+		</script>
+	</ui:define>
+</ui:composition>
+</html>

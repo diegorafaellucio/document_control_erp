@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+	<f:metadata>
+		<f:viewParam name="id" value="#{regraTesteBean.regraId}" />		
+		<f:viewAction action="#{regraTesteBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="head">
+			<link href="#{request.contextPath}/resources/css/fluxograma-subregras.css" rel="stylesheet"/>
+			<link href="#{request.contextPath}/resources/css/prism.css" rel="stylesheet"/>
+		</ui:define>
+		<ui:define name="tituloPagina">#{msg['testeRegra.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<c:set var="bean" value="#{regraTesteBean}" />
+			<o:importConstants type="net.wasys.getdoc.domain.enumeration.TipoSubRegra" />
+			<o:importConstants type="net.wasys.getdoc.domain.enumeration.FarolRegra" />
+			<h:form id="form-dependencias-id">
+				<b:messages id="form-dependencias-msg-id" globalOnly="true" showSummary="true" />
+				<div class="row default-form">
+					<div class="col-sm-12">
+						<h4 class="tituloForm">
+							<h:outputText value="#{bean.regra.nome}"/>
+							<a href="#{request.contextPath}/cadastros/regras/subregras/#{bean.regra.id}" class="btn btn-default" style="padding: 0 10px !important;">
+								<img src="#{request.contextPath}/resources/images/tree.png" alt="" style="width: 18px;"/>
+							</a>
+						</h4>
+						<div class="row">
+							<div class="col-sm-10 col-sm-offset-1">
+								<c:forEach items="#{bean.dependencias.keySet().toArray()}" var="fonte" >
+									<c:forEach items="#{bean.dependencias.get(fonte).toArray()}" var="origemValor">
+										<div class="col-sm-6" style="padding-left: 0;">
+											<div class="form-group">
+												<h:outputLabel for="dependencia_#{origemValor.origem}" styleClass="control-label" style="width: 100%;">
+													<span style="color: #337ab7; float: right; cursor: pointer; margin-right: 5px;" title="Sub-Regras que utilizam esses campos: #{origemValor.subRegraId}">
+														<i class="fa fa-info" aria-hidden="true"></i>
+													</span>
+													#{dependencia.fonte}#{origemValor.origem}
+												</h:outputLabel>
+												<input id="dependencia_#{origemValor.origem}" type="text" name="dependencia_#{fonte}#{origemValor.origem}" class="form-control" maxlength="200"/>
+											</div>
+										</div>
+									</c:forEach>
+								</c:forEach>
+							</div>
+							<div class="col-sm-10 col-sm-offset-1">
+								<b:commandButton value="#{msg['testarRegra.label']}" styleClass="btn btn-primary btn-md" action="#{bean.testarRegra()}" ajax="true"
+										update="form-sub-regra-list form-dependencias-msg-id" style="float: right; margin-right: 15px;" upstyle="margin-top: 24px;"/>
+							</div>
+						</div>
+					</div>
+				</div>
+			</h:form>
+			
+			<h:form id="form-sub-regra-list">
+				<div class="row" jsf:id="fluxograma-id">
+					<div class="col-md-10 col-md-offset-1">
+						<div class="row default-form" jsf:rendered="#{not empty bean.processoRegra}">
+							<div class="col-sm-12">
+								<h4 class="tituloForm">
+									<span onclick="mostrarMenosSumario('sumario')" style="cursor: pointer;" class="hide-sumario">
+										<i style="padding-right: 10px;" class="fa fa-minus-square-o" aria-hidden="true"></i>Sumário
+									</span>
+									<span onclick="mostrarMaisSumario('sumario')" style="display: none; cursor: pointer;" class="show-sumario">
+										<i style="padding-right: 10px;" class="fa fa-plus-square-o" aria-hidden="true"></i>Sumário
+									</span>
+								</h4>
+								<getdoc:sumarioRegra processoRegra="#{bean.processoRegra}"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<script type="text/javascript">
+				//<![CDATA[
+					function mostrarMenosSumario(id) {
+						$('.hide-' + id).hide();
+						$('.show-' + id).show();
+						$('div', '.row-' + id).not('.modal').hide(300);
+					}
+		
+					function mostrarMaisSumario(id) {
+						$('.hide-' + id).show();
+						$('.show-' + id).hide();
+						$('div', '.row-' + id).not('.modal').show(300);
+					}
+				//]]>
+				</script>
+				
+				<div class="row">
+					<div class="col-md-8 col-md-offset-2">
+						<getdoc:fluxogramaRegra processoRegraLogs="#{bean.processoRegra.processoRegraLogs}"/>
+					</div>
+				</div>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

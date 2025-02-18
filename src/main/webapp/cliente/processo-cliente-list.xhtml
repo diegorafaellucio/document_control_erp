@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+	<f:metadata>
+		<f:viewAction action="#{processoClienteListBean.consultar()}" onPostback="false" />
+	</f:metadata>
+	<ui:composition template="/templates/border-cliente.xhtml">
+		<ui:define name="titulo">Consulta cliente</ui:define>
+		<ui:define name="head">
+			<link href="#{request.contextPath}/resources/css/visualizacao.css" rel="stylesheet" type="text/css" />
+			<script src="#{request.contextPath}/resources/js/visualizacao.js"></script>
+			<style>
+				.panel-heading a:after {
+					margin-top: -25px !important;
+				}
+			</style>
+		</ui:define>
+		<ui:define name="conteudo">
+			<h:form id="form-justificar">
+				<b:modal id="justificar-modal-id" title="#{msg['justificarDocumento.label']}" styleClass="justificar-modal" style="z-index: 9999;">
+					<input type="hidden" id="docId" name="docId"/>
+					<b:row id="justificar-modal-content-id">
+						<div class="col-sm-12">
+
+							<b:messages id="justificar-messages" globalOnly="true" showSummary="true"/>
+
+							<div style="padding-left: 30px;">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['documento.label']}:"/>
+									<span id="nomeDocumento"></span>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['observacao.label']} *"/>
+									<textarea name="observacao" rows="5" cols="50" class="form-control"></textarea>
+								</div>
+							</div>
+						</div>
+						<h:panelGroup rendered="#{fecharModal}">
+							<script type="text/javascript">
+								$('.justificar-modal').modal('hide');
+							</script>
+						</h:panelGroup>
+					</b:row>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="default" onclick="closeModal('justificar-modal'); return false;"/>
+						<p:commandButton value="#{msg['justificar.label']}" styleClass="btn" oncomplete=""
+								actionListener="#{processoClienteListBean.justificarDocumento()}" onerror="alert('Erro!')" 
+								update="form-justificar:justificar-modal-content-id justificar-messages form-processos"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-evidencia">
+				<b:modal id="evidencia-modal-id" title="#{msg['AcaoProcesso.REGISTRO_EVIDENCIA.label']}" styleClass="evidencia-modal">
+					<h:panelGroup id="evidencia-modal-content-id">
+						<b:row rendered="#{not empty processoClienteListBean.evidenciaVO}">
+							<b:growl id="growl-evidencia-id" placementFrom="bottom" allowDismiss="true" animationEnter="animated bounceInDown" animationExit="animated flipOutX"/>
+							<div class="col-sm-12">
+								<b:messages id="messages-evidencia" globalOnly="true" showSummary="true"/>
+								<h:panelGroup rendered="#{processoClienteListBean.evidenciaVO.showTipoEvidencia}">
+									<div class="form-group">
+										<b:selectOneMenu value="#{processoClienteListBean.evidenciaVO.tipoEvidencia}" label="#{msg['tipoEvidencia.label']}" required="true">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{processoClienteListBean.tiposEvidencias}" var="tipoEvidencia" itemValue="#{tipoEvidencia}" itemLabel="#{tipoEvidencia.descricao}"/>
+										</b:selectOneMenu>
+										<b:message/>
+									</div>
+								</h:panelGroup>
+								<h:panelGroup rendered="#{processoClienteListBean.evidenciaVO.showSituacao}">
+									<div class="form-group">
+										<b:selectOneMenu value="#{processoClienteListBean.evidenciaVO.situacao}" label="#{msg['situacao.label']}" required="true">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{processoClienteListBean.situacoes}" var="situacao" itemValue="#{situacao}" itemLabel="#{situacao.nome}"/>
+										</b:selectOneMenu>
+										<b:message/>
+									</div>
+								</h:panelGroup>
+								<h:panelGroup rendered="#{processoClienteListBean.evidenciaVO.showPrazoDias}">
+									<div class="form-group">
+										<b:inputText value="#{processoClienteListBean.evidenciaVO.prazoDias}" styleClass="mask-number" label="#{msg['prazoDias.label']}" required="true"/>
+										<b:message/>
+									</div>
+								</h:panelGroup>
+								<div class="form-group">
+									<b:inputTextarea value="#{processoClienteListBean.evidenciaVO.observacaoTmp}" label="#{msg['observacao.label']}" renderLabel="true"
+											maxlength="3000"/>
+									<b:message/>
+								</div>
+								<h:outputLabel for="anexo" value="#{msg['anexos.label']}"/>
+								<h:panelGroup id="lista-anexos-evidencia">
+									<ui:repeat value="#{processoClienteListBean.evidenciaVO.arquivos}" var="anexo">
+										<div style="padding-bottom: 5px;">
+											<p:commandLink class="btn btn-default" onerror="alert('Erro!')" immediate="true"
+													actionListener="#{processoClienteListBean.removerAnexo(anexo)}"
+													update="form-evidencia:lista-anexos-evidencia">
+												x
+											</p:commandLink>
+											<span style="padding-left: 5px;">#{anexo.name}</span>
+											<span style="padding-left: 15px;">#{anexo.length}</span>
+										</div>
+									</ui:repeat>
+								</h:panelGroup>
+									<h:form id="form-anexo-upload" enctype="multipart/form-data" >
+									<p:fileUpload
+											id="anexo" styleClass="anexo-evidencia"
+											cancelLabel="#{msg['cancelar.label']}"
+											label="#{msg['escolherArquivo.label']}"
+											auto="true" update="form-evidencia:lista-anexos-evidencia form-evidencia:growl-evidencia-id form-anexo-upload"
+											listener="#{processoClienteListBean.uploadAnexo}"
+											oncomplete="$('#ajaxLoaderImg').hide()"
+											multiple="true" fileLimit="5" sizeLimit="#{utilBean.getFileSizeLimit()}">
+									</p:fileUpload>
+									<script type="text/javascript">
+									//<![CDATA[
+										hideMessage(3000);
+										configurarMascaras();
+									//]]>
+									</script>
+								</h:form>
+								<o:commandScript name="uploadPrintEv" action="#{processoClienteListBean.uploadPrintEvidencia}" render="lista-anexos-evidencia form-anexo-upload growl-evidencia-id"/>
+								<b:message/>
+							</div>
+						</b:row>
+						<h:panelGroup rendered="#{empty processoClienteListBean.evidenciaVO}">
+							<script type="text/javascript">
+								$('.evidencia-modal').modal('hide');
+							</script>
+						</h:panelGroup>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="default" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['salvar.label']}" styleClass="btn"
+								actionListener="#{processoClienteListBean.salvarEvidencia()}" onerror="alert('Erro!')"
+								update="evidencia-modal-content-id form-processos"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-digitalizar">
+				<b:modal id="digitalizar-modal-id" title="#{msg['uploadDocumentos.label']}" styleClass="digitalizar-modal">
+					<h:panelGroup id="digitalizar-modal-content-id">
+						<b:row rendered="#{not empty processoClienteListBean.digitalizacaoVO}">
+							<b:growl id="growl-digitalizar-id" placementFrom="bottom" allowDismiss="true" animationEnter="animated bounceInDown" animationExit="animated flipOutX"/>
+							<div class="col-sm-12">
+								<b:messages id="messages-digitalizar" globalOnly="true" showSummary="true"/>
+								<h:outputLabel for="anexo" value="#{msg['anexos.label']}"/>
+								<h:panelGroup id="lista-anexos-digitalizar">
+									<ui:repeat value="#{processoClienteListBean.digitalizacaoVO.arquivos}" var="anexo">
+										<div style="padding-bottom: 5px;">
+											<p:commandLink class="btn btn-default" onerror="alert('Erro!')" immediate="true"
+													actionListener="#{processoClienteListBean.removerAnexo(anexo)}"
+													update="form-digitalizar:lista-anexos-digitalizar">
+												x
+											</p:commandLink>
+											<span style="padding-left: 5px;">#{anexo.name}</span>
+											<span style="padding-left: 15px;">#{anexo.length}</span>
+										</div>
+									</ui:repeat>
+								</h:panelGroup>
+									<h:form id="form-anexo-upload" enctype="multipart/form-data" >
+									<p:fileUpload
+											id="anexo" styleClass="anexo-evidencia"
+											cancelLabel="#{msg['cancelar.label']}"
+											label="#{msg['escolherArquivo.label']}"
+											auto="true" update="form-digitalizar:lista-anexos-digitalizar form-digitalizar:growl-digitalizar-id form-anexo-upload"
+											listener="#{processoClienteListBean.uploadAnexo}"
+											accept="image/*,application/pdf" allowTypes="/(\.|\/)(gif|jpe?g|png|tiff|pdf)$/"
+											oncomplete="$('#ajaxLoaderImg').hide()"
+											multiple="true" fileLimit="10" sizeLimit="#{utilBean.getFileSizeLimit()}">
+									</p:fileUpload>
+									<script type="text/javascript">
+									//<![CDATA[
+										hideMessage(3000);
+									//]]>
+									</script>
+								</h:form>
+								<b:message/>
+							</div>
+						</b:row>
+						<h:panelGroup rendered="#{empty processoClienteListBean.digitalizacaoVO}">
+							<script type="text/javascript">
+								$('.digitalizar-modal').modal('hide');
+							</script>
+						</h:panelGroup>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="default" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['salvar.label']}" styleClass="btn"
+								actionListener="#{processoClienteListBean.salvarDigitalizacao()}" onerror="alert('Erro!')"
+								update="digitalizar-modal-content-id form-processos form-processos"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-processos">
+				<div class="row default-form">
+					<div class="col-sm-5">
+						<h4 class="tituloForm"><h:outputText value="Para consultar o andamento de uma requisição:"/></h4>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{processoClienteListBean.filtro.processoId}" label="#{msg['numero.label']}"
+											renderLabel="true" maxlength="10" required="true" />
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<b:inputText value="#{processoClienteListBean.filtro.cpfCnpj}" styleClass="mask-nome-cnpj"
+											maxlength="18" required="true" label="#{msg['TipoEntradaCampo.CPF_CNPJ.label']}" />
+									<b:message/>
+								</div>
+								<div class="form-group" style="float: right;">
+									<b:commandButton value="#{msg['buscar.label']}" styleClass="btn btn-primary btn-md"
+											ajax="true" action="#{processoClienteListBean.consultar()}" update="form-processos messages"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-1"></div>
+					<div class="col-sm-5">
+						<h4 class="tituloForm"><h:outputText value="Clique abaixo para novas requisições:"/></h4>
+						<div class="row">
+							<div class="col-sm-12" style="text-align: center;">
+								<br/>
+								<a href="#{request.contextPath}/cliente/nova-requisicao/" class="btn btn-primary" style="vertical-align: bottom;">
+									Nova Requisições
+								<br/>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+					<p:repeat var="vo" value="#{processoClienteListBean.list}">
+						<h:form>
+							<div class="panel panel-default">
+								<div class="panel-heading" role="tab" id="headingOne#{vo.id}" style="background-color: #ebebeb;">
+									<h4 class="panel-title">
+										<p:commandLink pt:data-toggle="collapse" pt:data-parent="#accordion" pt:href="#collapseOne#{vo.id}"
+												pt:aria-controls="collapseOne_#{vo.id}" style="text-decoration: none;">
+											<div class="row">
+												<div class="col-sm-3" style="margin-bottom: 0;">
+													<img alt="" title="#{msg['StatusProcesso.'.concat(vo.status).concat('.label')]}" class="status-processo"
+															src="#{request.contextPath}/resources/images/icons/StatusProcesso-#{vo.status}.png" width="24px"/>
+													#{msg['StatusProcesso.'.concat(vo.status).concat('.label')]}
+												</div>
+												<div class="col-sm-4" style="margin-bottom: 0;">
+													<h:outputLabel value="Nº" styleClass="bf-no-message"/>:
+													<h:outputText value="#{vo.id}"/> - #{vo.tipoProcesso.nome}
+												</div>
+												<div class="col-sm-4" style="margin-bottom: 0;">
+													<h:outputLabel value="#{msg['dataEnvioAnalise.label']}" styleClass="bf-no-message"/>:
+													<h:outputText value="#{utilBean.getDateTimeStr(vo.dataEnvioAnalise)}"/>
+												</div>
+											</div>
+										</p:commandLink>
+									</h4>
+								</div>
+								<div id="collapseOne#{vo.id}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne_#{vo.id}"
+										style="padding: 0 10px 10px 50px;">
+									<div class="row">
+										<div class="col-sm-12">
+											<div class="row" style="margin-left: 0;">
+												<div class="col-sm-12" style="padding-left: 0; padding-top: 10px;">
+													<div style="color: #cc092f;">
+														#{msg['StatusProcesso.'.concat(vo.status).concat('.label')]}
+													</div>
+													<div style="padding-left: 28px; padding-top: 5px; color: #5bc0de;">
+														#{msg['StatusProcesso.'.concat(vo.status).concat('-desc.label')]}
+													</div>
+												</div>
+											</div>
+											<ui:repeat value="#{vo.gruposCampos.toArray()}" var="grupo" varStatus="grupoListStatus">
+												<div class="row" style="margin-left: 0;">
+													<h:panelGroup rendered="#{not empty grupo.nome}">
+														<h5 class="tituloForm" style="margin-right: 50px;">
+															<i class="fa fa-file-text-o" aria-hidden="true" style="padding-right: 10px;"></i>
+															<h:outputText value="#{grupo.nome}"/>
+														</h5>
+													</h:panelGroup>
+													<div class="col-sm-6 campos-grupo-#{grupo.id}" style="margin-bottom: 0;">
+														<ui:repeat value="#{processoClienteListBean.getCampos1(grupo, vo)}" var="campo">
+															<div class="row">
+																<div class="col-sm-4">
+																	<h:outputLabel value="#{utilBean.capitalize(campo.nome)}" styleClass="bf-no-message"/>:
+																</div>
+																<div class="col-sm-8">
+																	<h:outputText value="#{campo.valor}"/>
+																</div>
+															</div>
+														</ui:repeat>
+													</div>
+													<div class="col-sm-6 campos-grupo-#{grupo.id}" style="margin-bottom: 0;">
+							 							<ui:repeat value="#{processoClienteListBean.getCampos2(grupo, vo)}" var="campo">
+															<div class="row">
+																<div class="col-sm-4">
+																	<h:outputLabel value="#{utilBean.capitalize(campo.nome)}" styleClass="bf-no-message"/>:
+																</div>
+																<div class="col-sm-8">
+																	<h:outputText value="#{campo.valor}"/>
+																</div>
+															</div>
+														</ui:repeat>
+													</div>
+												</div>
+											</ui:repeat>
+										</div>
+									</div>
+									<h:panelGroup id="documentosTab-content">
+										<b:row rendered="#{not empty processoClienteListBean.getDocumentos(vo)}">
+											<div class="col-sm-12">
+												<ul class="list-group">
+													<div style="color: #cc092f; padding-bottom: 5px; cursor: pointer;" onclick="$('#div-tabela').toggle(300);">
+														<h:outputText value="#{msg['orientacoes-documentos-cliente2.label']}" escape="false"/>
+													</div>
+													<ui:repeat value="#{processoClienteListBean.getDocumentos(vo)}" var="documento">
+														<li class="list-group-item">
+															<div class="row">
+																<div class="col-sm-4" style="margin-bottom: 0;">
+																	<div style="float: left">
+																		<img alt="" title="#{msg['StatusDocumento.'.concat(documento.status).concat('.label')]}" src="#{request.contextPath}/resources/images/icons/StatusDocumento-#{documento.status}.png" width="27px"/>
+																	</div>
+																	<div style="padding-left: 50px;">
+																		<b>#{documento.nome}</b><br/>
+																		<div style="font-size: 12px;">
+																			#{msg['imagens.label']}: #{documento.imagens.size()}.<br/>
+																			#{msg['dataDigitalizacao.label']}: #{utilBean.getDateTimeStr(documento.dataDigitalizacao)}
+																		</div>
+																	</div>
+																</div>
+																<div class="col-sm-6" style="margin-bottom: 0;">
+																	<h:panelGroup rendered="#{not empty documento.irregularidadeNome}">
+																		<div style="font-size: 15px; width: auto;">
+																			<table>
+																				<tr>
+																					<td>
+																						<h:panelGroup layout="block" styleClass="alert alert-danger" rendered="#{documento.isPendente()}">
+																							<b>#{documento.irregularidadeNome}</b><br/>
+																							#{documento.pendenciaObservacao}
+																						</h:panelGroup>
+																					</td>
+																					<h:panelGroup rendered="#{not empty documento.pendenciaJustificativa}">
+																						<td style="vertical-align: top; padding-left: 15px;">
+																							<b>#{msg['justificativa.label']}</b><br/>
+																							#{documento.pendenciaJustificativa}
+																						</td>
+																					</h:panelGroup>
+																				</tr>
+																			</table>
+																		</div>
+																	</h:panelGroup>
+																</div>
+																<div class="col-sm-2" style="margin-bottom: 0;">
+																	<div style="float: right;">
+																		<p:commandLink class="btn btn-default" title="#{msg['justificar.label']}" onerror="alert('Erro!')" style="color: blue; margin-left: 5px; margin-bottom: 5px;"
+																				onclick="abrirJustificar2(#{documento.id}, '#{documento.nome}');return false;"
+																				rendered="#{documento.justificavel}">
+																			<i class="fa fa-reply" aria-hidden="true"></i>
+																		</p:commandLink>
+																		<p:commandLink class="btn btn-default" actionListener="#{processoClienteListBean.criarDigitalizacao(processo, documento.id)}"
+																				onsuccess="openModal('digitalizar-modal');" onerror="alert('Erro!')"
+																				update="form-digitalizar:digitalizar-modal-content-id"
+																				style="margin-left: 5px; margin-bottom: 5px; #{documento.isPendente() ? 'color: #cc092f; border-color: #cc092f;' : ''}"
+																				rendered="#{processoClienteListBean.podeDigitalizarDocumento(vo)}">
+																			<i class="fa fa-camera" aria-hidden="true" style="font-size: 16px;"></i>
+																		</p:commandLink>
+																	</div>
+																</div>
+															</div>
+														</li>
+													</ui:repeat>
+												</ul>
+											</div>
+										</b:row>
+									</h:panelGroup>
+									<c:set var="pendencia" value="#{processoClienteListBean.getPendencia(vo)}"/>
+									<h:form id="form-processo-pendencia2" rendered="#{not empty pendencia}">
+										<div class="row">
+											<div class="col-sm-12">
+												<div>
+													<div style="padding: 0 0 10px 0; color: #cc092f;">
+														Descrição da pendência desta requisição. Para solucionar, clique em "Responder/Reenviar".
+													</div>
+													<img alt="" title="#{msg['StatusProcesso.PENDENTE.label']}" style="float: left;" width="27px"
+															src="#{request.contextPath}/resources/images/icons/StatusProcesso-PENDENTE.png"/>
+													<div style="padding-left: 50px;">
+														<div style="border: 1px #ccc solid; padding: 10px 20px 10px 20px; margin-bottom: 10px;">
+															<div style="color: #5bc0de;">
+																Registrada em #{utilBean.getDateTimeStr(processoClienteListBean.getPendencia(vo).pendencia.dataCriacao)}
+															</div>
+															<c:set var="observacaoPendencia" value="#{pendencia.logCriacao.observacao}"/>
+															<h:panelGroup layout="block" style="1px black solid; padding: 10px 20px" styleClass="alert alert-danger"
+																	rendered="#{not empty observacaoPendencia}">
+																<h:outputText value="#{utilBean.stringToHTML(observacaoPendencia)}" escape="false"/>
+															</h:panelGroup>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</h:form>
+									<h:panelGroup layout="block" style="margin-bottom: 30px;" rendered="#{processoClienteListBean.podeResponderPendencia(vo)}">
+										<h:panelGroup rendered="#{not empty processoClienteListBean.getItemPendente(vo)}" style="margin-top: -12px; margin-left: 5px; float: right;" layout="block">
+											<getdoc:itemPendenteButton id="reenviarParaAnalise-btn-id" label="#{msg['responderReenviar.label']}" itemPendente="#{processoClienteListBean.getItemPendente(vo)}"/>
+										</h:panelGroup>
+										<h:panelGroup rendered="#{empty processoClienteListBean.getItemPendente(vo)}">
+											<p:commandLink class="btn btn-primary btn-lg" onerror="alert('Erro!')"
+													actionListener="#{processoClienteListBean.criarRespostaPendencia(vo)}" style="margin-right: 20px; margin-top: -12px; float: right;"
+													onsuccess="openModal('evidencia-modal'); $('h4', '.evidencia-modal').html('#{msg['AcaoProcesso.RESPOSTA_PENDENCIA.label']}')"
+													update="form-evidencia:evidencia-modal-content-id">
+												#{msg['responderReenviar.label']}
+											</p:commandLink>
+										</h:panelGroup>
+									</h:panelGroup>
+									<div class="row">
+										<div class="col-sm-12" style="padding-right: 50px;">
+											<h:panelGroup id="tabela-logs">
+												<div style="color: #cc092f; padding-bottom: 5px; text-decoration: underline; cursor: pointer;" onclick="$('#div-tabela').toggle(300);">
+													<i class="fa fa-history" aria-hidden="true"></i>
+													Ver histórico de atividades da requisição
+												</div>
+												<div id="div-tabela" style="display: none;">
+													<p:dataTable var="log" value="#{processoClienteListBean.getLogs(vo)}" emptyMessage="#{msg['emptyMessage.label']}"
+															rendered="#{not empty processoClienteListBean.getLogs(vo)}">
+														<p:column headerText="#{msg['data.label']}" style="width: 120px; text-align: center;" sortBy="#{log.data}">
+															<h:outputText value="#{utilBean.getDateTimeStr(log.data)}" />
+														</p:column>
+														<p:column headerText="#{msg['acao.label']}" style="text-align: center; width: 250px;">
+															<h:outputText value="#{msg[log.acaoKey]}" />
+															<h:outputText value=" - #{log.documento.nome}" rendered="#{not empty log.documento}"/>
+														</p:column>
+														<p:column headerText="#{msg['observacao.label']}" style="text-align: center;">
+															#{log.observacao}
+														</p:column>
+													</p:dataTable>
+												</div>
+											</h:panelGroup>
+										</div>
+									</div>
+								</div>
+							</div>
+						</h:form>
+					</p:repeat>
+				</div>
+				<script>
+					$(function() {
+						$("#accordion").find('.panel-collapse:first').addClass("in");
+					});
+					
+					jQuery(function($) {
+						configurarMascaras();
+						configurarDatePicker();
+					});
+					
+				</script>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

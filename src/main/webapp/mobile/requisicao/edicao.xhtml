@@ -1,0 +1,352 @@
+<ui:composition template="/mobile/master.xhtml"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc"
+	xmlns:gd="http://xmlns.jcp.org/jsf/component"
+	>
+	<f:metadata>
+		<f:viewParam name="id" value="#{edicaoRequisicaoBean.id}" />
+		<f:viewParam name="origem" value="#{edicaoRequisicaoBean.origem}" />
+		<f:event type="preRenderView" listener="#{edicaoRequisicaoBean.init}" />
+	</f:metadata>
+	<ui:define name="master.style">
+		<style type="text/css">
+			ul.dropdown-menu.acoes {
+				margin-left: 4px;
+				margin-bottom: 4px !important;
+			}
+		</style>
+	</ui:define>
+	<ui:define name="master.script">
+		<c:set var="bean" value="#{edicaoRequisicaoBean}" />
+		<script type="text/javascript">
+			//<![CDATA[
+			Device = {
+				onReady: function() {
+					Device.initialize(#{bean.deviceInitializeScript});
+				},
+				onTapped: function(id) {
+					if (id == 1) {
+						editar();
+					} else if (id == 2) {
+						location.href = '#{request.contextPath}/mobile/requisicao/fila.xhtml'
+					} else if (id == 3) {
+						location.href = '#{request.contextPath}/mobile/pesquisa/lista.xhtml'
+					}
+				},
+				onUpload: function(result) {
+					var json = JSON.stringify(result);
+					onUpload({ upload: json });
+				}
+			};
+			View = {
+				onCameraClick: function() {
+					Device.Image.upload({
+						types: ['png', 'jpg', 'jpeg']
+					});
+				},
+				Evidencia: {
+					show: function() {
+						$('#reenviar-modal').modal()
+					},
+					onSalvarAjaxHandler: function() {
+						return Ajax.onSuccess(function() {
+							$('#reenviar-modal').modal('hide');
+						});
+					}
+				}
+			};
+			//]]>
+		</script>
+	</ui:define>
+	<ui:define name="master.content">
+		<c:set var="bean" value="#{edicaoRequisicaoBean}" />
+		<c:set var="regra" value="#{bean.regra}" />
+		<c:set var="processo" value="#{bean.processo}" />
+		<c:set var="imagens" value="#{bean.imagens}" />
+		<c:set var="evidencia" value="#{bean.evidencia}" />
+		<getdoc:headerRequisicao numMenu="1" bean="#{bean}"/>
+		<div class="container">
+			<h:form style="padding-top: 15px;">
+				<o:commandScript
+					name="editar"
+					actionListener="#{bean.editar}"
+					render="panelCampos panelButtons"
+					/>
+				<o:commandScript
+					name="onUpload"
+					action="#{bean.onUpload}"
+					render="#{panelImagens.clientId}"
+					/>
+				<div class="secao">
+					<h:outputText value="#{msg['dadosProcesso.label']}"/>
+				</div>
+				<div class="form-group">
+					<h:outputLabel
+						value="#{msg['situacao.label']}"
+						/>
+					<h:outputText
+						value="#{processo.situacao.nome}"
+						styleClass="readonly"
+						/>
+	 			</div>
+	 			<div class="form-group">
+					<h:outputLabel
+						value="#{msg['tipoProcesso.label']}"
+						/>
+					<h:outputText
+						value="#{processo.tipoProcesso.nome}"
+						styleClass="readonly"
+						/>
+	 			</div>
+	 			<div class="form-group">
+					<h:outputLabel
+						value="#{msg['tempoRestante.label']}"
+						/>
+					<h:outputText
+						value="#{bean.horasRestantes}"
+						styleClass="readonly"
+						/>
+	 			</div>
+	 			<div class="form-group">
+					<h:outputLabel
+						value="#{msg['dataCriacao.label']}"
+						/>
+					<h:outputText
+						value="#{processo.dataCriacao}"
+						styleClass="readonly"
+						>
+						<f:convertDateTime pattern="dd/MM/yyyy HH:mm" locale="pt_BR" />
+					</h:outputText>
+	 			</div>
+	 			<div class="form-group">
+					<h:outputLabel
+						value="#{msg['dataEnvioAnalise.label']}"
+						/>
+					<h:outputText
+						value="#{processo.dataEnvioAnalise}"
+						styleClass="readonly"
+						>
+						<f:convertDateTime pattern="dd/MM/yyyy HH:mm" locale="pt_BR" />
+					</h:outputText>
+	 			</div>
+	 			<h:panelGroup id="panelCampos" layout="block" class="camposPanel">
+		 			<ui:repeat var="grupo" value="#{bean.grupos}">
+						<div class="secao text-danger">
+							<h:outputText
+								value="#{grupo.nome}"
+								styleClass="capitalized"
+								/>
+						</div>
+						<ui:repeat var="campo" value="#{bean.getCamposBy(grupo)}">
+							<h:panelGroup
+								layout="block"
+								styleClass="form-group"
+								rendered="#{bean.edicao}"
+								>
+								<gd:campo campo="#{campo}" edit="#{true}"/>
+							</h:panelGroup>
+							<h:panelGroup
+								layout="block"
+								styleClass="form-group"
+								rendered="#{not bean.edicao}"
+								>
+								<h:outputLabel
+									value="#{campo.nome.toLowerCase()}"
+									styleClass="capitalized"
+			 						/>
+			 					<h:outputText
+                                        value="#{campo.valor}"
+                                        styleClass="readonly"
+									/>
+							</h:panelGroup>
+						</ui:repeat>
+					</ui:repeat>
+					<h:panelGroup rendered="#{bean.edicao}">
+						<script type="text/javascript">
+							$("html, body").animate({ scrollTop: $('.camposPanel').offset().top }, 500);
+						</script>
+					</h:panelGroup>
+	 			</h:panelGroup>
+
+	 			<h:panelGroup id="panelButtons" layout="block" styleClass="dropdown" rendered="#{bean.mostrarAcoes()}">
+	       			<h:outputLink styleClass="btn btn-default btn-block" actionListener="#{bean.salvarCampos()}" rendered="#{bean.edicao}">
+	      				<i class="fa fa-save fa-fw" />
+	      				<h:outputText value="#{msg['salvar.label']}"/>
+	      			</h:outputLink>
+	       			<h:outputLink value="#" styleClass="btn btn-default btn-block" pt:data-toggle="modal" pt:data-target="#enviar-modal"
+			    			rendered="#{regra.podeEnviar() and not bean.edicao}">
+	      				<i class="fa fa-share fa-fw" />
+	      				<h:outputText value="#{msg['enviar.label']}"/>
+	      			</h:outputLink>
+	  				<h:commandLink styleClass="btn btn-default btn-block" actionListener="#{bean.onAddEvidenciaClick()}"
+			    			rendered="#{regra.podeReenviar() and not bean.edicao}" >
+	  					<i class="fa fa-share fa-fw" />
+	  					<h:outputText value="#{msg['reenviar.label']}"/>
+	  					<f:ajax onevent="Ajax.onSuccess(View.Evidencia.show)"/>
+		    		</h:commandLink>
+	       			<h:outputLink value="#" styleClass="btn btn-default btn-block" pt:data-toggle="modal" pt:data-target="#excluir-modal"
+		    				rendered="#{regra.podeExcluir() and not bean.edicao}">
+	   					<i class="fa fa-trash fa-fw" />
+	   					<h:outputText value="#{msg['excluir.label']}"/>
+		    		</h:outputLink>
+	       		</h:panelGroup>
+				<!-- Modais -->
+				<div id="enviar-modal" class="modal fade" tabindex="-1" role="dialog">
+					<div class="modal-dialog modal-lg" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal">
+									<i class="fa fa-times" aria-hidden="true" />
+								</button>
+								<h4 class="modal-title">#{msg['enviar.label']}</h4>
+							</div>
+							<div class="modal-body">
+								<div class="row">
+					 				<div class="col-xs-12">
+										<h:outputText
+											value="#{msg['finalizar-ENVIAR_ANALISE.confirm']}"
+						 					/>
+					 				</div>
+					 			</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">#{msg['nao.label']}</button>
+								<h:commandButton
+									actionListener="#{bean.enviar()}"
+									value="#{msg['sim.label']}"
+									styleClass="btn btn-primary"
+									immediate="true"
+									/>
+							</div>
+				  		</div>
+					</div>
+				</div>
+				<div id="excluir-modal" class="modal fade" tabindex="-1" role="dialog">
+					<div class="modal-dialog modal-lg" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal">
+									<i class="fa fa-times" aria-hidden="true" />
+								</button>
+								<h4 class="modal-title">#{msg['excluir.label']}</h4>
+							</div>
+							<div class="modal-body">
+								<div class="row">
+					 				<div class="col-xs-12">
+										<h:outputText
+											value="#{msg['requisicaoExcluir.confirm']}"
+						 					/>
+					 				</div>
+					 			</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">#{msg['nao.label']}</button>
+								<h:commandButton
+									actionListener="#{bean.excluir()}"
+									value="#{msg['sim.label']}"
+									styleClass="btn btn-primary"
+									immediate="true"
+									/>
+							</div>
+				  		</div>
+					</div>
+				</div>
+				<div id="reenviar-modal" class="modal fade" tabindex="-1" role="dialog">
+					<div class="modal-dialog modal-lg" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal">
+									<i class="fa fa-times" aria-hidden="true" />
+								</button>
+								<h4 class="modal-title">#{msg['reenviarAnalise.label']}</h4>
+							</div>
+							<h:panelGroup
+								id="reenviarBody"
+								binding="#{reenviarBody}"
+								layout="block"
+								styleClass="modal-body"
+								>
+								<div class="form-group">
+									<h:outputLabel
+										value="#{msg['observacao.label']}"
+										/>
+									<h:inputTextarea
+										value="#{evidencia.observacaoTmp}"
+										maxlength="3000"
+										styleClass="form-control"
+										rows="4"
+										/>
+								</div>
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="secao">
+											<i class="fa fa-paperclip" />
+											<span class="space" />
+											<h:outputLink
+												value="#"
+												onclick="View.onCameraClick()"
+												>
+												<h:outputText
+													value="#{msg['anexar.label']}"
+													/>
+											</h:outputLink>
+										</div>
+									</div>
+								</div>
+								<h:panelGroup
+									id="panelImagens"
+									binding="#{panelImagens}"
+									layout="block"
+									styleClass="row"
+									>
+									<ui:repeat var="imagem" value="#{imagens}">
+										<div class="col-xs-4">
+											<div class="thumbnail">
+												<img src="#{imagem.caminho}" onclick="Device.Image.open('#{imagem.caminho}')" class="img-responsive" />
+												<div class="caption">
+													<h:commandButton
+														value="#{msg['excluir.label']}"
+														actionListener="#{bean.removerImagem(imagem)}"
+														styleClass="btn btn-xs btn-block btn-danger"
+														>
+														<f:ajax
+															render="#{panelImagens.clientId}"
+															/>
+													</h:commandButton>
+												</div>
+											</div>
+										</div>
+									</ui:repeat>
+								</h:panelGroup>
+							</h:panelGroup>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">
+									<h:outputText
+										value="#{msg['cancelar.label']}"
+										/>
+								</button>
+								<h:commandButton
+									value="#{msg['salvar.label']}"
+									actionListener="#{bean.reenviar()}"
+									styleClass="btn btn-primary"
+									>
+									<f:ajax
+										render="#{reenviarBody.clientId}"
+										execute="#{reenviarBody.clientId}"
+										onevent="View.Evidencia.onAjaxHandler()"
+										/>
+								</h:commandButton>
+							</div>
+				  		</div>
+					</div>
+				</div>
+			</h:form>
+		</div>
+	</ui:define>
+</ui:composition>

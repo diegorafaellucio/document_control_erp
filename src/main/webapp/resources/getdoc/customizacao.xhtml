@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+	<composite:interface>
+	</composite:interface>
+	<composite:implementation>
+		<style>
+			.headerTop .menu-itens  {
+				background-color: ##{utilBean.customizacao['COR_MENU']};
+			}
+			#title {
+			    background-color: ##{utilBean.customizacao['COR_BARRA']};
+			}
+			#footer {
+			    background-color: ##{utilBean.customizacao['COR_BARRA']};
+			}
+			.content-login {
+			    background-color: ##{utilBean.customizacao['COR_BARRA']};
+			}
+			.breadcrumbColor,
+			ul.breadcrumb > li > a, 
+			ul.breadcrumb > li .divider, 		
+			#title h1 {
+				color: ##{utilBean.customizacao['COR_FONTE_TITULO_BARRA']} !important;
+			}
+			.navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > .active > a:focus, .navbar-inverse .navbar-nav > .open > a, .navbar-inverse .navbar-nav > .open > a:hover, .navbar-inverse .navbar-nav > .open > a:focus, 
+			.navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > .active > a:focus, .navbar-inverse .navbar-nav > .open > a, .navbar-inverse .navbar-nav > .open >  {
+			    background-color: ##{utilBean.customizacao['COR_MENU_SELECIONADO']} !important;
+			}
+			.navbar-inverse .navbar-nav .dropdown-menu {
+				background-color: ##{utilBean.customizacao['COR_MENU_SELECIONADO']} !important;
+			}
+			.navbar-inverse .navbar-nav > .active > a,
+			.navbar-inverse .navbar-nav > .active > a:hover,
+			.navbar-inverse .navbar-nav > .active > a:focus,
+			.navbar-inverse .navbar-nav > .open > a,
+			.navbar-inverse .navbar-nav > .open > a:hover,
+			.navbar-inverse .navbar-nav > .open > a:focus {
+			  background-color: ##{utilBean.customizacao['COR_MENU_SELECIONADO']} !important;
+			  color: ##{utilBean.customizacao['COR_FONTE_MENU_SELECIONADO']} !important;
+			}
+			.headerTop .menu-itens ul.nav>li a, .headerTop .menu-itens ul.nav>li > ul > li > a {
+				color: ##{utilBean.customizacao['COR_FONTE_MENU']} !important; /* texto menus e texto dos submenus */
+			}
+			.navbar-inverse .navbar-nav > li > a:focus, .headerTop .menu-itens ul.nav>li.active a, .navbar-inverse .navbar-nav > li > ul > li.active > a, .navbar-inverse .navbar-nav > li > ul > li > a:hover, .headerTop .menu-itens ul.nav>li:hover {
+				color: ##{utilBean.customizacao['COR_FONTE_MENU_SELECIONADO']} !important; /* texto do menu selecionado, texto do submenu selecionado, hover do submenu, hover do menu */
+			}
+			.navbar-inverse .navbar-nav .dropdown-menu > li > a {
+			    color: ##{utilBean.customizacao['COR_FONTE_MENU_SELECIONADO']} !important;
+			}
+			.navbar-inverse .navbar-nav > li > ul.dropdown-menu > li.active > a {
+				background: linear-gradient(
+			      rgba(0, 0, 0, 0.3), 
+			      rgba(0, 0, 0, 0.3)
+			    ) !important;
+			}
+			.headerTop .menu-itens ul.nav > ul.dropdown-menu > li a, .headerTop .menu-itens ul.nav>li > ul > li > a {
+			    color: ##{utilBean.customizacao['COR_FONTE_MENU_SELECIONADO']} !important;
+			}
+			.headerTop {
+				border-bottom: 2px ##{utilBean.customizacao['COR_MENU_SELECIONADO']} solid !important;
+			}
+		</style>
+	</composite:implementation>
+</html>

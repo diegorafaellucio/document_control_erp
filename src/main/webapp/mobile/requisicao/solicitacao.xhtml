@@ -1,0 +1,488 @@
+<ui:composition template="/mobile/master.xhtml"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	>
+	<ui:define name="master.script">
+
+	</ui:define>
+	<ui:define name="master.style">
+		<style type="text/css">
+			body { padding-bottom: 50px; }
+		</style>
+	</ui:define>
+	<ui:define name="master.content">
+		<div class="container">
+			<h:form styleClass="form-horizontal" style="padding-top: 15px">
+				<div class="secao">
+					<div class="row">
+						<div class="col-xs-6">
+							<h:outputText
+								value="Dados da requisição"
+		 						/>
+		 				</div>
+		 				<div class="col-xs-6" align="right">
+		 					<h:outputText
+							value="Nº - 810"
+	 						/>
+		 				</div>
+		 			</div>
+				</div>
+				<div class="form-group">
+	 				<div class="col-xs-12" align="center">
+	 					<h:graphicImage
+	 						styleClass="status-processo"
+	 						library="images"
+	 						name="icons/StatusProcesso-RASCUNHO.png"
+	 						width="24"
+	 						style="margin-right: 8px"
+	 						/>
+	 					<h:outputText
+							value="Pendente"
+	 						/>
+	 				</div>
+	 			</div>
+				<div class="form-group">
+					<div class="col-xs-12 control-label">
+						<h:outputLabel 
+							value="Situação"
+	 						/>
+	 				</div>
+	 				<div class="col-xs-12">
+	 					<div class="input-group">
+	 						<h:outputText
+	 							value="Pendente com Requisitante"
+		 						styleClass="form-control"
+		 						/>
+	  						<span class="input-group-btn">
+	  							<button type="button" class="btn btn-default" data-toggle="modal" data-target="#situacao-modal">
+	  								<i class="fa fa-pencil" />
+	  							</button>
+	  						</span>
+						</div>
+	 				</div>
+	 			</div>
+	 			<div class="form-group">
+					<div class="col-xs-12 control-label">
+						<h:outputLabel 
+							value="Motivo da requisição"
+	 						/>
+	 				</div>
+	 				<div class="col-xs-12">
+	 					<div class="input-group">
+	 						<h:outputText
+	 							value="Correção de Ano Fabricação / Modelo"
+		 						styleClass="form-control"
+		 						/>
+	  						<span class="input-group-btn">
+	  							<button class="btn btn-default">
+	  								<i class="fa fa-pencil" />
+	  							</button>
+	  						</span>
+						</div>
+	 				</div>
+	 			</div>
+				<div class="form-group">
+					<div class="col-xs-12 control-label">
+						<h:outputLabel 
+							value="Analista"
+	 						/>
+	 				</div>
+	 				<div class="col-xs-12">
+	 					<div class="input-group">
+	 						<h:outputText
+	 							value="Camila Machado dos Santos"
+		 						styleClass="form-control"
+		 						/>
+	  						<span class="input-group-btn">
+	  							<button class="btn btn-default">
+	  								<i class="fa fa-pencil" />
+	  							</button>
+	  						</span>
+						</div>
+	 				</div>
+	 			</div>
+				<div class="form-group">
+					<div class="col-xs-12 control-label">
+						<h:outputLabel 
+							value="Prazo expirado"
+	 						/>
+	 				</div>
+	 				<div class="col-xs-12">
+	 					<div class="input-group">
+	 						<h:outputText
+	 							value="Não"
+		 						styleClass="form-control"
+		 						/>
+	  						<span class="input-group-btn">
+	  							<button class="btn btn-default">
+	  								<i class="fa fa-pencil" />
+	  							</button>
+	  						</span>
+						</div>
+	 				</div>
+	 			</div>
+	 			<div class="form-group">
+	 				<div class="col-xs-12 control-label">
+						<h:outputLabel 
+							value="Autor"
+	 						/>
+	 				</div>
+	 				<div class="col-xs-12">
+	 					<h:outputText
+							value="PAULA ROBERTA ALVES R DE QUEIROZ (Comercial)"
+	 						styleClass="form-control ellipsis"
+	 						/>
+	 				</div>
+	 			</div>
+	 			<div class="form-group">
+	 				<div class="col-xs-12 control-label">
+						<h:outputLabel 
+							value="Tempo restante"
+	 						/>
+	 				</div>
+	 				<div class="col-xs-12">
+	 					<h:outputText
+							value="-34d 07:44h"
+	 						styleClass="form-control"
+	 						/>
+	 				</div>
+	 			</div>
+	 			<div class="form-group">
+	 				<div class="col-xs-12 control-label">
+						<h:outputLabel 
+							value="Data de criação"
+	 						/>
+	 				</div>
+	 				<div class="col-xs-12">
+	 					<h:outputText
+							value="17/01/2017 10:53"
+	 						styleClass="form-control"
+	 						/>
+	 				</div>
+	 			</div>
+	 			<div class="form-group">
+	 				<div class="col-xs-12 control-label">
+						<h:outputLabel 
+							value="Data de envio"
+	 						/>
+	 				</div>
+	 				<div class="col-xs-12">
+	 					<h:outputText
+							value="17/01/2017 10:53"
+	 						styleClass="form-control"
+	 						/>
+	 				</div>
+	 			</div>
+	 			<div class="form-group">
+					<div class="col-xs-12 control-label">
+						<h:outputLabel 
+							value="Nível de prioridade"
+	 						/>
+	 				</div>
+	 				<div class="col-xs-12">
+	 					<div class="input-group">
+	 						<h:outputText
+	 							value="1"
+		 						styleClass="form-control"
+		 						/>
+	  						<span class="input-group-btn">
+	  							<button class="btn btn-default" style="width: 38px">
+	  								<i class="fa fa-level-up" />
+	  							</button>
+	  						</span>
+						</div>
+	 				</div>
+	 			</div>
+	 			<div class="secao text-danger">
+					Dados pessoais
+				</div>
+				<div class="form-group">
+	 				<div class="col-xs-12 control-label">
+						<h:outputLabel value="#{msg['numero.label']}"/>
+	 				</div>
+	 				<div class="col-xs-12">
+	 					<h:outputText
+							value="2942403952"
+	 						styleClass="form-control"
+	 						/>
+	 				</div>
+	 			</div>
+	 			<div class="form-group">
+	 				<div class="col-xs-12 control-label">
+						<h:outputLabel 
+							value="Chassi"
+	 						/>
+	 				</div>
+	 				<div class="col-xs-12">
+	 					<h:outputText
+							value="9BFZF54P8E8119505"
+	 						styleClass="form-control"
+	 						/>
+	 				</div>
+	 			</div>
+	 			<div class="form-group">
+	 				<div class="col-xs-12 control-label">
+						<h:outputLabel 
+							value="Nome completo"
+	 						/>
+	 				</div>
+	 				<div class="col-xs-12">
+	 					<h:outputText
+							value="CARVALHO ALVES E CIA LTDA ME"
+	 						styleClass="form-control"
+	 						/>
+	 				</div>
+	 			</div>
+	 			<div class="form-group">
+	 				<div class="col-xs-12 control-label">
+						<h:outputLabel 
+							value="CPF/CNPJ"
+	 						/>
+	 				</div>
+	 				<div class="col-xs-12">
+	 					<h:outputText
+							value="05.436.383/0001-69"
+	 						styleClass="form-control"
+	 						/>
+	 				</div>
+	 			</div>
+	 			<div class="form-group">
+	 				<div class="col-xs-12 control-label">
+						<h:outputLabel 
+							value="Telefone residencial"
+	 						/>
+	 				</div>
+	 				<div class="col-xs-12">
+	 					<h:outputText
+							value="(35) 99974-1714"
+	 						styleClass="form-control"
+	 						/>
+	 				</div>
+	 			</div>
+	 			<div class="form-group">
+	 				<div class="col-xs-12 control-label">
+						<h:outputLabel 
+							value="Telefone celular"
+	 						/>
+	 				</div>
+	 				<div class="col-xs-12">
+	 					<h:outputText
+							value="(35) 99974-1714"
+	 						styleClass="form-control"
+	 						/>
+	 				</div>
+	 			</div>
+	 			<div class="form-group">
+	 				<div class="col-xs-12 control-label">
+						<h:outputLabel 
+							value="E-mail"
+	 						/>
+	 				</div>
+	 				<div class="col-xs-12">
+	 					<h:outputText
+							value="lucianoadsantos@gmail.com"
+	 						styleClass="form-control"
+	 						/>
+	 				</div>
+	 			</div>
+	 			<div class="form-group">
+	 				<div class="col-xs-12 control-label">
+						<h:outputLabel 
+							value="Observação"
+	 						/>
+	 				</div>
+	 				<div class="col-xs-12">
+	 					<h:inputTextarea
+	 						rows="4"
+	 						value="CONTRATO COM VARIAS GARANTIAS, PRECISANDO DA BAIXA DESSA EM QUESTÃO PARA QUE POSSAMOS FECHAR NOVOS NEGÓCIOS"
+	 						styleClass="form-control"
+	 						/>
+	 				</div>
+	 			</div>
+	 			<div id="situacao-modal" class="modal fade" tabindex="-1" role="dialog">
+			  		<div class="modal-dialog modal-lg" role="document">
+			    		<div class="modal-content">
+			    			<div class="modal-header">
+	        					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	        						<i class="fa fa-times" aria-hidden="true" />
+	        					</button>
+	        					<h4 class="modal-title">Alterar situação</h4>
+	      					</div>
+	      					<div class="modal-body">
+	      						<div class="form-group">
+	      							<div class="col-xs-12">
+	      								<div class="secao">
+											Pendente
+	      								</div>
+					 				</div>
+					 				<div class="col-xs-12 control-label">
+										<h:outputLabel 
+											value="Para"
+					 						/>
+					 				</div>
+					 				<div class="col-xs-12">
+					 					<select class="form-control">
+					 						<option value=""></option>
+					 						<option value="1">Aguardando Pagamento de Boleto</option>
+					 						<option value="2">Correspondência devolvida pelo correio</option>
+					 						<option value="3">Pendente com Requisitante</option>
+					 						<option value="4">Refin - Conferido  Aguardando Físico</option>
+					 						<option value="5">Refin - Implantado  Aguardando Físico</option>
+					 						<option value="6">Refin - Processo com Pendências</option>
+					 						<option value="7">Sinistro - Conferido Aguardando Físico</option>
+					 					</select>
+					 				</div>
+					 			</div>
+	      					</div>
+	      				<div class="modal-footer">
+		        			<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+		        			<button type="button" class="btn btn-primary">Alterar</button>
+	      				</div>
+			      		</div>
+			  		</div>
+				</div>
+				<nav class="navbar navbar-default navbar-fixed-bottom" style="background-color: #fff">
+				  	<div class="container-fluid">
+				  		<div class="navbar-header">
+			        		<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="div[id='#{navbar.clientId}']" aria-expanded="false" aria-controls="navbar">
+			           			<span class="icon-bar"></span>
+			           			<span class="icon-bar"></span>
+			           			<span class="icon-bar"></span>
+			        		</button>
+			        		<div role="presentation" class="dropdown">
+			        			<a href="#" 
+							  		class="navbar-brand dropdown-toggle" 
+							  		data-toggle="dropdown" 
+							  		aria-haspopup="true" 
+							  		aria-expanded="false"
+							  		>
+							    	<i class="fa fa-ellipsis-v" />
+							    	<h:outputText
+		        						value="Ações"
+		        						style="padding-left: 15px"
+		        						/>
+							  	</a>
+							  	<ul class="dropdown-menu">
+							  		<li>
+				        				<h:outputLink
+				        					>
+				        					<i class="fa fa-check fa-fw" />
+				        					<h:outputText
+				        						value="Concluir"
+				        						style="padding-left: 15px"
+				        						/>
+				        				</h:outputLink>
+				        			</li>
+							    	<li>
+				        				<h:outputLink
+				        					>
+				        					<i class="fa fa-share fa-fw" />
+				        					<h:outputText
+				        						value="Reenviar"
+				        						style="padding-left: 15px"
+				        						/>
+				        				</h:outputLink>
+				        			</li>
+							    	<li role="separator" class="divider" />
+							    	<li>
+				        				<h:outputLink
+				        					>
+				        					<i class="fa fa-trash fa-fw" />
+				        					<h:outputText
+				        						value="Excluir"
+				        						style="padding-left: 15px"
+				        						/>
+				        				</h:outputLink>
+				        			</li>
+				        			<li>
+				        				<h:outputLink
+				        					>
+				        					<i class="fa fa-ban fa-fw" />
+				        					<h:outputText
+				        						value="Cancelar"
+				        						style="padding-left: 15px"
+				        						/>
+				        				</h:outputLink>
+				        			</li>
+				        			<li>
+				        				<h:outputLink
+				        					>
+				        					<i class="fa fa-users fa-fw" />
+				        					<h:outputText
+				        						value="Em acompanhamento"
+				        						style="padding-left: 15px"
+				        						/>
+				        				</h:outputLink>
+				        			</li>
+							  	</ul>
+							</div>
+			        	</div>
+			        	<h:panelGroup
+							id="navbar"
+							binding="#{navbar}"
+							layout="block" 
+							styleClass="navbar-collapse collapse"
+							>
+			        		<ul class="nav navbar-nav navbar-right">
+			        			<li>
+			        				<h:outputLink
+			        					>
+			        					<i class="fa fa-users fa-fw" />
+			        					<h:outputText
+			        						value="Acompanhamento"
+			        						style="padding-left: 15px"
+			        						/>
+			        				</h:outputLink>
+			        			</li>
+			        			<li>
+			        				<h:outputLink
+			        					>
+			        					<i class="fa fa-file fa-fw" />
+			        					<h:outputText
+			        						value="Documentos"
+			        						style="padding-left: 15px"
+			        						/>
+			        				</h:outputLink>
+			        			</li>
+			        			<li>
+			        				<h:outputLink
+			        					>
+			        					<i class="fa fa-comments fa-fw" />
+			        					<h:outputText
+			        						value="Solicitações"
+			        						style="padding-left: 15px"
+			        						/>
+			        				</h:outputLink>
+			        			</li>
+			        			<li>
+			        				<h:outputLink
+			        					>
+			        					<i class="fa fa-envelope fa-fw" />
+			        					<h:outputText
+			        						value="E-mail"
+			        						style="padding-left: 15px"
+			        						/>
+			        				</h:outputLink>
+			        			</li>
+			        			<li>
+			        				<h:outputLink
+			        					>
+			        					<i class="fa fa-sitemap fa-fw" />
+			        					<h:outputText
+			        						value="Ajuda"
+			        						style="padding-left: 15px"
+			        						/>
+			        				</h:outputLink>
+			        			</li>
+			        		</ul>
+			       		</h:panelGroup>
+		       		</div>
+				</nav>
+			</h:form>
+		</div>
+	</ui:define>
+</ui:composition>

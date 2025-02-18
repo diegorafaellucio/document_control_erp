@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+	<f:metadata>
+		<f:viewAction action="#{ajudaRequisicaoListBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="head">
+		</ui:define>	
+		<ui:define name="conteudo">
+			<o:importConstants type="net.wasys.getdoc.domain.entity.Ajuda.Tipo" />
+			<o:importConstants type="net.wasys.getdoc.domain.enumeration.Resposta" />
+			<o:importConstants type="net.wasys.getdoc.domain.entity.Ajuda.Objetivo" />		
+			<c:set var="bean" value="#{ajudaRequisicaoListBean}" />		
+			<getdoc:excluirModal id="excluirModal" metodoExcluir="#{bean.excluir()}"/>
+			<h:form id="form-list">
+				<div class="row default-form">
+					<div class="col-sm-12">
+						<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+						<div class="row">
+							<div class="col-sm-5" >
+								<div class="form-group">
+									<b:selectOneMenu id="subperfilId" value="#{bean.filtro.tipoProcesso}" label="Subperfil" styleClass="radio-default">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{bean.tiposProcessos}" var="item" itemValue="#{item}" itemLabel="#{item.nome}"/>
+									</b:selectOneMenu>
+								</div>
+						 	</div>
+						</div>
+						<div class="row">
+							<div class="col-md-1" ></div>
+							<div class="col-md-9" >
+								<div class="form-group" style="float: right;">
+									<b:commandButton value="#{msg['buscar.label']}" styleClass="btn btn-primary btn-md" ajax="true" update="table-id"/>
+								</div>
+							</div>
+							<div class="col-md-2">
+								<h:link outcome="/cadastros/ajudas/ajuda-requisicao-crud.xhtml" style="float: right;" styleClass="btn btn-primary " rendered="#{menuBean.podeEditar()}">
+									<h:outputText value="#{msg['adicionarChecklist.label']}"/>
+								</h:link>					
+							</div>
+					 	</div>
+					 </div>
+				</div>			
+				<div class="row">
+					<div class="col-md-12">
+						<p:dataTable id="table-id" var="row" value="#{bean.dataModel}" rows="20" paginator="true" lazy="true"
+								paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+								currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+								paginatorPosition="bottom">
+							<p:column headerText="ID" style="text-align: center; width: 70px;">
+								<h:outputText value="#{row.id}" />
+							</p:column>
+							<p:column headerText="#{msg['tipoProcesso.label']}" style="text-align: center;">
+								<h:outputText value="#{row.tipoProcesso.nome}" />
+							</p:column>
+							<p:column headerText="#{msg['tipoDocumento.label']}" style="text-align: center;">
+								<h:outputText value="#{row.tipoDocumento.nome}" />
+							</p:column>
+							<p:column headerText="Pergunta Inicial" style="text-align: center;">
+								<h:outputText value="#{row.texto}" />
+							</p:column>
+							<ui:remove>
+							<p:column headerText="#{msg['horasPrazo.label']}" style="text-align: center;">
+								<h:outputText value="#{area.horasPrazo}" />
+							</p:column>
+							<p:column headerText="#{msg['isAtiva.label']}" style="width: 70px; text-align: center;">
+								<h:outputText value="#{msg['sim.label']}" rendered="#{area.ativo}"/>
+								<h:outputText value="#{msg['nao.label']}" rendered="#{!area.ativo}"/>
+							</p:column>
+							</ui:remove>
+							<p:column style="width: 230px;" sortable="false" rendered="#{menuBean.podeEditar()}">
+								<p:commandLink value="#{msg['excluir.label']}" onclick="openModal('excluir-modal', 'excluirModal:form-exclusao:excluir-btn')" class="btn btn-danger btn-excluir" rendered="#{menuBean.podeExcluir()}">
+									<f:setPropertyActionListener target="#{bean.ajuda}" value="#{row}" />
+								</p:commandLink>								
+								<h:link outcome="/cadastros/ajudas/ajuda-requisicao-crud.xhtml?id=#{row.id}" style="float: right;" styleClass="btn btn-warning btn-editar" rendered="#{menuBean.podeEditar()}">
+									<h:outputText value="#{msg['editar.label']}"/>
+								</h:link>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+			</h:form>			
+		</ui:define>
+	</ui:composition>
+</html>

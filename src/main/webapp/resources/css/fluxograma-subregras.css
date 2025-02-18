@@ -1,0 +1,117 @@
+
+.fluxograma .acoes {
+	background: #ccc;
+    border: 1px #ccc solid;
+    border-radius: 4px 4px 0 0;
+    margin-left: -1px;
+    margin-top: -1px;
+    height: 25px;
+}
+.fluxograma .acoes > span {
+	display: inline-block;
+	float: left;
+	margin-top: 2px;
+	margin-left: 4px;
+}
+.fluxograma .acoes > a {
+	display: inline-block;
+	float: right;
+	margin-top: 2px;
+	margin-right: 4px;
+}
+.fluxograma .texto {
+	padding: 10px !important;
+	border-radius: 0 0 4px 4px;
+	min-height: 75px;
+}
+.fluxograma .seta-sobe {
+	border-right: 1px #ccc solid;
+	height: 15px;
+}
+.fluxograma .seta-sobe-dupla {
+	border-top: 1px #ccc solid;
+	border-left: 1px #ccc solid;
+	border-right: 1px #ccc solid;
+	height: 15px;
+	border-radius: 4px 4px 0 0;
+}
+.fluxograma .seta-desce-dir {
+	border-bottom: 1px #ccc solid;
+	border-right: 1px #ccc solid;
+	height: 15px;
+	border-radius: 0 0 4px 0;
+}
+.fluxograma .seta-desce-esq {
+	border-bottom: 1px #ccc solid;
+	border-left: 1px #ccc solid;
+	height: 15px;
+	border-radius: 0 0 0 4px;
+}
+.fluxograma .sub-regra-box {
+	margin-bottom: 0 !important;
+	padding: 0;
+	border: 1px #ccc solid;
+	border-radius: 4px;
+	min-height: 100px;
+}
+.fluxograma .seta-nao {
+	float: left;
+    margin-top: -20px;
+    color: #31708f;
+    margin-left: -15px;
+}
+.fluxograma .seta-sim {
+	float: right;
+    margin-top: -20px;
+    color: #31708f;
+    margin-right: -15px;
+}
+.fluxograma .farol-VERMELHO {
+	color: #a94442;
+	background-color: #f2dede;
+	padding: 2px 5px;
+	border-radius: 0 0 4px 4px;
+	border-color: #ebccd1;
+}
+.fluxograma .farol-AMARELO {
+	color: #8a6d3b;
+	background-color: #fcf8e3;
+	padding: 2px 5px;
+	border-radius: 0 0 4px 4px;
+	border-color: #faebcc;
+}
+.fluxograma .farol-VERDE {
+	color: #3c763d;
+	background-color: #dff0d8;
+	padding: 2px 5px;
+	border-radius: 0 0 4px 4px;
+	border-color: #d6e9c6;
+}
+.fluxograma .tipo-icon {
+	float: left;
+	padding: 6px 4px;
+	color: #004085;
+}
+.fluxograma .tipo-INATIVA {
+	background-color: #f8f8f8;
+}
+.fluxograma .log-empty {
+	color: black;
+	background: repeating-linear-gradient(
+		45deg,
+		transparent,
+		transparent 6px,
+		#efefef 4px,
+		#efefef 8px
+	)
+}
+.deparaparams .form-group {
+	margin-bottom: 5px !important;
+}
+.ajuda-icon {
+	color: #337ab7;
+	cursor: pointer;
+    right: 10PX;
+    bottom: 5PX;
+    position: absolute;
+}

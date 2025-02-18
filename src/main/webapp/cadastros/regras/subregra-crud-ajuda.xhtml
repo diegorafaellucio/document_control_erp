@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+	<style>
+		.ajuda-modal > label {
+		   font-size: 12px;
+		}
+		.ajuda-modal {
+		    z-index: 999999999;
+		}
+		.ajuda-modal .modal-dialog {
+		    width: 900px;
+		    padding-top: 0px;
+		}
+		.ajuda-modal > .row > div {
+		    margin-bottom: 0px;
+		}
+	</style>
+	<c:set var="bean" value="#{subRegraCrudBean}" />
+	<h:form id="form-ajuda">
+		<b:modal id="ajuda-detranArn-modal-id" title="Ajuda - Detran ARN" styleClass="ajuda-modal ajuda-detranArn-modal">
+			<h:panelGroup id="ajuda-detranArn-modal-content-id">
+				<div class="row">
+					<div class="col-md-12">
+						<h4 class="tituloForm">Exemplo de Retorno</h4>
+<pre style="height: 250px;">DetranArn['statusPesquisa'] = 1
+DetranArn['descricaoStatusPesquisa'] = "Pesquisa Efetuada com Sucesso"
+DetranArn['dadosVeiculo']['placa'] = "FSP3129"
+DetranArn['dadosVeiculo']['municipio'] = "7107 - SAO PAULO"
+DetranArn['dadosVeiculo']['renavam'] = "01144372460"
+DetranArn['dadosVeiculo']['chassi'] = "9C2KC4200JV145126"
+DetranArn['dadosVeiculo']['tipo'] = "4 - MOTOCICLO"
+DetranArn['dadosVeiculo']['procedencia'] = "NACIONAL"
+DetranArn['dadosVeiculo']['combustivel'] = "16 - ALCOOL/GASOLINA"
+DetranArn['dadosVeiculo']['cor'] = "4 - BRANCA"
+DetranArn['dadosVeiculo']['marca'] = "41900 - HONDA/CG 160 FAN"
+DetranArn['dadosVeiculo']['categoria'] = "1 - PARTICULAR"
+DetranArn['dadosVeiculo']['anoFabricacao'] = "2018"
+DetranArn['dadosVeiculo']['anoModelo'] = "2018"
+DetranArn['dadosVeiculo']['especie'] = "1 - PASSAGEIRO"
+DetranArn['dadosProprietario']['nomeProprietario'] = "VALMIR SALUSTIANO DA SILVA"
+DetranArn['dadosProprietario']['nomeProprietarioAnterior'] = "GUAMORUTO LTDA"
+DetranArn['gravames']['restricaoFinanceira'] = "Alienação Fiduciária"
+DetranArn['gravames']['agente'] = "BCO BRADESCO FINANC SA"
+DetranArn['gravames']['arrendatarioFinanciado'] = "VALMIR SALUSTIANO DA SILVA"
+DetranArn['gravames']['cnpjcpfFinanc'] = "217.446.738-03"
+DetranArn['gravames']['dataInclusaoFinanciamento'] = "06/12/2017"
+DetranArn['intencaoGravame']['restricaoFinanceira'] = ""
+DetranArn['intencaoGravame']['agenteFinanceiro'] = ""
+DetranArn['intencaoGravame']['nomeFinanciado'] = ""
+DetranArn['intencaoGravame']['cnpjcpfFinanc'] = ""
+DetranArn['intencaoGravame']['dataInclusao'] = ""
+DetranArn['debitoMultas']['dersa'] = "0,00"
+DetranArn['debitoMultas']['der'] = "0,00"
+DetranArn['debitoMultas']['detran'] = "0,00"
+DetranArn['debitoMultas']['cetesb'] = "0,00"
+DetranArn['debitoMultas']['renainf'] = "0,00"
+DetranArn['debitoMultas']['municipais'] = "0,00"
+DetranArn['debitoMultas']['policiaRodoviariaFederal'] = "0,00"
+DetranArn['debitoMultas']['ipva'] = "0,00"
+DetranArn['restricoes']['restricoesFurto'] = ""
+DetranArn['restricoes']['bloqueioGuincho'] = ""
+DetranArn['restricoes']['restricoesAdministrativas'] = "NADA CONSTA"
+DetranArn['restricoes']['restricoesJudicial'] = ""
+DetranArn['restricoes']['restricoesTributaria'] = ""
+DetranArn['restricoes']['bloqueiosRenajud'] = "Não Consta Bloqueio Judicial - Renajud"
+DetranArn['restricoes']['inspecaoAmbiental'] = "Veículo com Inspeção Veicular \u0027OK\u0027"
+DetranArn['crvCrlvAtualizacao']['exercicioLicenciamento'] = "2018"
+DetranArn['crvCrlvAtualizacao']['dataLicenciamento'] = "12/12/2017"
+DetranArn['comunicacaoVendas']['comunicacao'] = "Não Consta Comunicação de Vendas"
+DetranArn['comunicacaoVendas']['inclusao'] = ""
+DetranArn['comunicacaoVendas']['tipoDocumentoComprador'] = ""
+DetranArn['comunicacaoVendas']['cnpjcpfComprador'] = ""
+DetranArn['comunicacaoVendas']['dataVenda'] = ""
+DetranArn['comunicacaoVendas']['dataNotaFiscal'] = ""
+DetranArn['comunicacaoVendas']['dataProtocoloDetran'] = ""</pre>
+						<h4 class="tituloForm" style="margin-top: 20px;">Exemplo de Uso</h4>
+						<p>Para revificar se o licenciamento é 2018 ou posterior (considerando que a variável de consulta seja 'DetranArn'):</p>
+<pre style="height: 50px;">DetranArn['crvCrlvAtualizacao']['exercicioLicenciamento'] >= 2018</pre>
+					</div>
+				</div>
+			</h:panelGroup>
+			<f:facet name="footer">
+				<b:button value="ok" look="primary" dismiss="modal" onclick="return false;"/>
+			</f:facet>
+		</b:modal>
+
+		<b:modal id="ajuda-leilao-modal-id" title="Ajuda - Leilão Infocar" styleClass="ajuda-modal ajuda-leilao-modal">
+			<h:panelGroup id="ajuda-leilao-modal-content-id">
+				<div class="row">
+					<div class="col-md-12">
+						<h4 class="tituloForm">Exemplo de Retorno</h4>
+						<h5>&nbsp;&nbsp;&nbsp;&nbsp;<b>Este WebService pode retornar os seguintes valores de acordo com o campo "<i>Leilao['SOLICITACAO']['MENSAGEM']</i>":</b></h5>
+						<h5 class="tituloForm">
+							<span onclick="mostrarMaisCampos('campos-msg-0')" style="cursor: pointer;" class="show-campos-msg-0">
+								<i style="padding-right: 10px;" class="fa fa-plus-square-o" aria-hidden="true"></i>Caso <i>Leilao['SOLICITACAO']['MENSAGEM'] = "0 - Não Possui Registro":</i>
+							</span>
+							<span onclick="mostrarMenosCampos('campos-msg-0')" style="display: none; cursor: pointer;" class="hide-campos-msg-0">
+								<i style="padding-right: 10px;" class="fa fa-minus-square-o" aria-hidden="true"></i>Caso <i>Leilao['SOLICITACAO']['MENSAGEM'] = "0 - Não Possui Registro":</i>
+							</span>
+						</h5>
+						<div class="row-campos-msg-0" style="display: none;">
+							<pre >Leilao['SOLICITACAO']['NUMERO_RESPOSTA'] = "DG074E53F003"
+Leilao['SOLICITACAO']['TIPO'] = "PLACA"
+Leilao['SOLICITACAO']['HORARIO'] = "2018-06-15 15:10:38"
+Leilao['SOLICITACAO']['DADO'] = "AAJ9876"
+Leilao['SOLICITACAO']['MENSAGEM'] = "0"
+Leilao['SOLICITACAO']['TEMPO'] = "0,966084"</pre>
+						</div>
+						<h5 class="tituloForm">
+							<span onclick="mostrarMaisCampos('campos-msg-1')" style="cursor: pointer;" class="show-campos-msg-1">
+								<i style="padding-right: 10px;" class="fa fa-plus-square-o" aria-hidden="true"></i>Caso <i> Leilao['SOLICITACAO']['MENSAGEM'] = "1 - Possui Registro":</i>
+							</span>
+							<span onclick="mostrarMenosCampos('campos-msg-1')" style="display: none; cursor: pointer;" class="hide-campos-msg-1">
+								<i style="padding-right: 10px;" class="fa fa-minus-square-o" aria-hidden="true"></i>Caso <i> Leilao['SOLICITACAO']['MENSAGEM'] = "1 - Possui Registro":</i>
+							</span>
+						</h5>
+						<div class="row-campos-msg-1" style="display: none;">
+							<pre >Leilao['RESPOSTA']['PLACA'] = "DDY1401"
+Leilao['RESPOSTA']['CHASSI'] = "9AR5DAE4215527856"
+Leilao['RESPOSTA']['SITUACAO_CHASSI'] = "NORMAL"
+Leilao['RESPOSTA']['ANOFABRICACAO'] = "2001"
+Leilao['RESPOSTA']['ANOMODELO'] = "2001"
+Leilao['RESPOSTA']['MARCA_MODELO'] = "COROLLA XEI"
+Leilao['RESPOSTA']['COMBUSTIVEL'] = "GASOLINA"
+Leilao['RESPOSTA']['COR'] = "PRATA"
+Leilao['RESPOSTA']['RENAVAM'] = "00754390756"
+Leilao['RESPOSTA']['SEGMENTO'] = "AUTO"
+Leilao['RESPOSTA']['SUB_SEGMENTO'] = "AU - SEDAN MEDIO"
+Leilao['RESPOSTA']['NR_MOTOR'] = "J044905"
+Leilao['RESPOSTA']['NR_CAMBIO'] = "OLZ06889"
+Leilao['RESPOSTA']['NR_CARROCERIA'] = null
+Leilao['RESPOSTA']['NR_EIXOTRASEIRO'] = null
+Leilao['RESPOSTA']['QUAN_EIXOS'] = "2"
+Leilao['RESPOSTA']['SCORE']['SCORE_PONTUACAO'] = "3"
+Leilao['RESPOSTA']['LEILAO'][0]['LEILOEIRO'] = "LUIZ FERNAO DA SILVA"
+Leilao['RESPOSTA']['LEILAO'][0]['COMITENTE'] = null
+Leilao['RESPOSTA']['LEILAO'][0]['LOTE'] = null
+Leilao['RESPOSTA']['LEILAO'][0]['DATA_LEILAO'] = "28/09/2002"
+Leilao['RESPOSTA']['LEILAO'][0]['COND_VEICULO'] = "BATIDO"
+Leilao['RESPOSTA']['LEILAO'][0]['SIT_CHASSI'] = null
+Leilao['RESPOSTA']['LEILAO'][0]['COND_MOTOR'] = null
+Leilao['RESPOSTA']['LEILAO'][0]['COND_CAMBIO'] = null
+Leilao['RESPOSTA']['LEILAO'][0]['COND_MECANICA'] = null
+Leilao['RESPOSTA']['LEILAO'][0]['OBS'] = "COM AVARIAS"
+Leilao['RESPOSTA']['LEILAO'][0]['FOTOS']FOTO1'] = "http://datacast10.info/ftAl/FOTOS_SISTEMA/2015/01/06/61201588N938_DDY1441..jpg"
+Leilao['RESPOSTA']['LEILAO'][0]['FOTOS']FOTO2'] = "http://datacast10.info/ftAl/FOTOS_SISTEMA/2015/01/06/61201588O29_DDY1441..jpg"
+Leilao['RESPOSTA']['LEILAO'][0]['FOTOS']FOTO3'] = null
+Leilao['RESPOSTA']['LEILAO'][0]['FOTOS']FOTO4'] = null
+Leilao['RESPOSTA']['LEILAO'][1]['LEILOEIRO'] = "FERNANDO LUIZ DE ABREU"
+Leilao['RESPOSTA']['LEILAO'][1]['COMITENTE'] = null
+Leilao['RESPOSTA']['LEILAO'][1]['LOTE'] = null
+Leilao['RESPOSTA']['LEILAO'][1]['DATA_LEILAO'] = "01/02/2002"
+Leilao['RESPOSTA']['LEILAO'][1]['COND_VEICULO'] = "BATIDO"
+Leilao['RESPOSTA']['LEILAO'][1]['SIT_CHASSI'] = null
+Leilao['RESPOSTA']['LEILAO'][1]['COND_MOTOR'] = null
+Leilao['RESPOSTA']['LEILAO'][1]['COND_CAMBIO'] = null
+Leilao['RESPOSTA']['LEILAO'][1]['COND_MECANICA'] = null
+Leilao['RESPOSTA']['LEILAO'][1]['OBS'] = "COM AVARIAS"
+Leilao['RESPOSTA']['LEILAO'][1]['FOTOS']['FOTO1'] = null
+Leilao['RESPOSTA']['LEILAO'][1]['FOTOS']['FOTO2'] = null
+Leilao['RESPOSTA']['LEILAO'][1]['FOTOS']['FOTO3'] = null
+Leilao['RESPOSTA']['LEILAO'][1]['FOTOS']['FOTO4'] = null
+Leilao['SOLICITACAO']['NUMERO_RESPOSTA'] = "YY07BE55F313"
+Leilao['SOLICITACAO']['TIPO'] = "PLACA"
+Leilao['SOLICITACAO']['HORARIO'] = "2018-06-15 15:56:16"
+Leilao['SOLICITACAO']['DADO'] = "DDY1401"
+Leilao['SOLICITACAO']['MENSAGEM'] = "1"
+Leilao['SOLICITACAO']['TEMPO'] = "0,966084"</pre>
+						</div>
+						<h5 class="tituloForm">
+							<span onclick="mostrarMaisCampos('campos-msg-2')" style="cursor: pointer;" class="show-campos-msg-2">
+								<i style="padding-right: 10px;" class="fa fa-plus-square-o" aria-hidden="true"></i>Caso <i> Leilao['SOLICITACAO']['MENSAGEM'] = "2 - Falha de Autenticação":</i>
+							</span>
+							<span onclick="mostrarMenosCampos('campos-msg-2')" style="display: none; cursor: pointer;" class="hide-campos-msg-2">
+								<i style="padding-right: 10px;" class="fa fa-minus-square-o" aria-hidden="true"></i>Caso <i> Leilao['SOLICITACAO']['MENSAGEM'] = "2 - Falha de Autenticação":</i>
+							</span>
+						</h5>
+						<div class="row-campos-msg-2" style="display: none;">
+							<pre >Leilao['SOLICITACAO']['NUMERO_RESPOSTA'] = "TB022@93F7443"
+Leilao['SOLICITACAO']['TIPO'] = "PLACA"
+Leilao['SOLICITACAO']['HORARIO'] = "2018-06-15 15:08:47"
+Leilao['SOLICITACAO']['DADO'] = "AAJ9876"
+Leilao['SOLICITACAO']['MENSAGEM'] = "2"
+Leilao['SOLICITACAO']['TEMPO'] = "0,121059"</pre>
+						</div>
+						<h5 class="tituloForm">
+							<span onclick="mostrarMaisCampos('campos-msg-3')" style="cursor: pointer;" class="show-campos-msg-3">
+								<i style="padding-right: 10px;" class="fa fa-plus-square-o" aria-hidden="true"></i>Caso <i> Leilao['SOLICITACAO']['MENSAGEM'] = "3 - Dado Incorreto":</i>
+							</span>
+							<span onclick="mostrarMenosCampos('campos-msg-3')" style="display: none; cursor: pointer;" class="hide-campos-msg-3">
+								<i style="padding-right: 10px;" class="fa fa-minus-square-o" aria-hidden="true"></i>Caso <i> Leilao['SOLICITACAO']['MENSAGEM'] = "3 - Dado Incorreto":</i>
+							</span>
+						</h5>
+						<div class="row-campos-msg-3" style="display: none;">
+							<pre >Leilao['SOLICITACAO']['NUMERO_RESPOSTA'] = "TB022@93F7443"
+Leilao['SOLICITACAO']['TIPO'] = "PLACA"
+Leilao['SOLICITACAO']['HORARIO'] = "2018-06-15 15:08:47"
+Leilao['SOLICITACAO']['DADO'] = "AAJ9876"
+Leilao['SOLICITACAO']['MENSAGEM'] = "3"
+Leilao['SOLICITACAO']['TEMPO'] = "0,121059"</pre>
+						</div>
+						<h5 class="tituloForm">
+							<span onclick="mostrarMaisCampos('campos-msg-4')" style="cursor: pointer;" class="show-campos-msg-4">
+								<i style="padding-right: 10px;" class="fa fa-plus-square-o" aria-hidden="true"></i>Caso <i> Leilao['SOLICITACAO']['MENSAGEM'] = "4 - Erro na Pesquisa e/ou Sistema Indisponível":</i>
+							</span>
+							<span onclick="mostrarMenosCampos('campos-msg-4')" style="display: none; cursor: pointer;" class="hide-campos-msg-4">
+								<i style="padding-right: 10px;" class="fa fa-minus-square-o" aria-hidden="true"></i>Caso <i> Leilao['SOLICITACAO']['MENSAGEM'] = "4 - Erro na Pesquisa e/ou Sistema Indisponível":</i>
+							</span>
+						</h5>
+						<div class="row-campos-msg-4" style="display: none;">
+							<pre >Leilao['SOLICITACAO']['NUMERO_RESPOSTA'] = "FG345Q77F7441"
+Leilao['SOLICITACAO']['TIPO'] = "PLACA"
+Leilao['SOLICITACAO']['HORARIO'] = "2018-06-15 15:01:22"
+Leilao['SOLICITACAO']['DADO'] = "AAAAAA"
+Leilao['SOLICITACAO']['MENSAGEM'] = "4"
+Leilao['SOLICITACAO']['TEMPO'] = "0"</pre>
+						</div>
+						<h4 class="tituloForm" style="margin-top: 20px;">Exemplo de Uso</h4>
+						<p>Para revificar se a score de pontuação é maior que 2:</p>
+<pre style="height: 50px;">Leilao['SCORE']['SCORE_PONTUACAO'] >= 2</pre>
+					</div>
+				</div>
+			</h:panelGroup>
+			<f:facet name="footer">
+				<b:button value="ok" look="primary" dismiss="modal" onclick="return false;"/>
+			</f:facet>
+		</b:modal>
+		
+		<b:modal id="ajuda-processo-modal-id" title="Ajuda - Dados da Requisição" styleClass="ajuda-modal ajuda-processo-modal">
+			<h:panelGroup id="ajuda-processo-content-id">
+				<div class="row">
+					<div class="col-md-12">
+						<h4 class="tituloForm">Exemplo de Dados da Requisição</h4>
+						<p:repeat var="fonteCampoMap" value="#{bean.fonteCampos.entrySet().toArray()}" varStatus="status">
+							<h5 class="tituloForm">
+								<span onclick="mostrarMaisCampos('campos-#{status.index}')" style="cursor: pointer;" class="show-campos-#{status.index}">
+									<i style="padding-right: 10px;" class="fa fa-plus-square-o" aria-hidden="true"></i>#{fonteCampoMap.key}
+								</span>
+								<span onclick="mostrarMenosCampos('campos-#{status.index}')" style="display: none; cursor: pointer;" class="hide-campos-#{status.index}">
+									<i style="padding-right: 10px;" class="fa fa-minus-square-o" aria-hidden="true"></i>#{fonteCampoMap.key}
+								</span>
+							</h5>
+							<div class="row-campos-#{status.index}" style="display: none;">
+								<pre>#{fonteCampoMap.value}</pre>
+							</div>
+						</p:repeat>
+						<h4 class="tituloForm">Exemplo Uso</h4>
+<p>Para verificar se o CPF informado na Formalização é igual ao da Carga Score:</p>
+<pre style="height: 50px;">
+Formalizacao['Dados do Proponente']['CPF / CNPJ'] == CargaMA['Dados da Proposta']['CPF']
+</pre>
+						<h4 class="tituloForm">Funções</h4>
+						<p>Funções disponíveis para utilização dentro da condicional.</p>
+						<p:repeat var="func" value="#{bean.funcoes}">
+							<p>Função: <var>#{func.nome}</var></p>
+							<pre>#{func.descricao}</pre>
+						</p:repeat>
+					</div>
+				</div>
+			</h:panelGroup>
+			<f:facet name="footer">
+				<b:button value="ok" look="primary" dismiss="modal" onclick="return false;"/>
+			</f:facet>
+		</b:modal>
+	</h:form>
+	
+	<script type="text/javascript">
+		//<![CDATA[
+			function mostrarMenosCampos(id) {
+				$('.hide-' + id).hide();
+				$('.show-' + id).show();
+				$('.row-' + id).hide(300);
+			}
+
+			function mostrarMaisCampos(id) {
+				$('.hide-' + id).show();
+				$('.show-' + id).hide();
+				$('.row-' + id).show(300);
+			}
+		//]]>
+		</script>
+</html>

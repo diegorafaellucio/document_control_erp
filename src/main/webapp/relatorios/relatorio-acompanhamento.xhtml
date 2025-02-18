@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:b="http://bootsfaces.net/ui"
+	  xmlns:o="http://omnifaces.org/ui"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf">
+<f:metadata>
+	<f:viewAction action="#{relatorioAcompanhamentoBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/navegacao.xhtml">
+	<ui:define name="tituloPagina">#{msg['relatorioAcompanhamento.titulo']}</ui:define>
+	<ui:define name="conteudo">
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/tooltipster.bundle.min.css" />
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-punk.min.css" />
+		<script type="text/javascript" src="#{request.contextPath}/resources/tooltipster/js/tooltipster.bundle.min.js"></script>
+		<style type="text/css">
+			.tooltipContent {
+				color: #fff;
+			}
+			.tooltipster-sidetip.tooltipster-punk .tooltipster-box {
+				background-color: #0f487f;
+			}
+		</style>
+		<h:form id="form">
+			<div class="row default-form noMarginBottom">
+				<div class="col-sm-12 noMarginBottom">
+					<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+					<div class="row">
+						<div class="col-sm-1"></div>
+						<div class="col-sm-4 noMarginBottom">
+							<div class="form-group" >
+								<b:selectOneMenu value="#{relatorioAcompanhamentoBean.padraoLinha}" label="#{msg['padraoLinha.label']}">
+									<f:selectItems value="#{relatorioAcompanhamentoBean.padroesLinhas}" var="item" itemLabel="#{msg['PadraoLinha.'.concat(item.name()).concat('.label')]}" itemValue="#{item}" />
+									<f:ajax event="select" render="situacoes agrupar_div historicoDiv" ></f:ajax>
+									<f:ajax event="change" render="situacoes agrupar_div historicoDiv" ></f:ajax>
+								</b:selectOneMenu>
+							</div>
+						</div>
+						<div class="col-sm-2 noMarginBottom" jsf:id="agrupar_div">
+							<div class="form-group" jsf:rendered="#{relatorioAcompanhamentoBean.padraoLinha eq 'SITUACOES'}">
+								<h:outputLabel value="#{msg['agrupar.label']}"/>
+								<h:selectOneRadio id="importarId" value="#{relatorioAcompanhamentoBean.agrupar}" label="#{msg['agrupar.label']}" styleClass="radio-default">
+									<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+									<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}" />
+								</h:selectOneRadio>
+							</div>
+						</div>
+						<div class="col-sm-3 noMarginBottom">
+							<div class="form-group">
+								<h:outputLabel value="#{msg['motivos.label']}"/>
+								<p:selectCheckboxMenu value="#{relatorioAcompanhamentoBean.filtro.tiposProcesso}"
+													  style="form-control bf-no-message has-success" label=""
+													  filter="false" converter="entityConverter" multiple="true">
+									<f:selectItems value="#{relatorioAcompanhamentoBean.tiposProcessos}" var="item" itemLabel="#{item.nome}" itemValue="#{item}" />
+									<f:ajax event="change" render="tiposProcessosSelecionados-id"/>
+								</p:selectCheckboxMenu>
+							</div>
+						</div>
+						<div class="col-sm-2 noMarginBottom"></div>
+					</div>
+					<div class="row">
+						<div class="col-sm-1"></div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h:outputLabel value="#{msg['formaIngresso.label']}" />
+								<h:selectOneMenu label="" styleClass="form-control" value="#{relatorioAcompanhamentoBean.formaIngresso}" converter="entityConverter">
+									<f:selectItem itemValue="" itemLabel=""/>
+									<f:selectItems value="#{relatorioAcompanhamentoBean.formasIngresso}" var="item" itemLabel="#{item.label}" itemValue="#{item.baseRegistro.chaveUnicidade}" />
+								</h:selectOneMenu>
+								<b:message/>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h:outputLabel value="#{msg['regional.label']}" for="regional" styleClass="bf-no-message"/>
+								<h:selectOneMenu styleClass="form-control bf-no-message"
+												 value="#{relatorioAcompanhamentoBean.regional}" id="regional">
+									<f:selectItem itemValue="" itemLabel=""/>
+									<f:selectItems value="#{relatorioAcompanhamentoBean.regionais}" var="re" itemValue="#{re.baseRegistro.chaveUnicidade}" itemLabel="#{re.label}"/>
+									<f:ajax event="change" render="form" listener="#{relatorioAcompanhamentoBean.findInstituicoesCampus}"/>
+								</h:selectOneMenu>
+								<b:message/>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h:outputLabel value="#{msg['campus.label']}" for="campus" styleClass="bf-no-message"/>
+								<h:selectOneMenu styleClass="form-control bf-no-message"
+												 value="#{relatorioAcompanhamentoBean.campus}" id="campus">
+									<f:selectItem itemValue="" itemLabel=""/>
+									<f:selectItems value="#{relatorioAcompanhamentoBean.listCampus}" var="ca" itemValue="#{ca.baseRegistro.chaveUnicidade}" itemLabel="#{ca.label}"/>
+								</h:selectOneMenu>
+								<b:message/>
+							</div>
+						</div>
+						<div class="col-sm-2"></div>
+						<div class="col-sm-1">
+							<ui:remove>
+								<b:commandButton value="#{msg['buscar.label']}" process="form" update="tabela-ID" ajax="true" style="margin-top: 14px;"
+												 actionListener="#{relatorioAcompanhamentoBean.buscar}" styleClass="btn btn-primary btn-md"/>
+							</ui:remove>
+						</div>
+					</div>
+					<div class="row" jsf:id="historicoDiv">
+						<div class="col-sm-1"></div>
+						<div class="col-sm-3 noMarginBottom">
+							<div class="form-group" >
+								<h:selectOneRadio rendered="#{relatorioAcompanhamentoBean.padraoLinha eq 'SITUACOES'}"
+												  value="#{relatorioAcompanhamentoBean.historico}" label="#{msg['agrupar.label']}" styleClass="radio-default">
+									<f:selectItem itemValue="#{true}" itemLabel="#{msg['historico.label']}"/>
+									<f:selectItem itemValue="#{false}" itemLabel="#{msg['statusAtual.label']}" />
+									<f:ajax event="select" render="historicoData" ></f:ajax>
+									<f:ajax event="change" render="historicoData" ></f:ajax>
+								</h:selectOneRadio>
+							</div>
+						</div>
+						<div class="col-sm-5" jsf:id="historicoData">
+							<div class="form-group" jsf:rendered="#{relatorioAcompanhamentoBean.padraoLinha eq 'SITUACOES' and relatorioAcompanhamentoBean.historico eq true}">
+								<h:outputLabel value="#{msg['periodo.label']}"/>
+								<b:panelGrid colSpans="1,5,1,5" style="margin-bottom: -20px; margin-left: 5px;">
+									<h:outputText value="#{msg['de.label']}"/>
+									<b:inputText id="dataInicioId" value="#{relatorioAcompanhamentoBean.filtro.dataInicio}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+												 label="#{msg['dataInicial.label']}" renderLabel="false" required="true">
+										<f:convertDateTime pattern="dd/MM/yyyy"/>
+										<f:facet name="append">
+											<i class="fa fa-calendar-o fa-12x14" />
+										</f:facet>
+									</b:inputText>
+									<h:outputText value="#{msg['ate.label']}"/>
+									<b:inputText id="dataFimId" value="#{relatorioAcompanhamentoBean.filtro.dataFim}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+												 label="#{msg['dataFinal.label']}" renderLabel="false" required="true">
+										<f:convertDateTime pattern="dd/MM/yyyy"/>
+										<f:facet name="append">
+											<i class="fa fa-calendar-o fa-12x14" />
+										</f:facet>
+									</b:inputText>
+								</b:panelGrid>
+								<b:message for="dataInicioId" showSummary="false"/>
+								<b:message for="dataFimId" showSummary="false"/>
+							</div>
+							<script type="text/javascript">
+								jQuery(function($) {
+									configurarDatePicker();
+									configurarMascaras();
+								});
+							</script>
+						</div>
+						<div class="col-sm-5">
+							<div class="form-group">
+							</div>
+						</div>
+						<div class="col-sm-3 noMarginBottom">
+							<div class="form-group">
+							</div>
+						</div>
+						<div class="col-sm-1 noMarginBottom">
+							<b:commandButton value="#{msg['buscar.label']}" process="form" update="tabela-ID" ajax="true" style="margin-top: 14px;"
+											 actionListener="#{relatorioAcompanhamentoBean.buscar}" styleClass="btn btn-primary btn-md"/>
+						</div>
+						<div class="col-sm-1"></div>
+					</div>
+					<div class="row" jsf:id="situacoes">
+						<h:panelGroup rendered="#{relatorioAcompanhamentoBean.padraoLinha eq 'STATUS'}">
+							<ui:remove>
+								<div class="col-sm-1"></div>
+								<div class="col-sm-4">
+									<div class="form-group">
+										<label class="bf-no-message has-success">Excluir as Situações abaixo:&nbsp;&nbsp;</label>
+										<div class="form-group">
+											<p:selectCheckboxMenu value="#{relatorioAcompanhamentoBean.filtro.excluirSituacoes}" label="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+																  style="form-control bf-no-message has-success"
+																  filter="false" panelStyle="width:250px" converter="entityConverter" >
+												<f:selectItems value="#{relatorioAcompanhamentoBean.situacoes}" var="item" itemLabel="#{item.nome}" itemValue="#{item}" />
+											</p:selectCheckboxMenu>
+										</div>
+									</div>
+								</div>
+							</ui:remove>
+						</h:panelGroup>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-12">
+					<h:panelGroup layout="div" id="tabela-ID" style="margin: 10px 15px;" styleClass="ui-datatable-tablewrapper ui-datatable ui-widget">
+						<div class="tooltip_templates">
+							<span id="tooltip-tempoMedio" class="tooltipContent">
+								<h:outputText value="#{msg['relatorioAcompanhaentoTooltipTempoMedio.label']}" escape="false"/>
+							</span>
+							<span id="tooltip-hoje" class="tooltipContent">
+								<h:outputText value="#{msg['relatorioAcompanhaentoTooltipHoje.label']}" escape="false"/>
+							</span>
+							<span id="tooltip-ok" class="tooltipContent">
+								<h:outputText value="#{msg['relatorioAcompanhaentoTooltipOk.label']}" escape="false"/>
+							</span>
+							<span id="tooltip-alerta" class="tooltipContent">
+								<h:outputText value="#{msg['relatorioAcompanhaentoTooltipAlerta.label']}" escape="false"/>
+							</span>
+							<span id="tooltip-atraso" class="tooltipContent">
+								<h:outputText value="#{msg['relatorioAcompanhaentoTooltipAtraso.label']}" escape="false"/>
+							</span>
+						</div>
+						<table class="relatorioTable">
+							<thead>
+							<tr jsf:rendered="#{relatorioAcompanhamentoBean.padraoLinha eq 'ANALISTAS'}">
+								<th class="ui-state-default ui-column-title"></th>
+								<th class="ui-state-default ui-column-title" colspan="2" style="width: 55px;"></th>
+								<th class="ui-state-default ui-column-title" colspan="4" style="width: 180px;">Em Análise</th>
+								<th class="ui-state-default ui-column-title" colspan="4" style="width: 180px;">Em Acompanhamento</th>
+								<th class="ui-state-default ui-column-title" colspan="4" style="width: 180px;">Total</th>
+							</tr>
+							<tr>
+								<th class="ui-state-default ui-column-title">#{msg['PadraoLinha.'.concat(relatorioAcompanhamentoBean.padraoLinha.name()).concat('.label')]}</th>
+								<th  jsf:rendered="#{relatorioAcompanhamentoBean.padraoLinha eq 'SITUACOES' and relatorioAcompanhamentoBean.agrupar
+									and !relatorioAcompanhamentoBean.historico}" class="ui-state-default ui-column-title" style="width: 120px; padding: 0;">
+									Tempo Médio (hoje)
+									<span class="tooltipar" data-tooltip-content="#tooltip-tempoMedio">
+											<i class="fa fa-question-circle" aria-hidden="true"></i>
+									</span>
+								</th>
+								<th class="ui-state-default ui-column-title" style="width: 55px; padding: 0;">Hoje
+									<span class="tooltipar" data-tooltip-content="#tooltip-hoje">
+											<i class="fa fa-question-circle" aria-hidden="true"></i>
+									</span>
+								</th>
+								<th class="ui-state-default ui-column-title" style="width: 45px; padding: 0;">#{msg['ok.label']}
+									<span class="tooltipar" data-tooltip-content="#tooltip-ok">
+											<i class="fa fa-question-circle" aria-hidden="true"></i>
+									</span></th>
+								<th class="ui-state-default ui-column-title" style="width: 45px; padding: 0;">Alerta
+									<span class="tooltipar" data-tooltip-content="#tooltip-alerta">
+											<i class="fa fa-question-circle" aria-hidden="true"></i>
+									</span></th>
+								<th class="ui-state-default ui-column-title" style="width: 45px; padding: 0;">Atraso
+									<span class="tooltipar" data-tooltip-content="#tooltip-atraso">
+											<i class="fa fa-question-circle" aria-hidden="true"></i>
+									</span></th>
+								<th class="ui-state-default ui-column-title" style="width: 45px; padding: 0;">#{msg['total.label']}</th>
+								<h:panelGroup rendered="#{relatorioAcompanhamentoBean.padraoLinha eq 'ANALISTAS'}">
+									<th class="ui-state-default ui-column-title" style="width: 45px; padding: 0;">#{msg['ok.label']}</th>
+									<th class="ui-state-default ui-column-title" style="width: 45px; padding: 0;">Alerta</th>
+									<th class="ui-state-default ui-column-title" style="width: 45px; padding: 0;">Atraso</th>
+									<th class="ui-state-default ui-column-title" style="width: 45px; padding: 0;">#{msg['total.label']}</th>
+									<th class="ui-state-default ui-column-title" style="width: 45px; padding: 0;">#{msg['ok.label']}</th>
+									<th class="ui-state-default ui-column-title" style="width: 45px; padding: 0;">Alerta</th>
+									<th class="ui-state-default ui-column-title" style="width: 45px; padding: 0;">Atraso</th>
+									<th class="ui-state-default ui-column-title" style="width: 45px; padding: 0;">#{msg['total.label']}</th>
+									<h:outputText rendered="#{(relatorioAcompanhamentoBean.padraoLinha eq 'SITUACOES' or
+										relatorioAcompanhamentoBean.padraoLinha eq 'STATUS') and
+										(vo.status eq 'CONCLUIDO' or vo.status eq 'CANCELADO')}"
+										value=" (Hoje)" />
+								</h:panelGroup>
+							</tr>
+							</thead>
+							<tbody>
+							<ui:repeat var="vo" value="#{relatorioAcompanhamentoBean.list}" varStatus="status">
+								<div class="tooltip_templates" style="display: none;" jsf:rendered="#{relatorioAcompanhamentoBean.padraoLinha eq 'SITUACOES'
+										and (vo.situacao ne null or vo.nomeLinha eq '1.x - Análise')}">
+									<span id="tooltip-#{status.index}" class="tooltipContent">
+										<h:outputText rendered="#{relatorioAcompanhamentoBean.padraoLinha eq 'SITUACOES' and vo.situacao ne null}"
+											value="Prazo: #{relatorioAcompanhamentoBean.formatarPrazo(vo.situacao.horasPrazo, vo.situacao.tipoPrazo)}">
+										</h:outputText>
+										<h:outputText rendered="#{relatorioAcompanhamentoBean.padraoLinha eq 'SITUACOES' and vo.nomeLinha eq '1.x - Análise'}"
+											value="#{msg['relatorioAcompanhaentoTooltip.label']}" escape="false">
+										</h:outputText>
+									</span>
+								</div>
+								<tr style="#{relatorioAcompanhamentoBean.padraoLinha eq 'SITUACOES' and status.index == 1 ? 'border-bottom: 1px #999 solid' : ''}"
+									class="ui-widget-content #{status.index%2 == 0 ? 'ui-datatable-even' : 'ui-datatable-odd'} #{status.index == relatorioAcompanhamentoBean.list.size()-1 ? 'total' : '' } ">
+									<td class="tdTitulo">
+										<p:commandLink action="#{relatorioAcompanhamentoBean.detalhes(vo)}">
+											<h:outputText rendered="#{empty vo.nomeLinha}" value="--- sem analista ---"/>
+											<span class="tooltipar" data-tooltip-content="#tooltip-#{status.index}">
+												<h:outputText rendered="#{relatorioAcompanhamentoBean.padraoLinha ne 'STATUS' or vo.nomeLinha eq 'TOTAL'}"
+														  value="#{vo.nomeLinha}" />
+												<h:panelGroup rendered="#{relatorioAcompanhamentoBean.padraoLinha eq 'SITUACOES' and vo.nomeLinha eq '1.x - Análise'}">
+													<i class="fa fa-question-circle" aria-hidden="true"></i>
+												</h:panelGroup>
+												<h:panelGroup rendered="#{relatorioAcompanhamentoBean.padraoLinha eq 'SITUACOES' and vo.situacao ne null}">
+													<i class="fa fa-clock-o" aria-hidden="true"></i>
+												</h:panelGroup>
+											</span>
+											<h:outputText rendered="#{relatorioAcompanhamentoBean.padraoLinha eq 'STATUS' and vo.nomeLinha ne 'TOTAL'}"
+														  value="#{msg['StatusProcesso.'.concat(vo.nomeLinha).concat('.label')]}" />
+										</p:commandLink>
+									</td>
+									<td jsf:rendered="#{relatorioAcompanhamentoBean.padraoLinha eq 'SITUACOES' and relatorioAcompanhamentoBean.agrupar
+										and !relatorioAcompanhamentoBean.historico}" style="text-align: right; border-radius: 0; border-left: 1px solid #ddd;" >
+										<h:outputText value="#{vo.tempoMedio}" />
+									</td>
+									<td style="text-align: right; border-radius: 0; border-left: 1px solid #ddd;">
+										<h:outputText value="#{vo.hoje}">
+											<f:convertNumber pattern="###,###,###" />
+										</h:outputText>
+									</td>
+									<h:panelGroup rendered="#{relatorioAcompanhamentoBean.padraoLinha eq 'ANALISTAS'}">
+										<td style="text-align: right; border-radius: 0;" class="alert alert-success">
+											<h:outputText value="#{vo.okEmAnalise}">
+												<f:convertNumber pattern="###,###,###" />
+											</h:outputText>
+										</td>
+										<td style="text-align: right; border-radius: 0;" class="alert alert-warning">
+											<h:outputText value="#{vo.alertasEmAnalise}">
+												<f:convertNumber pattern="###,###,###" />
+											</h:outputText>
+										</td>
+										<td style="text-align: right; border-radius: 0;" class="alert alert-danger">
+											<h:outputText value="#{vo.atrasadosEmAnalise}">
+												<f:convertNumber pattern="###,###,###" />
+											</h:outputText>
+										</td>
+										<td style="text-align: right; border-radius: 0;" class="alert">
+											<h:outputText value="#{vo.totalEmAnalise}">
+												<f:convertNumber pattern="###,###,###" />
+											</h:outputText>
+										</td>
+										<td style="text-align: right; border-radius: 0;" class="alert alert-success">
+											<h:outputText value="#{vo.okEmAcompanhamento}">
+												<f:convertNumber pattern="###,###,###" />
+											</h:outputText>
+										</td>
+										<td style="text-align: right; border-radius: 0;" class="alert alert-warning">
+											<h:outputText value="#{vo.alertasEmAcompanhamento}">
+												<f:convertNumber pattern="###,###,###" />
+											</h:outputText>
+										</td>
+										<td style="text-align: right; border-radius: 0;" class="alert alert-danger">
+											<h:outputText value="#{vo.atrasadosEmAcompanhamento}">
+												<f:convertNumber pattern="###,###,###" />
+											</h:outputText>
+										</td>
+										<td style="text-align: right; border-radius: 0;" class="alert">
+											<h:outputText value="#{vo.totalEmAcompanhamento}">
+												<f:convertNumber pattern="###,###,###" />
+											</h:outputText>
+										</td>
+									</h:panelGroup>
+									<td style="text-align: right; border-radius: 0;" class="alert alert-success">
+										<h:outputText value="#{vo.ok}">
+											<f:convertNumber pattern="###,###,###" />
+										</h:outputText>
+									</td>
+									<td style="text-align: right; border-radius: 0;" class="alert alert-warning">
+										<h:outputText value="#{vo.alertas}">
+											<f:convertNumber pattern="###,###,###" />
+										</h:outputText>
+									</td>
+									<td style="text-align: right; border-radius: 0;" class="alert alert-danger">
+										<h:outputText value="#{vo.atrasados}">
+											<f:convertNumber pattern="###,###,###" />
+										</h:outputText>
+									</td>
+									<td style="text-align: right; border-radius: 0;" class="alert">
+										<h:outputText value="#{vo.total}">
+											<f:convertNumber pattern="###,###,###" />
+										</h:outputText>
+									</td>
+								</tr>
+							</ui:repeat>
+							</tbody>
+						</table>
+					</h:panelGroup>
+				</div>
+			</div>
+			<script type="text/javascript">
+                $(document).ready(function() {
+                    $('.tooltipar').tooltipster({
+                        theme: 'tooltipster-punk',
+                        animation: 'grow',
+						position: 'right',
+                        interactive: true,
+                    });
+                });
+			</script>
+		</h:form>
+	</ui:define>
+</ui:composition>
+</html>

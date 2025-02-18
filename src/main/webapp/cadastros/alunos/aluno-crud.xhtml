@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+	<f:metadata>
+		<f:viewAction action="#{alunoCrudBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['alunoCrud.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<getdoc:excluirModal id="excluirModal" metodoExcluir="#{alunoCrudBean.excluir()}" update="mensagensGlobaisGroup form-aluno-list"/>
+            <h:form id="form-aluno-buscar">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <h4 class="tituloForm" style="white-space: nowrap">
+                            <h:outputText value="#{msg['filtroForm.label']}"/>
+                        </h4>
+                        <div class="row">
+                            <div class="col-sm-1"></div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <b:inputText value="#{alunoCrudBean.filtro.cpf}"
+                                                 label="#{msg['TipoEntradaCampo.CPF.label']}" styleClass="mask-cpf"
+                                                 required="false"/>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-5">
+                                <b:inputText value="#{alunoCrudBean.filtro.nome}" label="Nome" required="false"/>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-2">
+                                    <div class="form-group" style="float: left">
+                                        <b:commandButton id="buscarId" actionListener="#{alunoCrudBean.dataModel.buscar()}"
+                                                         value="#{msg['buscar.label']}"
+                                                         styleClass="btn btn-primary btn-md" style="margin-top: 28px;"/>
+                                    </div>
+                                    <div class="form-group" style="float: right">
+                                        <b:commandButton id="limparId" actionListener="#{alunoCrudBean.dataModel.limpar()}"
+                                                         value="#{msg['limpar.label']}"
+                                                         styleClass="btn btn-primary btn-md" style="margin-top: 28px;"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-1"></div>
+                            <script type="text/javascript">
+                                jQuery(function ($) {
+                                    configurarMascaras();
+                                });
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </h:form>
+
+            <h:form id="form-aluno">
+                <b:modal id="adicionar-modal-id" title="#{msg['adicionarNovoAluno.label']}" styleClass="adicionar-modal" rendered="#{menuBean.podeEditar()}">
+                    <b:row id="adicionar-modal-content-id">
+                        <div class="col-sm-12">
+                            <b:messages globalOnly="true" showSummary="true"/>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <b:inputText value="#{alunoCrudBean.aluno.nome}" label="#{msg['nome.label']}" renderLabel="true" maxlength="120" required="true"/>
+                                        <b:message/>
+                                    </div>
+                                    <div class="form-group">
+                                        <b:inputText value="#{alunoCrudBean.aluno.nomeSocial}" label="#{msg['nomeSocial.label']}" renderLabel="true" maxlength="120"/>
+                                        <b:message/>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-6 noMarginBottom">
+                                            <div class="form-group">
+                                                <b:inputText value="#{alunoCrudBean.aluno.cpf}" label="#{msg['cpf.label']}" renderLabel="true" maxlength="120" required="true" styleClass="mask-cpf"/>
+                                                <b:message/>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 noMarginBottom">
+                                            <div class="form-group">
+                                                <b:inputText value="#{alunoCrudBean.aluno.passaporte}" label="#{msg['passaporte.label']}" renderLabel="true" maxlength="120"/>
+                                                <b:message/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-6 noMarginBottom">
+                                            <div class="form-group">
+                                                <b:inputText value="#{alunoCrudBean.aluno.identidade}" label="#{msg['identidade.label']}" renderLabel="true" maxlength="120" required="true"/>
+                                                <b:message/>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 noMarginBottom">
+                                            <div class="form-group">
+                                                <b:selectOneMenu value="#{alunoCrudBean.aluno.ufIdentidade}" label="#{msg['ufIdentidade.label']}" required="true" disabled="#{usuarioEditBean.disabled}" converter="enumConverter">
+                                                    <f:selectItem itemValue="" itemLabel=""/>
+                                                    <f:selectItems value="#{utilBean.getValues('Estado')}" var="estado" itemValue="#{estado}" itemLabel="#{estado}"/>
+                                                </b:selectOneMenu>
+                                                <b:message/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-6 noMarginBottom">
+                                            <div class="form-group">
+                                                <b:inputText value="#{alunoCrudBean.aluno.orgaoEmissor}" label="#{msg['orgaoEmissor.label']}" renderLabel="true" maxlength="120" required="true"/>
+                                                <b:message/>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 noMarginBottom">
+                                            <b:inputText value="#{alunoCrudBean.aluno.dataEmissao}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+                                                         label="#{msg['dataEmissao.label']}" renderLabel="true">
+                                                <f:convertDateTime pattern="dd/MM/yyyy"/>
+                                                <f:facet name="append">
+                                                    <i class="fa fa-calendar-o fa-12x14" />
+                                                </f:facet>
+                                            </b:inputText>
+                                            <b:message/>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-6 noMarginBottom">
+                                            <div class="form-group">
+                                                <b:inputText value="#{alunoCrudBean.aluno.mae}" label="#{msg['mae.label']}" renderLabel="true" maxlength="120" required="true"/>
+                                                <b:message/>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 noMarginBottom">
+                                            <div class="form-group">
+                                                <b:inputText value="#{alunoCrudBean.aluno.pai}" label="#{msg['pai.label']}" renderLabel="true" maxlength="120" required="true"/>
+                                                <b:message/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-6 noMarginBottom">
+                                            <div class="form-group" style="margin-bottom: 5px;">
+                                                <h:outputLabel value="#{msg['isAtiva.label']}" for="ativaId"/>
+                                                <h:selectOneRadio id="ativaId" value="#{alunoCrudBean.aluno.ativa}" label="#{msg['isAtiva.label']}"
+                                                                  styleClass="radio-default" style="margin-left: 15px;">
+                                                    <f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+                                                    <f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+                                                </h:selectOneRadio>
+                                                <b:message/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <script type="text/javascript">
+                            jQuery(function($) {
+                                configurarMascaras();
+                                configurarDatePicker();
+                            });
+                        </script>
+                    </b:row>
+
+                    <f:facet name="footer">
+                        <b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+                        <p:commandButton value="#{msg['salvar.label']}" actionListener="#{alunoCrudBean.salvar()}" update="adicionar-modal-content-id form-aluno-list" styleClass="btn"  onerror="alert('Erro!')"/>
+                    </f:facet>
+                </b:modal>
+            </h:form>
+			<h:form id="form-aluno-list">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <p:commandLink value="#{msg['adicionarNovoAluno.label']}" onclick="openModal('adicionar-modal')" class="btn btn-primary btn-lg" style="float: right;" update="form-aluno:adicionar-modal-content-id" rendered="#{menuBean.podeEditar()}">
+                            <f:setPropertyActionListener target="#{alunoCrudBean.aluno}" value="#{null}" />
+                        </p:commandLink>
+                    </div>
+                </div>
+                <div class="row">
+                    <p:dataTable id="tabela-id" var="aluno" value="#{alunoCrudBean.dataModel}" rows="100" lazy="true" paginator="true"
+                                 paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+                                 currentPageReportTemplate="Total: {totalRecords}" paginatorPosition="bottom"
+                                 scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+                                 stickyHeader="true" stickyTopAt=".layout-topbar">
+                        <p:column headerText="ID" style="text-align: center; width: 100px;">
+                            <h:outputText value="#{aluno.id}" />
+                        </p:column>
+                        <p:column headerText="#{msg['nome.label']}" style="text-align: left !important; width: 380px;">
+                            <h:outputText value="#{aluno.nome}" />
+                        </p:column>
+                        <p:column headerText="#{msg['cpf.label']}" style="text-align: center !important; width: 150px;">
+                            <h:outputText value="#{aluno.cpf}" />
+                        </p:column>
+                        <p:column headerText="#{msg['identidade.label']}" style="text-align: center !important; width: 150px;">
+                            <h:outputText value="#{aluno.identidade}" />
+                        </p:column>
+                        <p:column headerText="#{msg['dataCadastro.label']}" style=" text-align: center !important; width: 150px;">
+                            <h:outputText value="#{utilBean.getDateTimeStr(aluno.dataCadastro)}" />
+                        </p:column>
+                        <p:column headerText="#{msg['isAtiva.label']}" style=" text-align: center; width: 80px;">
+                            <h:outputText value="#{msg['sim.label']}" rendered="#{aluno.ativa}"/>
+                            <h:outputText value="#{msg['nao.label']}" rendered="#{!aluno.ativa}"/>
+                        </p:column>
+                        <p:column sortable="false" rendered="#{menuBean.podeEditar()}">
+                            <a href="#{request.contextPath}/consultas/aluno/#{aluno.id}" class="btn btn-default" title="#{msg['taxonomia.label']}">
+                                <img src="#{request.contextPath}/resources/images/tree.png" alt="" style="width: 18px;"/>
+                            </a>
+                            <p:commandLink actionListener="#{alunoCrudBean.setAluno(aluno)}" value="#{msg['editar.label']}" onclick="openModal('adicionar-modal')" class="btn btn-warning btn-editar" update="form-aluno:adicionar-modal-content-id">
+                            </p:commandLink>
+                            <p:commandLink value="#{msg['excluir.label']}" onclick="openModal('excluir-modal', 'excluirModal:form-exclusao:excluir-btn')" class="btn btn-danger btn-excluir" rendered="#{menuBean.podeExcluir()}">
+                                <f:setPropertyActionListener target="#{alunoCrudBean.aluno}" value="#{aluno}" />
+                            </p:commandLink>
+                        </p:column>
+                    </p:dataTable>
+                </div>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

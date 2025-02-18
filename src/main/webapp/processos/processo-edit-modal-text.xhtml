@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+<h:panelGroup id="pg-modalText">
+	<script type="text/javascript" src="#{request.contextPath}/resources/tooltipster/js/tooltipster.bundle.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/tooltipster.bundle.min.css" />
+	<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-shadow.min.css" />
+	<script type="text/javascript" src="#{request.contextPath}/resources/tooltipster/js/tooltipster.bundle.min.js"></script>
+	<style>
+		.dadosTd1 {
+		    width: 200px;
+		}
+		.tableCampos .dadosTd1 {
+			padding: 2px 5px; 
+			text-align: left;
+			border-left: 0;
+		}
+	</style>
+	<div class="row">
+		<div class="col-sm-12" style="padding-left: 25px; padding-right: 25px;">
+			<h4 class="default-form-h4">#{processoEditBean.documento.nome}</h4>
+			<center>
+				<ui:repeat value="#{processoEditBean.fullTexts}" var="fullText" varStatus="status">
+					<div class='fullTextDiv text-page' id="text-page-#{status.index}"
+							style="#{status.index != 0 ? 'display: none;' : ''}">
+						<h:outputText value="#{utilBean.stringToHTML(fullText)}" escape="false"/>
+					</div>
+				</ui:repeat>
+				<div class="btn-group" role="group" style="padding-top: 10px;">
+					<ui:repeat value="#{processoEditBean.fullTexts}" var="fullText" varStatus="status">
+						 <button type="button" id="text-page-btn-#{status.index}"
+						 		class="btn btn-default text-page-btn #{status.index == 0 ? 'btn-primary' : ''}"
+						 		onclick="nextPage(#{status.index})">
+						 	#{status.index + 1}
+						 </button>
+					</ui:repeat>
+				</div>
+			</center>
+		</div>
+	</div>
+	<script type="text/javascript">
+	
+		function nextPage(index) {
+
+			$('.text-page').hide();
+			$('#text-page-' + index).show();
+
+			$('.text-page-btn').removeClass('btn-primary');
+			$('#text-page-btn-' + index).addClass('btn-primary');
+		}
+	</script>
+</h:panelGroup>
+</html>

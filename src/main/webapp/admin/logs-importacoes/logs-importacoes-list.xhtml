@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:b="http://bootsfaces.net/ui">
+	<f:metadata>
+		<f:viewAction action="#{logImportacaoListBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">Logs de Importação</ui:define>
+		<ui:define name="conteudo">
+			<h:form id="form-usuario">
+				<div class="row default-form">
+					<div class="col-sm-12">
+						<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+						<div class="row">
+							<div class="col-sm-10 col-sm-offset-1" >
+								<div class="col-sm-6" style="padding-left: 0;">
+									<div class="form-group">
+										<b:inputText value="#{logImportacaoListBean.filtro.usuario}" label="#{msg['usuario.label']}" maxlength="100"/>
+									</div>
+								</div>
+								<div class="col-sm-6" style="padding-left: 0;">
+									<div class="form-group">
+										<b:selectOneMenu value="#{logImportacaoListBean.filtro.tipoImportacao}" label="#{msg['tipoImportacao.label']}">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{logImportacaoListBean.tiposImportacao}" var="t" itemValue="#{t}" itemLabel="#{t}"/>
+										</b:selectOneMenu>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-10 col-sm-offset-1" >
+								<div style="float: right;">
+									<b:commandButton value="#{msg['buscar.label']}" styleClass="btn btn-primary btn-md" ajax="true" update="table-id"/>
+								</div>
+							</div>
+					 	</div>
+					 </div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12">
+						<p:dataTable id="table-id" var="log" value="#{logImportacaoListBean.dataModel}" rows="100" paginator="true" lazy="true"
+								paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+								currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+								paginatorPosition="bottom" rowStyleClass="#{log.inserts == 0 and log.updates == 0 and log.deletes == 0 ? 'bg-warning' : ''}">
+
+							<p:column headerText="#{msg['data.label']}" sortBy="#{log.data}" style="width: 145px;">
+								<h:outputText value="#{utilBean.getDateTimeLongStr(log.data.time)}"/>
+							</p:column>
+							<p:column headerText="#{msg['usuario.label']}">
+								<h:outputText value="#{log.usuario.nome}"/>
+							</p:column>
+							<p:column headerText="#{msg['tipoImportacao.label']}" style="width: 150px;">
+								<h:outputText value="#{log.tipo}"/>
+							</p:column>
+							<p:column headerText="#{msg['inserts.label']}" style="width: 70px;">
+								<h:outputText value="#{log.inserts}"/>
+							</p:column>
+							<p:column headerText="#{msg['updates.label']}" style="width: 70px;">
+								<h:outputText value="#{log.updates}"/>
+							</p:column>
+							<p:column headerText="#{msg['deletes.label']}" style="width: 70px;">
+								<h:outputText value="#{log.deletes}"/>
+							</p:column>
+							<p:column headerText="#{msg['nomeArquivo.label']}">
+								<h:outputText value="#{log.nomeArquivo}"/>
+							</p:column>
+							<p:column headerText="#{msg['tamanhoArquivo.label']}" style="width: 100px;">
+								<h:outputText value="#{utilBean.toFileSize(log.tamanhoArquivo)}"/>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

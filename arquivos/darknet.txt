@@ -1,0 +1,16 @@
+A darknet que esta sendo utilizada pelo getdoc-captacao esta rodando no servidor 10.221.242.60, que deve ser acessado com os dados de acesso apresentados abaixo:
+
+usuário: userwasys 
+senha: W@sys2019.
+
+Para inicilizar o servidor de tipificacao é necessário rodar o script "startServer.sh" que se encontra na pasta /home/userwasys/treinamento-estacio.
+
+Para garantir que o server estará rodando mesmo após deslogar do servidor o mesmo deve rodar dentro de uma screen,
+para tal é necessário rodar o comando "screen", ao fazer isto você será redirecionado para um novo terminal.
+Quando estiver dentro do novo terminar execute o script previamente informado.
+
+Uma vez que o script estiver em execução para deixar o screen use o seguinte comando ctrl+a e em seguida pressione e tecla "d".
+
+Para verificar se o screen esta rodando utilize o comando "screen -list"
+
+Caso haja uma instäncia do screen rodando utilize o comando screen -rd para acessa-lá

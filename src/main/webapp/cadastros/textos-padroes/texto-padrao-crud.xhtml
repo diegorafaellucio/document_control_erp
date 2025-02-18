@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+	<f:metadata>
+		<f:viewAction action="#{textoPadraoCrudBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['textoPadraoCrud.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<style>
+				.adicionar-modal > label {
+				   font-size: 12px;
+				}
+				.adicionar-modal .modal-dialog {
+				    width: 1000px;
+				    padding-top: 0px;
+				}
+				.adicionar-modal > .form-group {
+				    margin-bottom: 0px;
+				}
+				.adicionar-modal > .row > div {
+				    margin-bottom: 0px;
+				}
+
+				.visualizar-modal .modal-dialog {
+					width: 650px;
+				}
+			</style>
+			<getdoc:excluirModal id="excluirModal" metodoExcluir="#{textoPadraoCrudBean.excluir()}"/>
+			<h:form id="form-textoPadrao">
+				<c:set var="bean" value="#{textoPadraoCrudBean}" />
+				<b:modal id="adicionar-modal-id" title="#{msg['adicionarTextoPadrao.label']}" styleClass="adicionar-modal" rendered="#{menuBean.podeEditar()}">
+					<h:panelGroup id="adicionar-modal-content-id">
+						<b:messages globalOnly="true" showSummary="true"/>
+						<div class="row">
+							<div class="col-md-12">
+								<div class="form-group">
+									<p:selectCheckboxMenu value="#{bean.tiposProcessosSelecionados}" label="#{msg['tipoProcesso.label']}" converter="entityConverter"
+											style="form-control bf-no-message has-success" multiple="true" rendered="#{not empty bean.textoPadrao}" disabled="#{bean.textoPadrao.fixo}">
+										<f:selectItems value="#{bean.tiposProcessos}" var="item" itemLabel="#{item.nome}" itemValue="#{item}"/>
+									</p:selectCheckboxMenu>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<b:inputText value="#{bean.textoPadrao.nome}" label="#{msg['nome.label']}" renderLabel="true" maxlength="120" required="true" disabled="#{bean.textoPadrao.fixo}"/>
+									<b:message/>
+								</div>
+								<div class="form-group" jsf:rendered="#{not empty bean.textoPadrao and !bean.textoPadrao.fixo}">
+									<h:outputLabel value="#{msg['permissoesDeUso.label']}" for="proximaPId"/>
+									<p:selectManyCheckbox value="#{bean.currentPermissoesDeUso}" layout="grid" columns="4"
+											id="proximaPId" label="#{msg['permissoesDeUso.label']}" >
+										<f:selectItems value="#{bean.allPermissoesDeUso}" var="s" itemLabel="#{s}" itemValue="#{s}" />
+									</p:selectManyCheckbox>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<div class="row">
+										<div class="col-md-6">
+											<h:outputLabel value="#{msg['isAtivo.label']}" for="ativoId"/>
+											<h:selectOneRadio id="ativoId" value="#{bean.textoPadrao.ativo}" label="#{msg['isAtivo.label']}" styleClass="radio-default">
+												<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+												<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+											</h:selectOneRadio>
+											<b:message/>
+										</div>
+										<div class="col-md-6">
+											<p:commandLink value="#{msg['visualizar.label']}" style="float: right;" ajax="false" onerror="alert('Erro!')"
+														   class="btn btn-primary btn-lg" rendered="#{bean.textoPadrao.fixo}">
+												<p:fileDownload value="#{bean.downloadArquivoVisualizacao(bean.textoPadrao.id)}"/>
+											</p:commandLink>
+										</div>
+									</div>
+								</div>
+								<div class="form-group">
+									<getdoc:textEditor value="#{bean.textoPadrao.texto}" required="true" label="#{msg['texto.label']}"/>
+								</div>
+							</div>
+						</div>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['salvar.label']}" actionListener="#{bean.salvar()}" update="adicionar-modal-content-id form-textoPadrao-list mensagensGlobaisGroup"
+								styleClass="btn" rendered="#{menuBean.podeEditar()}"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-textoPadrao-list">
+				<div class="row default-form">
+					<div class="col-sm-12">
+						<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+						<div class="row">
+							<div class="col-sm-1" ></div>
+							<div class="col-sm-5" >
+								<div class="form-group">
+									<b:selectOneMenu id="usuarioId" value="#{bean.filtro.tipoProcessoId}" label="#{msg['tipoProcesso.label']}">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{bean.tiposProcessos}" var="tp" itemValue="#{tp.id}" itemLabel="#{tp.nome}"/>
+									</b:selectOneMenu>
+									<b:message for="usuarioId"/>
+								</div>
+							</div>
+							<div class="col-sm-5" >
+								<b:commandButton value="#{msg['buscar.label']}" styleClass="btn btn-primary btn-md" ajax="true" update="tabela-id" style="margin-top: 24px;"/>
+							</div>
+						</div>
+					 </div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12">
+						<p:commandLink value="#{msg['adicionarTextoPadrao.label']}" onclick="openModal('adicionar-modal')" class="btn btn-primary btn-lg" style="float: right;" update="form-textoPadrao:adicionar-modal-content-id" rendered="#{menuBean.podeEditar()}">
+							<f:setPropertyActionListener target="#{bean.textoPadrao}" value="#{null}" />
+						</p:commandLink>
+					</div>
+				</div>
+				<div class="row">
+					<p:dataTable id="tabela-id" var="textoPadrao" value="#{bean.dataModel}" rows="50" paginator="true" lazy="true"
+							paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+							currentPageReportTemplate="Total: {totalRecords}" scrollable="false"
+							emptyMessage="#{msg['emptyMessage.label']}" paginatorPosition="bottom"
+							stickyHeader="true" stickyTopAt=".layout-topbar">
+						<p:column headerText="ID" style="text-align: center; width: 70px;">
+							<h:outputText value="#{textoPadrao.id}" />
+						</p:column>
+						<p:column headerText="#{msg['nome.label']}" style="text-align: center;">
+							<h:outputText value="#{textoPadrao.nome}" />
+						</p:column>
+						<p:column headerText="#{msg['tipo.label']}" style="text-align: center; width: 200px;">
+							<ui:repeat value="#{utilBean.toList(textoPadrao.tiposProcessos)}" var="tptp">
+								#{tptp.tipoProcesso.nome}<br/>
+							</ui:repeat>
+						</p:column>
+						<p:column headerText="#{msg['isAtivo.label']}" style="width: 70px; text-align: center;">
+							<h:outputText value="#{msg['sim.label']}" rendered="#{textoPadrao.ativo}"/>
+							<h:outputText value="#{msg['nao.label']}" rendered="#{!textoPadrao.ativo}"/>
+						</p:column>
+						<p:column style="width: 250px;" sortable="false" rendered="#{menuBean.podeEditar()}">
+							<p:commandLink value="#{msg['editar.label']}" onclick="openModal('adicionar-modal')" class="btn btn-warning btn-editar" update="form-textoPadrao:adicionar-modal-content-id">
+								<f:setPropertyActionListener target="#{bean.textoPadrao}" value="#{textoPadrao}" />
+							</p:commandLink>
+							<p:commandLink value="#{msg['excluir.label']}" onclick="openModal('excluir-modal', 'excluirModal:form-exclusao:excluir-btn')" class="btn btn-danger btn-excluir" disabled="#{textoPadrao.fixo}" rendered="#{menuBean.podeExcluir()}">
+								<f:setPropertyActionListener target="#{bean.textoPadrao}" value="#{textoPadrao}" />
+							</p:commandLink>
+						</p:column>
+					</p:dataTable>
+				</div>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

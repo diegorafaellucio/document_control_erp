@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+
+	<composite:interface>
+		<composite:attribute name="processoRegraLogs" type="java.util.List" required="true"/>
+	</composite:interface>
+
+	<composite:implementation>
+		<div class="fluxograma">
+			<c:forEach var="log" items="#{cc.attrs.processoRegraLogs}">
+				<div class="row" jsf:rendered="#{not log.isPaiCondicional()}">
+					<div class="col-sm-6" style="margin: 0; padding: 0;">
+						<div class="seta-sobe"></div>
+					</div>
+				</div>
+				<div class="row" jsf:rendered="#{log.isPaiCondicional()}">
+					<div class="col-sm-6" style="margin: 0; padding: 0;">
+						<div class="seta-sobe"></div>
+					</div>
+				</div>
+				<div class="row" jsf:rendered="#{log.isPaiCondicional()}">
+					<div class="col-sm-3" style="margin: 0; padding: 0;"></div>
+					<div class="col-sm-6" style="margin: 0; padding: 0;">
+						<div class="seta-nao" jsf:rendered="#{not log.filhoSim}">Não</div>
+						<div class="seta-sim" jsf:rendered="#{log.filhoSim}">Sim</div>
+						<div class="seta-sobe-dupla"></div>
+					</div>
+				</div>
+				<div class="row">
+					<h:panelGroup rendered="#{not empty log.filhoSim and log.filhoSim}" >
+						<div class="sub-regra-box col-sm-4 col-sm-offset-1 log-empty">
+							<h:panelGroup>
+								<div class="texto">
+								</div>
+							</h:panelGroup>
+						</div>
+	        		</h:panelGroup>
+					<div class="sub-regra-box #{empty log.filhoSim ? 
+								('col-sm-4 col-sm-offset-4') :
+									log.filhoSim ? ('col-sm-4 col-sm-offset-2') : ('col-sm-4 col-sm-offset-1')
+							}">
+						<h:panelGroup>
+							<div class="acoes">
+								<i class="fa fa-cloud-download tipo-icon" aria-hidden="true" jsf:rendered="#{TipoSubRegra.CONSULTA_EXTERNA.equals(log.tipo)}"></i>
+								<i class="fa fa-database tipo-icon" aria-hidden="true" jsf:rendered="#{TipoSubRegra.BASE_INTERNA.equals(log.tipo)}"></i>
+								<i class="fa fa-share-alt tipo-icon" aria-hidden="true" jsf:rendered="#{TipoSubRegra.CONDICAO.equals(log.tipo)}" style="transform: rotate(90deg);"></i>
+								<i class="fa fa-external-link tipo-icon" aria-hidden="true" jsf:rendered="#{TipoSubRegra.CHAMADA_REGRA.equals(log.tipo)}"></i>
+								<i class="fa fa-stop-circle-o tipo-icon" aria-hidden="true" jsf:rendered="#{TipoSubRegra.FIM.equals(log.tipo)}"></i>
+								<i class="fa fa-ban tipo-icon" aria-hidden="true" jsf:rendered="#{TipoSubRegra.INATIVA.equals(log.tipo)}"></i>
+								<span>##{log.subRegraId} #{msg['TipoSubRegra.'.concat(log.tipo).concat('.label')]}</span>
+								<p:commandLink styleClass="btn-edit" onerror="alert('Erro!')" oncomplete="openModal('visualizar-subregra-modal')" title="Expandir" 
+										update="form-sub-regra-modal-id" actionListener="#{utilBean.setBolso(log)}">
+									<i class="fa fa-window-maximize" style="color: #333;" aria-hidden="true"></i>
+								</p:commandLink>
+							</div>
+							<div class="texto farol-#{log.farol} tipo-#{log.tipo}">
+								<p jsf:rendered="#{TipoSubRegra.CONSULTA_EXTERNA.equals(log.tipo)}">
+									#{log.consultaExterna.varConsulta} (#{log.consultaExterna})
+								</p>
+								<p jsf:rendered="#{TipoSubRegra.BASE_INTERNA.equals(log.tipo)}">
+									#{log.varConsulta} (#{log.baseInterna.nome})
+								</p>
+								<p jsf:rendered="#{TipoSubRegra.CHAMADA_REGRA.equals(log.tipo)}">
+									#{log.regraFilha.nome}
+								</p>
+								<p jsf:rendered="#{TipoSubRegra.FIM.equals(log.tipo)}">
+									#{msg['FarolRegra.'.concat(log.farol).concat('.label')]}
+									<p>#{log.processoRegra.mensagem}</p>
+									<p jsf:rendered="#{not empty log.situacaoDestino}" title="Situação de destino">
+										<i class="fa fa-long-arrow-right" aria-hidden="true"></i>
+										#{log.situacaoDestino.nome}
+									</p>
+								</p>
+								<p jsf:rendered="#{TipoSubRegra.CONDICAO.equals(log.tipo)}">
+									<pre>#{log.condicionalJs}</pre>
+									<p>#{log.observacao}</p>
+								</p>
+							</div>
+						</h:panelGroup>
+					</div>
+					<h:panelGroup rendered="#{not empty log.filhoSim and not log.filhoSim}" >
+						<div class="sub-regra-box col-sm-4 col-sm-offset-2 log-empty">
+							<h:panelGroup>
+								<div class="texto">
+								</div>
+							</h:panelGroup>
+						</div>
+	        		</h:panelGroup>
+				</div>
+				<div class="row" jsf:rendered="#{not log.isPaiCondicional()}">
+					<div class="col-sm-6" style="margin: 0; padding: 0;">
+						<div class="seta-sobe"></div>
+					</div>
+				</div>
+				<div class="row" jsf:rendered="#{log.isPaiCondicional()}">
+					<div class="col-sm-3" style="margin: 0; padding: 0;"></div>
+					<div class="col-sm-3" style="margin: 0; padding: 0;">
+						<div class="seta-desce-esq" jsf:rendered="#{not log.isFim()}"></div>
+					</div>
+					<div class="col-sm-3" style="margin: 0; padding: 0;" >
+						<div class="seta-desce-dir" jsf:rendered="#{not log.isFim()}"></div>
+					</div>
+				</div>
+				<div class="row" jsf:rendered="#{log.isPaiCondicional() and not log.isFim()}">
+					<div class="col-sm-6" style="margin: 0; padding: 0;">
+						<div class="seta-sobe"></div>
+					</div>
+				</div>
+			</c:forEach>
+			
+			<b:modal title="#{msg['detalhesSubRegraProcesso.label']}" styleClass="visualizar-subregra-modal">
+				<h:panelGroup id="form-sub-regra-modal-id">
+					<div class="row" jsf:rendered="#{not empty utilBean.bolso}">
+						<div class="col-md-12">
+							<div class="form-group">
+								<h:outputText value="#{msg['status.label']}:&nbsp;" style="font-weight: bold;"/>
+								<h:outputText value="#{utilBean.bolso.status}"/>
+							</div>
+							<div class="form-group" jsf:rendered="#{not TipoSubRegra.FIM.equals(utilBean.bolso.tipo)}">
+								<h:outputText value="#{msg['params.label']}: " style="font-weight: bold;"/>
+								<pre><code class="language-javascript">#{utilBean.stringToJson(utilBean.bolso.params)}</code></pre>
+							</div>
+							<div class="form-group" jsf:rendered="#{TipoSubRegra.CONDICAO.equals(utilBean.bolso.tipo)}">
+								<h:outputText value="#{msg['condicionalJs.label']}: " style="font-weight: bold;"/>
+								<pre class="line-numbers"><code class="language-javascript">#{utilBean.bolso.condicionalJs}</code></pre>
+							</div>
+							<div class="form-group" jsf:rendered="#{not TipoSubRegra.FIM.equals(utilBean.bolso.tipo)}">
+								<h:outputText value="#{msg['resultado.label']}: " style="font-weight: bold;"/>
+								<pre><code class="language-javascript">#{utilBean.stringToJson(utilBean.bolso.result)}</code></pre>
+							</div>
+							<div class="form-group" jsf:rendered="#{TipoSubRegra.FIM.equals(utilBean.bolso.tipo)}">
+								<h:outputLabel for="farol-id" value="#{msg['farol.label']}:&nbsp;" style="font-weight: bold;"/>
+								<h:outputText id="farol-id" value="#{utilBean.bolso.farol}"/>
+							</div>
+							<div class="form-group" jsf:rendered="#{utilBean.bolso.processoRegra.subRegraFinalId == utilBean.bolso.subRegraId}">
+								<h:outputText value="Mensagem Final:&nbsp;" style="font-weight: bold;"/>
+								<pre><code class="language-javascript">#{utilBean.stringToJson(empty utilBean.bolso.processoRegra.mensagem ? "Sem mensagem." : utilBean.bolso.processoRegra.mensagem)}</code></pre>
+							</div>
+							<div class="form-group" jsf:rendered="#{not empty utilBean.bolso.js}">
+								<h:outputText value="JavaScript: " style="font-weight: bold;"/>
+								<pre class="line-numbers"><code class="language-javascript">#{utilBean.bolso.js}</code></pre>
+							</div>
+							<div class="form-group" jsf:rendered="#{not empty utilBean.bolso.stackTrace}">
+								<h:outputText value="#{msg['descricaoErro.label']}: " style="font-weight: bold;"/>
+								<pre><code class="language-javascript">#{utilBean.bolso.stackTrace}</code></pre>
+							</div>
+						</div>
+					</div>
+					<script src="#{request.contextPath}/resources/js/prism.js"></script>
+				</h:panelGroup>
+			</b:modal>
+		</div>
+	</composite:implementation>
+</html>

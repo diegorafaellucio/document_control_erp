@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+	<f:metadata>
+		<f:viewAction action="#{baseInternaCrudBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['basesInternasCrud.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<style>
+				.adicionar-modal .modal-dialog {
+					width: 700px;
+					padding-top: 0px;
+				}
+			</style>
+			<getdoc:excluirModal id="excluirModal" metodoExcluir="#{baseInternaCrudBean.excluir()}" update="form-baseInterna-list mensagensGlobaisGroup"/>
+			<h:form id="form-baseInterna">
+				<b:modal id="adicionar-modal-id" title="#{msg['adicionarBaseInterna.label']}" styleClass="adicionar-modal" rendered="#{menuBean.podeEditar()}">
+					<b:row id="adicionar-modal-content-id">
+						<div class="col-sm-12">
+							<b:messages globalOnly="true" showSummary="true"/>
+							<div class="row">
+								<div class="col-sm-8">
+									<div class="form-group">
+										<b:inputText value="#{baseInternaCrudBean.baseInterna.nome}" label="#{msg['nome.label']}"
+												renderLabel="true" maxlength="50" required="true"/>
+										<b:message/>
+									</div>
+								</div>
+								<div class="col-sm-4">
+									<div class="form-group">
+										<h:outputLabel value="#{msg['isAtiva.label']}" for="ativaId"/>
+										<h:selectOneRadio id="ativaId" value="#{baseInternaCrudBean.baseInterna.ativa}" styleClass="radio-default">
+											<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+											<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+										</h:selectOneRadio>
+										<b:message/>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<b:inputTextarea value="#{baseInternaCrudBean.baseInterna.descricao}"
+										label="#{msg['descricao.label']}" renderLabel="true" rows="2"
+										maxlength="500" required="true"/>
+								<b:message/>
+							</div>
+							<div class="form-group">
+								<b:inputText value="#{baseInternaCrudBean.baseInterna.colunaLabel}" label="#{msg['colunaLabel.label']}"
+										renderLabel="true" maxlength="500"/>
+								<b:message/>
+							</div>
+							<div class="form-group">
+								<h:outputLabel value="#{msg['colunasUnicidade.label']} *" for="colunasUnicidade-id" styleClass="control-label"/>
+								<p:autoComplete id="colunasUnicidade-id" multiple="true" label="#{msg['colunasUnicidade.label']}" required="true"
+										value="#{baseInternaCrudBean.colunasUnicidadeList}" completeMethod="#{baseInternaCrudBean.colunasUnicidadeAutoComplete}"
+										var="colunaUnicidade" itemLabel="#{colunaUnicidade}" itemValue="#{colunaUnicidade}" forceSelection="true" dropdown="true">
+									<h:outputText value="#{colunaUnicidade}" />
+								</p:autoComplete>
+								<b:message/>
+							</div>
+							<div class="row">
+								<div class="col-sm-12" style="margin-bottom: 0; margin-top: 20px;">
+									<p:commandLink class="btn btn-default" update="form-baseInterna:relacionamentos-id"
+											style="float: right; padding: 6px 10px 3px 10px;" title="Adicionar Relacionamento">
+										<f:actionListener binding="#{baseInternaCrudBean.addRelacionamento()}"/>
+										<i class="fa fa-plus" aria-hidden="true" style="font-size: 22px; color: green;"></i>
+									</p:commandLink>
+									<h5 class="tituloForm" style="margin-bottom: 10px;"><h:outputText value="Relacionamentos"/></h5>
+								</div>
+							</div>
+							<h:panelGroup id="relacionamentos-id">
+							<ui:repeat value="#{baseInternaCrudBean.relacionamentos}" var="relacionamento">
+								<div class="row">
+									<div class="col-sm-5">
+										<div class="form-group">
+											<b:selectOneMenu value="#{relacionamento.baseExtrangeira}" label="Base" required="true" onchange="">
+												<f:selectItem itemValue="" itemLabel=""/>
+												<f:selectItems value="#{baseInternaCrudBean.basesInternas}" var="bi" itemValue="#{bi}" itemLabel="#{bi.nome}"/>
+												 <f:ajax event="change" render="autocomplete-chaveExtrangenira-id"/>
+											</b:selectOneMenu>
+											<b:message />
+										</div>
+									</div>
+									<div class="col-sm-6">
+										<div class="form-group">
+											<h:outputLabel value="Chave *" styleClass="control-label"/>
+											<p:autoComplete id="autocomplete-chaveExtrangenira-id" multiple="true" label="Chave" required="true" value="#{relacionamento.chaveExtrangeiraList}"
+												   completeMethod="#{baseInternaCrudBean.colunasRelacionamentoAutoComplete}" var="colunaUnicidade"
+												   itemLabel="#{colunaUnicidade}" itemValue="#{colunaUnicidade}" forceSelection="true" dropdown="true">
+												<h:outputText value="#{colunaUnicidade}" />
+											</p:autoComplete>
+											<b:message/>
+										</div>
+									</div>
+									<div class="col-sm-1">
+										<p:commandLink class="btn btn-danger btnDelFiliacao" style="float: right; margin-top: 17px;" title="Remover item" process="form-baseInterna:relacionamentos-id"
+													   actionListener="#{baseInternaCrudBean.removeRelacionamento(relacionamento)}" update="form-baseInterna:relacionamentos-id">
+											<i class="fa fa-trash fa-1" aria-hidden="true" style=""></i>
+										</p:commandLink>
+									</div>
+								</div>
+							</ui:repeat>
+							</h:panelGroup>
+						</div>
+					</b:row>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['salvar.label']}" actionListener="#{baseInternaCrudBean.salvar()}" update="adicionar-modal-content-id form-baseInterna-list" styleClass="btn"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-baseInterna-list">
+				<div class="row default-form">
+					<div class="col-sm-12">
+						<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+						<div class="row">
+							<div class="col-sm-1" ></div>
+							<div class="col-sm-5" >
+								<div class="form-group">
+									<b:inputText value="#{baseInternaCrudBean.filtro.nome}" label="#{msg['nome.label']}" maxlength="50"/>
+								</div>
+							</div>
+							<div class="col-sm-5" >
+								<b:commandButton value="#{msg['buscar.label']}" styleClass="btn btn-primary btn-md" ajax="true" update="tabela-id" style="margin-top: 24px;"/>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12">
+						<p:commandLink value="#{msg['adicionarBaseInterna.label']}" onclick="openModal('adicionar-modal')" class="btn btn-primary btn-lg" style="float: right;" update="form-baseInterna:adicionar-modal-content-id" rendered="#{menuBean.podeEditar()}">
+							<f:setPropertyActionListener target="#{baseInternaCrudBean.baseInterna}" value="#{null}" />
+						</p:commandLink>
+					</div>
+				</div>
+					<div class="row">
+						<p:dataTable id="tabela-id" var="baseInterna" value="#{baseInternaCrudBean.dataModel}" rows="50" paginator="true" lazy="true"
+								paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+								currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+								paginatorPosition="bottom" stickyHeader="true" stickyTopAt=".layout-topbar">
+							<p:column headerText="ID" style="width: 70px; text-align: center;">
+								<h:outputText value="#{baseInterna.id}" />
+							</p:column>
+							<p:column headerText="#{msg['nome.label']}" style="width: 200px; text-align: center;">
+								<h:outputText value="#{baseInterna.nome}" />
+							</p:column>
+							<p:column headerText="#{msg['colunasUnicidade.label']}" style="text-align: center;">
+								<h:outputText value="#{baseInterna.colunasUnicidade}" />
+							</p:column>
+							<p:column headerText="#{msg['dataAlteracao.label']}" style=" text-align: center; width: 150px;">
+								<h:outputText value="#{utilBean.getDateTimeStr(baseInterna.dataAlteracao)}" />
+							</p:column>
+							<p:column style="width: 375px; white-space: nowrap" sortable="false" rendered="#{menuBean.podeEditar()}">
+								<a href="#{request.contextPath}/cadastros/bases-internas/view/#{baseInterna.id}" class="btn btn-info btn-editar" style="width: 85px">
+									<h:outputText value="#{msg['visualizar.label']}"/>
+								</a>
+								<p:commandLink value="#{msg['importar.label']}" onclick="openModal('importar-modal')" class="btn btn-primary btn-editar" update="form-importar-baseInterna:importar-modal-content-id form-baseInterna" style="width: 85px">
+									<f:setPropertyActionListener target="#{baseInternaCrudBean.baseInterna}" value="#{baseInterna}" />
+								</p:commandLink>
+								<p:commandLink value="#{msg['editar.label']}" onclick="openModal('adicionar-modal')" class="btn btn-warning btn-editar" update="form-baseInterna:adicionar-modal-content-id" style="width: 85px">
+									<f:setPropertyActionListener target="#{baseInternaCrudBean.baseInterna}" value="#{baseInterna}" />
+								</p:commandLink>
+								<p:commandLink value="#{msg['excluir.label']}" onclick="openModal('excluir-modal')" class="btn btn-danger btn-excluir" style="width: 85px">
+									<f:setPropertyActionListener target="#{baseInternaCrudBean.baseInterna}" value="#{baseInterna}" />
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+					</div>
+			</h:form>
+			<h:form id="form-importar-baseInterna">
+				<b:modal id="importar-modal-id" title="#{msg['importarBaseInterna.label']}" styleClass="importar-modal" >
+					<b:row id="importar-modal-content-id">
+						<div class="col-sm-12">
+							<b:messages globalOnly="true" showSummary="true"/>
+							<div class="form-group">
+								<h:form id="form-importar-base" enctype="multipart/form-data" >
+									<span style="margin-left: 10px;"><h:outputText value="#{baseInternaCrudBean.fileName}"/></span>
+									<p:fileUpload
+											cancelLabel="#{msg['cancelar.label']}" update="form-importar-base"
+											label="#{msg['selecionarArquivo.label']}" auto="true"
+											listener="#{baseInternaCrudBean.upload}"
+											allowTypes="/(\.|\/)(csv|xls|xlsx|txt)$/"
+											oncomplete="$('#ajaxLoaderImg').hide()"
+											multiple="false" fileLimit="1" sizeLimit="41943040"><!-- 41943040 = 40M -->
+									</p:fileUpload>
+								</h:form>
+							</div>
+						</div>
+					</b:row>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+						<b:commandButton id="importarId" value="#{msg['importar.label']}" styleClass="btn btn-primary btn-md" style="margin-left: 10px" action="#{baseInternaCrudBean.importar()}"  />
+					</f:facet>
+					<p:remoteCommand name="verificarNoBean" actionListener="#{baseInternaCrudBean.verificar()}" oncomplete="verificar()"/>
+					<script>
+						function verificar() {
+							setTimeout(verificarNoBean, 2000);
+						}
+					</script>
+					<h:panelGroup rendered="#{not empty baseInternaCrudBean.importer}">
+						<script>
+							waitingDialog.show('Aguarde...');
+							verificarNoBean();
+						</script>
+					</h:panelGroup>
+				</b:modal>
+			</h:form>
+		<script>
+			function hideMessage() {
+				//do nothing
+			}
+		</script>
+	</ui:define>
+	</ui:composition>
+</html>

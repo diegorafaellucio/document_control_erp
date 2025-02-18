@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+  	xmlns:o="http://omnifaces.org/ui"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+	<f:metadata>
+		<f:viewParam name="id" value="#{tipoDocumentoCrudBean.tipoProcessoId}" />
+		<f:viewAction action="#{tipoDocumentoCrudBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['tipoDocumentoCrud.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<o:importConstants type="net.wasys.getdoc.domain.enumeration.Resposta" />
+			<style type="text/css">
+				.adicionar-modal .modal-dialog {
+				    padding-top: 0px;
+					width: 850px;
+				}
+				.ui-selectcheckboxmenu-panel {
+					max-width: 800px;
+				}
+			</style>
+			<getdoc:excluirModal id="excluirModal" metodoExcluir="#{tipoDocumentoCrudBean.excluir()}" update="form-tipoDocumento-list mensagensGlobaisGroup"/>
+			<h:form id="form-tipoDocumento">
+				<p:dialog id="adicionar-modal-id" header="#{msg['adicionarTipoDocumento.label']}" draggable="true" modal="true"
+						  resizable="false" positionType="absolute" widgetVar="adicionarModal" styleClass="adicionarModal" width="65%" >
+					<b:row id="adicionar-modal-content-id">
+                        <div class="col-sm-12">
+                            <b:messages globalOnly="true" showSummary="true"/>
+							<div class="form-group">
+								<b:inputText value="#{tipoDocumentoCrudBean.tipoDocumento.nome}" label="#{msg['nome.label']}" renderLabel="true"
+										maxlength="100" required="true" style="text-transform: uppercase"/>
+								<b:message/>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="form-group">
+										<b:inputText value="#{tipoDocumentoCrudBean.tipoDocumento.taxaCompressao}" label="#{msg['taxaCompressao.label']}"
+													 renderLabel="true" maxlength="3" styleClass="mask-number" required="true">
+											<f:convertNumber pattern="###000" integerOnly="true"/>
+										</b:inputText>
+										<b:message/>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<b:selectOneMenu value="#{tipoDocumentoCrudBean.tipoDocumento.modeloOcr}" label="#{msg['modeloOcr.label']}">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{tipoDocumentoCrudBean.modelosOcr}" var="m" itemValue="#{m}" itemLabel="#{m.descricao}"/>
+										</b:selectOneMenu>
+										<b:message/>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="form-group">
+										<h:outputLabel value="#{msg['irregularidade.label']}"/>
+										<p:selectCheckboxMenu
+												value="#{tipoDocumentoCrudBean.irregularidadeSelecionadas}"
+												label=""
+												style="form-control bf-no-message has-success" multiple="true"
+												filter="true"
+												filterMatchMode="contains" converter="entityConverter">
+											<f:selectItems value="#{tipoDocumentoCrudBean.irregularidadeList}" var="i"
+														   itemValue="#{i}" itemLabel="#{i.nome}"/>
+										</p:selectCheckboxMenu>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12 noMarginBottom">
+									<b:selectOneMenu value="#{tipoDocumentoCrudBean.tipoDocumento.baseRegistro}" label="Classe">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{tipoDocumentoCrudBean.baseRegistroVO}" var="vo" itemValue="#{vo.baseRegistro}" itemLabel="#{vo.label}"/>
+									</b:selectOneMenu>
+									<b:message/>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<h:outputLabel value="#{msg['modeloDocumento.label']}" styleClass="control-label"/>
+									<p:selectCheckboxMenu value="#{tipoDocumentoCrudBean.modelosDocumentosSelecionados}" label=""
+											multiple="true" converter="entityConverter" style="overflow: auto;">
+										<f:selectItems value="#{tipoDocumentoCrudBean.modelosDocumentos}" var="md" itemValue="#{md}" itemLabel="#{md.descricao}"/>
+									</p:selectCheckboxMenu>
+									<b:message/>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<h:outputLabel value="#{msg['categoriaDocumento.label']}" styleClass="control-label"/>
+									<p:selectCheckboxMenu value="#{tipoDocumentoCrudBean.categoriasDocumentoSelecionadas}" label="" multiple="true" converter="entityConverter" style="overflow: auto;">
+										<f:selectItems value="#{tipoDocumentoCrudBean.categoriasDocumento}" var="cd" itemValue="#{cd}" itemLabel="#{cd.descricao}"/>
+									</p:selectCheckboxMenu>
+									<b:message/>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<b:selectOneMenu id="tempoValidadeExpiracao" value="#{tipoDocumentoCrudBean.tipoDocumento.validadeExpiracao}" label="#{msg['expiracao.tipodocumento.label']}">
+										<f:selectItem itemValue="0" itemLabel="Nunca"/>
+										<f:selectItem itemValue="1" itemLabel="1 mês"/>
+										<f:selectItem itemValue="2" itemLabel="2 meses"/>
+										<f:selectItem itemValue="3" itemLabel="3 meses"/>
+										<f:selectItem itemValue="4" itemLabel="4 meses"/>
+										<f:selectItem itemValue="5" itemLabel="5 meses"/>
+										<f:selectItem itemValue="6" itemLabel="6 meses"/>
+										<f:selectItem itemValue="7" itemLabel="7 meses"/>
+										<f:selectItem itemValue="8" itemLabel="8 meses"/>
+										<f:selectItem itemValue="9" itemLabel="9 meses"/>
+										<f:selectItem itemValue="10" itemLabel="10 meses"/>
+										<f:selectItem itemValue="11" itemLabel="11 meses"/>
+										<f:selectItem itemValue="12" itemLabel="12 meses"/>
+										<f:ajax event="change" render="config-data-expiracao-id config-data-expiracao-modelos-id requisitarDataValidadeExpiracao requisitarDataEmissao" listener="#{tipoDocumentoCrudBean.ajustarExpiracao('tempoValidadeExpiracao')}"/>
+									</b:selectOneMenu>
+									<b:message/>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<h:outputLabel value="#{msg['grupoModeloDocumento.label']}" styleClass="control-label"/>
+									<p:selectCheckboxMenu value="#{tipoDocumentoCrudBean.gruposModeloDocumentoSelecionados}" label=""
+														  multiple="true" converter="entityConverter" style="overflow: auto;">
+										<f:selectItems value="#{tipoDocumentoCrudBean.gruposModeloDocumento}" var="md" itemValue="#{md}" itemLabel="#{md.descricao}"/>
+									</p:selectCheckboxMenu>
+									<b:message/>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-4 noMarginBottom">
+									<h:outputLabel value="#{msg['modoTipificacao.label']}" for="prazo-id"/>
+									<div class="form-inline">
+										<b:selectOneMenu value="#{tipoDocumentoCrudBean.tipoDocumento.modoTipificacao}" required="false">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{utilBean.getSelectItemsFromEnum('ModoTipificacao')}" var="t" itemValue="#{t}" itemLabel="#{msg['ModoTipificacao.'.concat(t).concat('.label')]}" />
+										</b:selectOneMenu>
+										<b:message/>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-3">
+									<b:inputText value="#{tipoDocumentoCrudBean.tipoDocumento.maximoPaginas}" label="#{msg['maximo.paginas.label']}"
+											renderLabel="true" maxlength="3" styleClass="mask-number">
+										<f:convertNumber pattern="####"/>
+									</b:inputText>
+									<b:message/>
+								</div>
+								<div class="col-md-3">
+									<h:outputLabel value="#{msg['prazo.label']}" for="prazo-id"/>
+									<div class="form-inline">
+										<b:inputText id="prazo-id" value="#{tipoDocumentoCrudBean.prazo}" maxlength="4" styleClass="mask-number" style="width: 80px" >
+											<f:convertNumber pattern="####"/>
+										</b:inputText>
+										<b:message/>
+										<b:selectOneMenu value="#{tipoDocumentoCrudBean.tipoDocumento.tipoPrazo}">
+											<f:selectItems value="#{utilBean.getSelectItemsFromEnum('TipoPrazo')}" var="t" itemValue="#{t}" itemLabel="#{msg['TipoPrazo.'.concat(t).concat('.label')]}" />
+										</b:selectOneMenu>
+										<b:message/>
+									</div>
+								</div>
+								<div class="col-md-3">
+									<b:inputText value="#{tipoDocumentoCrudBean.tipoDocumento.codOrigem}" label="#{msg['codigoOrigem.label']}"
+											renderLabel="true" maxlength="8" styleClass="mask-number">
+									</b:inputText>
+									<b:message/>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12 "></div>
+								<div class="col-sm-3">
+									<h:outputLabel value="#{msg['isObrigatorio.label']}" for="ativaId"/>
+									<h:selectOneRadio id="ativaId" value="#{tipoDocumentoCrudBean.tipoDocumento.obrigatorio}" label="#{msg['isObrigatorio.label']}" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+								<div class="col-sm-3">
+									<h:outputLabel value="#{msg['isAtivo.label']}" for="ativoId"/>
+									<h:selectOneRadio id="ativoId" value="#{tipoDocumentoCrudBean.tipoDocumento.ativo}" label="#{msg['isAtivo.label']}" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}" />
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+								<div class="col-sm-3">
+									<h:outputLabel value="#{msg['isReconhecimentoFacial.label']}" for="reconhecimentoFavialId"/>
+									<h:selectOneRadio id="reconhecimentoFavialId" value="#{tipoDocumentoCrudBean.tipoDocumento.reconhecimentoFacial}" label="#{msg['isReconhecimentoFacial.label']}" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+								<div class="col-sm-3">
+									<h:outputLabel value="Sempre Tipificar?" for="sempreTipificarId"/>
+									<h:selectOneRadio id="sempreTipificarId" value="#{tipoDocumentoCrudBean.tipoDocumento.sempreTipificar}" label="Sempre Tipificar?" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-sm-3">
+									<h:outputLabel value="Exibir no Portal?" for="exibirNoPortalId"/>
+									<h:selectOneRadio id="exibirNoPortalId" value="#{tipoDocumentoCrudBean.tipoDocumento.exibirNoPortal}" label="Exibir no Portal?" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+								<div class="col-sm-3">
+									<h:outputLabel value="#{msg['isPermiteUpload.label']}" for="permiteUpload"/>
+									<h:selectOneRadio id="permiteUpload" value="#{tipoDocumentoCrudBean.tipoDocumento.permiteUpload}" label="#{msg['isPermiteUpload.label']}" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+								<div class="col-sm-3">
+									<h:outputLabel value="#{msg['isAceiteContrato.label']}" for="permiteUpload"/>
+									<h:selectOneRadio id="aceiteContratoId" value="#{tipoDocumentoCrudBean.tipoDocumento.aceiteContrato}" label="#{msg['isAceiteContrato.label']}" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+								<div class="col-sm-3">
+									<h:outputLabel value="#{msg['isNotificarSia.label']}" for="notificarSia"/>
+									<h:selectOneRadio id="notificarSia" value="#{tipoDocumentoCrudBean.tipoDocumento.notificarSia}" label="#{msg['isNotificarSia.label']}" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-sm-6">
+									<h:outputLabel value="#{msg['isRequisitarDataEmissao.label']}" for="requisitarDataEmissao"/>
+									<h:selectOneRadio id="requisitarDataEmissao" value="#{tipoDocumentoCrudBean.tipoDocumento.requisitarDataEmissao}" label="#{msg['isRequisitarDataEmissao.label']}" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+										<f:ajax event="change" render="config-data-expiracao-id config-data-expiracao-modelos-id tempoValidadeExpiracao requisitarDataValidadeExpiracao" listener="#{tipoDocumentoCrudBean.ajustarExpiracao('requisitarDataEmissao')}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+								<div class="col-sm-6">
+									<h:outputLabel value="#{msg['isRequisitarDataValidadeExpiracao.label']}" for="requisitarDataValidadeExpiracao"/>
+									<h:selectOneRadio id="requisitarDataValidadeExpiracao" value="#{tipoDocumentoCrudBean.tipoDocumento.requisitarDataValidadeExpiracao}" label="#{msg['isRequisitarDataValidadeExpiracao.label']}" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+										<f:ajax event="change" render="config-data-expiracao-id config-data-expiracao-modelos-id tempoValidadeExpiracao requisitarDataEmissao" listener="#{tipoDocumentoCrudBean.ajustarExpiracao('requisitarDataValidadeExpiracao')}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+							</div>
+							<div class="row">
+								<h:panelGroup id="config-data-expiracao-id">
+									<h:panelGroup rendered="#{tipoDocumentoCrudBean.tipoDocumento.requisitarDataValidadeExpiracao or tipoDocumentoCrudBean.tipoDocumento.requisitarDataEmissao}">
+										<div class="col-sm-4">
+											<h:outputLabel value="#{msg['requisitarDataExpiracaoAprovacaoPorModeloDocumento.label']}" for="requisitarDataValidadeExpiracaoModelo"/>
+											<h:selectOneRadio id="requisitarDataValidadeExpiracaoModelo" value="#{tipoDocumentoCrudBean.tipoExpiracaoDocumento}" label="#{msg['requisitarDataExpiracaoAprovacaoPorModeloDocumento.label']}" styleClass="radio-default">
+												<f:selectItem itemValue="TODOS" itemLabel="#{msg['simTodos.label']}"/>
+												<f:selectItem itemValue="ALGUNS" itemLabel="#{msg['simAlguns.label']}"/>
+												<f:selectItem itemValue="NAO" itemLabel="#{msg['nao.label']}"/>
+												<f:ajax event="change" render="config-data-expiracao-modelos-id" />
+											</h:selectOneRadio>
+											<b:message/>
+										</div>
+									</h:panelGroup>
+								</h:panelGroup>
+								<h:panelGroup id="config-data-expiracao-modelos-id">
+									<h:panelGroup rendered="#{tipoDocumentoCrudBean.tipoExpiracaoDocumento eq 'ALGUNS'}">
+										<div class="col-sm-5">
+											<h:outputLabel value="#{msg['modeloDocumento.label']}" styleClass="control-label"/>
+											<p:selectCheckboxMenu value="#{tipoDocumentoCrudBean.modelosDocumentosSelecionadosParaExpiracao}" label=""
+																  multiple="true" converter="entityConverter" style="overflow: auto;">
+												<f:selectItems value="#{tipoDocumentoCrudBean.modelosDocumentosSelecionados}" var="md" itemValue="#{md}" itemLabel="#{md.descricao}"/>
+											</p:selectCheckboxMenu>
+											<b:message/>
+										</div>
+									</h:panelGroup>
+								</h:panelGroup>
+							</div>
+							<div class="row">
+								<div class="col-sm-4">
+									<h:outputLabel value="#{msg['isTermo.label']}" for="isTermo"/>
+									<h:selectOneRadio id="isTermo" value="#{tipoDocumentoCrudBean.tipoDocumento.termoPastaVermelha}" label="#{msg['isTermo.label']}" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+							</div>
+							<div class="form-group">
+								<h:outputLabel value="#{msg['descricao.label']}" for="textEditorId" style="margin-top: 15px;"/>
+								<getdoc:textEditor value="#{tipoDocumentoCrudBean.tipoDocumento.descricao}" id="textEditorId" required="false" />
+								<b:message/>
+							</div>
+							<div class="form-group">
+								<h:outputLabel value="#{msg['observacaoParaNotificacao.label']}" style="margin-top: 15px;"/>
+								<b:inputText value="#{tipoDocumentoCrudBean.tipoDocumento.observacaoParaNotificacao}"/>
+							</div>
+						</div>
+						<script type="text/javascript">
+							jQuery(function($) {
+								configurarMascaras();
+								configurarDatePicker();
+							});
+						</script>
+					</b:row>
+					<div class="col-sm-12" style="margin-bottom: -10px;">
+						<hr></hr>
+						<div class="col-sm-6 col-sm-offset-6">
+							<div class="form-group" style="float: right;">
+								<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="PF('adicionarModal').hide()" style="margin-right: 2px;"/>
+								<p:commandButton value="#{msg['salvar.label']}" actionListener="#{tipoDocumentoCrudBean.salvar()}" update="adicionar-modal-content-id form-tipoDocumento-list mensagensGlobaisGroup" styleClass="btn"/>
+							</div>
+						</div>
+					</div>
+                </p:dialog>
+			</h:form>
+			<h:form id="form-buscar">
+				<div class="row">
+					<div class="col-sm-12">
+						<h4 class="tituloForm" style="white-space: nowrap">
+							<h:outputText value="#{msg['filtroForm.label']}"/>
+						</h4>
+						<div class="row">
+							<div class="col-sm-2"></div>
+							<div class="col-sm-2">
+								<b:inputText value="#{tipoDocumentoCrudBean.filtro.id}" autocomplete="off" label="ID" required="false"/>
+							</div>
+							<div class="col-sm-2">
+								<b:inputText value="#{tipoDocumentoCrudBean.filtro.codOrigem}" autocomplete="off" label="#{msg['codigoOrigem.label']}" required="false"/>
+							</div>
+							<div class="col-sm-2">
+								<h:outputLabel value="#{msg['isObrigatorio.label']}" for="obrigatorioId"/>
+								<h:selectOneRadio id="obrigatorioId" value="#{tipoDocumentoCrudBean.filtro.obrigatorio}" styleClass="radio-default">
+									<f:selectItem itemValue="#{Resposta.SIM}" itemLabel="#{msg['sim.label']}"/>
+									<f:selectItem itemValue="#{Resposta.NAO}" itemLabel="#{msg['nao.label']}"/>
+									<f:selectItem itemValue="#{Resposta.TODOS}" itemLabel="#{msg['todos.label']}"/>
+								</h:selectOneRadio>
+								<b:message/>
+							</div>
+							<div class="col-sm-2">
+								<h:outputLabel value="#{msg['isAtiva.label']}" for="ativaId"/>
+								<h:selectOneRadio id="ativaId" value="#{tipoDocumentoCrudBean.filtro.ativo}" styleClass="radio-default">
+									<f:selectItem itemValue="#{Resposta.SIM}" itemLabel="#{msg['sim.label']}"/>
+									<f:selectItem itemValue="#{Resposta.NAO}" itemLabel="#{msg['nao.label']}"/>
+									<f:selectItem itemValue="#{Resposta.TODOS}" itemLabel="#{msg['todos.label']}"/>
+								</h:selectOneRadio>
+								<b:message/>
+							</div>
+							<div class="col-sm-2"></div>
+						</div>
+						<div class="row">
+							<div class="col-sm-2"></div>
+							<div class="form-group col-sm-6">
+								<b:inputText value="#{tipoDocumentoCrudBean.filtro.nomeLike}" autocomplete="off" label="#{msg['nome.label']}" required="false"/>
+							</div>
+							<div class="col-sm-2">
+								<div class="form-group" style="float: left">
+									<b:commandButton id="buscarId" actionListener="#{tipoDocumentoCrudBean.dataModel.buscar()}"
+													 value="#{msg['buscar.label']}" update="form-tipoDocumento-list:row-tabela"
+													 styleClass="btn btn-primary btn-md" style="margin-top: 28px;"/>
+								</div>
+								<div class="form-group" style="float: right">
+									<b:commandButton id="limparId" actionListener="#{tipoDocumentoCrudBean.dataModel.limpar()}"
+													 value="#{msg['limpar.label']}" update="form-buscar form-tipoDocumento-list:row-tabela"
+													 styleClass="btn btn-primary btn-md" style="margin-top: 28px;"/>
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-1"></div>
+						<script type="text/javascript">
+							jQuery(function ($) {
+								configurarMascaras();
+							});
+						</script>
+					</div>
+				</div>
+			</h:form>
+			<h:form id="form-tipoDocumento-list">
+				<div class="row">
+					<div class="col-sm-12">
+						<div style="float: left; margin-top: 20px;">
+							<h:outputLabel value="#{msg['tipoProcesso.label']}"/>:&nbsp;
+							<h:outputText value="#{tipoDocumentoCrudBean.tipoProcesso.nome}"/>
+						</div>
+ 						<p:commandLink value="#{msg['adicionarTipoDocumento.label']}" onclick="PF('adicionarModal').show()" class="btn btn-primary btn-lg" style="float: right;" update="form-tipoDocumento:adicionar-modal-content-id" rendered="#{menuBean.podeEditar()}">
+							<f:setPropertyActionListener target="#{tipoDocumentoCrudBean.tipoDocumento}" value="#{null}" />
+						</p:commandLink>
+					</div>
+				</div>
+				<h:panelGroup id="row-tabela">
+					<div class="row">
+						<p:dataTable id="tabela-id" var="tipoDocumento" value="#{tipoDocumentoCrudBean.dataModel}" rows="100" lazy="true" paginator="true"
+									 paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+									 currentPageReportTemplate="Total: {totalRecords}" paginatorPosition="bottom"
+									 scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+									 stickyHeader="true" stickyTopAt=".layout-topbar">
+							<p:column headerText="ID" style="text-align: center; width: 70px;">
+								<h:outputText value="#{tipoDocumento.id}" />
+								<i class="fa fa-check-square" aria-hidden="true" title="Aceite de Contrato"
+										style="font-size: 10px; color: black; margin-left: 5px; float: right; top: 21px; position: absolute;"
+										jsf:rendered="#{tipoDocumento.aceiteContrato}"></i>
+							</p:column>
+							<p:column headerText="#{msg['nome.label']}" style="text-align: center; width: 230px;">
+								<h:outputText value="#{tipoDocumento.nome}" />
+							</p:column>
+							<p:column headerText="#{msg['codigoOrigem.label']}" style="width: 80px; text-align: center;">
+								<h:outputText value="#{tipoDocumento.codOrigem}" />
+							</p:column>
+							<p:column headerText="#{msg['maximoPaginas.label']}" style="width: 80px; text-align: center;">
+								<h:outputText value="#{tipoDocumento.maximoPaginas}" />
+							</p:column>
+							<p:column headerText="#{msg['isObrigatorio.label']}" style="width: 100px; text-align: center;">
+								<h:outputText value="#{msg['sim.label']}" rendered="#{tipoDocumento.obrigatorio}"/>
+								<h:outputText value="#{msg['nao.label']}" rendered="#{!tipoDocumento.obrigatorio}"/>
+							</p:column>
+							<p:column headerText="#{msg['isPermiteUpload.label']}" style="width: 90px; text-align: center;">
+								<h:outputText value="#{msg['sim.label']}" rendered="#{tipoDocumento.permiteUpload}"/>
+								<h:outputText value="#{msg['nao.label']}" rendered="#{!tipoDocumento.permiteUpload}"/>
+							</p:column>
+							<p:column headerText="Exibir no Portal?" style="width: 100px; text-align: center;">
+								<h:outputText value="#{msg['sim.label']}" rendered="#{tipoDocumento.exibirNoPortal}"/>
+								<h:outputText value="#{msg['nao.label']}" rendered="#{!tipoDocumento.exibirNoPortal}"/>
+							</p:column>
+							<p:column headerText="#{msg['isAtivo.label']}" style="width: 90px; text-align: center;">
+								<h:outputText value="#{msg['sim.label']}" rendered="#{tipoDocumento.ativo}"/>
+								<h:outputText value="#{msg['nao.label']}" rendered="#{!tipoDocumento.ativo}"/>
+							</p:column>
+							<p:column style="width: 250px;" sortable="false" rendered="#{menuBean.podeEditar()}">
+								<div style="float: left; margin-top: 6px; padding-right: 5px;">
+									<div style="float: left; width: 25px;">
+										<p:commandLink actionListener="#{tipoDocumentoCrudBean.descerOrdem(tipoDocumento)}" update="form-tipoDocumento-list:row-tabela"
+											rendered="#{tipoDocumentoCrudBean.dataModel.rowIndex != tipoDocumentoCrudBean.dataModel.rowCount - 1}">
+											<span style="font-size: 20px;" class="glyphicon glyphicon-download" aria-hidden="true"></span>
+										</p:commandLink>&nbsp;
+									</div>
+									<div style="float: left; width: 30px;">
+										<p:commandLink actionListener="#{tipoDocumentoCrudBean.subirOrdem(tipoDocumento)}" update="form-tipoDocumento-list:row-tabela"
+											rendered="#{tipoDocumentoCrudBean.dataModel.rowIndex != 0}">
+											<span style="font-size: 20px;" class="glyphicon glyphicon-upload" aria-hidden="true"></span>
+										</p:commandLink>
+									</div>
+								</div>
+								<p:commandLink value="#{msg['editar.label']}" onclick="PF('adicionarModal').show()" class="btn btn-warning btn-editar" update="form-tipoDocumento:adicionar-modal-content-id">
+									<f:setPropertyActionListener target="#{tipoDocumentoCrudBean.tipoDocumento}" value="#{tipoDocumento}" />
+								</p:commandLink>
+								<p:commandLink value="#{msg['excluir.label']}" onclick="openModal('excluir-modal', 'excluirModal:form-exclusao:excluir-btn')" class="btn btn-danger btn-excluir" rendered="#{menuBean.podeExcluir()}">
+									<f:setPropertyActionListener target="#{tipoDocumentoCrudBean.tipoDocumento}" value="#{tipoDocumento}" />
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</h:panelGroup>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

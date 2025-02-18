@@ -1,0 +1,753 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+	<f:metadata>
+		<f:viewAction action="#{configuracaoConsultaExternaBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['configuracaoConsultaExterna.label']}</ui:define>
+		<ui:define name="conteudo">
+			<c:set var="bean" value="#{configuracaoConsultaExternaBean}"/>
+			<h:form id="form">
+				<div class="row">
+					<c:set var="arnDTO" value="#{bean.configuracoesWsDetranArnVO}"/>
+					<h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="#{msg['configuracaoDetranArn.label']}"/></h4>
+					<div class="col-sm-2"></div>
+					<div class="col-sm-8">
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="form-group">
+									<b:inputText value="#{arnDTO.endPointSP}" label="#{msg['endPointSP.label']}" required="false"/>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-6">
+								<div class="form-group">
+									<b:inputText value="#{arnDTO.endPointOutros}" label="#{msg['endPointOutros.label']}" required="false"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-4">
+								<div class="form-group">
+									<b:inputText value="#{arnDTO.login}" label="#{msg['login.label']}"/>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['senha.label']}"/>
+									<div class="input-group">
+										<h:inputSecret value="#{arnDTO.senha}" label="#{msg['senha.label']}" styleClass="form-control" redisplay="true"/>
+										<span class="input-group-addon"><i class="fa fa-eye" aria-hidden="true" title="#{arnDTO.senha}"></i></span>
+									</div>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<b:inputText value="#{arnDTO.validadeDetran}" label="#{msg['validade.label']} (horas)"
+											styleClass="mask-number" required="false"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-2"></div>
+				</div>
+				<div class="row">
+					<c:set var="infocarDTO" value="#{bean.configuracoesWsInfocarVO}"/>
+					<h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="#{msg['configuracaoInfocar.label']}"/></h4>
+					<div class="col-sm-2"></div>
+					<div class="col-sm-8">
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="form-group">
+									<b:inputText value="#{infocarDTO.endPointLeilao}" label="#{msg['endPointLeilao.label']}" required="false"/>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-6">
+								<div class="form-group">
+									<b:inputText value="#{infocarDTO.endPointDecode}" label="#{msg['endPointDecode.label']}" required="false"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-4">
+								<div class="form-group">
+									<b:inputText value="#{infocarDTO.validadeLeilao}" label="#{msg['validadeLeilao.label']} (horas)" 
+											styleClass="mask-number" required="false"/>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<b:inputText value="#{infocarDTO.validadeDecode}" label="#{msg['validadeDecode.label']} (horas)"
+											styleClass="mask-number" required="false"/>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<b:inputText value="#{infocarDTO.key}" label="#{msg['key.label']}"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-2"></div>
+				</div>
+				<div class="row">
+					<c:set var="crivoDTO" value="#{bean.configuracoesWsCrivoVO}"/>
+					<h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="#{msg['configuracaoCrivo.label']}"/></h4>
+					<div class="col-sm-2"></div>
+					<div class="col-sm-8">
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{crivoDTO.endPointCrivo}" label="#{msg['endPointCrivo.label']}" required="false"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-4">
+								<div class="form-group">
+									<b:inputText value="#{crivoDTO.login}" label="#{msg['login.label']}" required="false"/>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['senha.label']}"/>
+									<div class="input-group">
+										<h:inputSecret value="#{crivoDTO.senha}" label="#{msg['senha.label']}" required="false" styleClass="form-control" redisplay="true"/>
+										<span class="input-group-addon"><i class="fa fa-eye" aria-hidden="true" title="#{crivoDTO.senha}"></i></span>
+									</div>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<b:inputText value="#{crivoDTO.validadeCrivo}" label="#{msg['validade.label']} (horas)"
+											styleClass="mask-number" required="false"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{crivoDTO.politica}" label="#{msg['crivoPolitica.label']}" required="false"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-2"></div>
+				</div>
+                <div class="row">
+                    <c:set var="crediDTO" value="#{bean.configuracoesWsCrediLinkVO}"/>
+                    <h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="#{msg['configuracaoCredilink.label']}"/></h4>
+                    <div class="col-sm-2"></div>
+                    <div class="col-sm-8">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <b:inputText value="#{crediDTO.endpoint}" label="#{msg['endPointCredilink.label']}" required="false"/>
+                                    <b:message/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <b:inputText value="#{crediDTO.usuario}" label="#{msg['usuario.label']}"/>
+                                    <b:message/>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <h:outputLabel value="#{msg['senha.label']}"/>
+                                    <div class="input-group">
+                                        <h:inputSecret value="#{crediDTO.senha}" label="#{msg['senha.label']}" styleClass="form-control" redisplay="true"/>
+                                        <span class="input-group-addon"><i class="fa fa-eye" aria-hidden="true" title="#{crivoDTO.senha}"></i></span>
+                                    </div>
+                                    <b:message/>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <b:inputText value="#{crediDTO.sigla}" label="#{msg['sigla.label']}"/>
+                                    <b:message/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-2"></div>
+                </div>
+				<div class="row">
+					<c:set var="nfeInteresseDTO" value="#{bean.configuracoesWsNfeInteresseVO}"/>
+					<h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="#{msg['configuracaoNfeInteresse.label']}"/></h4>
+					<div class="col-sm-2"></div>
+					<div class="col-sm-8">
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{nfeInteresseDTO.endpoint}" label="#{msg['endPointNfeInteresse.label']}" required="false"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-4">
+								<div class="form-group">
+									<b:inputText value="#{nfeInteresseDTO.cnpjInteressado}" label="#{msg['cnpjInteressado.label']}"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-2"></div>
+				</div>
+				<div class="row">
+					<c:set var="dataValidDTO" value="#{bean.configuracoesWsDataValidVO}"/>
+					<h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="Configuração DataValid"/></h4>
+					<div class="col-sm-2"></div>
+					<div class="col-sm-8">
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="form-group">
+									<b:inputText value="#{dataValidDTO.endpointLogin}" label="EndPoint Login" required="false"/>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-6">
+								<div class="form-group">
+									<b:inputText value="#{dataValidDTO.endpoint}" label="EndPoint" required="false"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{dataValidDTO.endpointFace}" label="EndPoint Face" required="false"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="form-group">
+									<b:inputText value="#{dataValidDTO.consumerKey}" label="Consumer Key"/>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-6">
+								<div class="form-group">
+									<b:inputText value="#{dataValidDTO.consumerSecret}" label="Consumer Secret"/>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<b:inputText value="#{dataValidDTO.validadeDataValid}" label="#{msg['validade.label']} (horas)" styleClass="mask-number"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-2"></div>
+				</div>
+
+				<div class="row">
+					<c:set var="wsOcrSpaceDTO" value="#{bean.configuracoesWsOcrSpaceVO}"/>
+					<h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="Configuração Ocr Space"/></h4>
+					<div class="col-sm-2"></div>
+					<div class="col-sm-8">
+						<div class="row">
+							<div class="col-sm-4">
+								<div class="form-group">
+									<b:inputText value="#{wsOcrSpaceDTO.endpoint}" label="Endpoint"/>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<b:inputText value="#{wsOcrSpaceDTO.apikey}" label="Api Key"/>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<b:inputText value="#{wsOcrSpaceDTO.idioma}" label="Idioma"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-2"></div>
+				</div>
+				<div class="row">
+					<c:set var="wsRenavamDTO" value="#{bean.configuracoesWsRenavamVO}"/>
+					<h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="Configuração WS Renavam"/></h4>
+					<div class="col-sm-2"></div>
+					<div class="col-sm-8">
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsRenavamDTO.indicadoresChassiEndpoint}" label="EndPoint Indicadores Chassi"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="form-group">
+									<b:inputText value="#{wsRenavamDTO.cpfUsuario}" label="CPF Usuário"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-2"></div>
+				</div>
+				<div class="row">
+					<c:set var="wsBrScanDTO" value="#{bean.configuracoesWsBrScanVO}"/>
+					<h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="Configuração WS BrScan"/></h4>
+					<div class="col-sm-2"></div>
+					<div class="col-sm-8">
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsBrScanDTO.endpointCadastrar}" label="EndPoint Cadastro de Consulta"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsBrScanDTO.endpointConsultar}" label="EndPoint Consulta Protocolo"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-4">
+								<div class="form-group">
+									<b:inputText value="#{wsBrScanDTO.usuario}" label="Usuário"/>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['senha.label']}"/>
+									<div class="input-group">
+										<h:inputSecret value="#{wsBrScanDTO.senha}" label="#{msg['senha.label']}" styleClass="form-control" redisplay="true"/>
+										<span class="input-group-addon"><i class="fa fa-eye" aria-hidden="true" title="#{wsBrScanDTO.senha}"></i></span>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<h:outputLabel value="Validade (horas)"/>
+									<div class="input-group">
+										<h:inputText value="#{wsBrScanDTO.validade}" label="#{msg['validade.label']}"
+												styleClass="form-control mask-number"/>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-2"></div>
+				</div>
+				<div class="row">
+					<c:set var="wsAzureVO" value="#{bean.configuracoesWsAzureVO}"/>
+					<h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="Configuração Autenticação via Azure"/></h4>
+					<div class="col-sm-2"></div>
+					<div class="col-sm-8">
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsAzureVO.linkAutenticacao}" label="URL de Autenticação"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsAzureVO.tokenEndpoint}" label="EndPoint de Obtenção do Token"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsAzureVO.memberOfEndpoint}" label="EndPoint do Serviço MemberOf"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsAzureVO.usersEndpoint}" label="EndPoint do Serviço Users"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="form-group">
+									<b:inputText value="#{wsAzureVO.clientId}" label="Client ID"/>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-6">
+								<div class="form-group">
+									<b:inputText value="#{wsAzureVO.clientSecret}" label="Client Secret"/>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsAzureVO.logoffEndPoint}" label="EndPoint do Logoff"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-2"></div>
+				</div>
+				<div class="row">
+					<c:set var="wsSiaVO" value="#{bean.configuracoesWsSiaVO}"/>
+					<h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="Configuração WS SIA"/></h4>
+					<div class="col-sm-2"></div>
+					<div class="col-sm-8">
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="form-group">
+									<b:inputText value="#{wsSiaVO.apiKey}" label="Api Key" />
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-6">
+								<div class="form-group">
+									<b:inputText value="#{wsSiaVO.validadeConsultaLinhaTempo}" label="Validade Consulta Linha Tempo/Inscrições (horas)"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<p:outputLabel value="Atualiza Documento" style="font-size: 14px !important;"/><br/><br/>
+									<div class="col-sm-12">
+										<b:inputText value="#{wsSiaVO.atualizaDocumentoEndpoint}" label="EndPoint"/>
+									</div>
+									<div class="col-sm-6">
+										<b:inputText value="#{wsSiaVO.atualizaDocumentoRepeattimes}" label="Número de tentativas"/>
+									</div>
+									<div class="col-sm-6">
+										<b:inputText value="#{wsSiaVO.atualizaDocumentoTimeout}" label="Timeout"/>
+									</div>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<p:outputLabel value="Consulta Documentos" style="font-size: 14px !important;"/><br/><br/>
+									<div class="col-sm-12">
+										<b:inputText value="#{wsSiaVO.consultaDocumentosEndpoint}" label="EndPoint"/>
+									</div>
+										<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<p:outputLabel value="Consulta Linha do Tempo" style="font-size: 14px !important;"/><br/><br/>
+									<div class="col-sm-12">
+										<b:inputText value="#{wsSiaVO.consultaLinhaTempoEndpoint}" label="EndPoint"/>
+									</div>
+									<div class="col-sm-6">
+										<b:inputText value="#{wsSiaVO.consultaLinhaTempoRepeattimes}" label="Número de tentativas"/>
+									</div>
+									<div class="col-sm-6">
+										<b:inputText value="#{wsSiaVO.consultaLinhaTempoTimeout}" label="Timeout"/>
+									</div>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<p:outputLabel value="Consulta Dados Contrato" style="font-size: 14px !important;"/><br/><br/>
+									<div class="col-sm-12">
+										<b:inputText value="#{wsSiaVO.consultaDadosContratoEndpoint}" label="EndPoint"/>
+									</div>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<p:outputLabel value="Consulta Comprovante de Inscrição" style="font-size: 14px !important;"/><br/><br/>
+									<div class="col-sm-12">
+										<b:inputText value="#{wsSiaVO.consultaComprovanteInscricaoEndpoint}" label="EndPoint"/>
+									</div>
+									<div class="col-sm-6">
+										<b:inputText value="#{wsSiaVO.consultaComprovanteInscricaoRepeattimes}" label="Número de tentativas"/>
+									</div>
+									<div class="col-sm-6">
+										<b:inputText value="#{wsSiaVO.consultaComprovanteInscricaoTimeout}" label="Timeout"/>
+									</div>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<p:outputLabel value="Consulta Termo de Estágio" style="font-size: 14px !important;"/><br/><br/>
+									<div class="col-sm-12">
+										<b:inputText value="#{wsSiaVO.consultaTermoEstagioEndPoint}" label="EndPoint"/>
+									</div>
+									<div class="col-sm-6">
+										<b:inputText value="#{wsSiaVO.consultaTermoEstagioRepeattimes}" label="Número de tentativas"/>
+									</div>
+									<div class="col-sm-6">
+										<b:inputText value="#{wsSiaVO.consultaTermoEstagioTimeout}" label="Timeout"/>
+									</div>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<p:outputLabel value="Consulta Analise de Isenção" style="font-size: 14px !important;"/><br/><br/>
+									<div class="col-sm-12">
+										<b:inputText value="#{wsSiaVO.consultaAnaliseIsencaoDisciplinasEndPoint}" label="EndPoint"/>
+									</div>
+									<div class="col-sm-6">
+										<b:inputText value="#{wsSiaVO.consultaAnaliseIsencaoDisciplinasRepeattimes}" label="Número de tentativas"/>
+									</div>
+									<div class="col-sm-6">
+										<b:inputText value="#{wsSiaVO.consultaAnaliseIsencaoDisciplinasTimeout}" label="Timeout"/>
+									</div>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<p:outputLabel value="Consulta CPF" style="font-size: 14px !important;"/><br/><br/>
+									<div class="col-sm-12">
+										<b:inputText value="#{wsSiaVO.consultaCpfEndPoint}" label="EndPoint"/>
+									</div>
+									<div class="col-sm-6">
+										<b:inputText value="#{wsSiaVO.consultaCpfRepeattimes}" label="Número de tentativas"/>
+									</div>
+									<div class="col-sm-6">
+										<b:inputText value="#{wsSiaVO.consultaCpfTimeout}" label="Timeout"/>
+									</div>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-2"></div>
+				</div>
+				<div class="row">
+					<c:set var="wsDarknetDTO" value="#{bean.configuracoesWsDarknetVO}"/>
+					<h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="Configuração Darknet"/></h4>
+					<div class="col-sm-2"></div>
+					<div class="col-sm-8">
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsDarknetDTO.endpoint}" label="Endpoint"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsDarknetDTO.endpointTipificacaoJobOCR}" label="Endpoint Tipificacao Job OCR"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-2"></div>
+				</div>
+				<div class="row">
+					<c:set var="wsAlunoDTO" value="#{bean.configuracoesWsAlunoVO}"/>
+					<h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="Configuração Aluno"/></h4>
+					<div class="col-sm-2"></div>
+					<div class="col-sm-8">
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsAlunoDTO.linkExtranet}" label="Link extranet"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsAlunoDTO.endpointLogin}" label="Endpoint Login"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsAlunoDTO.endpointImgDoc}" label="Endpoint Imagens Documentos"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsAlunoDTO.endpointImagensDigitalizadas}" label="Endpoint Imagens Digitalizadas Reaproveitaveis"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsAlunoDTO.endpointConsultaMatricula}" label="Endpoint Consulta Matrícula Aluno"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="form-group">
+									<b:inputText value="#{wsAlunoDTO.login}" label="Login"/>
+									<b:message/>
+								</div>
+							</div>
+
+							<div class="col-sm-6">
+								<div class="form-group">
+									<label>Senha
+									<h:inputSecret value="#{wsAlunoDTO.senha}"  label="Senha" redisplay="true"
+											style="box-shadow: none;
+											border-left: none;
+											border-right: none;
+											border-top: none;
+											border-bottom: 1px solid #ccc !important;
+											border-radius: 0;
+											display: block;
+											width: 100%;
+											height: 34px;
+											padding: 6px 12px;
+											font-size: 14px;
+											line-height: 1.42857143;
+											color: #555;
+											background-color: #fff;
+											background-image: none;"/>
+									</label>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-2"></div>
+				</div>
+				<div class="row">
+					<c:set var="wsAtilaDTO" value="#{bean.configuracoesWsAtila}"/>
+					<h4 class="tituloForm col-sm-offset-1 col-sm-10"><h:outputText value="Configuração Átila"/></h4>
+					<div class="col-sm-2"></div>
+					<div class="col-sm-8">
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsAtilaDTO.endpointAutenticacao}" label="Endpoint Autenticação"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsAtilaDTO.grantType}" label="Grant Type"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsAtilaDTO.clientId}" label="Client ID"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsAtilaDTO.clientSecret}" label="Client Secret"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsAtilaDTO.accountId}" label="Account ID"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:inputText value="#{wsAtilaDTO.endpointNotificacao}" label="EndPoint Notificação"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-2"></div>
+				</div>
+				<div class="row">
+					<div class="col-sm-2"></div>
+					<div class="col-sm-8">
+						<div class="form-group" style="float: right;">
+							<p:commandButton value="#{msg['salvar.label']}" styleClass="btn" action="#{configuracaoConsultaExternaBean.salvar}" update="content-pg-id"/>
+						</div>
+					</div>
+					<div class="col-sm-2"></div>
+				</div>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

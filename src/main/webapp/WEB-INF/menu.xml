@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menu>
+	<arvoreMenuItens>
+
+		<menu-item id="PROCESSOS_FILA" url="/requisicoes/fila/" labelKey="menu-fila.label">
+			<subItens>
+				<sub-item url="/requisicoes/fila/edit/" labelKey="menu-editar.label"></sub-item>
+				<sub-item url="/requisicoes/novo/" labelKey="menu-novo-processo.label"></sub-item>
+			</subItens>
+		</menu-item>
+
+		<menu-item id="PROCESSOS" url="/requisicoes/" labelKey="menu-pesquisa.label">
+			<subItens>
+				<sub-item url="/requisicoes/edit/" labelKey="menu-editar.label"></sub-item>
+				<sub-item url="/relatorio/listagem/" labelKey="menu-editar.label"></sub-item>
+				<sub-item url="/processos/processo-visualizar.xhtml" labelKey="menu-editar.label"></sub-item>
+			</subItens>
+		</menu-item>
+
+		<menu-item id="CONSULTA_CANDIDATO_LIST" url="/requisicoes/candidato/" labelKey="menu-pesquisa-candidatos.label">
+			<subItens>
+				<sub-item url="/requisicoes/candidato/" labelKey="menu-editar.label"></sub-item>
+			</subItens>
+		</menu-item>
+<!--
+		<menu-item id="CONSULTA_ALUNO_CANDIDATO" url="/consultas/aluno/" labelKey="menu-aluno.label">
+			<subItens>
+				<sub-item url="/consultas/aluno/" labelKey="menu-aluno.label"></sub-item>
+			</subItens>
+		</menu-item>
+-->
+		<menu-item id="CONSULTA_CANDIDATO" url="/consultas/candidato/" labelKey="menu-candidato.label">
+			<subItens>
+				<sub-item url="/consultas/aluno/" labelKey="menu-candidato.label"></sub-item>
+			</subItens>
+		</menu-item>
+
+		<menu-item id="IMPORTACAO_PROCESSO" url="/processos/importacao/" labelKey="menu-importacao-processo.label">
+			<subItens>
+				<sub-item url="/processos/importacao/" labelKey="menu-importacao-processo.label"></sub-item>
+			</subItens>
+		</menu-item>
+
+		<menu-item url="" labelKey="menu-relatorios.label">
+			<menuItens>
+				<menu-item id="DASHBOARD" url="/relatorios/dashboard/" labelKey="dashboard.label"></menu-item>
+				<menu-item id="DASHBOARD_DIARIO" url="/relatorios/dashboard-diario/" labelKey="menu-dashboard-diario.label"></menu-item>
+				<menu-item id="DASHBOARD_INTRADAY" url="/relatorios/dashboard-intraday/" labelKey="menu-dashboard-intraday.label"></menu-item>
+				<menu-item id="DASHBOARD_MENSAL" url="/relatorios/dashboard-mensal/" labelKey="menu-dashboard-mensal.label"></menu-item>
+				<menu-item id="RELATORIO_ACOMPANHAMENTO" url="/relatorios/acompanhamento/" labelKey="menu-relatorio-acompanhamento.label"></menu-item>
+				<menu-item id="RELATORIO_ACOMPANHAMENTO_EM_ABERTO" url="/relatorios/acompanhamento/emaberto/" labelKey="menu-relatorio-acompanhamento-em-aberto.label"></menu-item>
+				<menu-item id="RELATORIO_ISENCAO_DISCIPLINAS" url="/relatorios/isencao-disciplinas/" labelKey="menu-relatorio-isencao-disciplinas.label"></menu-item>
+				<menu-item id="RELATORIO_ISENCAO_DISCIPLINAS_MEDICINA" url="/relatorios/isencao-disciplinas-medicina/" labelKey="menu-relatorio-isencao-disciplinas-medicina.label"></menu-item>
+				<menu-item id="RELATORIO_ATIVIDADE" url="/relatorios/atividade/" labelKey="menu-relatorio-atividade.label"></menu-item>
+				<menu-item id="RELATORIO_CONSULTA_EXTERNA" url="/relatorios/consulta-externa/" labelKey="menu-relatorio-CE.label"></menu-item>
+				<menu-item id="RELATORIO_EFICIENCIA_AREAS" url="/relatorios/eficiencia/areas/" labelKey="menu-relatorio-eficiencia-areas.label"></menu-item>
+				<menu-item id="RELATORIO_EXECUCAO_REGRAS" url="/relatorios/regras/" labelKey="menu-execucao-regras.label">
+					<subItens>
+						<sub-item url="/relatorios/regras/execucao/" labelKey="menu-relatorios-execucao-regras-log.label"></sub-item>
+					</subItens>
+				</menu-item>
+				<menu-item id="RELATORIO_GERAL" url="/relatorios/geral/" labelKey="menu-relatorio-geral.label"></menu-item>
+				<menu-item id="RELATORIO_LICENCIAMENTO" url="/relatorios/licenciamento/" labelKey="menu-relatorio-licenciamento.label"></menu-item>
+				<menu-item id="RELATORIO_LICENCIAMENTO_OCR" url="/relatorios/licenciamento_ocr/" labelKey="menu-relatorio-licenciamento-ocr.label"></menu-item>
+				<menu-item id="RELATORIO_OCR" url="/relatorios/ocr/" labelKey="menu-relatorio-ocr.label"></menu-item>
+				<menu-item id="RELATORIO_PENDENCIA_DOCUMENTO_ALUNO" url="/relatorios/pendencia/documento-alunos/" labelKey="menu-relatorio-pendencia-documento.label"></menu-item>
+				<menu-item id="RELATORIO_PRODUTIVIDADE_PROUNI" url="/relatorios/produtividade/prouni/" labelKey="menu-relatorio-produtividade-prouni.label"></menu-item>
+				<menu-item id="RELATORIO_PRODUTIVIDADE" url="/relatorios/produtividade/" labelKey="menu-relatorio-produtividade.label"></menu-item>
+				<menu-item id="RELATORIO_TIPIFICACAO" url="/relatorios/tipificacao/" labelKey="menu-relatorio-tipificacao.label"></menu-item>
+				<menu-item id="RELATORIO_STATUS_LABORAL" url="/relatorios/status-laboral/" labelKey="menu-relatorio-status-laboral.label"></menu-item>
+				<menu-item id="RELATORIO_LOGIN_LOG" url="/relatorios/login-log/" labelKey="menu-relatorio-login-log.label"></menu-item>
+				<menu-item id="RELATORIO_OPERACAO" url="/relatorios/operacao/" labelKey="menu-relatorio-operacao.label"></menu-item>
+				<menu-item id="RELATORIO_ANALISE_IA" url="/relatorios/analise-ia/" labelKey="menu-relatorio-analise-ia.label"></menu-item>
+			</menuItens>
+		</menu-item>
+
+		<menu-item labelKey="menu-cadastros.label">
+			<menuItens>
+				<menu-item id="ALUNOS" url="/cadastros/alunos/" labelKey="menu-alunos.label"></menu-item>
+				<menu-item id="AREAS" url="/cadastros/areas/" labelKey="menu-areas.label"></menu-item>
+				<menu-item id="AJUDA_ANALISTA" url="/cadastros/ckecklists/" labelKey="menu-ajuda-analista.label">
+					<subItens>
+						<sub-item url="/cadastros/ckecklists/edit/" labelKey="menu-ajuda-analista.label"></sub-item>
+					</subItens>
+				</menu-item>
+				<menu-item id="BASES_INTERNAS" url="/cadastros/bases-internas/" labelKey="menu-bases-internas.label">
+					<subItens>
+						<sub-item url="/cadastros/bases-internas/view/" labelKey="menu-view.label"></sub-item>
+					</subItens>
+				</menu-item>
+				<menu-item id="CALENDARIO" url="/cadastros/calendario/" labelKey="menu-calendario.label"></menu-item>
+				<menu-item id="CATEGORIAS_DOCUMENTO" url="/cadastros/categorias-documento/" labelKey="menu-categorias-documento.label"></menu-item>
+				<menu-item id="CATEGORIA_GRUPO_MODELO_DOCUMENTO" url="/cadastros/categoria-grupo-modelo-documento/" labelKey="menu-cadastro-categoriaGrupoModeloDocumento.label"></menu-item>
+				<menu-item id="ETAPAS" url="/cadastros/etapas/" labelKey="menu-etapa.label"></menu-item>
+				<menu-item id="FERIADOS" url="/cadastros/feriados/" labelKey="menu-feriados.label"></menu-item>
+				<menu-item id="GRUPO_MODELO_DOCUMENTO" url="/cadastros/grupo-modelo-documento/" labelKey="menu-cadastro-grupoModeloDocumento.label"></menu-item>
+				<menu-item id="FILA_CONFIGURACAO" url="/cadastros/filas/" labelKey="menu-configuracoesFila.label"></menu-item>
+				<menu-item id="IRREGULARIDADES" url="/cadastros/irregularidades/" labelKey="menu-irregularidades.label"></menu-item>
+				<menu-item id="MODELOS_OCR" url="/cadastros/modelos-ocr/" labelKey="menu-modelos-ocr.label">
+					<subItens>
+						<sub-item url="/cadastros/modelos-ocr/campos/" labelKey="camposOcr.label"></sub-item>
+					</subItens>
+				</menu-item>
+				<menu-item id="MODELOS_DOCUMENTO" url="/cadastros/modelos-documento/" labelKey="menu-modelos-documento.label"></menu-item>
+				<menu-item id="REGRAS" url="/cadastros/regras/" labelKey="menu-regras.label">
+					<subItens>
+						<sub-item url="/cadastros/regras/teste/" labelKey="menu-subregras.label"></sub-item>
+						<sub-item url="/cadastros/regras/subregras/" labelKey="menu-subregras.label"></sub-item>
+					</subItens>
+				</menu-item>
+				<menu-item id="SITUACOES" url="/cadastros/tipos-processos/situacoes/" labelKey="menu-situacoes.label"></menu-item>
+				<menu-item id="SUBPERFIL" url="/cadastros/subperfis/" labelKey="menu-subperfis.label"></menu-item>
+				<menu-item id="STATUS_LABORAL" url="/cadastros/status-laboral/" labelKey="menu-status-laboral.label"></menu-item>
+				<menu-item id="TEXTOS_PADROES" url="/cadastros/textos-padroes/" labelKey="menu-texto-padrao.label"></menu-item>
+				<menu-item id="TIPOS_PROCESSOS" url="/cadastros/tipos-processos/" labelKey="menu-tipos-processos.label">
+					<subItens>
+						<sub-item url="/cadastros/tipos-processos/campanhas/" labelKey="menu-campanhas.label"></sub-item>
+						<sub-item url="/cadastros/tipos-processos/documentos/" labelKey="menu-tipos-documentos.label"></sub-item>
+						<sub-item url="/cadastros/tipos-processos/campos/" labelKey="menu-tipos-campos.label"></sub-item>
+					</subItens>
+				</menu-item>
+				<menu-item id="TIPOS_EVIDENCIAS" url="/cadastros/tipos-evidencias/" labelKey="menu-tipos-evidencias.label"></menu-item>
+				<menu-item id="USUARIOS" url="/cadastros/usuarios/" labelKey="menu-usuarios.label">
+					<subItens>
+						<sub-item url="/cadastros/usuarios/edit/" labelKey="menu-editar.label"></sub-item>
+					</subItens>
+				</menu-item>
+			</menuItens>
+		</menu-item>
+
+		<menu-item url="" labelKey="menu-administracao.label">
+			<menuItens>
+				<menu-item id="CONFIGURACOES" url="/admin/configuracoes/" labelKey="menu-configuracaoSistema.label"></menu-item>
+				<menu-item id="CONFIGURACOES_CONSULTA_EXTERNA" url="/admin/configuracoes-consulta-externa/" labelKey="configuracaoConsultaExterna.label"></menu-item>
+				<menu-item id="CONFIGURACAO_LOGIN_AZURE" url="/admin/configuracao-login-azure/" labelKey="menu-configuracaoLoginAzure.label"></menu-item>
+				<menu-item id="CONFIGURACAO_GERACAO_RELATORIO" url="/admin/configuracao-geracao-relatorio/" labelKey="menu-configucaraoGeracaoRelatorio.label"></menu-item>
+				<menu-item id="CONFIGURACAO_OCR" url="/admin/configuracao_ocr/" labelKey="menu-configuracoesOcr.label">
+					<subItens>
+						<sub-item url="/admin/configuracao-ocr/configuracao-ocr-ies/" labelKey="Configuração OCR - Instituição"></sub-item>
+					</subItens>
+				</menu-item>
+				<menu-item id="CUSTOMIZACAO" url="/admin/customizacoes/" labelKey="menu-customizacaoSistema.label"></menu-item>
+				<menu-item id="EMAILS_POP3" url="/admin/emails-pop3/" labelKey="menu-emailPop3.label"></menu-item>
+				<menu-item id="LOGS_ALTERACOES" url="/admin/logs-alteracoes/" labelKey="menu-logAlteracao.label">
+					<subItens>
+						<sub-item url="/admin/logs-alteracoes/view/" labelKey="menu-view.label"></sub-item>
+					</subItens>
+				</menu-item>
+				<menu-item id="LOGS_IMPORTACOES" url="/admin/logs-importacoes/" labelKey="menu-logsImportacoes.label"></menu-item>
+			</menuItens>
+		</menu-item>
+
+		<menu-item id="ADMIN_AJUDA" url="/admin/admin-ajuda/" labelKey="ajuda.label"></menu-item>
+
+	</arvoreMenuItens>
+</menu>

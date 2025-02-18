@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:9.4-alpine
+    container_name: getdoc-cdb-postgresql
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: getdoc_5
+      POSTGRES_USER: getdoc_5
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
+    ports:
+      - 5432:5432
+    networks:
+      - getdoc-5
+
+  webservice:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 2048M
+        reservations:
+          cpus: '0.20'
+          memory: 1024M
+    build:
+      dockerfile: Dockerfile-debug
+      context: .
+    container_name: getdoc-cdb-api
+    restart: always
+    volumes:
+      - ./build/:/opt/jboss/wildfly/standalone/deployments/
+      - ./getdoc_cdb:/getdoc
+      - ./getdoc_cdb-logs:/opt/jboss/wildfly/standalone/log
+    ports:
+      - 8082:8080
+      - 8787:8787
+      - 9992:9990
+    depends_on:
+      - postgres
+    networks:
+      - getdoc-5
+
+networks:
+  getdoc-5:
+    driver: bridge

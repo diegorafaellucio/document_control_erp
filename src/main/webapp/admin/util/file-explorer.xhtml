@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:b="http://bootsfaces.net/ui">
+	<f:metadata>
+		<f:viewAction action="#{fileExplorerBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/border-util.xhtml">
+		<ui:define name="titulo">File Explorer</ui:define>
+		<ui:define name="conteudo">
+			<div class="container-fluid">
+				<h:form id="formUpload" enctype="multipart/form-data">
+				<div class="row">
+					<div class="col-xs-12 col-sm-3 col-md-2 "></div>
+					<div class="col-xs-12 col-sm-6 col-md-8 ">
+						<ui:remove>
+						<div class="row">
+							<div class="col-md-12">
+								#if($environmentMode)
+								<div style="font-size: 20px; font-weight: bold; background-color: red; color: white;">Ambiente: $!environmentMode</div>
+								#end
+							</div>
+						</div>
+						</ui:remove>
+						<div class="list-group">
+							<span class="list-group-item active">
+								<span class="glyphicon glyphicon-folder-open" aria-hidden="true" style="padding-right: 10px;"></span>
+								#{diretorioAtual}
+								<span class="badge">
+									<a href="file-explorer.xhtml?god=true">D:\</a>
+								</span>
+								<span class="badge">
+									<a href="file-explorer.xhtml?goc=true">C:\</a>
+								</span>
+							</span>
+							<li class="list-group-item">
+								<div class="row">
+									<div class="col-sm-5" style="margin-bottom: 0">
+										<label>Nome</label>
+									</div>
+									<div class="col-sm-3" style="margin-bottom: 0">
+										<label>Data de Modificação</label>
+									</div>
+									<div class="col-sm-2" style="margin-bottom: 0">
+										<label>Tamanho</label>
+									</div>
+									<div class="col-sm-2" style="margin-bottom: 0">
+									</div>
+								</div>
+							</li>
+							<h:panelGroup rendered="#{not empty parent}">
+								<a href="file-explorer.xhtml?goparent=true" class="list-group-item">
+									<span class="glyphicon glyphicon-upload" aria-hidden="true" style="padding-right: 10px;"></span>
+									..
+								</a>
+							</h:panelGroup>
+							<ui:repeat var="item" value="#{listagemDiretorios}">
+								<a href="file-explorer.xhtml?item=#{item.name}" class="list-group-item">
+									<div class="row">
+										<div class="col-sm-5" style="margin-bottom: 0">
+											<span class="glyphicon glyphicon-folder-close" aria-hidden="true" style="padding-right: 10px;"></span>
+											#{item.name}
+										</div>
+										<div class="col-sm-3" style="margin-bottom: 0">
+											#{item.lastModifiedDate}
+										</div>
+										<div class="col-sm-2" style="margin-bottom: 0">
+										</div>
+										<div class="col-sm-2" style="margin-bottom: 0">
+										</div>
+									</div>
+								</a>
+							</ui:repeat>
+							<ui:repeat var="item" value="#{listagemArquivos}">
+								<li class="list-group-item">
+									<div class="row">
+										<div class="col-sm-5" style="margin-bottom: 0">
+											<input type="checkbox" class="checkboxItem" name="arquivos" value="#{item}"/>
+											<i class="fa fa-file-o" style="padding-right: 10px;"></i>
+											#{item.name}
+										</div>
+										<div class="col-sm-3" style="margin-bottom: 0">
+											#{item.lastModifiedDate}
+										</div>
+										<div class="col-sm-2" style="margin-bottom: 0">
+											#{item.size}
+										</div>
+										<div class="col-sm-2" style="margin-bottom: 0">
+											<span class="badge" style="float: right;">
+												<div onclick="excluir('#{item.name}')" class="glyphicon glyphicon-remove" style="font-size: 16px; cursor: pointer;"></div>
+											</span>
+											<span class="badge" style="float: right;">
+												<div onclick="download('#{item.name}')" class="glyphicon glyphicon-download" style="font-size: 16px; cursor: pointer;"></div>
+											</span>
+										</div>
+									</div>
+								</li>
+							</ui:repeat>
+						</div>
+					</div>
+					<div class="col-xs-12 col-sm-3 col-md-2"></div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12 col-sm-3 col-md-2"></div>
+					<div class="col-xs-12 col-sm-6 col-md-8">
+						<h:commandButton value="Download" type="submit" styleClass="btn btn-lg btn-primary btn-sm"
+								style="margin-top: -15px; margin-bottom: 20px;" action="#{fileExplorerBean.downloadZip()}" >
+						</h:commandButton>
+					</div>
+					<div class="col-xs-12 col-sm-3 col-md-3 col-lg-2"></div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12 col-sm-3 col-md-3 col-lg-2"></div>
+					<div class="col-xs-12 col-sm-6 col-md-6 col-lg-8">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">Carregar arquivo ao servidor</h3>
+							</div>
+							<div class="panel-body">
+								<div class="form-group">
+									<div class="col-xs-10 col-md-12 col-sm-12 col-lg-12" align="right">
+										<label for="inputFile" class="sr-only">Arquivo</label>
+										<p:growl id="messages" showDetail="true" />
+										<p:fileUpload label="Escolher Arquivo" mode="advanced" auto="true" multiple="true" sizeLimit="204800000"
+											 update="messages" oncomplete="$('#ajaxLoaderImg').hide()" listener="#{fileExplorerBean.uploadEvent}"/>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-12 col-sm-3 col-md-2"></div>
+				</div>
+				</h:form>
+			</div>
+<script type="application/javascript">
+
+	function download(item) {
+
+		if(confirm('Confirma download')) {
+			location.href = '#{request.contextPath}/admin/util/file-explorer.xhtml?download=' + item;
+		}
+	}
+
+	function excluir(item) {
+
+		if(confirm('Confirma exclusao')) {
+			location.href = '#{request.contextPath}/admin/util/file-explorer.xhtml?excluir=' + item;
+		}
+	}
+
+	var lastChecked = null;
+
+	$(document).ready(function() {
+
+		var chkboxes = $('.checkboxItem');
+
+		chkboxes.click(function(e) {
+
+			if(!lastChecked) {
+				lastChecked = this;
+				return;
+			}
+
+			if(e.shiftKey) {
+
+				var start = chkboxes.index(this);
+				var end = chkboxes.index(lastChecked);
+
+				chkboxes.slice(Math.min(start,end), Math.max(start,end)+ 1).prop('checked', lastChecked.checked);
+			}
+
+			lastChecked = this;
+		});
+	});
+
+</script>
+		</ui:define>
+	</ui:composition>
+</html>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:b="http://bootsfaces.net/ui"
+      xmlns:jsf="http://xmlns.jcp.org/jsf"
+      xmlns:o="http://omnifaces.org/ui" xmlns:c="http://java.sun.com/jsp/jstl/core">
+<f:metadata>
+    <f:viewAction action="#{relatorioLicenciamentoOCRBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/navegacao.xhtml">
+    <ui:define name="head">
+        <link href="#{request.contextPath}/resources/css/prism.css" rel="stylesheet"/>
+    </ui:define>
+    <ui:define name="tituloPagina">#{msg['menu-relatorio-licenciamento-ocr.label']}</ui:define>
+    <ui:define name="conteudo">
+        <style type="text/css">
+            .ui-datatable-footer {
+                padding: 0!important;
+                font-weight: normal;
+            }
+        </style>
+        <h:form id="form">
+            <c:set var="bean" value="#{relatorioLicenciamentoOCRBean}" />
+            <div class="row default-form">
+                <div class="col-sm-12">
+                    <h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+                    <div class="row">
+                        <div class="col-sm-1" ></div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <b:selectOneMenu value="#{bean.filtro.mes}" label="Mês: " required="true">
+                                    <f:selectItem itemValue="" itemLabel=""/>
+                                    <f:selectItem itemValue="1" itemLabel="Janeiro"/>
+                                    <f:selectItem itemValue="2" itemLabel="Fevereiro"/>
+                                    <f:selectItem itemValue="3" itemLabel="Março"/>
+                                    <f:selectItem itemValue="4" itemLabel="Abril"/>
+                                    <f:selectItem itemValue="5" itemLabel="Maio"/>
+                                    <f:selectItem itemValue="6" itemLabel="Junho"/>
+                                    <f:selectItem itemValue="7" itemLabel="Julho"/>
+                                    <f:selectItem itemValue="8" itemLabel="Agosto"/>
+                                    <f:selectItem itemValue="9" itemLabel="Setembro"/>
+                                    <f:selectItem itemValue="10" itemLabel="Outubro"/>
+                                    <f:selectItem itemValue="11" itemLabel="Novembro"/>
+                                    <f:selectItem itemValue="12" itemLabel="Dezembro"/>
+                                </b:selectOneMenu>
+                                <b:message/>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <b:selectOneMenu value="#{bean.filtro.ano}" label="Ano: " required="true">
+                                    <f:selectItem itemValue="" itemLabel=""/>
+                                    <f:selectItems value="#{bean.anos}" var="ano" itemValue="#{ano}" itemLabel="#{ano}"/>
+                                </b:selectOneMenu>
+                                <b:message/>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <b:selectOneMenu value="#{bean.exibicao}" label="Exibição: " required="true">
+                                    <f:selectItem itemValue="" itemLabel=""/>
+                                    <f:selectItem itemValue="1" itemLabel="1 Mes"/>
+                                    <c:forEach begin="2" end="10" varStatus="loop">
+                                        <f:selectItem itemValue="#{loop.index}" itemLabel="#{loop.index} Meses"/>
+                                    </c:forEach>
+                                </b:selectOneMenu>
+                                <b:message/>
+                            </div>
+                        </div>
+                        <div class="col-sm-1" style="margin-top: 15px;">
+                            <p:commandLink action="#{bean.buscar()}" value="#{msg['buscar.label']}" class="btn btn-primary btn-salvar" update="tableProcessos" style="float: right;"/>
+                        </div>
+                        <div class="col-sm-1"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row default-form">
+                <div class="col-sm-1"></div>
+                <div class="col-sm-10" style="margin-top: 20px;" jsf:id="tableProcessos">
+                    <h4 style="margin: 0; color: #cc092f; border-bottom: none;"><h:outputText value="Processos Abertos"/></h4>
+                    <p:dataTable class="table" id="licenciamentoTable" var="lc" value="#{ bean.processos }">
+                        <p:column headerText="#{msg['tipoProcesso.label']}" style="text-align: center;">
+                            <h:outputText value="#{lc.nome}"/>
+                        </p:column>
+                        <c:forEach begin="0" end="#{bean.exibicao-1}" varStatus="loop">
+                            <p:column headerText="#{bean.firstDay(bean.filtro.meses[loop.index])}"
+                                      style="text-align: center; background-color: #{loop.index eq bean.exibicao-1 ? '#F1F1F1' : ''} " >
+                                <h:outputLink value="#{request.contextPath}/requisicoes/" target="_blank">
+                                    <h:outputText value="#{lc.qtdPorMes[loop.index]}"/>
+                                    <f:param name="tipoProcessoId" value="#{lc.id}" />
+                                    <f:param name="inicio" value="01/#{bean.firstDay(bean.filtro.meses[loop.index])}" />
+                                    <f:param name="fim" value="#{bean.lastDay(bean.filtro.meses[loop.index])}" />
+                                </h:outputLink>
+                            </p:column>
+                        </c:forEach>
+                        <f:facet name="footer">
+                            <h:panelGrid columns="#{bean.exibicao + 1}" style="width: 100%; background-color: #DCDCDC; padding-left: 30px; color: #23527c; font-weight: normal;" >
+                                <h:outputLabel style="width: 100%" value="Total" />
+                                <c:forEach begin="0" end="#{bean.exibicao -1}" varStatus="loop">
+                                    <h:form>
+                                        <h:outputLink value="#{request.contextPath}/requisicoes/" target="_blank">
+                                            <h:outputText value="#{bean.getTotal(bean.processos)[loop.index]}" style="color: #23527c;"/>
+                                            <f:param name="inicio" value="01/#{bean.firstDay(bean.filtro.meses[loop.index])}" />
+                                            <f:param name="fim" value="#{bean.lastDay(bean.filtro.meses[loop.index])}" />
+                                        </h:outputLink>
+                                    </h:form>
+                                </c:forEach>
+                            </h:panelGrid>
+                        </f:facet>
+                    </p:dataTable>
+                </div>
+            </div>
+        </h:form>
+    </ui:define>
+</ui:composition>
+</html>

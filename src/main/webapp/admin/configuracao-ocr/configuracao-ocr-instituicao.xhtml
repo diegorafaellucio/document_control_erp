@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+	<f:metadata>
+		<f:viewParam name="id" value="#{configuracaoOCRInstituicaoBean.configuracaoOCRId}" />
+		<f:viewAction action="#{configuracaoOCRInstituicaoBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['configuracaoOcrInstituicao.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<style>
+				.adicionar-modal .modal-dialog {
+				    padding-top: 0px;
+					width: 850px;
+				}
+			</style>
+			<getdoc:excluirModal id="excluirModal" metodoExcluir="#{configuracaoOCRInstituicaoBean.excluir()}" update="form-tipoDocumento-list"/>
+			<h:form id="form-campoModeloOcr">
+				<b:modal id="adicionar-modal-id" title="#{msg['adicionarConfiguracaoOcrInstituicao.label']}" styleClass="adicionar-modal" rendered="#{menuBean.podeEditar()}">
+					<b:row id="adicionar-modal-content-id">
+                        <div class="col-sm-12">
+                            <b:messages globalOnly="true" showSummary="true"/>
+							<div class="form-group">
+								<b:selectOneMenu value="#{configuracaoOCRInstituicaoBean.registroValorVO}" label="#{msg['tipoProcesso.label']}" required="true">
+									<f:selectItem itemValue="" itemLabel=""/>
+									<f:selectItems value="#{configuracaoOCRInstituicaoBean.registroValorVOList}" var="tp" itemValue="#{tp}" itemLabel="#{tp.label}"/>
+								</b:selectOneMenu>
+								<b:message/>
+							</div>
+						</div>
+					</b:row>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+                        <p:commandButton value="#{msg['salvar.label']}" actionListener="#{configuracaoOCRInstituicaoBean.salvar()}" update="adicionar-modal-content-id form-tipoDocumento-list" styleClass="btn"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-tipoDocumento-list">
+				<h:panelGroup id="row-tabela">
+					<div class="row">
+						<div class="col-sm-12">
+							<div style="float: left; margin-top: 20px;">
+								<h:outputLabel value="#{msg['tipoProcesso.label']}"/>:&nbsp;
+								<h:outputText value="#{configuracaoOCRInstituicaoBean.configuracaoOCR.nome}"/>
+							</div>
+							<p:commandLink value="Adicionar Instituição" onclick="openModal('adicionar-modal')" class="btn btn-primary btn-lg" style="float: right;" update="form-campoModeloOcr:adicionar-modal-content-id" rendered="#{menuBean.podeEditar()}"/>
+						</div>
+					</div>
+					<div class="row">
+						<p:dataTable var="configuracaoORCInstituicao" value="#{configuracaoOCRInstituicaoBean.configuracaoORCInstituicaoDataModel}" rows="100" lazy="true"
+								paginatorTemplate="{CurrentPageReport}"
+								currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+								paginatorPosition="bottom" stickyHeader="true" stickyTopAt=".layout-topbar">
+							<p:column headerText="ID" style="text-align: center; width: 10%;">
+								<h:outputText value="#{configuracaoORCInstituicao.id}" />
+							</p:column>
+							<p:column headerText="Código Instituição" style="width: 10%; text-align: center;">
+								<h:outputText value="#{configuracaoORCInstituicao.codigoInstituicao}" />
+							</p:column>
+							<p:column headerText="Nome Instituição" style="width: 70%; text-align: center;">
+								<h:outputText value="#{configuracaoORCInstituicao.nomeInstituicao}" />
+							</p:column>
+							<p:column style="width: 10%;" sortable="false" rendered="#{menuBean.podeEditar()}">
+								<p:commandLink value="#{msg['excluir.label']}" onclick="openModal('excluir-modal', 'excluirModal:form-exclusao:excluir-btn')" class="btn btn-danger btn-excluir" rendered="#{menuBean.podeExcluir()}">
+									<f:setPropertyActionListener target="#{configuracaoOCRInstituicaoBean.configuracaoOCRInstituicao}" value="#{configuracaoORCInstituicao}" />
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</h:panelGroup>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

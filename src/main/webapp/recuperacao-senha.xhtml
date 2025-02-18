@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+<h:head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>#{msg['appName.label']}</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link href="#{request.contextPath}/resources/images/favicon-getdoc.png" rel="shortcut icon"/>
+	<link href="#{request.contextPath}/resources/css/main.css" rel="stylesheet"/>
+	<link href="#{request.contextPath}/resources/css/bootstrap.min.css" rel="stylesheet"/>
+	<link href="#{request.contextPath}/resources/css/font-awesome.min.css" rel="stylesheet"/>
+	<link href="#{request.contextPath}/resources/css/animate.css" rel="stylesheet"/>
+	<link href="#{request.contextPath}/resources/datepicker/css/datepicker.css" rel="stylesheet"/>
+	<script src="#{request.contextPath}/resources/js/bootstrap.min.js"></script>
+	<script src="#{request.contextPath}/resources/js/jquery.mask.min.js"></script>
+	<script src="#{request.contextPath}/resources/js/moment.js"></script>
+	<script src="#{request.contextPath}/resources/datepicker/js/bootstrap-datepicker.js"></script>
+	<script src="#{request.contextPath}/resources/datepicker/js/bootstrap-datepicker.pt-BR.js"></script>
+ 	<script src="#{request.contextPath}/resources/js/main.js"></script>
+	<ui:insert name="head" />
+	<getdoc:customizacao/>
+</h:head>
+<h:body>
+	<f:metadata>
+		<f:event type="preRenderView" listener="#{trocaSenhaBean.init}" />
+	</f:metadata>
+	<p:ajaxStatus onstart="$('#ajaxLoaderImg').show()" onsuccess="$('#ajaxLoaderImg').hide()" />
+	<div id='ajaxLoaderImg' style="position: absolute; right: 0; bottom: 80px; display: none; z-index: 9999;">
+		<img src="#{request.contextPath}/resources/images/loader.gif"/>
+	</div>
+	<div id="wrapper" class="recuperarSenha content-login">
+		<h:panelGroup id="content-pg-id">
+			<h:panelGroup id="solicitar-email" rendered="#{not trocaSenhaBean.emailEnviado}">
+				<div id="content">
+					<section class="container" style="width: 380px">
+						<b:messages globalOnly="true" showSummary="false"/>
+						<section id="login-page">
+							<div class="row">
+								<div class="col-sm-12">
+									<h4>#{msg['encontreSuaConta.label']}</h4>
+									<p style="padding: 10px 0 20px 0">#{msg['encontreSuaConta-msg.label']}</p>
+								 	<h:form>
+										<div class="row">
+											<div class="col-sm-12" >
+												<div class="form-group">
+													<b:inputText value="#{trocaSenhaBean.login}" placeholder="#{msg['login.label']}"
+															label="#{msg['login.label']}" renderLabel="true" style="text-transform: lowercase;"
+															maxlength="100" required="true"/>
+													<b:message/>
+												</div>
+												<div class="form-group" style="text-align:center; padding-top: 15px;">
+													<a href="#{request.contextPath}" class="btn btn-default" style="width: 110px">#{msg['cancelar.label']}</a>
+													<b:commandButton value="#{msg['buscar.label']}" action="#{trocaSenhaBean.enviarRedefinicaoSenha()}" styleClass="btn btn-primary"
+														 style="width: 110px; margin-left: 10px;"/>
+	 											</div>
+											</div>
+										</div>
+								 	</h:form>
+								</div>
+							</div>
+						</section>
+					</section>
+				</div>
+			</h:panelGroup>
+			<h:panelGroup id="msg-email-enviado" rendered="#{trocaSenhaBean.emailEnviado}">
+				<div id="content">
+					<section class="container" style="width: 700px !important;">
+						<section id="login-page">
+							<div class="row">
+								<div class="col-sm-12" style="text-align: center">
+									<h4>#{msg['verifiqueSeuEmail.label']}</h4>
+									<p >
+										<h:outputFormat value="#{msg['encontreSuaConta-msg-ok.label']}" escape="false">
+											<f:param value="#{emailDestino}"/>
+										</h:outputFormat>
+									</p>
+								</div>
+							</div>
+						</section>
+					</section>
+				</div>
+			</h:panelGroup>
+		</h:panelGroup>
+	</div>
+</h:body>
+</html>

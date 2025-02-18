@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+
+	<composite:interface>
+		<composite:attribute name="value" required="true"/>
+		<composite:attribute name="required" required="true"/>
+	</composite:interface>
+
+	<composite:implementation>
+
+		<p:textEditor id="textEditorId" value="#{cc.attrs.value}"
+				height="280" style="margin-bottom:10px" required="#{cc.attrs.required}" maxlength="3000" placeholder="Digite seu texto aqui...">
+	        <f:facet name="toolbar">
+	           <span class="ql-formats">
+		        	<select class="ql-size" title="Font size"></select>
+	            </span>
+	            <span class="ql-formats">
+	                <button class="ql-bold" title="Bold"></button>
+	                <button class="ql-italic" title="Italic"></button>
+	                <button class="ql-underline" title="Underline"></button>
+	            </span>
+	            <span class="ql-formats">
+					<select class="ql-color" title="Text color"/>
+	            </span>
+		        <span class="ql-formats">
+		            <button class="ql-list" value="ordered" title="Ordered list"/>
+		            <button class="ql-list" value="bullet" title="Bullet list"/>
+		            <button class="ql-indent" value="-1" title="Indent left"/>
+		            <button class="ql-indent" value="+1" title="Indent right"/>
+		        </span>
+		         <span class="ql-formats">
+		            <button class="ql-blockquote" title="Blockquote"/>
+		            <button class="ql-code-block" title="Code quote"/>
+		        </span>
+		        <span class="ql-formats">
+		            <button class="ql-clean" title="Clean formats"/>
+		        </span>
+	        </f:facet>
+	    </p:textEditor>
+
+	</composite:implementation>
+</html>

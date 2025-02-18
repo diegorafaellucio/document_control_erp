@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:b="http://bootsfaces.net/ui"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:o="http://omnifaces.org/ui"
+      xmlns:jsf="http://xmlns.jcp.org/jsf"
+>
+<h:panelGroup id="pg-modalAprovar">
+    <script type="text/javascript"
+            src="#{request.contextPath}/resources/tooltipster/js/tooltipster.bundle.min.js"></script>
+    <link rel="stylesheet" type="text/css"
+          href="#{request.contextPath}/resources/tooltipster/css/tooltipster.bundle.min.css"/>
+    <link rel="stylesheet" type="text/css"
+          href="#{request.contextPath}/resources/tooltipster/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-shadow.min.css"/>
+    <script type="text/javascript"
+            src="#{request.contextPath}/resources/tooltipster/js/tooltipster.bundle.min.js"></script>
+    <div class="col-sm-12">
+        <b:messages id="aprovar-messages" globalOnly="true" showSummary="true"/>
+        <div class="form-group">
+            <h:outputLabel value="#{msg['modeloDocumento.label']} *"/>
+            <select id="modeloDocumentoAprovacaoId" name="modeloDocumentoId" class="form-control"
+                    onclick="changeDivModalAprovar($('#img1'))">
+                <option value=""></option>
+            </select>
+        </div>
+        <div id="data-validade-div-id">
+            <h:outputLabel value="#{msg['dataValidadeExpiracao.label']} *"/>
+            <b:inputText id="dataValidadeExpiracaoId" value="#{processoEditBean.documento.validadeExpiracao}"
+                         placeholder="dd/mm/aaaa" styleClass="mask-date" fieldId="dataValidadeExpiracaoId"
+                         label="#{msg['dataValidadeExpiracao.label']}" renderLabel="false">
+                <f:convertDateTime pattern="dd/MM/yyyy"/>
+                <f:facet name="append">
+                    <i class="fa fa-calendar-o fa-12x14"/>
+                </f:facet>
+            </b:inputText>
+        </div>
+        <div id="data-emissao-div-id">
+            <h:outputLabel value="#{msg['dataEmissao.label']} *"/>
+            <b:inputText id="dataEmissaoId" value="#{processoEditBean.documento.dataEmissao}" placeholder="dd/mm/aaaa"
+                         styleClass="mask-date" fieldId="dataEmissaoId"
+                         label="#{msg['dataEmissao.label']}" renderLabel="false">
+                <f:convertDateTime pattern="dd/MM/yyyy"/>
+                <f:facet name="append">
+                    <i class="fa fa-calendar-o fa-12x14"/>
+                </f:facet>
+            </b:inputText>
+        </div>
+    </div>
+    <div class="col-sm-12" style="padding-left: 65%;">
+        <b:button value="#{msg['cancelar.label']}" look="primary" onclick="closeModal('aprovar-modal'); return false;"/>
+        <span onclick="aprovarDocumento($('#img1'), false)" class="btn btn-warning">#{msg['aprovar.label']}</span>
+    </div>
+    <script type="text/javascript">
+        jQuery(function ($) {
+            configurarMascaras();
+            configurarDatePicker();
+        });
+
+
+    </script>
+</h:panelGroup>
+</html>

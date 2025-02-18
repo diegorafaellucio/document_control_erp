@@ -1,0 +1,412 @@
+{
+	"info": {
+		"_postman_id": "c3fb7efe-16ec-41cb-b0f9-93fec5e2b71e",
+		"name": "AWS Estácio",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "prod",
+			"item": [
+				{
+					"name": "consulta por cpf",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"type": "text",
+								"value": "qp1Zqezv2Z3qCk1OCo69J4uNPXefH2669i6xIyyH"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"NumSeqInscricao\": \"\",\n    \"NumSeqCandidato\": \"\",\n    \"CpfAluno\": \"13931917622\"\n}"
+						},
+						"url": {
+							"raw": "https://api-gestaodocumento-privado.estacioprd.net/siaservices/rest/DigitalizaEstacio/Consultar_inscricoes",
+							"protocol": "https",
+							"host": [
+								"api-gestaodocumento-privado",
+								"estacioprd",
+								"net"
+							],
+							"path": [
+								"siaservices",
+								"rest",
+								"DigitalizaEstacio",
+								"Consultar_inscricoes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "consulta termo estacio",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"type": "text",
+								"value": "qp1Zqezv2Z3qCk1OCo69J4uNPXefH2669i6xIyyH"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"DT_ATUALIZA_LOG\": \"05/01/2020 14:42:00\",\n    \"Qtd_registros\": \"1\"\n}"
+						},
+						"url": {
+							"raw": "https://api-gestaodocumento-privado.estacioprd.net/siaservices/rest/DigitalizaEstacio/ConsultaTermoEstagio",
+							"protocol": "https",
+							"host": [
+								"api-gestaodocumento-privado",
+								"estacioprd",
+								"net"
+							],
+							"path": [
+								"siaservices",
+								"rest",
+								"DigitalizaEstacio",
+								"ConsultaTermoEstagio"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "hml",
+			"item": [
+				{
+					"name": "consulta linha tempo",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "mjWys8IuAB4HqLyJ1IBjv884ABRY790U1bGLs4Jk",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"NumSeqInscricao\": \"\",\n    \"NumSeqCandidato\": \"6569821\"\n}"
+						},
+						"url": {
+							"raw": "https://api-gestaodocumento-privado.estaciodev.net/siaservices/rest/DigitalizaEstacio/Consultar_linha_tempo",
+							"protocol": "https",
+							"host": [
+								"api-gestaodocumento-privado",
+								"estaciodev",
+								"net"
+							],
+							"path": [
+								"siaservices",
+								"rest",
+								"DigitalizaEstacio",
+								"Consultar_linha_tempo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "consulta por cpf",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"type": "text",
+								"value": "mjWys8IuAB4HqLyJ1IBjv884ABRY790U1bGLs4Jk"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"NumSeqInscricao\": \"\",\n    \"NumSeqCandidato\": \"6569821\",\n    \"CpfAluno\": \"\"\n}"
+						},
+						"url": {
+							"raw": "https://api-gestaodocumento-privado.estaciodev.net/siaservices/rest/DigitalizaEstacio/Consultar_inscricoes",
+							"protocol": "https",
+							"host": [
+								"api-gestaodocumento-privado",
+								"estaciodev",
+								"net"
+							],
+							"path": [
+								"siaservices",
+								"rest",
+								"DigitalizaEstacio",
+								"Consultar_inscricoes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "atualiza documento",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "x-api-key",
+								"value": "mjWys8IuAB4HqLyJ1IBjv884ABRY790U1bGLs4Jk",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"NumSeqInscricao\": \"799057266\",\r\n    \"NumSeqCandidato\": null,\r\n    \"CodMatricula\": null,\r\n    \"CodTipoDocumento\": \"11\"\r\n}"
+						},
+						"url": {
+							"raw": "https://api-gestaodocumento-privado.estaciodev.net/siaservices/rest/DigitalizaEstacio/Atualiza_documento",
+							"protocol": "https",
+							"host": [
+								"api-gestaodocumento-privado",
+								"estaciodev",
+								"net"
+							],
+							"path": [
+								"siaservices",
+								"rest",
+								"DigitalizaEstacio",
+								"Atualiza_documento"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "consulta termo estacio",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"type": "text",
+								"value": "mjWys8IuAB4HqLyJ1IBjv884ABRY790U1bGLs4Jk"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"DT_ATUALIZA_LOG\": \"05/11/2019 14:42:00\",\n    \"Qtd_registros\": \"1\"\n}"
+						},
+						"url": {
+							"raw": "https://api-gestaodocumento-privado.estaciodev.net/siaservices/rest/DigitalizaEstacio/ConsultaTermoEstagio",
+							"protocol": "https",
+							"host": [
+								"api-gestaodocumento-privado",
+								"estaciodev",
+								"net"
+							],
+							"path": [
+								"siaservices",
+								"rest",
+								"DigitalizaEstacio",
+								"ConsultaTermoEstagio"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "consulta comprovante inscrição",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "qp1Zqezv2Z3qCk1OCo69J4uNPXefH2669i6xIyyH",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"NumSeqInscricao\": \"\",\n    \"NumSeqCandidato\": \"\"\n}"
+				},
+				"url": {
+					"raw": "https://api-gestaodocumento-privado.estacioprd.net/siaservices/rest/DigitalizaEstacio/Consultar_comprovante_inscricao",
+					"protocol": "https",
+					"host": [
+						"api-gestaodocumento-privado",
+						"estacioprd",
+						"net"
+					],
+					"path": [
+						"siaservices",
+						"rest",
+						"DigitalizaEstacio",
+						"Consultar_comprovante_inscricao"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "consulta dados contrato",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-api-key",
+						"value": "qp1Zqezv2Z3qCk1OCo69J4uNPXefH2669i6xIyyH",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"NumSeqInscricao\": \"796804168\",\n    \"NumSeqCandidato\": \"\"\n}"
+				},
+				"url": {
+					"raw": "https://api-gestaodocumento-privado.estacioprd.net/siaservices/rest/DigitalizaEstacio/Consultar_dados_contrato",
+					"protocol": "https",
+					"host": [
+						"api-gestaodocumento-privado",
+						"estacioprd",
+						"net"
+					],
+					"path": [
+						"siaservices",
+						"rest",
+						"DigitalizaEstacio",
+						"Consultar_dados_contrato"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AnaliseInsencaoDisciplinas",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-api-key",
+						"type": "text",
+						"value": "mjWys8IuAB4HqLyJ1IBjv884ABRY790U1bGLs4Jk"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"DT_ATUALIZA_LOG\": \"10/11/2019 00:00:00\",\n    \"qtd_registros\": 1000\n}"
+				},
+				"url": {
+					"raw": "https://api-gestaodocumento-privado.estaciodev.net/siaservices/rest/DigitalizaEstacio/AnaliseIsencaoDisciplinas",
+					"protocol": "https",
+					"host": [
+						"api-gestaodocumento-privado",
+						"estaciodev",
+						"net"
+					],
+					"path": [
+						"siaservices",
+						"rest",
+						"DigitalizaEstacio",
+						"AnaliseIsencaoDisciplinas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getArqRequerimento",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-api-key",
+						"type": "text",
+						"value": "mjWys8IuAB4HqLyJ1IBjv884ABRY790U1bGLs4Jk"
+					},
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"numSeqRequerimento\": \"21640738\"\n}"
+				},
+				"url": {
+					"raw": "https://api-gestaodocumento-privado.estaciodev.net/siaservices/rest/DigitalizaEstacio/getArqRequerimento",
+					"protocol": "https",
+					"host": [
+						"api-gestaodocumento-privado",
+						"estaciodev",
+						"net"
+					],
+					"path": [
+						"siaservices",
+						"rest",
+						"DigitalizaEstacio",
+						"getArqRequerimento"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

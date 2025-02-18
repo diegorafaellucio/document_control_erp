@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:o="http://omnifaces.org/ui">
+	<f:metadata>
+		<f:viewAction action="#{relatorioAcompanhamentoEmAbertoBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['relatorioAcompanhamentoEmAberto.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<h:form id="form">
+				<div class="row default-form">
+					<div class="col-sm-12">
+						<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+						 <div class="row">
+							 <div class="col-sm-3">
+								 <div class="form-group">
+									 <label class="bf-no-message has-success">#{msg['motivos.label']} &nbsp;&nbsp;</label>
+									 <div class="form-group">
+										 <p:selectCheckboxMenu value="#{relatorioAcompanhamentoEmAbertoBean.filtro.tiposProcesso}" label=""
+															   style="form-control bf-no-message has-success"
+															   filter="false" panelStyle="width:250px" converter="entityConverter" multiple="true">
+											 <f:selectItems value="#{relatorioAcompanhamentoEmAbertoBean.tiposProcessos}" var="item" itemLabel="#{item.nome}" itemValue="#{item}" />
+											 <f:ajax event="change" render="tiposProcessosSelecionados-id"/>
+										 </p:selectCheckboxMenu>
+									 </div>
+								 </div>
+							 </div>
+							 <div class="col-sm-3">
+								 <div class="form-group">
+									 <label class="bf-no-message has-success">#{msg['regional.label']} &nbsp;&nbsp;</label>
+									 <div class="form-group">
+										 <p:selectCheckboxMenu value="#{relatorioAcompanhamentoEmAbertoBean.regionaisSelecionados}" label=""
+															   style="form-control bf-no-message has-success" multiple="true" filter="false">
+											 <f:selectItems value="#{relatorioAcompanhamentoEmAbertoBean.regional}" var="rg" itemLabel="#{rg.label}" itemValue="#{rg.baseRegistro.chaveUnicidade}" />
+										 </p:selectCheckboxMenu>
+									 </div>
+								 </div>
+							 </div>
+							 <div class="col-sm-3">
+								 <div class="form-group">
+									 <label class="bf-no-message has-success">#{msg['campus.label']} &nbsp;&nbsp;</label>
+									 <div class="form-group">
+										 <p:selectCheckboxMenu value="#{relatorioAcompanhamentoEmAbertoBean.campusSelecionados}" label=""
+															   style="form-control bf-no-message has-success" multiple="true"
+															   filter="true" filterMatchMode="contains">
+											 <f:selectItems value="#{relatorioAcompanhamentoEmAbertoBean.campus}" var="cp" itemLabel="#{cp.label}" itemValue="#{cp.baseRegistro.chaveUnicidade}" />
+										 </p:selectCheckboxMenu>
+									 </div>
+								 </div>
+							 </div>
+						 </div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group" style="float: right;">
+									<p:commandButton value="#{msg['buscar.label']}"
+										actionListener="#{relatorioAcompanhamentoEmAbertoBean.buscar}" ajax="true"
+										styleClass="btn btn-primary btn-md" id="botaoBuscar" update="tabela-ID" oncomplete="reload()"/>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12">
+						<p:dataTable id="tabela-ID" var="item" value="#{relatorioAcompanhamentoEmAbertoBean.list}"
+								currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+								>
+							<p:column headerText="Status" style="text-align: center; width: 120px;">
+								<h:outputText rendered="#{item.nomeLinha ne 'TOTAL'}" value="#{msg['StatusProcesso.'.concat(item.nomeLinha).concat('.label')]}" />
+								<h:outputText rendered="#{item.nomeLinha eq 'TOTAL'}" value="#{item.nomeLinha}" />
+							</p:column>
+							<p:column headerText="#{msg['total.label']}" style="text-align: center; width: 120px;">
+								<h:outputText value="#{item.total}">
+									<f:convertNumber pattern="###,###,###" />
+								</h:outputText>
+							</p:column>
+							<p:column headerText="#{msg['atrasados.label']}" style="text-align: center; width: 120px;">
+								<h:outputText value="#{item.atrasados}">
+									<f:convertNumber pattern="###,###,###" />
+								</h:outputText>
+							</p:column>
+							<p:column headerText="#{msg['alertas.label']}" style="text-align: center; width: 120px;">
+								<h:outputText value="#{item.alertas}">
+									<f:convertNumber pattern="###,###,###" />
+								</h:outputText>
+							</p:column>
+							<p:column headerText="#{msg['ok.label']}" style="text-align: center; width: 120px;">
+								<h:outputText value="#{item.ok}">
+									<f:convertNumber pattern="###,###,###" />
+								</h:outputText>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+				<div>
+					<div id="container1" style="min-width: 90%; height: 500px; margin: 0 auto; float: left;">
+					</div>
+				</div>
+				<o:commandScript name="reload" actionListener="#{relatorioAcompanhamentoEmAbertoBean.geraGrafico(false)}" render="tabela-ID"/>
+			</h:form>
+			<script type="text/javascript" src="#{request.contextPath}/resources/highcharts/highcharts.js"></script>
+			<script>
+				//function desenharGrafico(container, barras, dados, titulo) {
+				function desenharGrafico(dados) {
+
+					//alert('123');
+					$('#container1').highcharts({
+
+						chart: {
+							type: 'column'
+						},
+
+						title: {
+							text: ''
+						},
+
+						xAxis: {
+							categories: ['Rascunho', 'Aguardando Análise', 'Em Análise', 'Pendente', 'Em Acompanhamento', 'Encaminhado', 'Concluído', 'Cancelado']
+						},
+
+						yAxis: {
+							allowDecimals: false,
+							min: 0,
+							title: {
+								text: 'Status'
+							}
+						},
+						plotOptions: {
+							column: {
+								stacking: 'normal',
+								dataLabels: {
+									enabled: true,
+									style: {
+										fontSize: '50px'
+									}
+								}
+							}
+						},
+
+						series: dados
+					});
+					setTimeout("reload()", 30000);
+				}
+				reload();
+			</script>
+		</ui:define>
+	</ui:composition>
+</html>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:b="http://bootsfaces.net/ui"
+	xmlns:gd="http://xmlns.jcp.org/jsf/component"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+	<composite:interface>
+		<composite:attribute name="aluno" type="net.wasys.getdoc.domain.entity.Aluno" required="true"/>
+		<composite:attribute name="processoEditBean" type="net.wasys.getdoc.bean.ProcessoEditBean" required="true"/>
+	</composite:interface>
+	<composite:implementation>
+		<c:set var="aluno" value="#{cc.attrs.aluno}"/>
+		<c:set var="processoEditBean" value="#{cc.attrs.processoEditBean}"/>
+		<c:set var="temRegras" value="#{processoEditBean.processoTemRegras()}"/>
+		<div jsf:id="campos-grupos-id" class="row-g row-grupo-dadosAluno">
+            <b:growl id="growl2-id" placementFrom="bottom" allowDismiss="true" animationEnter="animated bounceInDown" animationExit="animated flipOutX"/>
+			<div class="row campos-grupo-dadosAluno" style="#{temRegras ? 'margin-left: 20px' : 'margin-left: 0'}">
+				<div class="col-sm-6 col-campos noMarginBottom" style="padding-left: 15px !important;">
+					<div style="width: 170px; float: left;">
+						<h:outputLabel value="#{msg['nome.label']}:" styleClass="bf-no-message"/>
+					</div>
+					<div style="float: left; margin-bottom: 5px; cursor: pointer;">
+						<h:outputText styleClass="valorCampo" value="#{aluno.nome}"/>&nbsp;
+					</div>
+				</div>
+				<div class="col-sm-6 col-campos noMarginBottom" style="#{temRegras ? 'margin-left: 20px' : 'margin-left: 0'}; margin-left: -9px;">
+					<div style="width: 170px; float: left;">
+						<h:outputLabel value="#{msg['nomeSocial.label']}:" styleClass="bf-no-message"/>
+					</div>
+					<div style="float: left; margin-bottom: 5px; cursor: pointer;">
+						<h:outputText styleClass="valorCampo" value="#{aluno.nomeSocial}"/>&nbsp;
+					</div>
+				</div>
+			</div>
+            <c:forEach var="grupoVO" items="#{processoEditBean.getGruposVO()}">
+                <c:set var="abertoPadrao" value="#{grupoVO.abertoPadrao}" />
+                <h4 class="tituloForm" jsf:rendered="#{!grupoVO.grupoSuperior.nome.equals(utilBean.nomeDadosInscrito)}">
+                    <h:outputText value="#{grupoVO.grupoSuperior.nome}"/>
+                    <h:panelGroup rendered="#{processoEditBean.editando and grupoVO.grupoPai}">
+                        <p:commandLink class="btn icon-btn btn-info" update="growl2-id campos-grupos-id"
+                                       style="padding: 0px 8px 0px 6px !important; border-radius:50px !important;margin-left: 10px;height: 33px"
+                                       title="#{msg['adicionarNovo.label']}" oncomplete="preparaScriptsCampos()">
+                            <f:actionListener binding="#{processoEditBean.adicionarGrupoDinamico(grupoVO.tipoCampoGrupoId)}"/>
+                            <span class="glyphicon btn-glyphicon glyphicon-plus img-circle text-info"
+                                  style="padding:5px; background:#ffffff;"></span>
+                            #{msg['adicionarGrupo.label']}
+                        </p:commandLink>
+                    </h:panelGroup>
+                </h4>
+                <div class="row-g row-grupo-#{grupoVO.grupoSuperior.id}" style="#{temRegras ? 'margin-left: 20px' : 'margin-left: 0'};">
+                    <!-- campos do grupo superior-->
+                    <c:forEach var="vo" items="#{processoEditBean.getCampos(grupoVO.grupoSuperior)}">
+                        <div class="row campos-grupo-#{grupoVO.grupoSuperior.id}" style="margin-bottom: 0;">
+                            <h:panelGroup rendered="#{vo.colunaUnica}">
+                                <div class="col-sm-12 noMarginBottom" style="padding-left: 30px;">
+                                    <gd:campo campo="#{vo.campo1}" edit="#{editCampos and vo.campo1.editavel}"/>
+                                </div>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{not vo.colunaUnica}">
+                                <div id="#{vo.campo1.id}" class="col-sm-6 noMarginBottom" style="padding-left: 30px;">
+                                    <gd:campo campo="#{vo.campo1}" edit="#{editCampos and vo.campo1.editavel}"/>
+                                </div>
+                                <h:panelGroup rendered="#{not empty vo.campo2}">
+                                    <div id="campo-id-#{vo.campo2.id}" class="col-sm-6 noMarginBottom" style="padding-left: 0;">
+                                        <gd:campo campo="#{vo.campo2}" edit="#{editCampos and vo.campo2.editavel}"/>
+                                    </div>
+                                </h:panelGroup>
+                            </h:panelGroup>
+                        </div>
+                    </c:forEach>
+                    <!-- campos dos subgrupos -->
+                    <c:forEach var="grupo" items="#{grupoVO.gruposFilhos}">
+                        <div class="row campos-grupo-#{grupoVO.grupoSuperior.id}">
+                            <h4 style="padding-bottom: 5px; padding-left: 30px; font-weight: 700; border-bottom: none !important;">#{grupo.nome}
+                                <h:panelGroup rendered="#{processoEditBean.editando and processoEditBean.autorizacao.podeRemoverGrupo(grupo)}">
+                                    <p:commandLink style="padding: 0px 8px 0px 6px !important; border-radius:50px !important;margin-left: -5px;height: 33px; text-decoration: none;"
+                                                   actionListener="#{processoEditBean.setGrupoExcluir(grupo)}"
+                                                   title="#{msg['removerGrupo.label']}"
+                                                   process="@this"
+                                                   oncomplete="openModal('excluirGrupo-modal');">
+                                        <span class="glyphicon btn-glyphicon glyphicon-trash text-danger" style="padding:2px;"></span>
+                                    </p:commandLink>
+                                </h:panelGroup>
+                            </h4>
+                        </div>
+                        <c:forEach var="vo" items="#{processoEditBean.getCampos(grupo)}">
+                            <div class="row campos-grupo-#{grupoVO.grupoSuperior.id}" style="margin-bottom: 0;">
+                                <h:panelGroup rendered="#{vo.colunaUnica}">
+                                    <div class="col-sm-12 noMarginBottom" style="padding-left: 30px;">
+                                        <gd:campo campo="#{vo.campo1}" edit="#{editCampos and vo.campo1.editavel}"/>
+                                    </div>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{not vo.colunaUnica}">
+                                    <div id="#{vo.campo1.id}" class="col-sm-6 noMarginBottom" style="padding-left: 30px;">
+                                        <gd:campo campo="#{vo.campo1}" edit="#{editCampos and vo.campo1.editavel}"/>
+                                    </div>
+                                    <h:panelGroup rendered="#{not empty vo.campo2}">
+                                        <div id="campo-id-#{vo.campo2.id}" class="col-sm-6 noMarginBottom" style="padding-left: 0;">
+                                            <gd:campo campo="#{vo.campo2}" edit="#{editCampos and vo.campo2.editavel}"/>
+                                        </div>
+                                    </h:panelGroup>
+                                </h:panelGroup>
+                            </div>
+                        </c:forEach>
+                    </c:forEach>
+                </div>
+            </c:forEach>
+            <script type="text/javascript">
+                jQuery(function($) {
+                    configurarMascaras();
+                    configurarDatePicker();
+                    configurarCopiar();
+                });
+            </script>
+		</div>
+        <b:row style="margin-left: 0;" rendered="#{processoEditBean.editando}">
+            <div class="col-sm-12">
+                <div style="float: right;">
+                    <a id="cancelar-edicao-campos-id" style="margin-right: 5px;" class="btn btn-default btn btn-default btn-cancelar"
+                       href="#{request.contextPath}/consultas/candidato/#{processoEditBean.processo.id}">#{msg['cancelar.label']}</a>
+                    <p:commandButton value="#{msg['salvar.label']}" actionListener="#{processoEditBean.salvar()}" update="content-pg-id" styleClass="btn">
+                    </p:commandButton>&nbsp;
+                </div>
+            </div>
+        </b:row>
+	</composite:implementation>
+</html>
+

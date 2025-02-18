@@ -1,0 +1,1053 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf"
+	  xmlns:b="http://bootsfaces.net/ui">
+<f:metadata>
+	<f:viewAction action="#{funcoesBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/border-util.xhtml">
+	<ui:define name="head">
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/tooltipster.bundle.min.css" />
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-punk.min.css" />
+		<script type="text/javascript" src="#{request.contextPath}/resources/tooltipster/js/tooltipster.bundle.min.js"></script>
+		<style type="text/css">
+			.control-label {
+				padding-top: 0 !important;
+			}
+		</style>
+	</ui:define>
+	<ui:define name="titulo">Execução de Funções Úteis</ui:define>
+	<ui:define name="conteudo">
+		<p:ajaxStatus onstart="$('#ajaxLoaderImg').show()" onsuccess="$('#ajaxLoaderImg').hide()" />
+		<div id='ajaxLoaderImg' style="position: fixed; display: block; bottom: 0; right: 0; z-index: 99999; display: none;">
+			<img src="#{request.contextPath}/resources/images/loader.gif"/>
+		</div>
+		<b:form id="form-funcoes-uteis" horizontal="true">
+			<p:growl id="message" showDetail="true" />
+			<p:confirmDialog global="true" showEffect="fade" hideEffect="fade" styleClass="text-center">
+				<p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no" icon="fa fa-times" style="float: right;"/>
+				<p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" icon="fa fa-check" style="float: right;" />
+			</p:confirmDialog>
+			<div class="row">
+				<div class="col-sm-2"></div>
+				<div class="col-sm-8">
+					<b:messages globalOnly="true" showSummary="true" id="mensagensGlobais"/>
+					<h:form id="email-form">
+						<div class="row">
+							<h4 class="tituloForm">Teste de envio de email</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-9">
+										<div class="form-group noMarginBottom">
+											<div>Teste de envio dos emails padrões do sistema.</div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-4 noMarginBottom">
+										<b:inputText value="#{funcoesBean.email}" required="true" label="Email que receberá o teste:"/>
+									</div>
+									<div class="col-sm-2 noMarginBottom">
+										<b:inputText value="#{funcoesBean.processoId}" styleClass="mask-number" label="Processo ID"/>
+									</div>
+									<div class="col-sm-3 noMarginBottom">
+										<b:selectOneMenu required="true" label="Tipo de Envio" value="#{funcoesBean.tipoEnvioEmail}">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItem itemValue="pendente" itemLabel="Documentação Pendente"/>
+											<f:selectItem itemValue="aprovada" itemLabel="Documentação Aprovada"/>
+										</b:selectOneMenu>
+									</div>
+									<div class="col-sm-2 noMarginBottom">
+										<p:commandLink action="#{funcoesBean.testeEnvioEmail()}" class="btn btn-primary btn-md" style="margin-top: 9px;" process="email-form"
+											   update="form-funcoes-uteis:message form-funcoes-uteis">
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar?" icon="fa fa-exclamation-circle" />
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+						</div>
+					</h:form>
+					<h:form id="testewsestacio-form">
+						<div class="row">
+							<h4 class="tituloForm">Checagem de acesso http</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-9 noMarginBottom">
+										<div class="form-group noMarginBottom">
+											<div>Teste de serviço simples Http AWS Estácio.</div>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-9 noMarginBottom" style="margin-bottom: -10px !important;">
+										<b:inputText value="#{funcoesBean.url}" label="URL" required="true"/>
+										<b:message/>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-2 noMarginBottom" style="margin-bottom: -10px !important;">
+										<b:selectOneMenu value="#{funcoesBean.method}" required="true" label="Method" select="true">
+											<f:selectItem itemLabel="POST" itemValue="POST" />
+											<f:selectItem itemLabel="GET" itemValue="GET" />
+										</b:selectOneMenu>
+									</div>
+									<div class="col-sm-7 noMarginBottom" style="margin-bottom: -10px !important;">
+										<label class="control-label">Header</label>
+										<span>
+											<h:outputText id="headerDescricao" value="" styleClass="fa fa-fw fa-question-circle"/>
+											<p:tooltip style="padding: 5px; max-width: 400px;" for="headerDescricao" escape="false"
+													value="Modelo de preenchimento > grant_type: authorization_code; Content-Type: application/x-www-form-urlencoded"/>
+										</span>
+										<b:inputText value="#{funcoesBean.header}" style="margin-right: 10px; margin-left: 10px;"/>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-5 noMarginBottom">
+										<label class="control-label" style="margin-left: -15px !important;">Body</label>
+										<span>
+											<h:outputText id="bodyDescricao" value="" styleClass="fa fa-fw fa-question-circle"/>
+											<p:tooltip style="padding: 5px; max-width: 400px;" for="bodyDescricao" escape="false"
+													value="Modelo de preenchimento > grant_type: authorization_code; Content-Type: application/x-www-form-urlencoded"/>
+										</span>
+										<b:inputText value="#{funcoesBean.body}"/>
+									</div>
+									<div class="col-sm-4 noMarginBottom" style="margin-bottom: -10px !important;">
+										<label class="control-label">Proxy</label>
+										<span>
+											<h:outputText id="proxyDescricao" value="" styleClass="fa fa-fw fa-question-circle"/>
+											<p:tooltip style="padding: 5px; max-width: 400px;" for="proxyDescricao" escape="false"
+													   value="Modelo de preenchimento > Hostname; Port; username; password Exemplo: 127.0.0.1; 3123; teste; 1234"/>
+										</span>
+										<b:inputText value="#{funcoesBean.proxy}" style="margin-right: 10px; margin-left: 10px;"/>
+									</div>
+									<div class="col-sm-2 noMarginBottom" style="margin-bottom: -10px !important;">
+										<p:commandLink action="#{funcoesBean.checagemHttp()}" update="form-funcoes-uteis:message form-funcoes-uteis" class="btn btn-primary btn-md" process="testewsestacio-form">
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+								<div class="row" jsf:rendered="#{not empty funcoesBean.release}">
+									<div class="col-md-10 noMarginBottom" style="white-space: pre;border: 1px #ccc solid; padding-top: 10px">#{funcoesBean.release}</div>
+								</div>
+							</div>
+						</div>
+					</h:form>
+					<h:form id="darknet-form">
+						<b:growl id="growl-darknet-id" placementFrom="bottom" allowDismiss="true" animationEnter="animated bounceInDown" animationExit="animated flipOutX"/>
+						<div class="row">
+							<h4 class="tituloForm">Tipificação Darknet</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom">
+										<div class="form-group">
+											<div>Testa a tipificação via darnet.</div>
+										</div>
+									</div>
+									<div class="col-sm-6 noMarginBottom">
+										<h:panelGroup id="darknet-form-anexo">
+											<span style="padding-left: 5px;">#{funcoesBean.fileAnexo.name}</span>
+											<span style="padding-left: 15px;">#{utilBean.toFileSize(funcoesBean.fileAnexo.length())}</span>
+										</h:panelGroup>
+										<h:form id="darknet-form-upload" enctype="multipart/form-data" >
+											<p:fileUpload
+													id="anexo-daknet" styleClass="anexo-daknet"
+													cancelLabel="#{msg['cancelar.label']}"
+													label="#{msg['escolherArquivo.label']}"
+													auto="true" update="form-funcoes-uteis:darknet-form:growl-darknet-id darknet-form-upload form-funcoes-uteis:darknet-form:darknet-form-anexo"
+													listener="#{funcoesBean.uploadAnexo}" accept=".jpg,.jpeg,.png"
+													oncomplete="$('#ajaxLoaderImg').hide()"
+													multiple="false" sizeLimit="#{utilBean.getFileSizeLimit()}">
+											</p:fileUpload>
+										</h:form>
+									</div>
+									<div class="col-sm-2 noMarginBottom">
+										<p:commandLink action="#{funcoesBean.testDarknet()}" update="form-funcoes-uteis:message form-funcoes-uteis" class="btn btn-primary btn-md" style="margin-top: 9px;" process="darknet-form">
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-1 noMarginBottom"></div>
+						</div>
+						<div class="row" jsf:rendered="#{not empty funcoesBean.resultadosDarknet}">
+							<div class="col-sm-3 noMarginBottom"  style="border: 1px #ccc solid; padding: 10px; margin-top: 17px;">
+								<ui:repeat value="#{funcoesBean.resultadosDarknet}" var="rd">
+									<div style="white-space: pre;">#{rd.json}</div>
+								</ui:repeat>
+							</div>
+							<div class="col-sm-7 noMarginBottom">
+								<div jsf:rendered="#{not empty funcoesBean.resultadosDarknet}">
+									Modelos de Documentos Possíveis:<br/>
+									<table>
+										<ui:repeat value="#{utilBean.getEntryList(funcoesBean.documentosCorrespondentesDarknet)}" var="entry">
+											<tr>
+												<td style="border: 1px #ccc solid; padding: 5px; min-width: 150px;">#{entry.key.descricao}</td>
+												<td style="border: 1px #ccc solid; padding: 5px;">
+													<ui:repeat value="#{entry.value}" var="td">
+														- #{td.nome}<br/>
+													</ui:repeat>
+												</td>
+											</tr>
+										</ui:repeat>
+									</table>
+								</div>
+							</div>
+							<div class="col-sm-1 noMarginBottom" ></div>
+						</div>
+					</h:form>
+					<div class="row">
+						<div class="col-sm-1 noMarginBottom"></div>
+						<div class="col-sm-10 noMarginBottom">
+							<div class="row">
+								<div class="col-sm-3 noMarginBottom">
+									<div class="form-group">
+										<div>Executa a Tipificação para os documentos de um único processo.</div>
+									</div>
+								</div>
+								<div class="col-sm-3 noMarginBottom">
+									<b:inputText value="#{funcoesBean.processoIdTipificacao}" styleClass="mask-number" label="Processo ID"/>
+								</div>
+								<div class="col-sm-offset-3 col-sm-2 noMarginBottom">
+									<p:commandLink action="#{funcoesBean.executeTipificacao()}" update="form-funcoes-uteis" class="btn btn-primary btn-md">
+										<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+										<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar?" icon="fa fa-exclamation-circle" />
+									</p:commandLink>
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-1 noMarginBottom"></div>
+					</div>
+					<div class="row">
+						<div class="col-sm-1 noMarginBottom"></div>
+						<div class="col-sm-10 noMarginBottom">
+							<div class="row">
+								<div class="col-sm-3 noMarginBottom">
+									<div class="form-group">
+										<div>Executa a tipificação do Tipificacao2Job em documentos com origem no portal graduação levando em consideração um dado intervalo de tempo.</div>
+									</div>
+								</div>
+								<div class="col-sm-2 noMarginBottom" style="margin-bottom: -10px !important;">
+									<b:inputText id="dataInicioId" value="#{funcoesBean.dataInicioDigitalizacao}"
+												 placeholder="dd/mm/aaaa" styleClass="mask-date" label="De">
+										<f:convertDateTime pattern="dd/MM/yyyy"/>
+										<f:facet name="append">
+											<i class="fa fa-calendar-o fa-12x14"/>
+										</f:facet>
+									</b:inputText>
+								</div>
+								<div class="col-sm-2 noMarginBottom" style="margin-bottom: -10px !important;">
+									<b:inputText id="dataFimId" value="#{funcoesBean.dataFimDigitalizacao}" placeholder="dd/mm/aaaa"
+												 styleClass="mask-date" label="Até">
+										<f:convertDateTime pattern="dd/MM/yyyy"/>
+										<f:facet name="append">
+											<i class="fa fa-calendar-o fa-12x14"/>
+										</f:facet>
+									</b:inputText>
+								</div>
+								<div class="col-sm-offset-3 col-sm-2 noMarginBottom">
+									<p:commandLink action="#{funcoesBean.executeTipificacaoPortalGraduacao()}" update="form-funcoes-uteis" class="btn btn-primary btn-md">
+										<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+										<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar?" icon="fa fa-exclamation-circle" />
+									</p:commandLink>
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-1 noMarginBottom"></div>
+					</div>
+
+					<h:form id="relatorio-geral-form">
+						<div class="row">
+							<h4 class="tituloForm">Relatório Geral</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-9 noMarginBottom">
+										<b:inputText id="processos-id" tags="true" value="#{funcoesBean.processosString}"
+													 placeholder="Informe os processos, separadas por vírgula" styleClass="inputTag" required="true"
+													 label="Processos" render-label="false" tiny-screen="full-width"/>
+									</div>
+									<div class="col-sm-2 noMarginBottom">
+										<p:commandLink action="#{funcoesBean.atualizarRelatorioGeral()}" process="relatorio-geral-form" class="btn btn-primary btn-md"
+													   update="form-funcoes-uteis:message form-funcoes-uteis">
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+						</div>
+					</h:form>
+					<h:form id="campos-relatorio-geral-form">
+						<div class="row">
+							<h4 class="tituloForm">Campos Relatório Geral</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom">
+										<div class="form-group noMarginBottom">
+											Reprocessa Campos Dinâmicos do Relatório Geral.
+										</div>
+									</div>
+									<div class="col-sm-2 noMarginBottom" style="margin-bottom: -10px !important;">
+										<div class="form-group noMarginBottom" style="margin-right: 10px; margin-left: 10px;">
+											<b:inputText value="#{funcoesBean.tipoProcessoId}" styleClass="mask-number noMarginBottom" label="Tipo Processo ID"/>
+										</div>
+									</div>
+									<div class="col-sm-2 noMarginBottom" style="margin-bottom: -10px !important;">
+										<b:inputText id="dataInicioId" value="#{funcoesBean.dataInicioRelatorioGeral}"
+													 placeholder="dd/mm/aaaa" styleClass="mask-date" label="De">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14"/>
+											</f:facet>
+										</b:inputText>
+									</div>
+									<div class="col-sm-2 noMarginBottom" style="margin-bottom: -10px !important;">
+										<b:inputText id="dataFimId" value="#{funcoesBean.dataFimRelatorioGeral}" placeholder="dd/mm/aaaa"
+													 styleClass="mask-date" label="Até">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14"/>
+											</f:facet>
+										</b:inputText>
+									</div>
+									<div class="col-sm-2 noMarginBottom">
+										<p:commandLink action="#{funcoesBean.atualizaCamposDinamicosRelatorioGeral()}" process="campos-relatorio-geral-form" class="btn btn-primary btn-md" style="margin-top: 9px;"
+													   update="form-funcoes-uteis:message form-funcoes-uteis">
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+						</div>
+					</h:form>
+					<h:form id="gerarHash-form">
+						<div class="row">
+							<h4 class="tituloForm">Gerar Hashs de Imagens</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom">
+										<div class="form-group noMarginBottom">
+											<div>Gera hash para imagens com hash_cheksum vazio.</div>
+										</div>
+									</div>
+									<div class="col-sm-6 noMarginBottom"></div>
+									<div class="col-sm-2 noMarginBottom">
+										<p:commandLink action="#{funcoesBean.gerarHahsImagens()}" update="form-funcoes-uteis:message form-funcoes-uteis" class="btn btn-primary btn-md" style="margin-top: 9px;" process="gerarHash-form">
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-1 noMarginBottom"></div>
+						</div>
+					</h:form>
+					<h:form id="amostragem-form">
+						<div class="row">
+							<h4 class="tituloForm">Amostragem de Imagens</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom">
+										<div class="form-group">
+											<div>Exporta amostra de imagens para tipificação via IA.</div>
+										</div>
+									</div>
+									<div class="col-sm-2 noMarginBottom">
+										<b:inputText value="#{funcoesBean.maxAmostragem}" styleClass="mask-number" maxlength="4" label="Quantidade"/>
+									</div>
+									<div class="col-sm-4 noMarginBottom">
+									</div>
+									<div class="col-sm-2 noMarginBottom">
+										<p:commandLink action="#{funcoesBean.amostragemImagens()}" update="form-funcoes-uteis:message form-funcoes-uteis" class="btn btn-primary btn-md" style="margin-top: 9px;">
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+						</div>
+					</h:form>
+					<h:form id="atualizaProcesso-form">
+						<div class="row">
+							<h4 class="tituloForm">Atualizar Processos</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom">
+										<div class="form-group">
+											<div>Realiza consulta no SIA e realiza a atualização no processo..</div>
+										</div>
+									</div>
+									<div class="col-sm-6 noMarginBottom">
+										<b:inputText value="#{funcoesBean.processoIds}" label="Processos separados por virgula."/>
+									</div>
+									<div class="col-sm-2 noMarginBottom">
+										<p:commandLink action="#{funcoesBean.atualizarProcessos()}" process="atualizaProcesso-form" class="btn btn-primary btn-md"
+													   update="form-funcoes-uteis:message form-funcoes-uteis">
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+						</div>
+					</h:form>
+					<h:form id="notificarDocumentoSia-form">
+						<div class="row">
+							<h4 class="tituloForm">Notificar Documento SIA</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom">
+										<div class="form-group noMarginBottom">
+											Chama o serviço /Atualiza_documento do SIA.
+										</div>
+									</div>
+									<div class="col-sm-6 noMarginBottom" style="margin-bottom: -10px !important;">
+										<div class="row">
+											<div class="col-sm-6 noMarginBottom" style="margin-bottom: -10px !important;">
+												<div class="form-group noMarginBottom" style="margin-right: 10px; margin-left: 10px;">
+													<b:inputText value="#{funcoesBean.numInscricao}" styleClass="mask-number noMarginBottom" label="Nº Inscrição"/>
+												</div>
+											</div>
+											<div class="col-sm-6 noMarginBottom" style="margin-bottom: -10px !important;">
+												<div class="form-group noMarginBottom" style="margin-right: 10px; margin-left: 10px;">
+													<b:inputText value="#{funcoesBean.numCandidato}" styleClass="mask-number noMarginBottom" label="Nº Candidato"/>
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-sm-6 noMarginBottom" style="margin-bottom: -10px !important;">
+												<div class="form-group noMarginBottom" style="margin-right: 10px; margin-left: 10px;">
+													<b:inputText value="#{funcoesBean.numMatricula}" styleClass="mask-number noMarginBottom" label="Nº Matrícula"/>
+												</div>
+											</div>
+											<div class="col-sm-6 noMarginBottom" style="margin-bottom: -10px !important;">
+												<div class="form-group noMarginBottom" style="margin-right: 10px; margin-left: 10px;">
+													<b:inputText value="#{funcoesBean.codOrigemDocumento}" styleClass="mask-number noMarginBottom" label="Cod Origem"/>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="col-sm-2 noMarginBottom">
+										<p:commandLink action="#{funcoesBean.notificarDocumentoSia()}" process="notificarDocumentoSia-form" class="btn btn-primary btn-md" style="margin-top: 9px;"
+													   update="form-funcoes-uteis:message form-funcoes-uteis">
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+						</div>
+					</h:form>
+					<h:form id="envioParaAnalise-form">
+						<div class="row">
+							<h4 class="tituloForm">Enviar para Analise em Massa</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom">
+										<div class="form-group">
+											<div>Realiza o envio do processo para Analise.</div>
+										</div>
+									</div>
+									<div class="col-sm-5 noMarginBottom">
+										<b:inputText value="#{funcoesBean.processoIds}" label="Processos separados por virgula."/>
+									</div>
+									<div class="col-sm-1 noMarginBottom">
+										<div class="col-sm-2 noMarginBottom">
+											<p:commandLink action="#{funcoesBean.enviarParaAnalise()}" process="envioParaAnalise-form" class="btn btn-primary btn-md"
+														   update="form-funcoes-uteis:message form-funcoes-uteis">
+												<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+												<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar?" icon="fa fa-exclamation-circle" />
+											</p:commandLink>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</h:form>
+					<h:form id="atualizaRelatorioGeral-form">
+						<div class="row">
+							<h4 class="tituloForm">Enviar para Atualizar Relatório Geral em Massa</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom">
+										<div class="form-group">
+											<div>Realiza o Atualizar Relatório Geral.</div>
+										</div>
+									</div>
+									<div class="col-sm-5 noMarginBottom">
+										<b:inputText value="#{funcoesBean.processoIds}" label="Processos separados por virgula."/>
+									</div>
+									<div class="col-sm-1 noMarginBottom">
+										<div class="col-sm-2 noMarginBottom">
+											<p:commandLink action="#{funcoesBean.atualizarRelatorioGeral()}" process="atualizaRelatorioGeral-form" class="btn btn-primary btn-md"
+														   update="form-funcoes-uteis:message form-funcoes-uteis">
+												<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+												<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar?" icon="fa fa-exclamation-circle" />
+											</p:commandLink>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</h:form>
+					<h:form id="incluir-arquivo-form">
+						<b:growl id="growl-incluir-arquivo-id" placementFrom="bottom" allowDismiss="true" animationEnter="animated bounceInDown" animationExit="animated flipOutX"/>
+						<div class="row">
+							<h4 class="tituloForm">Incluir Arquivo nos Documentos</h4>
+							<div class="col-sm-1"></div>
+							<div class="col-sm-10">
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom">
+										<div class="form-group noMarginBottom">
+											Inclui o arquivo no documento de todos processos informados
+										</div>
+									</div>
+									<div class="col-sm-6 noMarginBottom" style="margin-bottom: -10px !important;">
+										<div class="row">
+											<div class="col-sm-12 noMarginBottom" style="margin-bottom: -10px !important;">
+												<div class="form-group noMarginBottom" style="margin-right: 10px; margin-left: 10px;">
+													<b:inputText value="#{funcoesBean.inserirArquivoProcessosVO.processoIds}" label="Processos separados por virgula." required="true"/>
+												</div>
+											</div>
+											<div class="col-sm-12 noMarginBottom" style="margin-bottom: -10px !important;">
+												<div class="form-group noMarginBottom" style="margin-right: 10px; margin-left: 10px;">
+													<b:inputText value="#{funcoesBean.inserirArquivoProcessosVO.tiposDocumentosIds}" label="Tipos documentos separados por virgula." required="true"/>
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-sm-12 noMarginBottom" style="margin-bottom: -10px !important;">
+												<div class="form-group noMarginBottom" style="margin-right: 10px; margin-left: 10px;">
+													<h:panelGroup id="incluir-arquivo-form-anexo">
+														<span style="padding-left: 5px;">#{funcoesBean.inserirArquivoProcessosVO.arquivo.name}</span>
+														<span style="padding-left: 15px;">#{utilBean.toFileSize(funcoesBean.inserirArquivoProcessosVO.arquivo.length())}</span>
+													</h:panelGroup>
+													<h:form id="incluir-arquivo-form-upload" enctype="multipart/form-data" >
+														<br/><h:outputText value="#{funcoesBean.fileNameIncluir}"/>
+														<p:fileUpload
+																id="incluir-arquivo-id"
+																cancelLabel="#{msg['cancelar.label']}"
+																label="#{msg['escolherArquivo.label']}"
+																auto="true" update="form-funcoes-uteis:incluir-arquivo-form:incluir-arquivo-form-anexo form-funcoes-uteis:incluir-arquivo-form:growl-incluir-arquivo-id "
+																listener="#{funcoesBean.uploadAnexoIncluir}" accept=".jpg,.jpeg,.png,.pdf"
+																oncomplete="$('#ajaxLoaderImg').hide()"
+																multiple="false" sizeLimit="#{utilBean.getFileSizeLimit()}">
+														</p:fileUpload>
+													</h:form>
+												</div>
+											</div>
+											<div class="col-sm-12 noMarginBottom" style="margin-bottom: -10px !important;">
+												<div class="form-group noMarginBottom" style="margin-right: 10px; margin-left: 10px;">
+													<h:outputLabel value="Aprovar automaticamente?" for="aprovar-automaticamente-id"/>
+													<h:selectOneRadio id="aprovar-automaticamente-id" value="#{funcoesBean.inserirArquivoProcessosVO.aprovarDocumento}"
+																	  styleClass="radio-default" required="true">
+														<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+														<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+													</h:selectOneRadio>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="col-sm-2 noMarginBottom">
+										<p:commandLink action="#{funcoesBean.inserirArquivoNosDocumentos()}" process="incluir-arquivo-form" class="btn btn-primary btn-md"
+													   update="form-funcoes-uteis:message form-funcoes-uteis">
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-1"></div>
+						</div>
+					</h:form>
+					<h:form id="ajustarLogComEtapa-form">
+						<div class="row">
+							<h4 class="tituloForm">Reprocessar Etapas</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-9 noMarginBottom" style="margin-bottom: -10px !important;">
+										<div class="form-group noMarginBottom">
+											Corrigir os processos logs de etapas.
+										</div>
+									</div>
+									<div class="col-sm-2 noMarginBottom">
+										<p:commandLink action="#{funcoesBean.ajustarLogComEtapa()}" process="ajustarLogComEtapa-form" class="btn btn-primary btn-md" style="margin-top: 9px;"
+													   update="form-funcoes-uteis:message form-funcoes-uteis">
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-9 noMarginBottom" style="margin-bottom: -10px !important;">
+										<div class="form-group noMarginBottom">
+											Corrigir os registros de etapas não finalizadas.
+										</div>
+									</div>
+									<div class="col-sm-2 noMarginBottom">
+										<p:commandLink action="#{funcoesBean.reprocessarRelatorioDeEtapa()}" process="ajustarLogComEtapa-form" class="btn btn-primary btn-md" style="margin-top: 9px;"
+													   update="form-funcoes-uteis:message form-funcoes-uteis">
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+						</div>
+					</h:form>
+					<h:form id="ajustarPrazoLimiteSituacao-form">
+						<div class="row">
+							<h4 class="tituloForm">Reprocessar Prazos Limites</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-9 noMarginBottom" style="margin-bottom: -10px !important;">
+										<div class="form-group noMarginBottom">
+											Corrigir os prazos limite de situação e etapa em processos e processos logs.
+										</div>
+									</div>
+									<div class="col-sm-2 noMarginBottom">
+										<p:commandLink action="#{funcoesBean.ajustarLogEPrazoLimiteSituacao}" process="ajustarPrazoLimiteSituacao-form" class="btn btn-primary btn-md" style="margin-top: 9px;"
+													   update="form-funcoes-uteis:message form-funcoes-uteis">
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+						</div>
+					</h:form>
+					<h:form id="alterarSituacaoEmMassa-form">
+						<div class="row">
+							<h4 class="tituloForm">#{msg['alteracaoSituacaoEmMassaProcessos.label']}</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-8 noMarginBottom">
+										<b:inputText id="processos-id" tags="true" value="#{funcoesBean.processosString}"
+													 placeholder="Informe os processos, separadas por vírgula" styleClass="inputTag" required="true"
+													 label="Processos" render-label="false" tiny-screen="full-width"/>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom">
+										<div class="form-group">
+											<h:outputLabel value="#{msg['tipoProcesso.label']}" for="tipoProcessoId" styleClass="bf-no-message bf-required"/>
+											<h:selectOneMenu id="tipoProcessoId" label="#{msg['tipoProcesso.label']}" required="true" styleClass="form-control bf-no-message bf-required"
+															 value="#{funcoesBean.tipoProcesso}" valueChangeListener="#{funcoesBean.selecionaTipoProcesso}" converter="entityConverter" immediate="false">
+												<f:selectItem itemValue="" itemLabel=""/>
+												<f:selectItems value="#{funcoesBean.tiposProcessos}" var="tipoProcesso" itemValue="#{tipoProcesso}" itemLabel="#{tipoProcesso.nome}"/>
+												<f:ajax event="change" render="camposDinamicos"/>
+											</h:selectOneMenu>
+										</div>
+									</div>
+									<div class="col-sm-4 noMarginBottom">
+										<h:panelGroup id="camposDinamicos">
+											<h:panelGroup rendered="#{not empty funcoesBean.situacaoList}">
+												<div class="form-group">
+													<h:outputLabel value="#{msg['situacao.label']}" />
+													<h:selectOneMenu id="situacaoesId" label="#{msg['tipoProcesso.label']}" required="true" styleClass="form-control bf-no-message bf-required"
+																	 value="#{funcoesBean.novaSituacao}" converter="entityConverter" immediate="false">
+														<f:selectItems value="#{funcoesBean.situacaoList}" var="s" itemValue="#{s}" itemLabel="#{s.nome}"/>
+													</h:selectOneMenu>
+													<b:message/>
+												</div>
+											</h:panelGroup>
+										</h:panelGroup>
+									</div>
+									<div class="col-sm-2 noMarginBottom"></div>
+									<div class="col-sm-2 noMarginBottom">
+										<p:commandLink id="alterarSituacaoEmMassaId" action="#{funcoesBean.atualizarSituacaoEmMassa()}" update="form-funcoes-uteis:message form-funcoes-uteis" class="btn btn-primary btn-md" style="margin-top: 9px;" process="alterarSituacaoEmMassa-form">
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar as alterações?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-1 noMarginBottom"></div>
+						</div>
+					</h:form>
+					<h:form id="migrarTiposDeProcesso-form">
+						<b:growl id="growl-incluir-arquivo-id" placementFrom="bottom" allowDismiss="true" animationEnter="animated bounceInDown" animationExit="animated flipOutX"/>
+						<div class="row">
+							<h4 class="tituloForm">#{msg['migrarTipoDeProcesso.label']}</h4>
+							<div class="col-sm-1"></div>
+							<div class="col-sm-10">
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom">
+										<div class="form-group noMarginBottom">
+											Cria novos processos do Tipo de Processo destino, copiando os campos e documentos do processo antigo.<br/>
+											Pode haver perda de informações (regras, aba acompanhamento p.ex), então só use se tiver certeza do que está fazendo.
+										</div>
+									</div>
+									<div class="col-sm-6 noMarginBottom" >
+										<div class="row">
+											<div class="col-sm-12 noMarginBottom" >
+												<div class="form-group">
+													<h:outputLabel value="#{msg['tipoProcessoDestino.label']}" for="tipoProcessoId" styleClass="bf-no-message bf-required"/>
+													<h:selectOneMenu id="tipoProcesso-migrar-Id" label="#{msg['tipoProcessoDestino.label']}" required="true" styleClass="form-control bf-no-message bf-required"
+																	 value="#{funcoesBean.tipoProcessoDestinoMigracao}" converter="entityConverter">
+														<f:selectItem itemValue="" itemLabel=""/>
+														<f:selectItems value="#{funcoesBean.tiposProcessos}" var="tipoProcesso" itemValue="#{tipoProcesso}" itemLabel="#{tipoProcesso.nome}"/>
+													</h:selectOneMenu>
+												</div>
+											</div>
+											<div class="col-sm-12 noMarginBottom" >
+												<div class="form-group">
+													<b:inputText id="processos-id" tags="true" value="#{funcoesBean.processosStringMigracao}"
+																 placeholder="Informe os processos, separados por vírgula" styleClass="inputTag" required="true"
+																 label="Processos" tiny-screen="full-width"/>
+												</div>
+											</div>
+											<div class="col-sm-12 noMarginBottom" >
+												<div class="form-group">
+													<b:inputTextarea id="equivalencias-id" tags="true" value="#{funcoesBean.jsonEquivalenciasTiposDeDocumentos}" required="true"
+																 placeholder="Json no formato {&quot;&lt;tipoProcessoOriginalId&gt;&quot;:&quot;&lt;tipoProcessoDestinoId&gt;&quot;}" styleClass="inputTag"
+																 label="Equivalências de Tipos de Documentos" render-label="true" tiny-screen="full-width"/>
+												</div>
+											</div>
+											<div class="col-sm-12 noMarginBottom" >
+												<div class="form-group">
+													<h:outputLabel value="Excluir processos após migração?" for="excluir-migracao-id"/>
+													<h:selectOneRadio id="excluir-migracao-id" value="#{funcoesBean.excluirProcessosAposMigracao}"
+																	  styleClass="radio-default" required="true">
+														<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+														<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+													</h:selectOneRadio>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="col-sm-2 noMarginBottom">
+										<p:commandLink id="migrarTipoDeProcessoId" action="#{funcoesBean.migrarTipoDeProcesso()}" update="form-funcoes-uteis:message form-funcoes-uteis" class="btn btn-primary btn-md" style="margin-top: 9px;" process="migrarTiposDeProcesso-form">
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar as alterações?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-1"></div>
+						</div>
+					</h:form>
+					<h:form id="redundanciaNotificarDocumentoSia-form">
+						<div class="row">
+							<h4 class="tituloForm">Redundância Notificação Documento SIA</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom">
+										<div class="form-group noMarginBottom">
+											Marca documentos  como não notificado no SIA, caso:<br/>
+											- Ainda estejam no filtro de notificação de SIA;<br/>
+											- já tenham sido notificados; e<br/>
+											- aprovação ocorreu entre as datas abaixo.
+										</div>
+									</div>
+									<div class="col-sm-6 noMarginBottom" style="margin-bottom: -10px !important;">
+										<div class="row">
+											<div class="col-sm-6 noMarginBottom" style="margin-bottom: -10px !important;">
+												<div class="form-group noMarginBottom" style="margin-right: 10px; margin-left: 10px;">
+													<b:inputText id="dataInicioNotificaSiaId" value="#{funcoesBean.dataInicioNotificaSia}" required="true"
+																 placeholder="dd/mm/aaaa" styleClass="mask-date" label="Date inicio aprovação">
+														<f:convertDateTime pattern="dd/MM/yyyy"/>
+														<f:facet name="append">
+															<i class="fa fa-calendar-o fa-12x14"/>
+														</f:facet>
+													</b:inputText>
+												</div>
+											</div>
+											<div class="col-sm-6 noMarginBottom" style="margin-bottom: -10px !important;">
+												<div class="form-group noMarginBottom" style="margin-right: 10px; margin-left: 10px;">
+													<b:inputText id="dataFimNotificaSiaId" value="#{funcoesBean.dataFimNotificaSia}"
+																 placeholder="dd/mm/aaaa" styleClass="mask-date" label="Data fim aprovação">
+														<f:convertDateTime pattern="dd/MM/yyyy"/>
+														<f:facet name="append">
+															<i class="fa fa-calendar-o fa-12x14"/>
+														</f:facet>
+													</b:inputText>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="col-sm-2 noMarginBottom">
+										<p:commandLink action="#{funcoesBean.redundanciaNotificacaoDocumentoSia()}" process="redundanciaNotificarDocumentoSia-form" class="btn btn-primary btn-md" style="margin-top: 9px;"
+													   update="form-funcoes-uteis:message form-funcoes-uteis">
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+						</div>
+					</h:form>
+					<h:form id="mudar-log-level-form">
+						<div class="row">
+							<h4 class="tituloForm">Log Level</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom">
+										<div class="form-group">
+											<div>Altera LogLevel para habilitar e desabilitar logs do sistema.</div>
+										</div>
+									</div>
+									<div class="col-sm-4 noMarginBottom">
+										<b:selectOneMenu value="#{funcoesBean.logLevel}" label="Log Level">
+											<f:selectItems value="#{funcoesBean.logLevels}" var="ll" itemValue="#{ll}" itemLabel="#{ll.name()}"/>
+										</b:selectOneMenu>
+									</div>
+									<div class="col-sm-2 noMarginBottom"></div>
+									<div class="col-sm-2 noMarginBottom">
+										<p:commandLink action="#{funcoesBean.alterarLevelLog}" update="form-funcoes-uteis:message form-funcoes-uteis" class="btn btn-primary btn-md" style="margin-top: 9px;" process="mudar-log-level-form">
+											<i class="fa fa-save" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja alterar o Level Log?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-1 noMarginBottom"></div>
+						</div>
+					</h:form>
+					<h:form id="reimportarArquivosEmMassa-form">
+						<div class="row">
+							<h4 class="tituloForm">#{msg['reimportarArquivosEmMassa.label']}</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom">
+										<div class="form-group">
+											<h:outputLabel value="#{msg['tipoImportacao.label']}" for="tipoImportacaoId" styleClass="bf-no-message bf-required"/>
+											<h:selectOneMenu id="tipoImportacaoId" label="#{msg['tipoImportacao.label']}" required="true" styleClass="form-control bf-no-message bf-required"
+															 value="#{funcoesBean.tipoProcessoImportacao}" converter="entityConverter">
+												<f:selectItem itemValue="" itemLabel=""/>
+												<f:selectItems value="#{funcoesBean.tipoProcessosImportacao}" var="tipoProcesso" itemValue="#{tipoProcesso}" itemLabel="#{tipoProcesso.nome}"/>
+											</h:selectOneMenu>
+										</div>
+									</div>
+									<div class="col-sm-3 noMarginBottom">
+										<div class="form-group">
+											<b:inputText value="#{funcoesBean.maxImportacao}" styleClass="mask-number"
+														 maxlength="4" label="Max importação"/>
+										</div>
+									</div>
+									<div class="col-sm-3 noMarginBottom">
+										<div class="form-group">
+											<b:inputText value="#{funcoesBean.inicioImportacao}" styleClass="mask-number" maxlength="4" label="Inicio importacao"/>
+										</div>
+									</div>
+									<div class="col-sm-2 noMarginBottom">
+										<p:commandLink id="reimportarEmMassaId" action="#{funcoesBean.reimportarEmMassa}" update="form-funcoes-uteis:message form-funcoes-uteis" class="btn btn-primary btn-md" style="margin-top: 9px;" process="reimportarArquivosEmMassa-form">
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar as alterações?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-1 noMarginBottom"></div>
+						</div>
+					</h:form>
+					<h:form id="criarCamposProcesso-form">
+						<div class="row">
+							<h4 class="tituloForm">#{msg['criaCamposEmMassa.label']}</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom">
+										<div class="form-group">
+											<div>Cria os campos novos confome o cadastro de tipo campo, e reordena conforme cadastro.</div>
+										</div>
+									</div>
+									<div class="col-sm-6">
+										<h:outputLabel value="Tipo de Processo" for="tipoProcessoCampoId" styleClass="bf-no-message bf-required"/>
+										<h:selectOneMenu id="tipoProcessoCampoId" label="TipoProcesso" required="true" styleClass="form-control bf-no-message bf-required"
+														 value="#{funcoesBean.tipoProcesso}" converter="entityConverter">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{funcoesBean.tiposProcessos}" var="tipoProcesso" itemValue="#{tipoProcesso}" itemLabel="#{tipoProcesso.nome}"/>
+											<f:ajax event="change" render="tipoGrupoCampoId" listener="#{funcoesBean.findTipoGrupos}"/>
+										</h:selectOneMenu>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-offset-3 col-sm-3">
+										<h:outputLabel value="Tipo de Grupo Campo" for="tipoGrupoCampoId" styleClass="bf-no-message bf-required"/>
+										<h:selectOneMenu id="tipoGrupoCampoId" label="TipoGrupo" required="true" styleClass="form-control bf-no-message bf-required"
+														 value="#{funcoesBean.tipoGrupo}" converter="entityConverter">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{funcoesBean.tipoGrupos}" var="tipoGrupo" itemValue="#{tipoGrupo}" itemLabel="#{tipoGrupo.nome}"/>
+											<f:ajax event="change" render="tipoCampoId" listener="#{funcoesBean.findTipoCampos}"/>
+										</h:selectOneMenu>
+									</div>
+									<div class="col-sm-3">
+										<h:outputLabel value="Tipo de Campo" for="tipoCampoId" styleClass="bf-no-message bf-required"/>
+										<h:selectOneMenu id="tipoCampoId" label="TipoCampo" required="true" styleClass="form-control bf-no-message bf-required"
+														 value="#{funcoesBean.tipoCampo}" converter="entityConverter">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{funcoesBean.tipoCampoList}" var="tipoCampo" itemValue="#{tipoCampo}" itemLabel="#{tipoCampo.nome}"/>
+										</h:selectOneMenu>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-offset-3 col-sm-6 noMarginBottom">
+										<b:inputText id="processos-id" tags="true" value="#{funcoesBean.processosString}"
+													 placeholder="Informe os processos, separadas por vírgula" styleClass="inputTag"
+													 label="Processos" render-label="false" tiny-screen="full-width"/>
+									</div>
+									<div class="col-sm-2 noMarginBottom">
+										<p:commandLink id="criarCamposId" action="#{funcoesBean.criarCamposEmMassa}" update="form-funcoes-uteis:message form-funcoes-uteis" class="btn btn-primary btn-md" process="criarCamposProcesso-form">
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar as alterações?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+								<div class="row">
+								</div>
+							</div>
+							<div class="col-sm-1 noMarginBottom"></div>
+						</div>
+					</h:form>
+					<h:form id="reprocessarFluxoAprovacao-form">
+						<div class="row">
+							<h4 class="tituloForm">Reprocessar Fluxo Aprovação</h4>
+								<div class="col-sm-1 noMarginBottom"></div>
+								<div class="col-sm-10 noMarginBottom">
+									<div class="row">
+										<div class="col-sm-8 noMarginBottom">
+											<b:inputText id="processos-id" tags="true" value="#{funcoesBean.processosString}"
+														 placeholder="Informe os processos, separadas por vírgula" styleClass="inputTag" required="true"
+														 label="Processos" render-label="false" tiny-screen="full-width"/>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-sm-4 noMarginBottom">
+											<b:selectOneMenu value="#{funcoesBean.etapaFluxo}" label="Etapa Fluxo">
+												<f:selectItems value="#{funcoesBean.etapasFluxo}" var="etapas" itemValue="#{etapas}" itemLabel="#{etapas}"/>
+											</b:selectOneMenu>
+										</div>
+										<div class="col-sm-2 noMarginBottom"></div>
+										<div class="col-sm-2 noMarginBottom">
+											<p:commandLink id="reprocessarFluxoAprovacaoId" action="#{funcoesBean.reprocessarFluxoAprovacao}" update="form-funcoes-uteis:message form-funcoes-uteis" class="btn btn-primary btn-md" style="margin-top: 9px;" process="reprocessarFluxoAprovacao-form">
+												<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+												<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar as alterações?" icon="fa fa-exclamation-circle" />
+											</p:commandLink>
+										</div>
+									</div>
+								</div>
+							</div>
+					</h:form>
+					<h:form id="jobSisProunoSisFies-form">
+						<div class="row">
+							<h4 class="tituloForm">Processar Job EnvioSisProuniSisFiesConcluidoParaAnaliseJob</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-2 noMarginBottom"></div>
+									<div class="col-sm-2 noMarginBottom">
+										<p:commandLink id="processarJobSisProuni" action="#{funcoesBean.executarJobSisProuni}" update="jobSisProunoSisFies-form" class="btn btn-primary btn-md" style="margin-top: 9px;" process="jobSisProunoSisFies-form">
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar as alterações?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+						</div>
+					</h:form>
+					<h:form id="importarArquivoVinculoCandidato-form">
+						<div class="row">
+							<h4 class="tituloForm">Vincula processos a candidatos no SIA</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom">
+										<div class="form-group">
+											<div>Vincula em massa candidatos </div>
+										</div>
+									</div>
+									<div class="col-sm-3">
+										<div class="form-group">
+											<h:panelGroup id="form-upload" >
+												<label>#{msg['carregarArquivo.label']}</label>
+												<p:fileUpload
+														id="macro-excel" cancelLabel="#{msg['cancelar.label']}"
+														update="form-upload" label="#{msg['selecionarArquivo.label']}"
+														listener="#{funcoesBean.uploadVincularEmMassa}" auto="true"
+														accept="xlsx" allowTypes="/(\.|\/)(xls|xlsb|csv|XLS|XLSB|CSV)$/"
+														oncomplete="$('#ajaxLoaderImg').hide()"
+														multiple="false" sizeLimit="10240000">
+												</p:fileUpload>
+											</h:panelGroup>
+										</div>
+									</div>
+									<div class="col-sm-3">
+										<p:commandLink id="vincularCandidatosEmMassaId" action="#{funcoesBean.vincularEmMassa}" update="form-funcoes-uteis:message form-funcoes-uteis" class="btn btn-primary btn-md" style="margin-top: 9px;" process="importarArquivoVinculoCandidato-form">
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar as alterações?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-1 noMarginBottom"></div>
+						</div>
+					</h:form>
+					<h:form id="reimportacaoCorrecao-form">
+						<div class="row">
+							<h4 class="tituloForm">Correção de reimportação</h4>
+							<div class="col-sm-1 noMarginBottom"></div>
+							<div class="col-sm-10 noMarginBottom">
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom">
+										<div class="form-group">
+											<div>Função para corrigir importação de campos vazios</div>
+										</div>
+									</div>
+									<div class="col-sm-3">
+										<div class="form-group">
+											<h:panelGroup id="form-upload-reimportacao" >
+												<label>#{msg['carregarArquivo.label']}</label>
+												<p:fileUpload
+														id="macro-excel-reimportacao" cancelLabel="#{msg['cancelar.label']}"
+														update="form-upload-reimportacao" label="#{msg['selecionarArquivo.label']}"
+														listener="#{funcoesBean.uploadReimportacao}" auto="true"
+														accept="xlsx" allowTypes="/(\.|\/)(xls|xlsb|csv|XLS|XLSB|CSV)$/"
+														oncomplete="$('#ajaxLoaderImg').hide()"
+														multiple="false" sizeLimit="10240000">
+												</p:fileUpload>
+											</h:panelGroup>
+										</div>
+									</div>
+									<div class="col-sm-3">
+										<p:commandLink id="reimportacaoId" action="#{funcoesBean.reImportacao}" update="form-funcoes-uteis:message form-funcoes-uteis" class="btn btn-primary btn-md" style="margin-top: 9px;" process="reimportacaoCorrecao-form">
+											<i class="fa fa-play" aria-hidden="true" style="color: #fff;"></i>
+											<p:confirm header="Confirmação" message="Você tem certeza que deseja iniciar as alterações?" icon="fa fa-exclamation-circle" />
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-1 noMarginBottom"></div>
+						</div>
+					</h:form>
+				</div>
+			</div>
+		</b:form>
+	</ui:define>
+</ui:composition>
+</html>

@@ -1,0 +1,467 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Catálogo de serviços RESTful/JSON.",
+    "version": "1.0",
+    "title": "GetDoc 5",
+    "termsOfService": "Terms of service",
+    "contact": {
+      "name": "GetDoc 5"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/getdoc_aluno/rest",
+  "tags": [
+    {
+      "name": "/aluno",
+      "description": "Serviços relacionados ao Aluno."
+    }
+  ],
+  "paths": {
+    "/aluno/v1/get-last-documento/{tipoDocumentoId}/{matricula}": {
+      "get": {
+        "tags": [
+          "rest-aluno-v-1"
+        ],
+        "summary": "Retorna o último documento do tipo indicado para a matrícula informada.",
+        "operationId": "getLastDocumentoUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "JSESSIONID",
+            "in": "cookie",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "tipoDocumentoId",
+            "in": "path",
+            "description": "tipoDocumentoId",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "matricula",
+            "in": "path",
+            "description": "matricula",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/DocumentoAlunoDownloadResponse"
+            }
+          },
+          "400": {
+            "description": "Ocorreu um erro ao processar a requisição."
+          },
+          "401": {
+            "description": "Usuário não autenticado. Faça login para obter um novo JSESSIONID."
+          },
+          "403": {
+            "description": "Usuário não tem permissão para acessar esse recurso."
+          }
+        }
+      }
+    },
+    "/aluno/v1/lista-documentos/{tipoProcessoId}/{matricula}": {
+      "get": {
+        "tags": [
+          "rest-aluno-v-1"
+        ],
+        "summary": "Lista os documentos que o aluno deve enviar para o tipo de processo indicado.",
+        "operationId": "listaDocumentosUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "JSESSIONID",
+            "in": "cookie",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "tipoProcessoId",
+            "in": "path",
+            "description": "tipoProcessoId",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "matricula",
+            "in": "path",
+            "description": "matricula",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/StatusDocumentosAlunoResponse"
+            }
+          },
+          "400": {
+            "description": "Ocorreu um erro ao processar a requisição."
+          },
+          "401": {
+            "description": "Usuário não autenticado. Faça login para obter um novo JSESSIONID."
+          },
+          "403": {
+            "description": "Usuário não tem permissão para acessar esse recurso."
+          }
+        }
+      }
+    },
+    "/aluno/v1/login": {
+      "post": {
+        "tags": [
+          "rest-aluno-v-1"
+        ],
+        "summary": "Autentica o usuário.",
+        "description": "Realiza autenticação do usuário através do realm.",
+        "operationId": "autenticarUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "JSESSIONID",
+            "in": "cookie",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "requestLogin",
+            "description": "requestLogin",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RequestLogin"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/LoginResponseAluno"
+            }
+          },
+          "400": {
+            "description": "Ocorreu um erro ao processar a requisição."
+          },
+          "401": {
+            "description": "Usuário não autenticado. Faça login para obter um novo JSESSIONID."
+          },
+          "403": {
+            "description": "Usuário não tem permissão para acessar esse recurso."
+          }
+        }
+      }
+    },
+    "/aluno/v1/upload-documento": {
+      "post": {
+        "tags": [
+          "rest-aluno-v-1"
+        ],
+        "summary": "Upload dos documentos do aluno.",
+        "operationId": "uploadDocumentoUsingPOST",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "JSESSIONID",
+            "in": "cookie",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "tipoProcessoId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "tipoDocumentoId",
+            "in": "query",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "nomeArquivo",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "matricula",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "file",
+            "in": "query",
+            "description": "file",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "file"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/DocumentoAlunoResponse"
+            }
+          },
+          "400": {
+            "description": "Ocorreu um erro ao processar a requisição."
+          },
+          "401": {
+            "description": "Usuário não autenticado. Faça login para obter um novo JSESSIONID."
+          },
+          "403": {
+            "description": "Usuário não tem permissão para acessar esse recurso."
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DocumentoAlunoDownloadResponse": {
+      "type": "object",
+      "properties": {
+        "base64": {
+          "type": "string",
+          "description": "Documento PDF em base64."
+        },
+        "dataDigitalizacao": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Data da última atualização/digitalização do documento."
+        },
+        "descricao": {
+          "type": "string",
+          "description": "Descrição do documento que será exibida ao inscrito."
+        },
+        "entregue": {
+          "type": "boolean",
+          "example": false,
+          "description": "Indica se o documento é considerado como 'entregue', ou não."
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "ID do documento."
+        },
+        "nome": {
+          "type": "string",
+          "description": "Nome do documento."
+        },
+        "obrigatorio": {
+          "type": "boolean",
+          "example": false,
+          "description": "Identifica se o documento é obrigatório ou não."
+        },
+        "observacao": {
+          "type": "string",
+          "description": "Observação do analista a respeito da irregularidade, caso houver."
+        },
+        "status": {
+          "type": "string",
+          "description": "Status do documento.",
+          "enum": [
+            "NAO_ENTREGUE",
+            "ENTREGUE",
+            "REPROVADO",
+            "APROVADO"
+          ]
+        },
+        "tipoDocumentoId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "ID do tipo de documento."
+        }
+      }
+    },
+    "DocumentoAlunoResponse": {
+      "type": "object",
+      "properties": {
+        "dataDigitalizacao": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Data da última atualização/digitalização do documento."
+        },
+        "descricao": {
+          "type": "string",
+          "description": "Descrição do documento que será exibida ao inscrito."
+        },
+        "entregue": {
+          "type": "boolean",
+          "example": false,
+          "description": "Indica se o documento é considerado como 'entregue', ou não."
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "ID do documento."
+        },
+        "nome": {
+          "type": "string",
+          "description": "Nome do documento."
+        },
+        "obrigatorio": {
+          "type": "boolean",
+          "example": false,
+          "description": "Identifica se o documento é obrigatório ou não."
+        },
+        "observacao": {
+          "type": "string",
+          "description": "Observação do analista a respeito da irregularidade, caso houver."
+        },
+        "status": {
+          "type": "string",
+          "description": "Status do documento.",
+          "enum": [
+            "NAO_ENTREGUE",
+            "ENTREGUE",
+            "REPROVADO",
+            "APROVADO"
+          ]
+        },
+        "tipoDocumentoId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "ID do tipo de documento."
+        }
+      }
+    },
+    "LoginResponseAluno": {
+      "type": "object",
+      "properties": {
+        "nome": {
+          "type": "string",
+          "description": "Nome do usuário logado"
+        }
+      }
+    },
+    "RequestLogin": {
+      "type": "object",
+      "properties": {
+        "login": {
+          "type": "string",
+          "description": "Login do usuário."
+        },
+        "senha": {
+          "type": "string",
+          "description": "Senha do usuário."
+        }
+      }
+    },
+    "ResponseEntity": {
+      "type": "object",
+      "properties": {
+        "body": {
+          "type": "object"
+        },
+        "statusCode": {
+          "type": "string",
+          "enum": [
+            "100",
+            "101",
+            "102",
+            "103",
+            "200",
+            "201",
+            "202",
+            "203",
+            "204",
+            "205",
+            "206",
+            "207",
+            "208",
+            "226",
+            "300",
+            "301",
+            "302",
+            "303",
+            "304",
+            "305",
+            "307",
+            "308",
+            "400",
+            "401",
+            "402",
+            "403",
+            "404",
+            "405",
+            "406",
+            "407",
+            "408",
+            "409",
+            "410",
+            "411",
+            "412",
+            "413",
+            "414",
+            "415",
+            "416",
+            "417",
+            "418",
+            "419",
+            "420",
+            "421",
+            "422",
+            "423",
+            "424",
+            "426",
+            "428",
+            "429",
+            "431",
+            "500",
+            "501",
+            "502",
+            "503",
+            "504",
+            "505",
+            "506",
+            "507",
+            "508",
+            "509",
+            "510",
+            "511"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+	<composite:interface>
+		<composite:attribute name="aluno" type="net.wasys.getdoc.domain.entity.Aluno" required="true"/>
+	</composite:interface>
+	<composite:implementation>
+		<c:set var="aluno" value="#{cc.attrs.aluno}"/>
+		<div class="row-g row-grupo-dadosAluno campoRemove">
+			<div class="row campos-grupo-dadosAluno" style="margin-left: 0;">
+				<div class="col-sm-12 col-campos noMarginBottom" style="padding-left: 16px !important;">
+					<div style="width: 170px; float: left;">
+						<h:outputLabel value="#{msg['nome.label']}:" styleClass="bf-no-message"/>
+					</div>
+					<div style="float: left; margin-bottom: 5px; cursor: pointer;">
+						<h:outputText styleClass="valorCampo" value="#{aluno.nome}"/>&nbsp;
+					</div>
+				</div>
+			</div>
+			<div class="row campos-grupo-dadosAluno" style="margin-left: 0;">
+				<div class="col-sm-12 col-campos noMarginBottom" style="padding-left: 16px !important;">
+					<div style="width: 170px; float: left;">
+						<h:outputLabel value="#{msg['nomeSocial.label']}:" styleClass="bf-no-message"/>
+					</div>
+					<div style="float: left; margin-bottom: 5px; cursor: pointer;">
+						<h:outputText styleClass="valorCampo" value="#{aluno.nomeSocial}"/>&nbsp;
+					</div>
+				</div>
+			</div>
+			<div class="row campos-grupo-dadosAluno" style="margin-left: 0;">
+				<div class="col-sm-6 col-campos noMarginBottom" style="padding-left: 16px !important;">
+					<div style="width: 170px; float: left;">
+						<h:outputLabel value="#{msg['cpf.label']}:" styleClass="bf-no-message"/>
+					</div>
+					<div style="float: left; margin-bottom: 5px; cursor: pointer;">
+						<h:outputText styleClass="valorCampo" value="#{aluno.cpf}"/>&nbsp;
+					</div>
+				</div>
+				<div class="col-sm-6 col-campos noMarginBottom">
+					<div style="width: 170px; float: left;">
+						<h:outputLabel value="#{msg['passaporte.label']}:" styleClass="bf-no-message"/>
+					</div>
+					<div style="float: left; margin-bottom: 5px; cursor: pointer;">
+						<h:outputText value="#{aluno.passaporte}"/>&nbsp;
+					</div>
+				</div>
+			</div>
+			<div class="row campos-grupo-dadosAluno" style="margin-left: 0;">
+				<div class="col-sm-6 col-campos noMarginBottom" style="padding-left: 16px !important;">
+					<div style="width: 170px; float: left;">
+						<h:outputLabel value="#{msg['identidade.label']}:" styleClass="bf-no-message"/>
+					</div>
+					<div style="float: left; margin-bottom: 5px; cursor: pointer;">
+						<h:outputText styleClass="valorCampo" value="#{aluno.identidade}"/>&nbsp;
+					</div>
+				</div>
+				<div class="col-sm-6 col-campos noMarginBottom">
+					<div style="width: 170px; float: left;">
+						<h:outputLabel value="#{msg['ufIdentidade.label']}:" styleClass="bf-no-message"/>
+					</div>
+					<div style="float: left; margin-bottom: 5px; cursor: pointer;">
+						<h:outputText styleClass="valorCampo" value="#{aluno.ufIdentidade}"/>&nbsp;
+					</div>
+				</div>
+			</div>
+			<div class="row campos-grupo-dadosAluno" style="margin-left: 0;">
+				<div class="col-sm-6 col-campos noMarginBottom" style="padding-left: 16px !important;">
+					<div style="width: 170px; float: left;">
+						<h:outputLabel value="#{msg['dataEmissao.label']}:" styleClass="bf-no-message"/>
+					</div>
+					<div style="float: left; margin-bottom: 5px; cursor: pointer;">
+						<h:outputText styleClass="valorCampo" value="#{utilBean.getDateStr(aluno.dataEmissao)}"/>
+					</div>
+				</div>
+				<div class="col-sm-6 col-campos noMarginBottom">
+					<div style="width: 170px; float: left;">
+						<h:outputLabel value="#{msg['orgaoEmissor.label']}:" styleClass="bf-no-message"/>
+					</div>
+					<div style="float: left; margin-bottom: 5px; cursor: pointer;">
+						<h:outputText styleClass="valorCampo" value="#{aluno.orgaoEmissor}"/>&nbsp;
+					</div>
+				</div>
+			</div>
+			<div class="row campos-grupo-dadosAluno" style="margin-left: 0;">
+				<div class="col-sm-12 col-campos noMarginBottom" style="padding-left: 16px !important;">
+					<div style="width: 170px; float: left;">
+						<h:outputLabel value="#{msg['mae.label']}:" styleClass="bf-no-message"/>
+					</div>
+					<div style="float: left; margin-bottom: 5px; cursor: pointer;">
+						<h:outputText styleClass="valorCampo" value="#{aluno.mae}"/>
+					</div>
+				</div>
+			</div>
+			<div class="row campos-grupo-dadosAluno" style="margin-left: 0;">
+				<div class="col-sm-12 col-campos noMarginBottom" style="padding-left: 16px !important;">
+					<div style="width: 170px; float: left;">
+						<h:outputLabel value="#{msg['pai.label']}:" styleClass="bf-no-message"/>
+					</div>
+					<div style="float: left; margin-bottom: 5px; cursor: pointer;">
+						<h:outputText styleClass="valorCampo" value="#{aluno.pai}"/>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script type="text/javascript">
+			jQuery(function($) {
+				mostrarMenosGrupo('dadosAluno');
+			});
+		</script>
+	</composite:implementation>
+</html>
+

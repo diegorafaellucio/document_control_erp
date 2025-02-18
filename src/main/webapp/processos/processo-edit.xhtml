@@ -1,0 +1,2492 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:b="http://bootsfaces.net/ui"
+	  xmlns:o="http://omnifaces.org/ui"
+	  xmlns:c="http://java.sun.com/jsp/jstl/core"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf"
+	  xmlns:gd="http://xmlns.jcp.org/jsf/component"
+	  xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="head">
+			<script src="#{request.contextPath}/resources/js/jquery.panzoom.min.js"></script>
+			<link href="#{request.contextPath}/resources/css/visualizacao.css" rel="stylesheet" type="text/css" />
+			<script src="#{request.contextPath}/resources/js/visualizacao.js"></script>
+			<link href="#{request.contextPath}/resources/css/digitalizacao.css" rel="stylesheet" type="text/css" />
+			<script src="#{request.contextPath}/resources/js/digitalizacao.js"></script>
+			<link href="#{request.contextPath}/resources/css/reconhecimentoFacial.css" rel="stylesheet" type="text/css" />
+			<link href="#{request.contextPath}/resources/css/primefaces-SelectManyCheckbox.css" rel="stylesheet"/>
+			<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+			<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/tooltipster.bundle.min.css" />
+			<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-punk.min.css" />
+			<script type="text/javascript" src="#{request.contextPath}/resources/tooltipster/js/tooltipster.bundle.min.js"></script>
+			<script type="text/javascript" src="#{request.contextPath}/resources/js/jquery.Jcrop.min.js"></script>
+			<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/css/jquery.Jcrop.css"/>
+			<style>
+				.evidencia-modal .modal-dialog {
+				    width: 900px;
+				    padding-top: 0px;
+				}
+				.solicitacao-modal .modal-dialog {
+				    width: 900px;
+				    padding-top: 0px;
+				}
+				.processos-mesmo-nome-cnpj-modal .modal-dialog {
+					width: 900px;
+					padding-top: 0px;
+				}
+				.email-modal .modal-dialog {
+				    width: 900px;
+				    padding-top: 0px;
+				}
+				.result-modal .modal-dialog {
+				    width: 900px !important;
+				    padding-top: 0px;
+				}
+			</style>
+		</ui:define>
+		<ui:define name="tituloPagina">#{msg['detalhesProcesso.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<c:set var="autorizacao" value="#{processoEditBean.autorizacao}" />
+			<c:set var="bean" value="#{processoEditBean}" />
+			<c:set var="podeEditar" value="#{menuBean.podeEditar() and autorizacao.podeEditar()}" />
+			<c:set var="processo" value="#{processoEditBean.processo}" />
+			<o:importConstants type="net.wasys.getdoc.domain.entity.Ajuda.Tipo" />
+			<o:importConstants type="net.wasys.getdoc.domain.enumeration.Resposta" />
+			<div class="modal fade" id="imagemodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-body">
+							<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+							<img src="" class="imagepreview" style="width: 100%;"/>
+						</div>
+					</div>
+				</div>
+			</div>
+			<h:form id="form-bloqueio" rendered="#{not empty bloqueioMessage}">
+				<b:modal title="#{msg['processoBloqueado.label']}" styleClass="form-bloqueio">
+					<p><h4 style="color: #cc092f;"><h:outputText value="#{bloqueioMessage}"/></h4></p>
+					<f:facet name="footer">
+						<b:button value="#{msg['ok.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+					</f:facet>
+				</b:modal>
+				<script type="text/javascript">
+					jQuery(document).ready(function() {
+						setTimeout("openModal('form-bloqueio');", 100)
+					});
+				</script>
+			</h:form>
+			<h:panelGroup id="form-confirms">
+				<getdoc:confirmModal nomeModal="priorizarConfirm-modal" metodoExecutar="#{processoEditBean.subirNivelPrioridade()}"
+						mensagem="#{msg['confirmSubirNivelPrioridade.confirm']}" atualizar="form-processo"/>
+				<getdoc:confirmModal nomeModal="excluirDocumento-modal" metodoExecutar="#{processoEditBean.excluirDocumento()}"
+						mensagem="#{msg['excluirDocumento.confirm']}" atualizar="form-processo form-tabs"/>
+				<getdoc:confirmModal nomeModal="reprocessarRegras-modal" metodoExecutar="#{processoEditBean.reprocessarRegras()}"
+						mensagem="#{msg['reprocessarRegras.confirm']}" atualizar="form-processo"/>
+				<getdoc:confirmModal nomeModal="reprocessarRegrasErro-modal" metodoExecutar="#{processoEditBean.reprocessarRegrasComErro()}"
+						mensagem="#{msg['reprocessarRegraErro.confirm']}" atualizar="form-processo"/>
+				<getdoc:confirmModal nomeModal="reprocessarRegra-confim-modal" metodoExecutar="#{processoEditBean.reprocessarRegra()}"
+						mensagem="#{msg['reprocessarRegra.confirm']}" atualizar="form-processo"/>
+				<getdoc:confirmModal nomeModal="excluirGrupo-modal" metodoExecutar="#{processoEditBean.removerGrupoDinamico()}"
+						mensagem="#{msg['exclusaoGrupoAndDocumentos.confirm']}" atualizar="form-processo:campos-grupos-id form-tabs"/>
+
+				<h:form id="form-confirm">
+					<b:modal title="#{msg['confirmarTitulo.label']}" styleClass="enviarParaAnalise-modal confirm-modal">
+						<b:messages globalOnly="true" showSummary="true" id="messages-form-confirm"/>
+						<p><h4 class="msg-confirm">
+							Sua requisição será enviada para análise, deseja prosseguir?
+						</h4></p>
+						<f:facet name="footer">
+							<b:button value="#{msg['nao.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+							<p:commandButton value="#{msg['sim.label']}" actionListener="#{processoEditBean.enviarParaAnalise()}" styleClass="btn btn-danger"
+									update="messages-form-confirm fecharModal-panel mensagensGlobaisGroup form-processo form-tabs"
+									onclick="$('.enviarParaAnalise-modal').modal('hide');">
+							</p:commandButton>
+						</f:facet>
+					</b:modal>
+					<h:panelGroup id="fecharModal-panel">
+						<h:panelGroup rendered="#{fecharModal}">
+							<script type="text/javascript">
+								$('.#{cc.attrs.nomeModal}').modal('hide');
+							</script>
+						</h:panelGroup>
+					</h:panelGroup>
+					<script type="text/javascript">
+						setTimeout(function(){
+							$('.alert-info', '.confirm-modal').slideUp(200);
+						}, 3000);
+					</script>
+				</h:form>
+				<h:form id="form-confirm-exclusao-documentos-com-imagens">
+					<b:modal id="exclusaoDocumentosComImagensConfirm-modal-id" title="#{msg['confirmarTitulo.label']}" styleClass="exclusaoDocumentosComImagens-modal confirm-modal">
+						<p><h4 class="msg-confirm">
+							#{msg['exclusaoGrupoAndDocumentosComImagens.confirm']}
+						</h4></p>
+						<f:facet name="footer">
+							<b:button value="#{msg['ok.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+						</f:facet>
+					</b:modal>
+					<script type="text/javascript">
+						setTimeout(function(){
+							$('.alert-info', '.confirm-modal').slideUp(200);
+						}, 3000);
+					</script>
+				</h:form>
+			</h:panelGroup>
+			<h:form id="form-lembrete">
+				<b:modal title="Lembrete" styleClass="form-lembrete">
+					<p><h4 style="color: #cc092f;">
+						Este é apenas o rascunho da sua requisição, para finalizá-la, clique em enviar.
+
+					</h4></p>
+					<f:facet name="footer">
+						<b:button value="#{msg['ok.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-digitalizarTwain" rendered="#{podeEditar}">
+				<b:modal id="digitalizarTwain-modal-id" title="#{msg['capturarDocumentos.label']}" styleClass="digitalizarTwain-modal" rendered="#{podeEditar}">
+					<h:panelGroup id="digitalizarTwain-modal-content-id" styleClass="span-conteudo">
+						<h:panelGroup rendered="#{processoEditBean.digitalizarTwain}">
+							<ui:include src="/processos/processo-edit-digitalizarTwain.xhtml"/>
+						</h:panelGroup>
+					</h:panelGroup>
+				</b:modal>
+			</h:form>
+			<h:form id="form-visualizar">
+				<b:modal id="visualizar-modal-id" title="#{msg['viewDocumentos.label']}" styleClass="visualizar-modal">
+					<h:panelGroup id="visualizar-modal-content-id">
+						<h:panelGroup rendered="#{not empty processoEditBean.documento}">
+							<ui:include src="/processos/processo-edit-visualizar.xhtml"/>
+						</h:panelGroup>
+					</h:panelGroup>
+				</b:modal>
+			</h:form>
+			<h:form id="form-reconhecimentoFacial">
+				<b:modal id="reconhecimentoFacial-modal-id" title="#{msg['reconhecimentoFacial.label']}" styleClass="reconhecimentoFacial-modal">
+					<h:panelGroup id="reconhecimentoFacial-modal-content-id">
+						<h:panelGroup rendered="#{not empty processoEditBean.documento}">
+							<ui:include src="/processos/processo-edit-reconhecimento-facial.xhtml"/>
+						</h:panelGroup>
+					</h:panelGroup>
+				</b:modal>
+			</h:form>
+			<h:form id="form-justificarDocumento">
+				<b:modal id="justificar2-modal-id" title="#{msg['justificarDocumento.label']}" styleClass="justificar2-modal" rendered="#{menuBean.podeEditar()}" style="z-index: 9999;">
+					<b:row id="justificar2-modal-content-id">
+						<div class="col-sm-12">
+							<b:messages id="justificar-messages" globalOnly="true" showSummary="true"/>
+							<div style="padding-left: 30px;">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['documento.label']}:"/>
+									<span id="nomeDocumento">#{processoEditBean.documento.nome}</span>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['observacao.label']} *"/>
+									<textarea name="observacao2" rows="5" cols="50" class="form-control"></textarea>
+								</div>
+							</div>
+						</div>
+						<h:panelGroup rendered="#{fecharModal}">
+							<script type="text/javascript">
+								$('.justificar2-modal').modal('hide');
+							</script>
+						</h:panelGroup>
+					</b:row>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="default" onclick="closeModal('justificar2-modal'); return false;"/>
+						<p:commandButton value="#{msg['justificar.label']}" styleClass="btn" oncomplete=""
+										 actionListener="#{processoEditBean.justificarDocumento()}" onerror="alert('Erro!')"
+										 update="justificar2-modal-content-id mensagensGlobaisGroup form-processo form-tabs"/>
+					</f:facet>
+				</b:modal>
+				<p:draggable for="justificar2-modal-id" handle=".modal-header"/>
+			</h:form>
+			<h:form id="form-alterarObrigatoriedade">
+				<b:modal id="alterar-obrigatoriedade-modal-id" title="#{msg['alterarObrigatoriedade.label']}" styleClass="alterar-obrigatoriedade-modal" rendered="#{menuBean.podeEditar()}" style="z-index: 9999;">
+					<b:row id="alterar-obrigatoriedade-modal-content-id">
+						<div class="col-sm-12">
+							<b:messages id="justificar-messages" globalOnly="true" showSummary="true"/>
+							<div style="padding-left: 30px;">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['documento.label']}:"/>
+									<span id="nomeDocumentoId">#{processoEditBean.documento.nome}</span>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['documentoObrigatorio.label']} *"/>
+									<h:selectOneRadio id="podeRemoverObrigatoriedadeId" value="#{processoEditBean.alteracaoObrigatoriedade}" label="#{msg['podeRemoverObrigatoriedade.label']}"
+													  styleClass="radio-default" required="true">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+								</div>
+							</div>
+						</div>
+						<h:panelGroup rendered="#{fecharModal}">
+							<script type="text/javascript">
+								$('.alterar-obrigatoriedade-modal').modal('hide');
+							</script>
+						</h:panelGroup>
+					</b:row>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="default" onclick="closeModal('alterar-obrigatoriedade-modal'); return false;"/>
+						<p:commandButton value="#{msg['alterar.label']}" styleClass="btn" oncomplete=""
+										 actionListener="#{processoEditBean.alterarObrigatoriedade}" onerror="alert('Erro!')"
+										 update="alterar-obrigatoriedade-modal-content-id mensagensGlobaisGroup form-processo form-tabs"/>
+					</f:facet>
+				</b:modal>
+				<p:draggable for="alterar-obrigatoriedade-modal-id" handle=".modal-header"/>
+			</h:form>
+			<h:form id="form-trocaAnalista">
+				<b:modal id="trocaAnalista-modal-id" title="#{msg['trocarAnalista.label']}" styleClass="trocaAnalista-modal" rendered="#{podeEditar and autorizacao.podeTrocarAnalista()}" style="z-index: 9999;">
+					<b:row id="trocaAnalista-modal-content-id">
+						<div class="col-sm-12">
+							<div style="padding-left: 30px;">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['de.label']}:"/> #{processoEditBean.processo.analista.nome}
+								</div>
+								<div class="form-group">
+									<b:selectOneMenu value="#{processoEditBean.novoAnalista}" label="#{msg['para.label']}" required="true">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{processoEditBean.analistas}" var="usu" itemValue="#{usu}" itemLabel="#{usu.nome}"/>
+									</b:selectOneMenu>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<h:panelGroup rendered="#{fecharModal}">
+							<script type="text/javascript">
+								$('.trocaAnalista-modal').modal('hide');
+							</script>
+						</h:panelGroup>
+					</b:row>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="default" onclick="closeModal('trocaAnalista-modal'); return false;"/>
+						<p:commandButton value="#{msg['trocar.label']}" styleClass="btn" oncomplete=""
+								actionListener="#{processoEditBean.trocarAnalista()}" onerror="alert('Erro!')"
+								update="trocaAnalista-modal-content-id mensagensGlobaisGroup form-processo form-tabs"/>
+					</f:facet>
+				</b:modal>
+				<p:draggable for="trocaAnalista-modal-id" handle=".modal-header"/>
+			</h:form>
+			<h:form id="form-trocaModalidade">
+				<b:modal id="trocaModalidade-modal-id" title="#{msg['trocarModalidade.label']}" styleClass="trocaModalidade-modal" rendered="#{podeEditar and autorizacao.podeAlterarModalidade()}" style="z-index: 9999;">
+					<b:row id="trocaModalidade-modal-content-id">
+						<div class="col-sm-12">
+							<div>
+								<div class="form-group">
+									<b:selectOneMenu value="#{processoEditBean.modalidade}" label="#{msg['selecioneNovoTipoProcessoTE.label']}" required="true">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{processoEditBean.modalidades}" var="m" itemValue="#{m}" itemLabel="#{m.nome}"/>
+									</b:selectOneMenu>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<h:panelGroup rendered="#{fecharModal}">
+							<script type="text/javascript">
+								$('.trocaModalidade-modal').modal('hide');
+							</script>
+						</h:panelGroup>
+					</b:row>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="default" onclick="closeModal('trocaModalidade-modal'); return false;"/>
+						<p:commandButton value="#{msg['concluir.label']}" styleClass="btn" onclick="confirm('Tem certeza que deseja alterar a modalidade?');"
+										 actionListener="#{processoEditBean.trocarModalidade()}" onerror="alert('Erro!')"
+										 update="trocaModalidade-modal-content-id mensagensGlobaisGroup form-processo form-tabs"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-adicionarDocumento">
+				<b:modal id="adicionarDocumento-modal-id" title="#{msg['adicionarDocumento.label']}" styleClass="adicionarDocumento-modal" rendered="#{podeEditar and autorizacao.podeAdicionarDocumento()}" style="z-index: 9999;">
+					<b:row id="adicionarDocumento-modal-content-id">
+						<div class="col-sm-12">
+							<div style="padding-left: 30px;">
+								<div class="form-group">
+									<b:selectOneMenu value="#{processoEditBean.novoDocumento}" label="#{msg['documento.label']}" required="true">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{processoEditBean.documentosExcluidos}" var="de" itemValue="#{de.id}" itemLabel="#{de.nome}"/>
+									</b:selectOneMenu>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<h:panelGroup rendered="#{fecharModal}">
+							<script type="text/javascript">
+								$('.adicionarDocumento-modal').modal('hide');
+							</script>
+						</h:panelGroup>
+					</b:row>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="default" onclick="closeModal('adicionarDocumento-modal'); return false;"/>
+						<p:commandButton value="#{msg['adicionar.label']}" styleClass="btn" oncomplete=""
+								actionListener="#{processoEditBean.adicionarDocumento()}" onerror="alert('Erro!')"
+								update="adicionarDocumento-modal-content-id mensagensGlobaisGroup form-processo form-tabs"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-anexosProcessoLog">
+				<b:modal id="anexosProcessoLog-modal-id" title="#{msg['anexos.label']}" styleClass="anexosProcessoLog-modal" style="z-index: 9000;">
+					<b:row id="anexosProcessoLog-modal-content-id">
+						<div class="col-sm-12">
+							<div style="padding-left: 30px;">
+								<ui:repeat value="#{processoEditBean.processoLog.anexos.toArray()}" var="anexo0">
+									<h:panelGroup rendered="#{utilBean.isExtensaoImagem(anexo0.extensao)}">
+										<span class="btn btn-default popImg linkAnexo" imgPath="#{utilBean.getPathImagem(anexo0)}" style="margin-right: 10px; margin-bottom: 10px;">
+											<i class="fa fa-file-image-o" aria-hidden="true"></i>
+											#{anexo0.nome}
+											#{utilBean.toFileSize(anexo0.tamanho)}
+										</span>
+									</h:panelGroup>
+									<h:panelGroup rendered="#{not utilBean.isExtensaoImagem(anexo0.extensao)}">
+										<span class="btn btn-default" style="margin-right: 10px; margin-bottom: 10px;">
+											<h:commandLink action="#{processoEditBean.downloadAnexo(anexo0)}" styleClass="linkAnexo">
+												<i class="fa fa-file-o" aria-hidden="true"></i>
+												#{anexo0.nome}
+												#{utilBean.toFileSize(anexo0.tamanho)}
+											</h:commandLink>
+										</span>
+									</h:panelGroup>
+								</ui:repeat>
+							</div>
+						</div>
+						<script type="text/javascript">
+						//<![CDATA[
+							$(function() {
+								preparaModalImagem();
+							});
+						//]]>
+						</script>
+					</b:row>
+					<f:facet name="footer">
+						<b:button value="#{msg['fechar.label']}" look="default" onclick="closeModal('anexosProcessoLog-modal'); return false;"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-anexoProcessoLog">
+				<b:modal id="anexoProcessoLog-modal-id" title="Anexo" styleClass="anexoProcessoLog-modal" style="z-index: 9000;">
+'					<c:set var="anexo6" value="#{processoEditBean.logVO.processoLogAnexo}" />
+					<c:set var="pl" value="#{processoEditBean.logVO.processoLog}" />
+					<b:row id="anexoProcessoLog-modal-content-id">
+						<div class="col-sm-12">
+							<div style="padding-left: 30px;">
+								<div class="row row-filtro">
+									<div class="col-sm-12"  >
+									<h:outputLabel value="Nome: " style="white-space: nowrap !important"/>
+									<h:panelGroup rendered="#{not empty anexo6}">
+										<h:outputText value=" #{anexo6.nome}" />
+									</h:panelGroup>
+									</div>
+								</div>
+								<div class="row row-filtro">
+									<div class="col-sm-6"  >
+										<h:outputLabel value="Tamanho:" />
+										 <h:panelGroup rendered="#{not empty anexo6}">
+											<h:outputText value=" #{utilBean.toFileSize(anexo6.tamanho)}" />
+										</h:panelGroup>
+									</div>
+									<div class="col-sm-6">
+										<h:outputLabel value="Data:" style="white-space: nowrap !important"/>
+										<h:panelGroup rendered="#{not empty anexo6}">
+											<h:outputText value=" #{utilBean.getDateTimeStr(processoEditBean.logVO.data)}" />
+										</h:panelGroup>
+									</div>
+								</div>
+								<div class="row row-filtro">
+									<div class="col-sm-6" >
+										<h:outputLabel value="Ação:" />
+										 <h:panelGroup rendered="#{not empty anexo6}">
+											<h:outputText value=" #{msg[processoEditBean.logVO.acaoKey]}"/>
+										</h:panelGroup>
+									</div>
+									<div class="col-sm-6">
+										<h:outputLabel value="Usuario:" style="white-space: nowrap !important"/>
+										<h:panelGroup rendered="#{not empty anexo6}">
+											<h:outputText value=" #{processoEditBean.logVO.usuario.nome}" />
+										</h:panelGroup>
+									</div>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="Observação"/>
+									<h:panelGroup rendered="#{not empty anexo6}">
+										<br/>
+										<h:outputText value=" #{pl.observacao}"/>
+									</h:panelGroup>
+								</div>
+								<br/>
+							</div>
+						</div>
+						<script type="text/javascript">
+						//<![CDATA[
+							$(function() {
+								preparaModalImagem();
+							});
+						//]]>
+						</script>
+					</b:row>
+					<f:facet name="footer">
+						<b:button value="#{msg['fechar.label']}" look="default" onclick="closeModal('anexoProcessoLog-modal'); return false;"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-observacaoProcessoLog">
+				<b:modal id="observacaoProcessoLog-modal-id" title="#{msg['observacao.label']}" styleClass="observacaoProcessoLog-modal" style="z-index: 9000;">
+					<b:row id="observacaoProcessoLog-modal-content-id">
+						<div class="col-sm-12">
+							<div>
+                                <h:panelGroup rendered="#{processoEditBean.logVO.processoLog.acao ne 'ATUALIZACAO_CAMPOS'}">
+                                    <h:outputText value="#{utilBean.stringToHTML(processoEditBean.logVO.observacaoFull)}" escape="false"/>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{processoEditBean.logVO.processoLog.acao eq 'ATUALIZACAO_CAMPOS'}">
+                                    <ui:repeat value="#{utilBean.jsonToMap(processoEditBean.logVO.observacaoFull).entrySet().toArray()}" var="entry">
+										<h5 style="font-weight: bold; margin-bottom: 0; font-size: 12px;">#{entry.key}</h5>
+										<table style="width: 100%;" class="ui-datatable">
+											<tr>
+												<th class="ui-state-default ui-selection-column">&nbsp;#{msg['campo.label']}</th>
+												<th class="ui-state-default ui-selection-column">&nbsp;#{msg['de.label']}</th>
+												<th class="ui-state-default ui-selection-column">&nbsp;#{msg['para.label']}</th>
+											</tr>
+											<ui:repeat value="#{entry.value.entrySet().toArray()}" var="entry2">
+												<tr class="ui-widget-content ui-datatable-even">
+													<td>&nbsp;#{utilBean.capitalize(entry2.key)}</td>
+													<td>&nbsp;#{entry2.value.get("de")}</td>
+													<td>&nbsp;#{entry2.value.get("para")}</td>
+												</tr>
+											</ui:repeat>
+                                        </table>
+									</ui:repeat>
+								</h:panelGroup>
+							</div>
+						</div>
+					</b:row>
+					<f:facet name="footer">
+						<b:button value="#{msg['fechar.label']}" look="default" onclick="closeModal('observacaoProcessoLog-modal'); return false;"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-solicitacao">
+				<b:modal id="solicitacao-modal-id" title="..." styleClass="solicitacao-modal">
+					<h:panelGroup id="solicitacao-modal-content-id">
+						<b:row rendered="#{not empty processoEditBean.solicitacaoVO}">
+							<b:growl id="growl-solicitacao-id" placementFrom="bottom" allowDismiss="true" animationEnter="animated bounceInDown" animationExit="animated flipOutX"/>
+							<div class="col-sm-12">
+								<b:messages id="messages-solicitacao" globalOnly="true" showSummary="true"/>
+								<h:panelGroup rendered="#{empty processoEditBean.solicitacaoVO.solicitacao.id}">
+									<div class="form-group">
+										<b:selectOneMenu label="#{msg['area.label']}" required="true" valueChangeListener="#{processoEditBean.selecionaAreaSolicitacao}" update="subarea-id">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{processoEditBean.areas}" var="area" itemValue="#{area}" itemLabel="#{area.descricao}"/>
+											<f:ajax event="change" execute="@form" render="subarea-id"/>
+										</b:selectOneMenu>
+										<b:message/>
+									</div>
+									<div class="form-group">
+										<b:selectOneMenu id="subarea-id" value="#{processoEditBean.solicitacaoVO.solicitacao.subarea}" label="#{msg['subarea.label']}" required="true" styleClass="form-control">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{processoEditBean.subareas}" var="subarea" itemValue="#{subarea}" itemLabel="#{subarea.descricao}"/>
+										</b:selectOneMenu>
+										<b:message/>
+									</div>
+								</h:panelGroup>
+								<h:panelGroup rendered="#{not empty processoEditBean.solicitacaoVO.solicitacao.id}">
+									<div class="form-group">
+										<h:outputLabel value="#{msg['area.label']}:" styleClass="bf-no-message"/>&nbsp;
+										<h:outputText value="#{processoEditBean.solicitacaoVO.solicitacao.subarea.area.descricao}"/>
+									</div>
+									<div class="form-group">
+										<h:outputLabel value="#{msg['subarea.label']}:" styleClass="bf-no-message"/>&nbsp;
+										<h:outputText value="#{processoEditBean.solicitacaoVO.solicitacao.subarea.descricao}"/>
+									</div>
+								</h:panelGroup>
+								<div class="form-group">
+									<div class="btn-group" style="float: right; margin-top: -10px;">
+										<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+											Textos Padrões <span class="caret"></span>
+										</button>
+										<ul class="dropdown-menu">
+											<p:repeat var="tp" value="#{processoEditBean.textosPadroes}">
+												<li>
+													<p:commandLink onerror="alert('Erro!')" actionListener="#{processoEditBean.adicionarTexto(tp)}"
+															process="@this" update="form-solicitacao:observacaoTmp-id">
+														<span class="glyphicon glyphicon-plus"></span>
+														#{tp.nome}
+													</p:commandLink>
+												</li>
+											</p:repeat>
+										</ul>
+									</div>
+								</div>
+								<h:panelGroup id="observacaoTmp-id">
+									<div class="form-group">
+										<h:outputLabel value="#{msg['observacao.label']}" for="textEditorId"/>
+										<getdoc:textEditor value="#{processoEditBean.solicitacaoVO.observacaoTmp}" required="true"/>
+										<b:message/>
+									</div>
+								</h:panelGroup>
+								<h:outputLabel for="anexo" value="#{msg['anexos.label']}"/>
+								<h:panelGroup id="lista-anexos-solicitacao">
+									<ui:repeat value="#{processoEditBean.solicitacaoVO.arquivos}" var="anexo1">
+										<div style="padding-bottom: 5px;">
+											<p:commandLink class="btn btn-default" onerror="alert('Erro!')" immediate="true"
+													actionListener="#{processoEditBean.removerAnexo(anexo1)}"
+													update="form-solicitacao:lista-anexos-solicitacao">
+												x
+											</p:commandLink>
+											<span style="padding-left: 5px;">#{anexo1.name}</span>
+											<span style="padding-left: 15px;">#{anexo1.length}</span>
+										</div>
+									</ui:repeat>
+								</h:panelGroup>
+								<h:form id="form-anexo-upload" enctype="multipart/form-data" >
+									<p:fileUpload
+											id="anexo-solicitacao" styleClass="anexo-solicitacao"
+											cancelLabel="#{msg['cancelar.label']}"
+											label="#{msg['escolherArquivo.label']}"
+											auto="true" update="form-solicitacao:lista-anexos-solicitacao form-solicitacao:growl-solicitacao-id form-anexo-upload"
+											listener="#{processoEditBean.uploadAnexo}"
+											oncomplete="$('#ajaxLoaderImg').hide()"
+											multiple="true" fileLimit="10" sizeLimit="#{utilBean.getFileSizeLimit()}">
+									</p:fileUpload>
+									<script type="text/javascript">
+									//<![CDATA[
+										hideMessage(3000);
+										var disabled = window.addEventListener;
+										$(".ui-fileupload-buttonbar", ".anexo-solicitacao").append(
+												"<span class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left ui-state-hover" + (disabled ? "ui-state-disabled" : "") + "'" +
+												(disabled? "onclick='clickPrint(\"divPrintSol\", uploadPrintSol)'" : "disabled='disabled'") + ">" +
+												"	<span class='ui-button-icon-left ui-icon ui-c ui-icon-image'></span>" +
+												"	<span class='ui-button-text ui-c'>Colar Imagem</span>" +
+												"</span>"
+										);
+									//]]>
+									</script>
+								</h:form>
+								<o:commandScript name="uploadPrintSol" action="#{processoEditBean.uploadPrintSolicitacao}" render="lista-anexos-solicitacao form-anexo-upload growl-solicitacao-id"/>
+								<b:message/>
+							</div>
+						</b:row>
+						<h:panelGroup rendered="#{empty processoEditBean.solicitacaoVO}">
+							<script type="text/javascript">
+								$('.solicitacao-modal').modal('hide');
+							</script>
+						</h:panelGroup>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="default" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['salvar.label']}" styleClass="btn"
+								actionListener="#{processoEditBean.salvarSolicitacao()}" onerror="alert('Erro!')"
+								update="solicitacao-modal-content-id mensagensGlobaisGroup form-processo form-solicitacoes-pendentes form-tabs">
+						</p:commandButton>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-digitalizar">
+				<b:modal id="digitalizar-modal-id" title="#{msg['uploadDocumentos.label']}" styleClass="digitalizar-modal">
+					<h:panelGroup id="digitalizar-modal-content-id">
+						<b:row rendered="#{not empty processoEditBean.digitalizacaoVO}">
+							<b:growl id="growl-digitalizar-id" placementFrom="bottom" allowDismiss="true" animationEnter="animated bounceInDown" animationExit="animated flipOutX"/>
+							<div class="col-sm-12">
+								<b:messages id="messages-digitalizar" globalOnly="true" showSummary="true"/>
+								<h:outputLabel for="anexo" value="#{msg['anexos.label']}"/>
+								<h:panelGroup id="lista-anexos-digitalizar">
+									<ui:repeat value="#{processoEditBean.digitalizacaoVO.arquivos}" var="anexo2">
+										<div style="padding-bottom: 5px;">
+											<p:commandLink class="btn btn-default" onerror="alert('Erro!')" immediate="true"
+													actionListener="#{processoEditBean.removerAnexo(anexo2)}"
+													update="form-digitalizar:lista-anexos-digitalizar">
+												x
+											</p:commandLink>
+											<span style="padding-left: 5px;">#{anexo2.name}</span>
+											<span style="padding-left: 15px;">#{anexo2.length}</span>
+										</div>
+									</ui:repeat>
+								</h:panelGroup>
+								<h:form id="form-anexo-upload" enctype="multipart/form-data" >
+									<p:fileUpload
+											id="anexo" styleClass="anexo-evidencia"
+											cancelLabel="#{msg['cancelar.label']}"
+											label="#{msg['escolherArquivo.label']}"
+											auto="true" update="form-digitalizar:lista-anexos-digitalizar form-digitalizar:growl-digitalizar-id form-anexo-upload"
+											listener="#{processoEditBean.uploadAnexo}"
+											oncomplete="$('#ajaxLoaderImg').hide()"
+											multiple="true" fileLimit="10" sizeLimit="#{utilBean.getFileSizeLimit()}">
+									</p:fileUpload>
+									<script type="text/javascript">
+									//<![CDATA[
+										hideMessage(3000);
+									//]]>
+									</script>
+								</h:form>
+								<b:message/>
+							</div>
+						</b:row>
+						<h:panelGroup rendered="#{empty processoEditBean.digitalizacaoVO}">
+							<script type="text/javascript">
+								$('.digitalizar-modal').modal('hide');
+							</script>
+						</h:panelGroup>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="default" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['salvar.label']}" styleClass="btn"
+								actionListener="#{processoEditBean.salvarDigitalizacao()}" onerror="alert('Erro!')"
+								update="digitalizar-modal-content-id form-processo-pendencia form-processo form-tabs mensagensGlobaisGroup">
+						</p:commandButton>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-evidencia">
+				<b:modal id="evidencia-modal-id" title="#{msg['AcaoProcesso.REGISTRO_EVIDENCIA.label']}" styleClass="evidencia-modal">
+					<h:panelGroup id="evidencia-modal-content-id">
+						<b:row rendered="#{not empty processoEditBean.evidenciaVO}">
+							<b:growl id="growl-evidencia-id" placementFrom="bottom" allowDismiss="true" animationEnter="animated bounceInDown" animationExit="animated flipOutX"/>
+							<div class="col-sm-12" style="margin-bottom: 0;">
+								<b:messages id="messages-evidencia" globalOnly="true" showSummary="true"/>
+								<h:panelGroup rendered="#{processoEditBean.evidenciaVO.showTipoEvidencia}">
+									<div class="form-group">
+										<b:selectOneMenu value="#{processoEditBean.evidenciaVO.tipoEvidencia}" label="#{msg['tipoEvidencia.label']}" required="true">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{processoEditBean.tiposEvidencias}" var="tipoEvidencia" itemValue="#{tipoEvidencia}" itemLabel="#{tipoEvidencia.descricao}"/>
+										</b:selectOneMenu>
+										<b:message/>
+									</div>
+								</h:panelGroup>
+								<h:panelGroup rendered="#{processoEditBean.evidenciaVO.showSituacao}">
+									<div class="row">
+										<div class="col-md-6 noMarginBottom">
+											<div class="form-group" style="margin-bottom: 5px;">
+												<h:outputLabel value="Tarefa atual:"/>
+												<br/>
+												<b:inputText value="#{processoEditBean.processo.situacao.nome}" disabled="true"/>
+											</div>
+										</div>
+										<div class="col-md-6 noMarginBottom">
+											<span class="glyphicon glyphicon-menu-right" style="margin-left: -22px; float: left; margin-top: 34px; color: blue; font-weight: bold;"></span>
+											<div class="form-group">
+												<b:selectOneMenu id="situacao-nova-id" value="#{processoEditBean.evidenciaVO.situacao}" label="Enviar para próxima tarefa:" required="true"
+														oncomplete="preparaScriptsCampos()">
+													<f:selectItem itemValue="" itemLabel=""/>
+													<f:selectItems value="#{processoEditBean.situacoes}" var="situacao" itemValue="#{situacao}" itemLabel="#{situacao.nome}"/>
+										        	<f:ajax event="change" execute="situacao-nova-id" render="campos-situacao-panel-id observacaoTmp-id"
+										        			listener="#{processoEditBean.selecionaNovaSituacao}"/>
+												</b:selectOneMenu>
+												<b:message/>
+											</div>
+										</div>
+									</div>
+								</h:panelGroup>
+								<h:panelGroup id="campos-situacao-panel-id">
+									<div style="margin-bottom: 10px; height: 60px;" jsf:rendered="#{processoEditBean.evidenciaVO.showEmail}">
+										<div class="form-group">
+											<h:outputLabel value="#{msg['destinatarios.label']}" for="destinatarios2-id" styleClass="control-label"/>
+											<p:autoComplete id="destinatarios2-id" multiple="true" label="#{msg['destinatarios.label']}"
+													placeholder="#{msg['placeholderTagsDestinatarios.label']}"
+													value="#{processoEditBean.evidenciaVO.destinatariosList}" completeMethod="#{processoEditBean.getEmailsPossiveis}"
+													var="dest" itemLabel="#{dest}" itemValue="#{dest}" forceSelection="true" dropdown="true">
+												<h:outputText value="#{dest}" />
+											</p:autoComplete>
+											<b:message/>
+										</div>
+									</div>
+									<h:panelGroup rendered="#{processoEditBean.evidenciaVO.showPrazoDias}">
+										<div class="form-group">
+											<b:inputText value="#{processoEditBean.evidenciaVO.prazoDias}" styleClass="mask-number" label="#{msg['prazoDias.label']}" required="true"/>
+											<b:message/>
+										</div>
+									</h:panelGroup>
+									<div style="margin-bottom: 10px;" jsf:rendered="#{not empty processoEditBean.pendenciasCkeckList}">
+										<h:outputLabel value="Pendências do Checklist:"/><br/>
+										<div style="color: #cc092f; margin-bottom: 10px;">
+											<p:repeat var="ajuda" value="#{processoEditBean.pendenciasCkeckList}" varStatus="status">
+												<div style="#{ajuda.pendencia ? 'color:red' : ''}" jsf:rendered="#{ajuda.resposta eq 'NAO'}">
+													<i class="fa fa-circle" style="font-size: 8px;"></i>
+													#{ajuda.texto}
+													<h:panelGroup rendered="#{not empty ajuda.tipoDocumento}">
+														(#{ajuda.tipoDocumento.nome})
+													</h:panelGroup>
+												</div>
+											</p:repeat>
+										</div>
+									</div>
+									<div jsf:rendered="#{processoEditBean.pendenciasCheckListNaoCompleto}" style="color: #cc092f;">
+										<h:outputLabel value="O ckecklist não está completamente preenchido." />
+									</div>
+									<h:panelGroup rendered="#{processoEditBean.evidenciaVO.situacao.encaminhado}">
+										<div class="form-group">
+											<b:selectOneMenu label="#{msg['area.label']}" required="true" valueChangeListener="#{processoEditBean.selecionaAreaSolicitacao}" update="subarea2-id">
+												<f:selectItem itemValue="" itemLabel=""/>
+												<f:selectItems value="#{processoEditBean.areas}" var="area" itemValue="#{area}" itemLabel="#{area.descricao}"/>
+												<f:ajax event="change" execute="@this" render="subarea2-id"/>
+											</b:selectOneMenu>
+											<b:message/>
+										</div>
+										<div class="form-group">
+											<b:selectOneMenu id="subarea2-id" value="#{processoEditBean.evidenciaVO.subarea}" label="#{msg['subarea.label']}" required="true" styleClass="form-control">
+												<f:selectItem itemValue="" itemLabel=""/>
+												<f:selectItems value="#{processoEditBean.subareas}" var="subarea" itemValue="#{subarea}" itemLabel="#{subarea.descricao}"/>
+											</b:selectOneMenu>
+											<b:message/>
+										</div>
+									</h:panelGroup>
+									<c:forEach items="#{processoEditBean.camposSituacao}" var="campoSituacao">
+										<gd:campo campo="#{campoSituacao}" edit="#{campoSituacao.editavel}"/>
+									</c:forEach>
+									<getdoc:camposScript/>
+									<div class="btn-group" style="float: right; margin-top: -10px;">
+										<p:commandLink onerror="alert('Erro!')" actionListener="#{processoEditBean.evidenciaVO.setShowEmail(true)}"
+												process="@this" update="form-evidencia:campos-situacao-panel-id"
+												styleClass="btn btn-primary">
+											<span class="glyphicon glyphicon-send"></span>
+										</p:commandLink>
+										<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+											Textos Padrões <span class="caret"></span>
+										</button>
+										<ul class="dropdown-menu">
+											<p:repeat var="tp" value="#{processoEditBean.textosPadroes}">
+												<li>
+													<p:commandLink onerror="alert('Erro!')" actionListener="#{processoEditBean.adicionarTexto(tp)}"
+															process="@this form-evidencia:campos-situacao-panel-id" update="form-evidencia:observacaoTmp-id">
+														<span class="glyphicon glyphicon-plus"></span>
+														#{tp.nome}
+													</p:commandLink>
+												</li>
+											</p:repeat>
+										</ul>
+									</div>
+								</h:panelGroup>
+								<div class="form-group">
+									<h:panelGroup id="observacaoTmp-id">
+										<div class="form-group">
+											<h:outputLabel value="#{msg['observacao.label']}"/>
+											<getdoc:textEditor value="#{processoEditBean.evidenciaVO.observacaoTmp}"/>
+											<b:message/>
+										</div>
+									</h:panelGroup>
+								</div>
+								<h:outputLabel for="anexo" value="#{msg['anexos.label']}"/>
+								<h:panelGroup id="lista-anexos-evidencia">
+									<ui:repeat value="#{processoEditBean.evidenciaVO.arquivos}" var="anexo3">
+										<div style="padding-bottom: 5px;">
+											<p:commandLink class="btn btn-default" onerror="alert('Erro!')" immediate="true"
+													actionListener="#{processoEditBean.removerAnexo(anexo3)}"
+													update="form-evidencia:lista-anexos-evidencia">
+												x
+											</p:commandLink>
+											<span style="padding-left: 5px;">#{anexo3.name}</span>
+											<span style="padding-left: 15px;">#{anexo3.length}</span>
+										</div>
+									</ui:repeat>
+								</h:panelGroup>
+								<h:form id="form-anexo-upload" enctype="multipart/form-data" >
+									<p:fileUpload
+											id="anexo" styleClass="anexo-evidencia"
+											cancelLabel="#{msg['cancelar.label']}"
+											label="#{msg['escolherArquivo.label']}"
+											auto="true" update="form-evidencia:lista-anexos-evidencia form-evidencia:growl-evidencia-id form-anexo-upload"
+											listener="#{processoEditBean.uploadAnexo}"
+											oncomplete="$('#ajaxLoaderImg').hide()"
+											multiple="true" fileLimit="5" sizeLimit="#{utilBean.getFileSizeLimit()}">
+									</p:fileUpload>
+									<script type="text/javascript">
+									//<![CDATA[
+										hideMessage(3000);
+										configurarMascaras();
+										var disabled = window.addEventListener;
+										$(".ui-fileupload-buttonbar", ".anexo-evidencia").append(
+												"<span class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left ui-state-hover" + (disabled ? "ui-state-disabled" : "") + "'" +
+												(disabled? "onclick='clickPrint(\"divPrintEv\", uploadPrintEv)'" : "disabled='disabled'") + ">" +
+												"	<span class='ui-button-icon-left ui-icon ui-c ui-icon-image'></span>" +
+												"	<span class='ui-button-text ui-c'>Colar Imagem</span>" +
+												"</span>"
+										);
+									//]]>
+									</script>
+								</h:form>
+								<o:commandScript name="uploadPrintEv" action="#{processoEditBean.uploadPrintEvidencia}" render="lista-anexos-evidencia form-anexo-upload growl-evidencia-id"/>
+								<b:message/>
+							</div>
+						</b:row>
+						<h:panelGroup rendered="#{empty processoEditBean.evidenciaVO}">
+							<script type="text/javascript">
+								$('.evidencia-modal').modal('hide');
+							</script>
+						</h:panelGroup>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="default" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['salvar.label']}" styleClass="btn" oncomplete="$('.evidencia-modal').modal('hide');"
+								actionListener="#{processoEditBean.salvarEvidencia()}" onerror="alert('Erro!')"
+								update="evidencia-modal-content-id form-processo form-tabs form-processo-pendencia form-solicitacoes-pendentes mensagensGlobaisGroup">
+						</p:commandButton>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-isencao-disciplinas">
+				<b:modal id="isencao-disciplinas-modal-id" title="#{msg['AcaoProcesso.REGISTRO_EVIDENCIA.label']}" styleClass="isencao-disciplinas-modal">
+					<h:panelGroup id="isencao-disciplinas-modal-content-id">
+						<b:row>
+							<b:growl id="growl-isencao-disciplinas-id" placementFrom="bottom" allowDismiss="true" animationEnter="animated bounceInDown" animationExit="animated flipOutX"/>
+							<div class="col-sm-12" style="margin-bottom: 0;">
+								<b:messages id="messages-isencao-disciplinas" globalOnly="true" showSummary="true"/>
+								<h:panelGroup>
+									<div class="row">
+										<div class="col-md-12 noMarginBottom">
+											<div class="form-group">
+												<b:selectOneMenu id="situacao-nova-id" value="#{processoEditBean.novaSituacao}" label="Enviar Para:" required="true"
+																 oncomplete="preparaScriptsCampos()">
+													<f:selectItems value="#{processoEditBean.situacoes}" var="situacao" itemValue="#{situacao}" itemLabel="#{situacao.nome}"/>
+													<f:ajax event="change" execute="situacao-nova-id" render="campos-situacao-revisao-panel-id"
+															listener="#{processoEditBean.selecionaNovaSituacao}"/>
+												</b:selectOneMenu>
+												<b:message/>
+											</div>
+										</div>
+										<div class="col-md-12 noMarginBottom">
+											<div class="form-group">
+												<h:outputLabel value="#{msg['iesDoGrupo.label']}" for="iesGrupoId" />
+												<h:selectOneRadio id="iesGrupoId" value="#{processoEditBean.opcoesIes}" styleClass="radio-default" required="true">
+													<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+													<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+												</h:selectOneRadio>
+												<b:message/>
+											</div>
+										</div>
+									</div>
+									<h:panelGroup id="campos-situacao-revisao-panel-id">
+										<c:forEach items="#{processoEditBean.camposSituacao}" var="campoSituacao">
+											<div jsf:rendered="#{campoSituacao.obrigatorio}">
+												<gd:campo campo="#{campoSituacao}" edit="#{!campoSituacao.editavel}"/>
+											</div>
+										</c:forEach>
+										<getdoc:camposScript/>
+									</h:panelGroup>
+								</h:panelGroup>
+							</div>
+						</b:row>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="default" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['salvar.label']}" styleClass="btn" oncomplete="$('.isencao-disciplinas-modal').modal('hide');"
+										 actionListener="#{processoEditBean.salvarIsencaoDisciplinas()}" onerror="alert('Erro!')"
+										 update="isencao-disciplinas-modal-content-id form-processo form-tabs form-processo-pendencia form-solicitacoes-pendentes mensagensGlobaisGroup">
+						</p:commandButton>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-email" rendered="#{podeEditar and autorizacao.podeEnviarEmail()}">
+				<b:modal id="email-modal-id" title="#{msg['enviarEmail.label']}" styleClass="email-modal">
+					<h:panelGroup id="email-modal-content-id">
+						<b:row rendered="#{not empty processoEditBean.emailVO}">
+							<b:growl id="growl-email-id" placementFrom="bottom" allowDismiss="true" animationEnter="animated bounceInDown" animationExit="animated flipOutX"/>
+							<div class="col-sm-12">
+								<b:messages id="messages-email" globalOnly="true" showSummary="true"/>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['destinatarios.label']}" for="destinatarios-id" styleClass="control-label"/>
+									<p:autoComplete id="destinatarios-id" multiple="true" label="#{msg['destinatarios.label']}"
+											placeholder="#{msg['placeholderTagsDestinatarios.label']}"
+											value="#{processoEditBean.emailVO.destinatariosList}" completeMethod="#{processoEditBean.getEmailsPossiveis}"
+											var="dest" itemLabel="#{dest}" itemValue="#{dest}" forceSelection="true" dropdown="true">
+										<h:outputText value="#{dest}" />
+									</p:autoComplete>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<div class="btn-group" style="float: right; margin-bottom: -10px; margin-top: 5px">
+										<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+											Textos Padrões <span class="caret"></span>
+										</button>
+										<ul class="dropdown-menu">
+											<p:repeat var="tp" value="#{processoEditBean.textosPadroes}">
+												<li>
+													<p:commandLink onerror="alert('Erro!')" actionListener="#{processoEditBean.adicionarTexto(tp)}"
+															process="@this" update="form-email:observacaoEmailTmp-id">
+														<span class="glyphicon glyphicon-plus"></span>
+														#{tp.nome}
+													</p:commandLink>
+												</li>
+											</p:repeat>
+										</ul>
+									</div>
+									<h:panelGroup id="observacaoEmailTmp-id">
+										<h:outputLabel value="#{msg['observacao.label']}" for="textEditorId" style="margin-top: 15px;"/>
+										<getdoc:textEditor value="#{processoEditBean.emailVO.observacaoTmp}" required="true"/>
+										<b:message/>
+									</h:panelGroup>
+								</div>
+								<h:outputLabel for="anexo" value="#{msg['anexos.label']}"/>
+								<h:panelGroup id="lista-anexos-email">
+									<ui:repeat value="#{processoEditBean.emailVO.arquivos}" var="anexo4">
+										<div style="padding-bottom: 5px;">
+											<p:commandLink class="btn btn-default" onerror="alert('Erro!')" immediate="true"
+													actionListener="#{processoEditBean.removerAnexo(anexo4)}"
+													update="form-email:lista-anexos-email">
+												x
+											</p:commandLink>
+											<span style="padding-left: 5px;">#{anexo4.name}</span>
+											<span style="padding-left: 15px;">#{anexo4.length}</span>
+										</div>
+									</ui:repeat>
+								</h:panelGroup>
+								<h:form id="form-anexo-upload" enctype="multipart/form-data" >
+									<p:fileUpload
+											id="anexo" styleClass="anexo-email"
+											cancelLabel="#{msg['cancelar.label']}"
+											label="#{msg['escolherArquivo.label']}"
+											auto="true" update="form-email:lista-anexos-email form-email:growl-email-id form-anexo-upload"
+											listener="#{processoEditBean.uploadAnexo}"
+											oncomplete="$('#ajaxLoaderImg').hide()"
+											multiple="true" fileLimit="5" sizeLimit="#{utilBean.getFileSizeLimit()}">
+									</p:fileUpload>
+									<script type="text/javascript">
+									//<![CDATA[
+										hideMessage(3000);
+										var disabled = window.addEventListener;
+										$(".ui-fileupload-buttonbar", ".anexo-email").append(
+												"<span class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left ui-state-hover" + (disabled ? "ui-state-disabled" : "") + "'" +
+												(disabled? "onclick='clickPrint(\"divPrintEmail\", uploadPrintEmail)'" : "disabled='disabled'") + ">" +
+												"	<span class='ui-button-icon-left ui-icon ui-c ui-icon-image'></span>" +
+												"	<span class='ui-button-text ui-c'>Colar Imagem</span>" +
+												"</span>"
+										);
+									//]]>
+									</script>
+								</h:form>
+								<o:commandScript name="uploadPrintEmail" action="#{processoEditBean.uploadPrintEmail}" render="lista-anexos-email form-anexo-upload growl-email-id"/>
+								<b:message/>
+							</div>
+						</b:row>
+						<h:panelGroup rendered="#{empty processoEditBean.emailVO}">
+							<script type="text/javascript">
+								$('.email-modal').modal('hide');
+							</script>
+						</h:panelGroup>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="default" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['enviar.label']}" styleClass="btn"
+								actionListener="#{processoEditBean.enviarEmail()}" onerror="alert('Erro!')"
+								onsuccess="carregarEmails();"
+								update="email-modal-content-id form-tabs mensagensGlobaisGroup"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-email-convite" rendered="#{podeEditar and autorizacao.podeEnviarEmail()}">
+				<b:modal id="convite-modal-id" title="#{msg['enviarEmail.label']}" styleClass="convite-modal">
+					<h:panelGroup id="convite-modal-content-id">
+						<b:row rendered="#{not empty processoEditBean.emailVO}">
+							<b:growl id="growl-convite-email-id" placementFrom="bottom" allowDismiss="true" animationEnter="animated bounceInDown" animationExit="animated flipOutX"/>
+							<div class="col-sm-12">
+								<b:messages id="messages-email" globalOnly="true" showSummary="true"/>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['destinatarios.label']}" for="destinatarios-convite-id" styleClass="control-label"/>
+									<p:autoComplete id="destinatarios-convite-id" multiple="true" label="#{msg['destinatarios.label']}"
+													placeholder="#{msg['placeholderTagsDestinatarios.label']}"
+													value="#{processoEditBean.emailVO.destinatariosList}" completeMethod="#{processoEditBean.getEmailsPossiveis}"
+													var="dest" itemLabel="#{dest}" itemValue="#{dest}" forceSelection="true" dropdown="true">
+										<h:outputText value="#{dest}" />
+									</p:autoComplete>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<b:inputText value="#{processoEditBean.emailVO.assunto}" id="assunto-convite" label="#{msg['assunto.label']}"/>
+									<b:message/>
+								</div>
+								<div class="row" style="margin-left: 5px;">
+									<div class="col-sm-1">De:</div>
+									<div class="col-sm-5 noMarginBottom">
+										<b:dateTimePicker value="#{processoEditBean.emailVO.dataInicioConvite}" placeholder="dd/mm/aaaa 00:00" format="DD/MM/YYYY HH:mm" toolbarPlacement="bottom" label="#{msg['inicioVigencia.label']}" renderLabel="false"/>
+										<b:message/>
+									</div>
+									<div class="col-sm-1">Até:</div>
+									<div class="col-sm-5 noMarginBottom">
+										<b:dateTimePicker value="#{processoEditBean.emailVO.dataFimConvite}" placeholder="dd/mm/aaaa 00:00" format="DD/MM/YYYY HH:mm" toolbarPlacement="bottom" label="#{msg['inicioVigencia.label']}" renderLabel="false"/>
+										<b:message/>
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="btn-group" style="float: right; margin-right: 5px; margin-top: 40px !important;">
+										<button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+											Textos Padrões <span class="caret"></span>
+										</button>
+										<ul class="dropdown-menu">
+											<p:repeat var="tp" value="#{processoEditBean.textosPadroes}">
+												<li>
+													<p:commandLink onerror="alert('Erro!')" actionListener="#{processoEditBean.adicionarTexto(tp)}"
+																   process="@this" update="form-email:observacaoEmailTmp-id">
+														<span class="glyphicon glyphicon-plus"></span>
+														#{tp.nome}
+													</p:commandLink>
+												</li>
+											</p:repeat>
+										</ul>
+									</div>
+									<h:panelGroup id="observacaoEmailTmp-convite-id">
+										<h:outputLabel value="#{msg['observacao.label']}" for="textEditorId" style="margin-top: 15px;"/>
+										<getdoc:textEditor value="#{processoEditBean.emailVO.observacaoTmp}" required="true"/>
+										<b:message/>
+									</h:panelGroup>
+								</div>
+								<h:outputLabel for="anexo" value="#{msg['anexos.label']}"/>
+								<h:panelGroup id="lista-anexos-convite-email">
+									<ui:repeat value="#{processoEditBean.emailVO.arquivos}" var="anexo4">
+										<div style="padding-bottom: 5px;">
+											<p:commandLink class="btn btn-default" onerror="alert('Erro!')" immediate="true"
+														   actionListener="#{processoEditBean.removerAnexo(anexo4)}"
+														   update="form-email-convite:lista-anexos-convite-email">
+												x
+											</p:commandLink>
+											<span style="padding-left: 5px;">#{anexo4.name}</span>
+											<span style="padding-left: 15px;">#{anexo4.length}</span>
+										</div>
+									</ui:repeat>
+								</h:panelGroup>
+								<h:form id="form-anexo-convite-upload" enctype="multipart/form-data" >
+									<p:fileUpload
+											id="anexo-convite" styleClass="anexo-email-convite"
+											cancelLabel="#{msg['cancelar.label']}"
+											label="#{msg['escolherArquivo.label']}"
+											auto="true" update="form-email-convite:lista-anexos-convite-email form-email-convite:growl-convite-email-id form-anexo-convite-upload"
+											listener="#{processoEditBean.uploadAnexo}"
+											oncomplete="$('#ajaxLoaderImg').hide()"
+											multiple="true" fileLimit="5" sizeLimit="#{utilBean.getFileSizeLimit()}">
+									</p:fileUpload>
+									<script type="text/javascript">
+										//<![CDATA[
+										hideMessage(3000);
+										var disabled = window.addEventListener;
+										$(".ui-fileupload-buttonbar", ".anexo-email-convite").append(
+												"<span class='ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-left ui-state-hover" + (disabled ? "ui-state-disabled" : "") + "'" +
+												(disabled? "onclick='clickPrint(\"divPrintEmail\", uploadPrintEmail)'" : "disabled='disabled'") + ">" +
+												"	<span class='ui-button-icon-left ui-icon ui-c ui-icon-image'></span>" +
+												"	<span class='ui-button-text ui-c'>Colar Imagem</span>" +
+												"</span>"
+										);
+										//]]>
+									</script>
+								</h:form>
+								<o:commandScript name="uploadPrintEmail" action="#{processoEditBean.uploadPrintEmail}" render="lista-anexos-convite-email form-anexo-convite-upload growl-convite-email-id"/>
+								<b:message/>
+							</div>
+						</b:row>
+						<h:panelGroup rendered="#{empty processoEditBean.emailVO}">
+							<script type="text/javascript">
+								$('.convite-modal').modal('hide');
+							</script>
+						</h:panelGroup>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="default" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['enviar.label']}" styleClass="btn"
+										 actionListener="#{processoEditBean.enviarConviteEmail()}" onerror="alert('Erro!')"
+										 onsuccess="carregarEmails();"
+										 update="convite-modal-content-id form-tabs mensagensGlobaisGroup"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-email-recebido">
+				<b:modal id="email-recebido-modal-id" title="#{msg['emailRecebido.label']}" styleClass="email-recebido-modal">
+					<h:panelGroup id="email-recebido-modal-content-id">
+						<b:row rendered="#{not empty processoEditBean.emailRecebido}">
+							<div class="col-sm-12">
+								<div class="form-group">
+									E-mail recebido de #{processoEditBean.emailRecebido.emailFrom}. #{utilBean.getDateTimeStr(processoEditBean.emailRecebido.sentDate)}h:<br/>
+								</div>
+								<div class="form-group">
+									#{processoEditBean.emailRecebido.subject}
+								</div>
+								<div class="form-group">
+									<br/><h:outputLabel value="#{msg['conteudoHtml.label']}:" styleClass="bf-no-message"/><br/>
+									<h:outputText value="#{processoEditBean.emailRecebido.conteudoLong}" escape="false"/>
+								</div>
+							</div>
+							<ui:repeat value="#{processoEditBean.emailRecebido.anexos.toArray()}" var="anexo5">
+								<h:panelGroup rendered="#{utilBean.isExtensaoImagem(anexo5.extensao)}">
+									<span class="btn btn-default popImg linkAnexo" imgPath="#{utilBean.getPathImagem(anexo5)}" style="margin-right: 10px; margin-bottom: 10px;">
+										<i class="fa fa-file-image-o" aria-hidden="true"></i>
+										#{anexo5.fileName}
+										#{utilBean.toFileSize(anexo5.tamanho)}
+									</span>
+								</h:panelGroup>
+								<h:panelGroup rendered="#{not utilBean.isExtensaoImagem(anexo5.extensao)}">
+									<span class="btn btn-defaultlinkAnexo" style="margin-right: 10px; margin-bottom: 10px;">
+										<h:commandLink action="#{processoEditBean.downloadAnexoEmail(anexo5)}" styleClass="linkAnexo">
+											<i class="fa fa-file-o" aria-hidden="true"></i>
+											#{anexo5.fileName}
+											#{utilBean.toFileSize(anexo5.tamanho)}
+										</h:commandLink>
+									</span>
+								</h:panelGroup>
+							</ui:repeat>
+						</b:row>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<b:button value="#{msg['fechar.label']}" look="default" dismiss="modal" onclick="return false;"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-processos-mesmo-nome-cnpj">
+				<b:modal id="processos-mesmo-nome-cnpj-modal-id" title="#{msg['processosMesmoCpfCnpj.label']}" styleClass="processos-mesmo-nome-cnpj-modal" style="z-index: 9999;">
+					<b:row id="processos-mesmo-nome-cnpj-modal-content-id" >
+						<div class="col-sm-12">
+							<div style="padding-left: 30px;">
+								<div class="form-group">
+									<p:dataTable var="vo" value="#{processoEditBean.processosMesmoCpjCnpj}" >
+										<p:column headerText="Nº" style="width: 60px; text-align: right;">
+											<a href="#{request.contextPath}#{processoEditBean.rootPath}edit/#{vo.processo.id}">
+												<h:outputText value="#{vo.processo.id}" />
+											</a>
+										</p:column>
+										<p:column headerText="Status" style="width: 120px; text-align: right;">
+											<h:outputText value="#{msg['StatusProcesso.'.concat(vo.processo.status).concat('.label')]}" />
+										</p:column>
+										<p:column headerText="#{msg['tipoProcesso.label']}" style="width: 250px; text-align: center;" >
+											<h:outputText value="#{vo.processo.tipoProcesso.nome}" />
+										</p:column>
+										<p:column headerText="#{msg['analista.label']}" style="text-align: center;" >
+											<h:outputText value="#{vo.processo.analista.nome}" />
+										</p:column>
+										<p:column headerText="#{msg['dataEnvio.label']}" style="width: 115px; text-align: center;">
+											<h:outputText value="#{utilBean.getDateTimeStr(vo.processo.dataEnvioAnalise)}" />
+										</p:column>
+									</p:dataTable>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<h:panelGroup rendered="#{fecharModal}">
+							<script type="text/javascript">
+								$('.processos-mesmo-nome-cnpj-modal').modal('hide');
+							</script>
+						</h:panelGroup>
+					</b:row>
+				</b:modal>
+			</h:form>
+			<h:form id="form-processo">
+				<section id="processo-page" class="container">
+					<div class="row" style="margin-right: 0;">
+						<div class="col-md-4 checklist-col2 campoRemove" style="padding-left: 0; float: right;">
+							<div jsf:rendered="#{processoEditBean.processoTemRegras() and processoEditBean.autorizacao.podeUsarCheckList()}">
+								<h:panelGroup id="regras-id" layout="block" styleClass="row campoRemove">
+									<div class="col-md-12">
+										<h4 class="tituloForm" style="margin-top: 10px;">
+											<h:outputText value="#{msg['regras.label']}"/>
+										</h4>
+										<p:repeat var="regra1" value="#{processoEditBean.regrasErro}">
+											<getdoc:regraInfo title="Erro ao executar a regra." style="danger" icon="fa-times" processoRegra="#{regra1}"/>
+										</p:repeat>
+										<p:repeat var="regra2" value="#{processoEditBean.regrasVermelho}">
+											<getdoc:regraInfo title="A regra reportou Farol Vermelho!" style="danger" icon="fa-exclamation-triangle" processoRegra="#{regra2}"/>
+										</p:repeat>
+										<p:repeat var="regra3" value="#{processoEditBean.regrasPendente}">
+											<getdoc:regraInfo title="Regra pendente." style="warning" icon="fa-hourglass-start" processoRegra="#{regra3}"/>
+										</p:repeat>
+										<p:repeat var="regra3" value="#{processoEditBean.regrasAmarelo}">
+											<getdoc:regraInfo title="A regra reportou Farol Amarelo!" style="warning" icon="fa-exclamation-triangle" processoRegra="#{regra3}"/>
+										</p:repeat>
+										<div style="padding-bottom: 5px; margin-bottom: 10px; border-bottom: 1px solid #e5e5e5;">
+											<span onclick="mostrarMenosGrupo('regrasOk')" style="display: none; cursor: pointer;" class="hide-grupo-regrasOk">
+												<i style="padding-right: 10px;" class="fa fa-minus-square-o" aria-hidden="true"></i>Regras Validadas
+											</span>
+											<span onclick="mostrarMaisGrupo('regrasOk')" style="cursor: pointer;" class="show-grupo-regrasOk">
+												<i style="padding-right: 10px;" class="fa fa-plus-square-o" aria-hidden="true"></i>Regras Validadas
+											</span>
+										</div>
+										<div class="row-g row-grupo-regrasOk">
+											<div class="col-sm-12 campos-grupo-regrasOk" style="display: none;">
+												<p:repeat var="regra4" value="#{processoEditBean.regrasVerde}">
+													<getdoc:regraInfo title="A regra reportou Farol Verde." style="success" icon="fa-check" processoRegra="#{regra4}"/>
+												</p:repeat>
+												<p:commandLink class="btn btn-default btn-sm" onerror="alert('Erro!')" style="float: right;"
+														title="Reprocessar Regras" onclick="openModal('reprocessarRegras-modal'); return false;"
+														rendered="#{podeEditar and autorizacao.podeReprocessarTodasRegras()}">
+													#{msg['reprocessarTodas.label']}
+												</p:commandLink>
+												<p:commandLink class="btn btn-default btn-sm" onerror="alert('Erro!')" style="float: right; margin-right: 10px;"
+														title="Reprocessar Regras com Erro" onclick="openModal('reprocessarRegrasErro-modal'); return false;"
+														rendered="#{podeEditar and autorizacao.podeReprocessarErrosRegras() and processoEditBean.temRegrasErro()}">
+													#{msg['reprocessarErro.label']}
+												</p:commandLink>
+											</div>
+										</div>
+									</div>
+								</h:panelGroup>
+							</div>
+							<div style="text-align: center" jsf:rendered="#{ not empty processoEditBean.ajudasMarcadas.keySet().toArray() and processoEditBean.autorizacao.podeConcluirSituacao()}">
+								<button class="btn btn-primary btnChecklist" style="margin-left:10px;" onclick="{
+												$('.checklist-col2').toggleClass('col-sm-5 col-sm-1');
+												$('.checklistPanel').show();
+												$(this).hide();
+												$(this).parent().css( 'text-align', 'left' );
+											}; return false;">
+									<i class="fa fa-plus-square-o" aria-hidden="true"></i> Checklist
+								</button>
+								<h:panelGroup layout="block" styleClass="row checklistPanel" style="display: none;">
+									<h:panelGroup id="ajudaPanel" layout="block" style="margin-top: 0px;" styleClass="col-md-12">
+										<h4 class="tituloForm" style="margin-top: 5px; margin-bottom: 10px;">
+											<i class="fa fa-check" aria-hidden="true"></i>
+											Checklist
+										</h4>
+										<p:repeat var="keySet" value="#{processoEditBean.ajudasMarcadas.keySet().toArray()}" varStatus="status1" >
+											<p:repeat var="ajuda" value="#{processoEditBean.ajudasMarcadas.get(keySet)}" varStatus="status">
+												<div class="row">
+													<div class="col-md-9" style="margin-bottom: 5px; padding-left: 30px;">
+														<div style="text-align: left;">
+															<span style="#{ajuda.pendencia ? 'color:red' : ''}">
+																#{ajuda.texto}
+																<h:panelGroup rendered="#{not empty ajuda.tipoDocumento}">
+																	(#{ajuda.tipoDocumento.nome})
+																</h:panelGroup>
+															</span>
+														</div>
+													</div>
+													<div class="col-md-3" style="margin-bottom: 5px;" jsf:id="botoes-ajuda-id">
+														 	<span jsf:rendered="#{ajuda.marcado and not empty ajuda.proximo.resposta}"
+																  style="padding: 2px 6px; border: 1px #ccc solid; border-radius: 4px;">
+												 				#{ajuda.proximo.resposta eq 'SIM' ? 'Sim' : ajuda.proximo.resposta eq 'NAO' ? 'Não' : 'Ok'}</span>
+														<p:commandLink update="form-processo:ajudaPanel form-checklists-pendentes" ajax="true" value="[-]"
+																	   style="padding: 2px 8px; margin-right: 5px;" actionListener="#{processoEditBean.ajudaRespostaAnular(ajuda)}"
+																	   styleClass="btn" rendered="#{ajuda.marcado and not empty ajuda.proximo and empty ajuda.proximo.proximo}"
+																	   process="botoes-ajuda-id"/>
+														<p:commandLink styleClass="btn btn-info" ajax="true" style="padding: 2px 8px; margin-right: 5px;"
+																	   value="#{msg['sim.label']}" update="form-processo:ajudaPanel form-checklists-pendentes"
+																	   actionListener="#{processoEditBean.ajudaResposta(ajuda, Resposta.SIM)}"
+																	   rendered="#{not ajuda.marcado and ajuda.tipo eq 'PERGUNTA'}"
+																	   process="botoes-ajuda-id"/>
+														<p:commandLink rendered="#{not ajuda.marcado and ajuda.tipo eq 'PERGUNTA'}" style="padding: 2px 8px; margin-right: 5px;"
+																	   ajax="true" value="#{msg['nao.label']}" actionListener="#{processoEditBean.ajudaResposta(ajuda, Resposta.NAO)}"
+																	   update="form-processo:ajudaPanel form-checklists-pendentes" styleClass="btn btn-info"
+																	   process="botoes-ajuda-id"/>
+														<p:commandLink styleClass="btn btn-info" style="padding: 2px 8px; width: 46px;"
+																	   rendered="#{not ajuda.marcado and ajuda.tipo eq 'DICA'}" ajax="true" value="#{msg['ok.label']}"
+																	   actionListener="#{processoEditBean.ajudaResposta(ajuda, Resposta.OK)}"
+																	   update="form-processo:ajudaPanel form-checklists-pendentes"
+																	   process="botoes-ajuda-id"/>
+													</div>
+												</div>
+											</p:repeat>
+										</p:repeat>
+									</h:panelGroup>
+								</h:panelGroup>
+							</div>
+							<div style="margin-top: 20px">
+								<h:panelGroup id="botaoDigitalizarTwain-content">
+									<div style="vertical-align: bottom;text-align: center">
+										<p:commandLink title="#{msg['adicionarDocumento.label']}" class="btn btn-default btn-default" onerror="alert('Erro!')"
+													   style="padding: 3px 8px; vertical-align: bottom; margin-right: 5px;"
+													   onsuccess="openModal('adicionarDocumento-modal');"
+													   update="form-adicionarDocumento:adicionarDocumento-modal-content-id"
+													   rendered="#{podeEditar and autorizacao.podeAdicionarDocumento()}">
+											<i class="fa fa-plus" aria-hidden="true"></i>
+										</p:commandLink>
+										<p:commandLink class="btn btn-default"
+													   actionListener="#{processoEditBean.setDigitalizarTwain(true)}" title="#{msg['capturarDocumento.label']}"
+													   onsuccess="openModal('digitalizarTwain-modal');" onerror="alert('Erro!')"
+													   update="form-digitalizarTwain:digitalizarTwain-modal-content-id"
+													   rendered="#{podeEditar and autorizacao.podeDigitalizarDocumentoTwain()}"
+													   disabled="#{!processoEditBean.podeReceberDocumentosSisProuniNoCalendario}"
+										>
+											#{msg['capturarDocumentos.label']} &nbsp;
+											<i class="fa fa-camera" aria-hidden="true" style="font-size: 16px;"></i>
+										</p:commandLink>
+										<p:commandLink class="btn btn-default btnDocumento" actionListener="#{processoEditBean.criarDigitalizacao(null)}"
+													   onsuccess="openModal('digitalizar-modal');" onerror="alert('Erro!')" title="#{msg['capturarDocumento.label']}"
+													   update="form-digitalizar:digitalizar-modal-content-id form-processo" style="margin-left: 5px;"
+													   rendered="#{podeEditar and autorizacao.podeCarregarDocumento()}"
+													   disabled="#{!processoEditBean.podeReceberDocumentosSisProuniNoCalendario}"
+													   >
+											<i class="fa fa-upload" aria-hidden="true" style="font-size: 16px;"></i>
+										</p:commandLink>
+									</div>
+								</h:panelGroup>
+							</div>
+						</div>
+						<div class="#{processoEditBean.temBarraLateral() ? 'col-sm-8' : 'col-sm-12'}" id="div-campos-processo">
+							<b:commandButton value="#{msg['proximaRequisicao.label']}" ajax="false" class="btn btn-default" style="float: right;" update="content-pg-id"
+	 								actionListener="#{processoEditBean.proximaRequisicao}" rendered="#{autorizacao.podeVerificarProxima()}"/>
+							<b:commandButton value="#{msg['iniciarTrabalho.label']}" class="btn btn-default" style="float: right;" update="content-pg-id"
+	 								actionListener="#{processoEditBean.iniciarTrabalho()}" rendered="#{autorizacao.podeIniciarTrabalho()}"/>
+							<div class="alert alert-success alert-labeled" style="margin-bottom: 0; font-size: 14px; font-weight: 400; border-color: #3c763d; text-align: center;"
+								 jsf:rendered="#{not empty processoEditBean.linkAluno}">
+								<a href="#{processoEditBean.linkAluno}" style="color: #333;">
+									<i class="fa fa-exclamation-triangle"></i>&nbsp;
+									<h:outputText value="#{msg['candidatoConvertidoAluno.label']}" escape="false"/>
+									<i class="fa fa-external-link" aria-hidden="true"></i>
+								</a>
+							</div>
+	 						<div class="col-md-12 checklist-col1 campoRemove">
+								<h4 class="default-form-h4">
+									<h:outputText style="color: #cc092f;" value="#{msg['dadosProcesso.label']}"/>
+									<b jsf:rendered="#{podeEditar and !processoEditBean.editando and autorizacao.podeEditarCampos()}">
+										<a title="#{msg['editar.label']}" href="#{request.contextPath}/requisicoes/fila/edit/#{processo.id}?edit"
+										   style="margin-left: 5px; margin-top: -10px;" class="btn btn-default btn-sm"
+										   oncomplete="preparaScriptsCampos()">
+											<i class="fa fa-pencil" style="color: #333; margin-top: 5px;" aria-hidden="true" ></i>
+										</a>
+									</b>
+									<span jsf:rendered="#{processoEditBean.pastaVermelha}">
+										<h:panelGroup id="pastaVermelha-id">
+											<img alt="" title="" src="#{request.contextPath}/resources/images/icons/pasta-vermelha.png" width="25"/>
+										</h:panelGroup>
+										<p:tooltip style="padding: 5px; max-width: 600px;" for="pastaVermelha-id" escape="false">
+											<div>
+												<h:outputLabel value="#{msg['docPendentes.label']}"/>
+												<ul>
+													<ui:repeat value="#{processoEditBean.idDocumentos}" var="tipoDocumentoId">
+														<li>#{processoEditBean.getNomeDocumento(tipoDocumentoId)}</li>
+													</ui:repeat>
+												</ul>
+											</div>
+										</p:tooltip>
+									</span>
+									<span jsf:rendered="#{processoEditBean.pastaAmarela}">
+										<h:panelGroup id="pastaAmarela-id">
+											<img alt="" title="" src="#{request.contextPath}/resources/images/icons/pasta-amarelo.png" width="25px"/>
+										</h:panelGroup>
+										<p:tooltip style="padding: 5px; max-width: 600px;" for="pastaAmarela-id" escape="false">
+											<div>
+												<h:outputLabel value="#{msg['documentosAdvertidos.label']}"/>
+												<ul>
+													<ui:repeat value="#{processoEditBean.idTipoDocumentos}" var="tipoDocumentoId">
+														<li><h:outputText value="#{processoEditBean.getNomeDocumento(tipoDocumentoId)}: #{processoEditBean.irregularidadesPastaAmarelaMap.get(tipoDocumentoId)}"/> </li>
+													</ui:repeat>
+												</ul>
+											</div>
+										</p:tooltip>
+									</span>
+								</h4>
+								<div class="row" style="margin-left: 0;">
+									<div class="#{processoEditBean.processoTemRegras() ? 'col-sm-8' : 'col-sm-6'}" style="margin-bottom: 0;">
+										<h:panelGroup rendered="#{autorizacao.mostrarNumeroProcesso()}">
+											<div class="row">
+												<div class="col-sm-4 col-campos">
+													<h:outputLabel value="Processo:" styleClass="bf-no-message"/>
+												</div>
+												<div class="col-sm-8">
+													<h:outputLabel value="Nº" styleClass="bf-no-message"/>:&nbsp;<h:outputText value="#{processoEditBean.processo.id}"/>
+													/ <h:outputLabel value="#{msg['tipo.label']}:" styleClass="bf-no-message"/>&nbsp;<h:outputText value="#{processoEditBean.processo.tipoProcesso.nome}"/>
+													<p:commandLink class="btn btn-default btn-sm" onerror="alert('Erro!')" style="padding: 3px 8px; margin-top: -8px; margin-left: 5px; height: 30px;"
+																   actionListener="#{processoEditBean.carregarModalidades()}" title="#{msg['trocarModalidade.label']}"
+																   onsuccess="openModal('trocaModalidade-modal');"
+																   update="form-trocaModalidade:trocaModalidade-modal-content-id"
+																   rendered="#{podeEditar and autorizacao.podeAlterarModalidade()}">
+														<i class="fa fa-random" style="color: #333;" aria-hidden="true"></i>
+													</p:commandLink>
+												</div>
+											</div>
+										</h:panelGroup>
+										<div class="row">
+											<div class="col-sm-4 col-campos">
+												<h:outputLabel value="#{msg['status.label']}" styleClass="bf-no-message"/> / <h:outputLabel value="#{msg['situacao.label']}" styleClass="bf-no-message"/>:
+											</div>
+											<div class="col-sm-8">
+												<img alt="" title="#{msg['StatusProcesso.'.concat(processoEditBean.processo.status).concat('.label')]}" class="status-processo"
+														src="#{request.contextPath}/resources/images/icons/StatusProcesso-#{processoEditBean.processo.status}.png" width="24px"/>
+												#{msg['StatusProcesso.'.concat(processoEditBean.processo.status).concat('.label')]}
+												/ <h:outputText value="#{processoEditBean.processo.situacao.nome}"/>&nbsp;
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-sm-4 col-campos">
+												<h:outputLabel value="#{msg['analista.label']}" styleClass="bf-no-message"/>:
+											</div>
+											<div class="col-sm-8">
+												#{processoEditBean.processo.analista.nome}&nbsp;
+												<p:commandLink class="btn btn-default btn-sm" onerror="alert('Erro!')" style="padding: 3px 8px; margin-top: -8px; height: 30px;"
+														actionListener="#{processoEditBean.carregarAnalistas()}" title="#{msg['trocarAnalista.label']}"
+														onsuccess="openModal('trocaAnalista-modal');"
+														update="form-trocaAnalista:trocaAnalista-modal-content-id"
+														rendered="#{podeEditar and autorizacao.podeTrocarAnalista()}">
+													<i class="fa fa-pencil" style="color: #333;" aria-hidden="true"></i>
+												</p:commandLink>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-sm-4 col-campos">
+												<h:outputLabel value="#{msg['nivelPrioridade.label']}:" styleClass="bf-no-message"/>
+											</div>
+											<div class="col-sm-8">
+												<h:outputText value="#{processoEditBean.processo.nivelPrioridade}"/>&nbsp;
+												<p:commandLink class="btn btn-default btn-sm" onerror="alert('Erro!')" style="padding: 3px 8px; margin-top: -8px; height: 30px;"
+														title="#{msg['subirNivelPrioridade.label']}"
+														onclick="openModal('priorizarConfirm-modal');"
+														rendered="#{podeEditar and autorizacao.podeSubirNivelPrioridade()}">
+													<i class="fa fa-level-up" style="color: #333;" aria-hidden="true"></i>
+												</p:commandLink>
+											</div>
+										</div>
+									</div>
+									<div class="#{processoEditBean.processoTemRegras() ? 'col-sm-4' : 'col-sm-6'}" style="margin-bottom: 0;">
+										<div class="row">
+											<div class="#{processoEditBean.processoTemRegras() ? 'col-sm-12 noMarginBottom' : 'col-sm-4'} col-campos">
+												<h:outputLabel value="Tempo Restante:" styleClass="bf-no-message"/>
+											</div>
+											<div class="#{processoEditBean.processoTemRegras() ? 'col-sm-12' : 'col-sm-4'} col-campos">
+												<div style="white-space: nowrap;">
+													<h:outputLabel value="da Etapa:" styleClass="bf-no-message" style="margin-right: 10px; font-weight: normal;"/>&nbsp;
+													<h:outputText value="#{processoEditBean.horasRestantes}"/>
+												</div>
+												<div style="white-space: nowrap;">
+													<h:outputLabel value="da Situação:" styleClass="bf-no-message" style="font-weight: normal;"/>&nbsp;
+													<h:outputText value="#{processoEditBean.horasRestantesSituacao}"/>
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="#{processoEditBean.processoTemRegras() ? 'col-sm-12 noMarginBottom' : 'col-sm-4'} col-campos">
+												<h:outputLabel value="Data de:" styleClass="bf-no-message"/>
+											</div>
+											<div class="#{processoEditBean.processoTemRegras() ? 'col-sm-12' : 'col-sm-4'} col-campos">
+												<div style="white-space: nowrap;">
+													<h:outputLabel value="Criação:" styleClass="bf-no-message" style="margin-right: 10px; font-weight: normal;"/>&nbsp;
+													<h:outputText value="#{utilBean.getDateTimeStr(processoEditBean.processo.dataCriacao)}"/>&nbsp;
+												</div>
+												<div style="white-space: nowrap;">
+													<h:outputLabel value="Envio:" styleClass="bf-no-message" style="font-weight: normal;"/>&nbsp;
+													<h:outputText value="#{utilBean.getDateTimeStr(processoEditBean.processo.dataEnvioAnalise)}"/>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div style="float: right; position: absolute; right: 10px; top: 70px; width:85px; height: 30px;">
+									<p:commandLink class="btn btn-default btn-sm" onerror="alert('Erro!')" style="width:85px; height: 30px; padding: 3px 8px; margin-top: -20px; position: absolute; right: 15px;"
+												   actionListener="#{processoEditBean.carregarProcessosMesmoCpfCnpj()}"
+												   onsuccess="openModal('processos-mesmo-nome-cnpj-modal');"
+												   update="form-processos-mesmo-nome-cnpj:processos-mesmo-nome-cnpj-modal-content-id">
+										(<span title="#{msg['processosFechados.label']}">
+										#{processoEditBean.processosFechados}
+										<i class="fa fa-folder" aria-hidden="true"></i>
+									</span>
+									<span title="#{msg['processosAbertos.label']}">
+										#{processoEditBean.processosAbertos}
+										<i class="fa fa-folder-open" aria-hidden="true"></i>
+									</span>)
+									</p:commandLink>
+								</div>
+							</div>
+							<div class="row">
+								<h:panelGroup layout="block" id="camposEdit-id" styleClass="col-md-12 checklist-col1" style="margin-bottom: 0;">
+									<ui:param name="editCampos" value="#{processoEditBean.editando}" />
+									<ui:param name="sanfonar" value="#{not processoEditBean.editando}" />
+									<h4 class="tituloForm campoRemove">
+										<span onclick="mostrarMenosGrupo('dadosAluno')" class="hide-grupo-dadosAluno" style="cursor: pointer;">
+											<i style="padding-right: 5px;" class="fa fa-minus-square-o" aria-hidden="true"></i>
+											#{msg['dadosDoAluno.label']}
+										</span>
+										<span onclick="mostrarMaisGrupo('dadosAluno')" class="show-grupo-dadosAluno" style="cursor: pointer; display: none;">
+											<i style="padding-right: 5px;" class="fa fa-plus-square-o" aria-hidden="true"></i>
+											#{msg['dadosDoAluno.label']}
+										</span>
+									</h4>
+									<getdoc:dadosAluno aluno="#{processoEditBean.processo.aluno}"/>
+									<b:row style="margin-left: 0;" rendered="#{processoEditBean.editando}">
+										<div class="col-sm-12" style="position: relative">
+											<div style="position: absolute; right: 15px;">
+												<a id="cancelar-edicao-campos-id" style="margin-right: 5px;" class="btn btn-default btn btn-default btn-cancelar"
+												   href="#{request.contextPath}#{processoEditBean.rootPath}edit/#{processoEditBean.processo.id}">#{msg['cancelar.label']}</a>
+												<p:commandButton value="#{msg['salvar.label']}" actionListener="#{processoEditBean.salvar()}" update="content-pg-id" styleClass="btn">
+												</p:commandButton>&nbsp;
+											</div>
+										</div>
+									</b:row>
+									<span onclick="mostrarMenosTodosGrupos($(this).parent())" class="hide-grupo-todos campoRemove"
+									 		style="display: none;cursor: pointer;margin-left: -20px; position: absolute; margin-top: 8px;">
+										<i class="fa fa-minus-square" aria-hidden="true"></i>
+									</span>
+									<span onclick="mostrarMaisTodosGrupos($(this).parent())" style="cursor: pointer; margin-left: -20px; position: absolute; margin-top: 8px;" class="show-grupo-todos campoRemove">
+										<i class="fa fa-plus-square" aria-hidden="true"></i>
+									</span>
+                                    <h:panelGroup id="campos-grupos-id">
+                                        <b:growl id="growl2-id" placementFrom="bottom" allowDismiss="true" animationEnter="animated bounceInDown" animationExit="animated flipOutX"/>
+                                        <c:forEach var="grupoVO" items="#{processoEditBean.getGruposVO()}">
+                                            <c:set var="abertoPadrao" value="#{grupoVO.abertoPadrao}" />
+                                            <h4 class="tituloForm">
+                                                <h:panelGroup rendered="#{sanfonar}">
+                                                    <span onclick="mostrarMenosGrupo(#{grupoVO.grupoSuperior.id})" class="hide-grupo-#{grupoVO.grupoSuperior.id}"
+                                                            style="#{abertoPadrao ? 'display:block;' : 'display:none;'} cursor: pointer;">
+                                                        <i style="padding-right: 10px;" class="fa fa-minus-square-o" aria-hidden="true"></i>
+                                                        <h:outputText value="#{grupoVO.grupoSuperior.nome}"/>
+                                                    </span>
+                                                    <span onclick="mostrarMaisGrupo(#{grupoVO.grupoSuperior.id})" class="show-grupo-#{grupoVO.grupoSuperior.id}"
+                                                            style="#{abertoPadrao ? 'display:none;' : 'display:block;'} cursor: pointer;">
+                                                        <i style="padding-right: 10px;" class="fa fa-plus-square-o" aria-hidden="true"></i>
+                                                        <h:outputText value="#{grupoVO.grupoSuperior.nome}"/>
+                                                    </span>
+                                                    <style>
+                                                        .row-g > .row {
+                                                            display: none;
+                                                        }
+                                                        .row-g > .row {
+                                                            display: none;
+                                                        }
+                                                    </style>
+                                                    <h:panelGroup rendered="#{ abertoPadrao || editCampos}">
+                                                        <script type="text/javascript">
+                                                            jQuery(function($) {
+                                                                mostrarMaisGrupo(#{grupoVO.grupoSuperior.id});
+                                                            });
+                                                        </script>
+                                                    </h:panelGroup>
+                                                </h:panelGroup>
+                                                <h:panelGroup rendered="#{!sanfonar}">
+                                                    <h:outputText value="#{grupoVO.grupoSuperior.nome}"/>
+                                                </h:panelGroup>
+                                                <h:panelGroup rendered="#{processoEditBean.editando and grupoVO.grupoPai}">
+                                                    <p:commandLink class="btn icon-btn btn-info" update="growl2-id campos-grupos-id"
+                                                            style="padding: 0px 8px 0px 6px !important; border-radius:50px !important;margin-left: 10px;height: 33px"
+                                                            title="#{msg['adicionarNovo.label']}" actionListener="#{processoEditBean.adicionarGrupoDinamico(grupoVO.tipoCampoGrupoId)}"
+                                                            oncomplete="preparaScriptsCampos();">
+                                                        <span class="glyphicon btn-glyphicon glyphicon-plus img-circle text-info"
+                                                                style="padding:5px; background:#ffffff;"></span>
+                                                        #{msg['adicionarGrupo.label']}
+                                                    </p:commandLink>
+                                                </h:panelGroup>
+                                            </h4>
+                                            <div class="row-g row-grupo-#{grupoVO.grupoSuperior.id}" style="margin-left: 0;">
+                                                <!-- campos do grupo superior-->
+                                                <c:forEach var="vo" items="#{processoEditBean.getCampos(grupoVO.grupoSuperior)}">
+                                                    <div class="row campos-grupo-#{grupoVO.grupoSuperior.id}" style="margin-bottom: 0;">
+                                                        <h:panelGroup rendered="#{vo.colunaUnica}">
+                                                            <div class="col-sm-12 noMarginBottom" style="padding-left: 30px;">
+                                                                <gd:campo campo="#{vo.campo1}" edit="#{editCampos and vo.campo1.editavel}"/>
+                                                            </div>
+                                                        </h:panelGroup>
+                                                        <h:panelGroup rendered="#{not vo.colunaUnica}">
+                                                            <div id="#{vo.campo1.id}" class="col-sm-6 noMarginBottom" style="padding-left: 30px;">
+                                                                <gd:campo campo="#{vo.campo1}" edit="#{editCampos and vo.campo1.editavel}"/>
+                                                            </div>
+                                                            <h:panelGroup rendered="#{not empty vo.campo2}">
+                                                                <div id="campo-id-#{vo.campo2.id}" class="col-sm-6 noMarginBottom" style="padding-left: 0;">
+                                                                    <gd:campo campo="#{vo.campo2}" edit="#{editCampos and vo.campo2.editavel}"/>
+                                                                </div>
+                                                            </h:panelGroup>
+                                                        </h:panelGroup>
+                                                    </div>
+                                                </c:forEach>
+                                                <!-- campos dos subgrupos -->
+                                                <c:forEach var="grupo" items="#{grupoVO.gruposFilhos}">
+                                                    <div class="row campos-grupo-#{grupoVO.grupoSuperior.id}">
+                                                        <h4 style="padding-bottom: 5px; padding-left: 30px; font-weight: 700;">#{grupo.nome}
+                                                            <h:panelGroup rendered="#{processoEditBean.editando and processoEditBean.autorizacao.podeRemoverGrupo(grupo)}">
+                                                                <p:commandLink style="padding: 0px 8px 0px 6px !important; border-radius:50px !important;margin-left: -5px;height: 33px; text-decoration: none;"
+                                                                        actionListener="#{processoEditBean.setGrupoExcluir(grupo)}"
+                                                                        title="#{msg['removerGrupo.label']}"
+                                                                        process="@this"
+																		update="proxima-confirmacao-panel-id">
+                                                                    <span class="glyphicon btn-glyphicon glyphicon-trash text-danger" style="padding:2px;"></span>
+                                                                </p:commandLink>
+                                                            </h:panelGroup>
+															<h:panelGroup id="proxima-confirmacao-panel-id">
+																<h:panelGroup rendered="#{not empty temImagensRelacionadas and temImagensRelacionadas}">
+																	<script type="text/javascript">
+                                                                        openModal('exclusaoDocumentosComImagens-modal');
+																	</script>
+																</h:panelGroup>
+																<h:panelGroup rendered="#{not empty temImagensRelacionadas and not temImagensRelacionadas}">
+																	<script type="text/javascript">
+                                                                        openModal('excluirGrupo-modal');
+																	</script>
+																</h:panelGroup>
+															</h:panelGroup>
+                                                        </h4>
+                                                    </div>
+                                                    <c:forEach var="vo" items="#{processoEditBean.getCampos(grupo)}">
+                                                        <div class="row campos-grupo-#{grupoVO.grupoSuperior.id}" style="margin-bottom: 0;">
+                                                            <h:panelGroup rendered="#{vo.colunaUnica}">
+                                                                <div class="col-sm-12 noMarginBottom" style="padding-left: 30px;">
+                                                                    <gd:campo campo="#{vo.campo1}" edit="#{editCampos and vo.campo1.editavel}"/>
+                                                                </div>
+                                                            </h:panelGroup>
+                                                            <h:panelGroup rendered="#{not vo.colunaUnica}">
+                                                                <div id="#{vo.campo1.id}" class="col-sm-6 noMarginBottom" style="padding-left: 30px;">
+                                                                    <gd:campo campo="#{vo.campo1}" edit="#{editCampos and vo.campo1.editavel}"/>
+                                                                </div>
+                                                                <h:panelGroup rendered="#{not empty vo.campo2}">
+                                                                    <div id="campo-id-#{vo.campo2.id}" class="col-sm-6 noMarginBottom" style="padding-left: 0;">
+                                                                        <gd:campo campo="#{vo.campo2}" edit="#{editCampos and vo.campo2.editavel}"/>
+                                                                    </div>
+                                                                </h:panelGroup>
+                                                            </h:panelGroup>
+                                                        </div>
+                                                    </c:forEach>
+                                                </c:forEach>
+                                            </div>
+                                        </c:forEach>
+                                        <getdoc:camposScript/>
+                                        <script type="text/javascript">
+                                            jQuery(function($) {
+                                                configurarMascaras();
+                                                configurarDatePicker();
+                                                configurarCopiar();
+												adicionarFiltro();
+                                            });
+                                        </script>
+                                    </h:panelGroup>
+									<h:panelGroup rendered="#{!processoEditBean.editando}">
+										<h4 class="tituloForm">
+											<span onclick="mostrarMenosGrupo('Outros')" style="#{grupoListStatus.index != 0 ? 'display: none;' : ''} cursor: pointer;" class="hide-grupo-Outros">
+												<i style="padding-right: 10px;" class="fa fa-minus-square-o" aria-hidden="true"></i>
+												<h:outputText value="#{msg['outrosDadosProcesso.label']}"/>
+											</span>
+											<p:commandLink actionListener="#{processoEditBean.carregarOutrosDadosProcesso()}" update="form-processo:outros-dados-processo-id"
+													style="color: #cc092f; font-size: 14px !important;" oncomplete="mostrarMaisGrupo('Outros')">
+												<span style="#{grupoListStatus.index == 0 ? 'display: none;' : ''} cursor: pointer;" class="show-grupo-Outros">
+													<i style="padding-right: 10px;" class="fa fa-plus-square-o" aria-hidden="true"></i>
+													<h:outputText value="#{msg['outrosDadosProcesso.label']}"/>
+												</span>
+											</p:commandLink>
+										</h4>
+										<div jsf:id="outros-dados-processo-id" class="row-g row-grupo-Outros" style="margin-left: 0;">
+											<div class="row campos-grupo-Outros" style="margin-bottom: 0;">
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['dataCriacao.label']}:" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{utilBean.getDateTimeStr(processoEditBean.relatorioGeral.dataCriacao)}"/>
+													</div>
+												</div>
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['dataEnvioAnalise.label']}:" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{utilBean.getDateTimeStr(processoEditBean.relatorioGeral.dataEnvioAnalise)}"/>
+													</div>
+												</div>
+											</div>
+											<div class="row campos-grupo-Outros" style="margin-bottom: 0;">
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['dataEmAnalise.label']}:" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{utilBean.getDateTimeStr(processoEditBean.relatorioGeral.dataEmAnalise)}"/>
+													</div>
+												</div>
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['horasPrazo.label']}:" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{processoEditBean.relatorioGeral.horasPrazoAnalise}"/>
+													</div>
+												</div>
+											</div>
+											<div class="row campos-grupo-Outros" style="margin-bottom: 0;">
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['prazoAnalise.label']}:" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{utilBean.getDateTimeStr(processoEditBean.relatorioGeral.prazoLimiteAnalise)}"/>
+													</div>
+												</div>
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['dataFimAnalise.label']}:" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{utilBean.getDateTimeStr(processoEditBean.relatorioGeral.dataFinalizacaoAnalise)}"/>
+													</div>
+												</div>
+											</div>
+											<div class="row campos-grupo-Outros" style="margin-bottom: 0;">
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['dataAcompanhamento.label']}:" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{utilBean.getDateTimeStr(processoEditBean.relatorioGeral.dataEmAcompanhamento)}"/>
+													</div>
+												</div>
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['prazoAcompanhamento.label']}" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{utilBean.getDateTimeStr(processoEditBean.relatorioGeral.prazoLimiteEmAcompanhamento)}"/>
+													</div>
+												</div>
+											</div>
+											<div class="row campos-grupo-Outros" style="margin-bottom: 0;">
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['dataFimEmAcompanhamento.label']}:" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{utilBean.getDateTimeStr(processoEditBean.relatorioGeral.dataFinalizacaoEmAcompanhamento)}"/>
+													</div>
+												</div>
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['dataUltimaTratativa.label']}:" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{utilBean.getDateTimeStr(processoEditBean.relatorioGeral.dataUltimaTratativa)}"/>
+													</div>
+												</div>
+											</div>
+											<div class="row campos-grupo-Outros" style="margin-bottom: 0;">
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['dataFinalizacao.label']}:" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{utilBean.getDateTimeStr(processoEditBean.relatorioGeral.dataFinalizacao)}"/>
+													</div>
+												</div>
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['tempoRascunho.label']}:" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{processoEditBean.relatorioGeral.tempoRascunho}"/>
+													</div>
+												</div>
+											</div>
+											<div class="row campos-grupo-Outros" style="margin-bottom: 0;">
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['tempoAguardandoAnalise.label']}:" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{processoEditBean.relatorioGeral.tempoAguardandoAnalise}"/>
+													</div>
+												</div>
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['vezesAguardandoAnalise.label']}:" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{processoEditBean.relatorioGeral.vezesAguardandoAnalise}"/>
+													</div>
+												</div>
+											</div>
+											<div class="row campos-grupo-Outros" style="margin-bottom: 0;">
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['tempoPendente.label']}:" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{processoEditBean.relatorioGeral.tempoPendente}"/>
+													</div>
+												</div>
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['vezesPendente.label']}:" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{processoEditBean.relatorioGeral.vezesPendente}"/>
+													</div>
+												</div>
+											</div>
+											<div class="row campos-grupo-Outros" style="margin-bottom: 0;">
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['tempoEmAcompanhamento.label']}:" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{processoEditBean.relatorioGeral.tempoEmAcompanhamento}"/>
+													</div>
+												</div>
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['vezesEmAcompanhamento.label']}:" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{processoEditBean.relatorioGeral.vezesEmAcompanhamento}"/>
+													</div>
+												</div>
+											</div>
+											<div class="row campos-grupo-Outros" style="margin-bottom: 0;">
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['tempoEmAnalise.label']}:" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{processoEditBean.relatorioGeral.tempoEmAnalise}"/>
+													</div>
+												</div>
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['vezesEmAnalise.label']}:" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{processoEditBean.relatorioGeral.vezesEmAnalise}"/>
+													</div>
+												</div>
+											</div>
+											<div class="row campos-grupo-Outros" style="margin-bottom: 0;">
+												<div class="col-sm-6" style="margin-bottom: 0; padding-left: 30px;">
+													<div style="width: 170px; float: left;">
+														<h:outputLabel value="#{msg['tempoAteFinAn.label']}:" styleClass="bf-no-message"/>
+													</div>
+													<div style="float: left; margin-bottom: 5px;">
+														<h:outputText value="#{processoEditBean.relatorioGeral.tempoAteFinalizacaoAnalise}"/>
+													</div>
+												</div>
+
+											</div>
+										</div>
+									</h:panelGroup>
+								</h:panelGroup>
+							</div>
+							<b:row style="margin-left: 0;" rendered="#{processoEditBean.editando}">
+								<div class="col-sm-12">
+									<div style="float: right;">
+										<a id="cancelar-edicao-campos-id" style="margin-right: 5px;" class="btn btn-default btn btn-default btn-cancelar"
+												href="#{request.contextPath}#{processoEditBean.rootPath}edit/#{processoEditBean.processo.id}">#{msg['cancelar.label']}</a>
+										<p:commandButton value="#{msg['salvar.label']}" actionListener="#{processoEditBean.salvar()}" update="content-pg-id" styleClass="btn">
+										</p:commandButton>&nbsp;
+									</div>
+								</div>
+							</b:row>
+							<h:panelGroup rendered="#{!processoEditBean.editando}">
+								<ui:repeat var="resultadoConsulta" value="#{processoEditBean.resultadosConsultas}">
+									<h:panelGroup rendered="#{not empty resultadoConsulta}">
+										<h4 class="tituloForm" style="margin-top: 0;">
+											<span onclick="mostrarMenosGrupo('rc#{resultadoConsulta.subRegraId}')" style="#{grupoListStatus.index != 0 ? 'display: none;' : ''} cursor: pointer;" class="hide-grupo-rc#{resultadoConsulta.subRegraId}">
+												<i style="padding-right: 10px;" class="fa fa-minus-square-o" aria-hidden="true"></i>
+												<h:outputText value="Consulta: '#{msg['TipoConsultaExterna.'.concat(resultadoConsulta.tipoConsultaExterna).concat('.label')]}' Regra: '#{resultadoConsulta.nomeRegra}' Sub-Regra: '##{resultadoConsulta.subRegraId}'"/>
+											</span>
+											<span onclick="mostrarMaisGrupo('rc#{resultadoConsulta.subRegraId}')" style="#{grupoListStatus.index == 0 ? 'display: none;' : ''} cursor: pointer;" class="show-grupo-rc#{resultadoConsulta.subRegraId}">
+												<i style="padding-right: 10px;" class="fa fa-plus-square-o" aria-hidden="true"></i>
+												<h:outputText value="Consulta: '#{msg['TipoConsultaExterna.'.concat(resultadoConsulta.tipoConsultaExterna).concat('.label')]}' Regra: '#{resultadoConsulta.nomeRegra}' Sub-Regra: '##{resultadoConsulta.subRegraId}'"/>
+											</span>
+										</h4>
+									</h:panelGroup>
+									<div class="row-g row-grupo-rc#{resultadoConsulta.subRegraId}">
+										<h:panelGroup rendered="#{resultadoConsulta.tipoConsultaExterna.name() eq 'CRIVO'}">
+											<getdoc:consultaCrivo resultadoConsulta="#{resultadoConsulta}" />
+										</h:panelGroup>
+										<h:panelGroup rendered="#{resultadoConsulta.tipoConsultaExterna.name() eq 'SANTANDER_PROPOSTA_DETALHADA'}">
+											<getdoc:consultaSantanderPropostaDetalhada resultadoConsulta="#{resultadoConsulta}" />
+										</h:panelGroup>
+									</div>
+								</ui:repeat>
+							</h:panelGroup>
+						</div>
+					</div>
+				</section>
+				<script type="text/javascript">
+					//remove o bloqueio de tela do modal ao atualizar content-pg-id
+					if(!$('.modal').is(':visible')) {
+						$('.modal-backdrop').remove();
+					}
+				</script>
+			</h:form>
+			<h:form id="form-checklists-pendentes">
+				<section class="container" jsf:rendered="#{not empty processoEditBean.pendenciasCkeckList}">
+					<div class="row" style="margin-top: -15px;">
+						<div class="col-sm-12">
+							<h4 class="tituloForm" style="margin-bottom: 5px;">
+								Pendências do Checklist
+							</h4>
+							<div style="color: #cc092f; margin-bottom: 10px;">
+								<p:repeat var="ajuda" value="#{processoEditBean.pendenciasCkeckList}" varStatus="status">
+									<div style="margin-left: 20px; #{ajuda.pendencia ? 'color:red' : ''}" jsf:rendered="#{ajuda.resposta eq 'NAO'}">
+										<i class="fa fa-circle" style="font-size: 8px;"></i>
+										#{ajuda.texto}
+										<h:panelGroup rendered="#{not empty ajuda.tipoDocumento}">
+											(#{ajuda.tipoDocumento.nome})
+										</h:panelGroup>
+									</div>
+								</p:repeat>
+							</div>
+						</div>
+					</div>
+				</section>
+			</h:form>
+			<h:form id="form-solicitacoes-pendentes">
+				<h:panelGroup rendered="#{not empty processoEditBean.solicitacoesPendentes}">
+					<section class="container">
+						<div class="row" style="margin-top: 20px;">
+							<div class="col-sm-12">
+								<ui:repeat value="#{processoEditBean.solicitacoesPendentes}" var="vo1">
+									<getdoc:solicitacao vo="#{vo1}" bean="#{processoEditBean}" mostrarTudo="true"/>
+								</ui:repeat>
+							</div>
+						</div>
+					</section>
+				</h:panelGroup>
+			</h:form>
+			<h:form id="form-processo-pendencia">
+				<h:panelGroup rendered="#{not empty processoEditBean.processoPendencia.documentosPendentes}">
+					<section class="container">
+						<div class="row" style="margin-top: 20px;">
+							<div class="col-sm-12">
+								<div style="margin-bottom: 20px;">
+									<div style="border-bottom: 1px #ccc solid;">
+										<div style="padding: 0 0 10px 0; color: #cc092f;">
+											Descrição da pendência desta requisição. Para solucionar, clique em "Reenviar".
+										</div>
+										<img alt="" title="#{msg['StatusProcesso.PENDENTE.label']}" style="float: left;" width="27px"
+												src="#{request.contextPath}/resources/images/icons/StatusProcesso-PENDENTE.png"/>
+										<div style="padding-left: 50px;">
+											<div style="border: 1px #ccc solid; padding: 10px 20px 0 20px; margin-bottom: 10px;">
+												<div style="color: #5bc0de;">
+													Registrada em #{utilBean.getDateTimeStr(processoEditBean.processoPendencia.pendencia.dataCriacao)}
+												</div>
+												<div style="1px black solid; padding: 10px 20px">
+													<h:outputText value="#{utilBean.stringToHTML(processoEditBean.processoPendencia.logCriacao.observacao)}" escape="false"/>
+												</div>
+												<h:panelGroup rendered="#{not empty processoEditBean.processoPendencia.documentosPendentes}">
+													<div style="color: #5bc0de;">
+														Irregularidades em documentos
+													</div>
+													<div style="padding: 10px 0;">
+														<ui:repeat value="#{processoEditBean.processoPendencia.documentosPendentes}" var="doc">
+															<getdoc:documento documento="#{doc}" bean="#{processoEditBean}"/>
+														</ui:repeat>
+													</div>
+												</h:panelGroup>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</section>
+				</h:panelGroup>
+			</h:form>
+			<h:form id="form-tabs">
+				<section class="container" style="padding-left: 0; padding-right: 30px;">
+					<b:tabView styleClass="tabViewClass" contentClass="tabViewClass"
+							contentStyle="border-right: 1px solid #ddd;border-left: 1px solid #ddd;border-bottom: 1px solid #ddd;padding:10px">
+						<b:tab title="#{msg['documentos.label']}" id="tab-documentosId" styleClass="tab-documentos" rendered="#{processoEditBean.temDocumentos()}" onclick="carregarDocumentos()">
+							<o:commandScript name="carregarDocumentos" action="#{processoEditBean.carregarDocumentos}" render="documentosTab-content"/>
+							<f:facet name="anchor">
+								<h:panelGroup rendered="#{processoEditBean.temAlertarDocumentos()}">
+									<b:iconAwesome name="star" spin="true" />
+								</h:panelGroup>
+							</f:facet>
+							<div class="row">
+								<div class="col-sm-12 noMarginBottom">
+									<h:panelGroup id="botaoDigitalizarTwain-content-bottom">
+										<div style="float: right; vertical-align: bottom;">
+											<p:commandLink title="#{msg['adicionarDocumento.label']}" class="btn btn-default btn-default" onerror="alert('Erro!')"
+														   style="padding: 3px 8px; vertical-align: bottom; margin-right: 5px;"
+														   onsuccess="openModal('adicionarDocumento-modal');"
+														   update="form-adicionarDocumento:adicionarDocumento-modal-content-id"
+														   rendered="#{podeEditar and autorizacao.podeAdicionarDocumento()}">
+												<i class="fa fa-plus" aria-hidden="true"></i>
+											</p:commandLink>
+											<p:commandLink class="btn btn-default"
+														   actionListener="#{processoEditBean.setDigitalizarTwain(true)}" title="#{msg['capturarDocumento.label']}"
+														   onsuccess="openModal('digitalizarTwain-modal');" onerror="alert('Erro!')"
+														   update="form-digitalizarTwain:digitalizarTwain-modal-content-id"
+														   rendered="#{podeEditar and autorizacao.podeDigitalizarDocumentoTwain()}"
+														   disabled="#{!processoEditBean.podeReceberDocumentosSisProuniNoCalendario}">
+												#{msg['capturarDocumentos.label']} &nbsp;
+												<i class="fa fa-camera" aria-hidden="true" style="font-size: 16px;"></i>
+											</p:commandLink>
+											<p:commandLink class="btn btn-default btnDocumento" actionListener="#{processoEditBean.criarDigitalizacao(null)}"
+														   onsuccess="openModal('digitalizar-modal');" onerror="alert('Erro!')" title="#{msg['capturarDocumento.label']}"
+														   update="form-digitalizar:digitalizar-modal-content-id" style="margin-left: 5px;"
+														   rendered="#{podeEditar and processoEditBean.autorizacao.podeCarregarDocumento()}"
+														   disabled="#{!processoEditBean.podeReceberDocumentosSisProuniNoCalendario}">
+												<i class="fa fa-upload" aria-hidden="true" style="font-size: 16px;"></i>
+											</p:commandLink>
+										</div>
+									</h:panelGroup>
+								</div>
+							</div>
+							<h:panelGroup id="documentosTab-content">
+								<h:outputScript rendered="#{processoEditBean.estaTipificando()}">
+									var timer;
+                                    clearInterval(timer);
+									timer = setTimeout(carregarDocumentos, 5000);
+								</h:outputScript>
+								<b:row rendered="#{not empty processoEditBean.documentos}">
+									<div class="col-sm-12">
+										<ul class="list-group">
+											<ui:repeat value="#{processoEditBean.grupoDocumentos}" var="processoId">
+												<c:set var="abertoDocumentos" value="#{processoEditBean.verificaGrupoDocumentos(processoId)}" />
+												<div style="padding-bottom: 5px; margin-bottom: 10px; border-bottom: 1px solid #e5e5e5;">
+														<h:outputText value="#{utilBean.getProcesso(processoId).tipoProcesso.nome}
+														(#{abertoDocumentos} Pendente#{abertoDocumentos > 1 ? 's' : ''}) "/>
+														<a href="#{request.contextPath}/requisicoes/edit/#{processoId}" target="_blank" style="color: #333333;">
+															<i class="fa fa-external-link" aria-hidden="true"></i>
+														</a>
+												</div>
+												<div class="row-g row-grupo-#{processoId}" style="margin-bottom: 10px; margin-left: 10px">
+													<ui:repeat value="#{processoEditBean.getDocumentosProcessoId(processoId)}" var="doc">
+															<getdoc:documento documento="#{doc}" bean="#{processoEditBean}"/>
+													</ui:repeat>
+												</div>
+											</ui:repeat>
+										</ul>
+										<div style="float: right; margin-right: 10px; margin-top: -10px;">
+											<img alt="" title="" src="#{request.contextPath}/resources/images/icons/StatusDocumento-INCLUIDO.png" width="18px"/> #{msg['StatusDocumento.INCLUIDO.label']}
+											<img alt="" title="" src="#{request.contextPath}/resources/images/icons/StatusDocumento-DIGITALIZADO.png" width="18px" style="margin-left: 10px;"/> #{msg['StatusDocumento.DIGITALIZADO.label']}
+											<img alt="" title="" src="#{request.contextPath}/resources/images/icons/StatusDocumento-PENDENTE.png" width="18px" style="margin-left: 10px;"/> #{msg['StatusDocumento.PENDENTE.label']}
+											<img alt="" title="" src="#{request.contextPath}/resources/images/icons/StatusDocumento-APROVADO.png" width="18px" style="margin-left: 10px;"/> #{msg['StatusDocumento.APROVADO.label']}
+											<img alt="" title="" src="#{request.contextPath}/resources/images/icons/StatusDocumento-VENCIDO.png" width="18px" style="margin-left: 10px;"/> #{msg['StatusDocumento.VENCIDO.label']}
+										</div>
+									</div>
+								</b:row>
+							</h:panelGroup>
+							<h:panelGroup rendered="#{not autorizacao.mostrarAbaAcompanhamento() and empty processoEditBean.documentos}">
+								<script type="text/javascript">
+                                    $(function () {
+                                        $('#form-tabs_tab-documentosId_tab').click();
+                                    });
+								</script>
+							</h:panelGroup>
+						</b:tab>
+						<b:tab title="#{msg['acompanhamento.label']}" id="tab-acompanhamentoId" styleClass="tab-log" rendered="#{autorizacao.mostrarAbaAcompanhamento()}">
+							<div class="row">
+								<div class="col-sm-12">
+									<p:commandLink class="btn btn-default" style="float: right; margin-left: 10px;" onerror="alert('Erro!')"
+											actionListener="#{processoEditBean.criarEvidencia()}"
+											onsuccess="openModal('evidencia-modal');"
+											update="form-evidencia:evidencia-modal-content-id"
+											 rendered="#{podeEditar and autorizacao.podeRegistrarEvidencia()}">
+										#{msg['registrarEvidencia.label']}
+										<i class="fa fa-plus" aria-hidden="true" style="font-size: 18px;"></i>
+									</p:commandLink>
+								</div>
+							</div>
+							<h:panelGroup id="tabela-logs" >
+								<p:dataTable var="log" value="#{processoEditBean.logs}" emptyMessage="#{msg['emptyMessage.label']}"
+										rendered="#{not empty processoEditBean.logs}" rowStyleClass="rowTableAcompanhamento">
+									<p:column headerText="#{msg['data.label']}" style="width: 150px; text-align: center;" sortBy="#{log.data}">
+										<h:outputText value="#{utilBean.getDateTimeStr(log.data)}" />
+									</p:column>
+									<p:column headerText="#{msg['usuario.label']}" style="text-align: center; width: 250px;" sortBy="#{log.usuario}">
+										<h:outputText value="#{log.usuario.login}"/> - <h:outputText value="#{log.usuario.nome}"/>
+									</p:column>
+									<p:column headerText="#{msg['acao.label']}" style="text-align: center; width: 300px;">
+										<h:outputText value="#{msg[log.acaoKey]}" />
+										<h:outputText value=" - #{log.documento.nome}" rendered="#{not empty log.documento}"/>
+										<h:outputText value=" - #{log.tipoEvidencia.descricao}" rendered="#{not empty log.tipoEvidencia}"/>
+										<h:outputText value=" - #{log.solicitacao.subarea.area.descricao} / #{log.solicitacao.subarea.descricao}" rendered="#{not empty log.solicitacao}"/>
+									</p:column>
+									<p:column headerText="#{msg['observacao.label']}" style="text-align: center;">
+										<h:panelGroup rendered="#{log.processoLog.acao ne 'ATUALIZACAO_CAMPOS' and log.processoLog.acao ne 'CALCULO_SALARIO_MINIMO'}">
+											#{utilBean.htmlToString(log.observacao)}
+										</h:panelGroup>
+										<h:panelGroup rendered="#{log.processoLog.acao eq 'ATUALIZACAO_CAMPOS'}">
+											<h:outputText value="#{log.observacaoCurtaAtualizacaoCampos}" />
+										</h:panelGroup>
+										<h:panelGroup rendered="#{log.processoLog.acao eq 'CALCULO_SALARIO_MINIMO'}">
+											<h:outputText value="#{log.observacaoCurtaCalcSalarioMinimo}" />
+										</h:panelGroup>
+										<h:panelGroup rendered="#{log.temAnexo}">
+											<p:commandLink class="anexoAcompanhamento" actionListener="#{processoEditBean.setProcessoLog(log.processoLog)}"
+													onsuccess="openModal('anexosProcessoLog-modal');" onerror="alert('Erro!')" style="float: right;"
+													update="form-anexosProcessoLog:anexosProcessoLog-modal-content-id">
+												<i class="fa fa-paperclip" aria-hidden="true"></i>
+											</p:commandLink>
+										</h:panelGroup>
+										<h:panelGroup rendered="#{log.observacao ne log.observacaoFull}">
+											<p:commandLink class="anexoAcompanhamento" actionListener="#{processoEditBean.setLogVO(log)}"
+													onsuccess="openModal('observacaoProcessoLog-modal');" onerror="alert('Erro!')" style="float: right;"
+													update="form-observacaoProcessoLog:observacaoProcessoLog-modal-content-id">
+												<i class="fa fa-ellipsis-h" aria-hidden="true"></i>
+											</p:commandLink>
+										</h:panelGroup>
+									</p:column>
+								</p:dataTable>
+							</h:panelGroup>
+							<h:panelGroup rendered="#{autorizacao.mostrarAbaAcompanhamento() and not processoEditBean.temDocumentos()}">
+								<script type="text/javascript">
+                                    $(function () {
+                                        $('#form-tabs_tab-acompanhamentoId_tab').click();
+                                    });
+								</script>
+							</h:panelGroup>
+						</b:tab>
+						<b:tab id="tabProcessoLogAnexos" title="#{msg['anexos.label']}" onclick="carregarAnexos()" styleClass="tab-anexos"
+								rendered="#{autorizacao.mostrarAbaAnexos()}">
+							<o:commandScript name="carregarAnexos" action="#{processoEditBean.carregarAnexos()}" render="tabela-anexos"/>
+							<div class="row">
+								<div class="col-sm-12">
+									<div style="float: right; vertical-align: bottom;">
+										<p:commandLink class="btn btn-default" style="margin-left: 10px;" onerror="alert('Erro!')"
+												actionListener="#{processoEditBean.criarEvidencia()}"
+												onsuccess="openModal('evidencia-modal');"
+												update="form-evidencia:evidencia-modal-content-id"
+												rendered="#{podeEditar}"
+												 >
+											#{msg['registrarEvidencia.label']}
+											<i class="fa fa-plus" aria-hidden="true" style="font-size: 18px;"></i>
+										</p:commandLink>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-sm-12" style="margin-top: -30px;">
+									<h4 class="tituloForm" style="white-space: nowrap">
+										<h:outputText value="#{msg['filtroForm.label']}"/>
+										<span onclick="mostrarMenos()" style="cursor: pointer;" class="hide-row-filtro">
+											<i style="padding-right: 10px;" class="fa fa-minus-square-o" aria-hidden="true"></i>
+										</span>
+										<span onclick="mostrarMais()" style="cursor: pointer;" class="show-row-filtro">
+											<i style="padding-right: 10px;" class="fa fa-plus-square-o" aria-hidden="true"></i>
+										</span>
+									</h4>
+			   		                 <div class="row row-filtro">
+                       					<div class="col-sm-12">
+											<h:panelGroup id="panelFiltrosAnexos">
+												<div class="row">
+		                        					<div class="col-sm-3">
+														<div class="form-group">
+															<h:outputLabel value="Data Inicial" style="white-space: nowrap !important"/>
+															<b:inputText id="dataInicioId" value="#{processoEditBean.anexoFiltro.dataInicio}" placeholder="dd/mm/aaaa" styleClass="mask-date" label="#{msg['dataInicial.label']}" renderLabel="false">
+																<f:convertDateTime pattern="dd/MM/yyyy"/>
+																<f:facet name="append">
+																	<i class="fa fa-calendar-o fa-12x14" />
+																</f:facet>
+															</b:inputText>
+														</div>
+		                        					</div>
+		                        					<div class="col-sm-3">
+														<div class="form-group">
+															<h:outputLabel value="Data Final"/>
+															<b:inputText id="dataFimId" value="#{processoEditBean.anexoFiltro.dataFim}" placeholder="dd/mm/aaaa" styleClass="mask-date" label="#{msg['dataFinal.label']}" renderLabel="false">
+																<f:convertDateTime pattern="dd/MM/yyyy"/>
+																<f:facet name="append">
+																	<i class="fa fa-calendar-o fa-12x14" />
+																</f:facet>
+															</b:inputText>
+														</div>
+		                        					</div>
+	                       							<div class="col-sm-3">
+	                       								<div class="form-group">
+	                       									<b:inputText value="#{processoEditBean.anexoFiltro.busca}" label="Busca" renderLabel="true" maxlength="80"/>
+	                       								</div>
+													</div>
+													<div class="col-sm-3">
+														<h:outputLabel value="Ação"/>
+														<p:selectCheckboxMenu value="#{processoEditBean.anexoFiltro.acoesSelecionadas}"  collectionType="java.util.ArrayList" multiple="true"
+																style="form-control bf-no-message has-success" label="" converter="enumConverter"
+																filter="false" panelStyle="width:250px" >
+															<f:selectItems value="#{processoEditBean.anexoFiltro.acoesPesquisa}" var="item" itemLabel="#{msg[item.key]}" itemValue="#{item}" />
+														</p:selectCheckboxMenu>
+													</div>
+                      								<div class="col-sm-1" ></div>
+                      							</div>
+                      						</h:panelGroup>
+                      					</div>
+                       				</div>
+									<div class="row row-filtro">
+										<div class="col-sm-12" >
+											<div class="form-group" style="float: right; margin-left: 10px;">
+												<p:commandButton  value="#{msg['buscar.label']}" styleClass="btn btn-primary btn-md"
+														actionListener="#{processoEditBean.carregarAnexos}" ajax="true" update="tabela-anexos"/>
+											</div>
+											<div class="form-group" style="float: right;">
+													<p:commandButton  value="#{msg['limpar.label']}" styleClass="btn btn-primary btn-md"
+															actionListener="#{processoEditBean.limparFiltroCarregarAnexos}" ajax="true"
+															update="panelFiltrosAnexos tabela-anexos"/>
+											</div>
+										</div>
+										<div class="col-sm-1"></div>
+									</div>
+									<script type="text/javascript">
+										$('.hide-row-filtro').hide();
+										$('.show-row-filtro').show();
+										$('.row-filtro').hide();
+
+										function mostrarMenos() {
+											$('.hide-row-filtro').hide();
+											$('.show-row-filtro').show();
+											$('.row-filtro').hide(300);
+										}
+
+										function mostrarMais() {
+											$('.hide-row-filtro').show();
+											$('.show-row-filtro').hide();
+											$('.row-filtro').show(300);
+										}
+									</script>
+								 </div>
+							</div>
+							<h:panelGroup id="tabela-anexos" >
+								<p:dataTable  var="log" value="#{processoEditBean.logsAnexo}" emptyMessage="#{msg['emptyMessage.label']}" rendered="#{not empty processoEditBean.logsAnexo}">
+									<p:column headerText="#{msg['data.label']}" style="width: 120px; text-align: center;" sortBy="#{log.data}">
+										<h:outputText value="#{utilBean.getDateTimeStr(log.data)}" />
+									</p:column>
+									<p:column headerText="#{msg['usuario.label']}" style="text-align: center; width: 250px;" sortBy="#{log.usuario}">
+										<h:outputText value="#{log.usuario.nome}"/>
+									</p:column>
+									<p:column headerText="#{msg['acao.label']}" style="text-align: center; width: 250px;">
+										<h:outputText value="#{msg[log.acaoKey]}" />
+										<h:outputText value=" - #{log.documento.nome}" rendered="#{not empty log.documento}"/>
+										<h:outputText value=" - #{log.solicitacao.subarea.area.descricao} / #{log.solicitacao.subarea.descricao}" rendered="#{not empty log.solicitacao}"/>
+									</p:column>
+									<p:column headerText="Arquivo" style="width: 350px; text-align: center;" sortBy="#{log.data}">
+										<h:commandLink  actionListener="#{processoEditBean.downloadAnexo(log.processoLogAnexo)}"	>
+											<h:outputText value="#{log.processoLogAnexo.nome}" />
+										</h:commandLink>
+									</p:column>
+									<p:column style="text-align: center; width: 150px">
+										<p:commandLink class="anexoAcompanhamento" actionListener="#{processoEditBean.setLogVO(log)}"
+												onsuccess="openModal('anexoProcessoLog-modal');" onerror="alert('Erro!')" style="margin-right: 5px;"
+												update="form-anexoProcessoLog:anexoProcessoLog-modal-content-id">
+											<i class="fa fa-paperclip" aria-hidden="true"></i>
+										</p:commandLink>
+										<h:panelGroup rendered="#{utilBean.isExtensaoImagem(log.processoLogAnexo.extensao)}">
+											<span class="btn btn-default popImg linkAnexo" imgPath="#{utilBean.getPathImagem(log.processoLogAnexo)}" imgSmall="#{log.getTamanhoPequeno()}"
+													imgAltura="#{log.processoLogAnexo.alturaImagem}" imgLargura="#{log.processoLogAnexo.larguraImagem}" style="margin-right: 5px;">
+											<i class="fa fa-image" aria-hidden="true"></i>
+											</span>
+										</h:panelGroup>
+										<script type="text/javascript">
+											$(function() {
+												preparaModalImagem();
+											});
+										</script>
+										<h:commandLink actionListener="#{processoEditBean.downloadAnexo(log.processoLogAnexo)}" >
+											<i class="fa fa-download" aria-hidden="true"></i>
+										</h:commandLink>
+									</p:column>
+								</p:dataTable>
+							</h:panelGroup>
+						</b:tab>
+						<b:tab title="#{msg['solicitacoes.label']}" onclick="carregarSolicitacoes()" rendered="#{autorizacao.mostrarAbaSolicitacoes()}">
+							<o:commandScript name="carregarSolicitacoes" action="#{processoEditBean.carregarSolicitacoes}" render="solicitacoesTab-content"/>
+							<f:facet name="anchor">
+								<h:panelGroup rendered="#{processoEditBean.temAlertarSolicitacoes() > 0}">
+									<b:iconAwesome name="star" spin="true" />
+								</h:panelGroup>
+							</f:facet>
+							<div class="row">
+								<div class="col-sm-12">
+									<p:commandLink class="btn btn-default" style="float: right;" onerror="alert('Erro!')"
+											actionListener="#{processoEditBean.criarSolicitacao()}"
+											onsuccess="openModal('solicitacao-modal'); $('h4', '.solicitacao-modal').html('#{msg['AcaoProcesso.SOLICITACAO_CRIACAO.label']}')"
+											update="form-solicitacao:solicitacao-modal-content-id"
+											rendered="#{podeEditar and autorizacao.podeAdicionarSolicitacao()}">
+										#{msg['novaSolicitacao.label']} &nbsp;
+										<i class="fa fa-plus" aria-hidden="true" style="font-size: 18px;"></i>
+									</p:commandLink>
+								</div>
+							</div>
+							<h:panelGroup id="solicitacoesTab-content">
+								<b:row rendered="#{not empty processoEditBean.solicitacoes}">
+									<div class="col-sm-12">
+										<ui:repeat value="#{processoEditBean.solicitacoes}" var="vo1">
+											<getdoc:solicitacao vo="#{vo1}" bean="#{processoEditBean}"/>
+										</ui:repeat>
+									</div>
+								</b:row>
+								<script type="text/javascript">
+									$(function() {
+										preparaModalImagem();
+									});
+								</script>
+							</h:panelGroup>
+						</b:tab>
+						<b:tab title="#{msg['emails.label']}" onclick="carregarEmails()" rendered="#{autorizacao.mostrarAbaEmails()}">
+							<o:commandScript name="carregarEmails" action="#{processoEditBean.carregarEmails}" render="emailsTab-content"/>
+							<f:facet name="anchor">
+								<h:panelGroup rendered="#{processoEditBean.temAlertarEmails() > 0}">
+									<b:iconAwesome name="star" spin="true" />
+								</h:panelGroup>
+							</f:facet>
+							<div class="row">
+								<div class="col-sm-12">
+									<p:commandLink class="btn btn-default" style="float: right; margin-left: 10px;" onerror="alert('Erro!')"
+											actionListener="#{processoEditBean.criarEmail()}"
+											onsuccess="openModal('email-modal');"
+											update="form-email:email-modal-content-id form-processo"
+											rendered="#{podeEditar and autorizacao.podeEnviarEmail()}">
+										#{msg['enviarEmail.label']}
+										<i class="fa fa-paper-plane" aria-hidden="true"></i>
+									</p:commandLink>
+
+									<p:commandLink class="btn btn-default" style="float: right; margin-left: 10px;" onerror="alert('Erro!')"
+												   actionListener="#{processoEditBean.criarEmail()}"
+												   onsuccess="openModal('convite-modal');"
+												   update="form-email-convite:convite-modal-content-id form-processo"
+												   rendered="#{podeEditar and autorizacao.podeEnviarEmail()}">
+										#{msg['enviarConvite.label']}
+										<i class="fa fa-paper-plane" aria-hidden="true"></i>
+									</p:commandLink>
+								</div>
+							</div>
+							<h:panelGroup id="emailsTab-content">
+								<b:row rendered="#{not empty processoEditBean.emailsVOs}">
+									<div class="col-sm-12">
+										<ui:repeat value="#{processoEditBean.emailsVOs}" var="vo1">
+											<getdoc:email vo="#{vo1}" bean="#{processoEditBean}"/>
+										</ui:repeat>
+									</div>
+								</b:row>
+								<script type="text/javascript">
+									$(function() {
+										preparaModalImagem();
+									});
+								</script>
+							</h:panelGroup>
+						</b:tab>
+					</b:tabView>
+					<script type="text/javascript">
+						if(!$('.tabViewClass').html()) {
+							$('.tabViewClass').hide();
+						}
+					</script>
+				</section>
+				<div style="float: right; height: 48px; margin-right: 50px;">
+					<b:commandButton value="#{msg['excluir.label']}" styleClass="btn btn-default btn-md" onerror="alert('Erro!')" style="margin-left: 5px; vertical-align: bottom;"
+							onclick="if(confirm('Tem certeza que deseja excluir esta requisição?')) { return true; } else { return false; }"
+							actionListener="#{processoEditBean.excluir}" rendered="#{autorizacao.podeExcluir()}"/>
+					<p:commandLink class="btn btn-default" style="margin-left: 5px; vertical-align: bottom;" onerror="alert('Erro!')"
+							actionListener="#{processoEditBean.criarCancelamento()}"
+							onsuccess="openModal('evidencia-modal'); $('h4', '.evidencia-modal').html('#{msg['registrarCancelamento.label']}')"
+							update="form-evidencia:evidencia-modal-content-id"
+							rendered="#{podeEditar and autorizacao.podeCancelar()}">
+						#{msg['cancelar.label']}
+					</p:commandLink>
+					<p:commandLink class="btn btn-default" style="margin-left: 5px; vertical-align: bottom;" onerror="alert('Erro!')"
+							actionListener="#{processoEditBean.criarConclusaoSituacao()}" title="Reabrir"
+							onsuccess="openModal('evidencia-modal'); $('h4', '.evidencia-modal').html('#{msg['reenviarAnalise.label']}')"
+							update="form-evidencia:evidencia-modal-content-id"
+							rendered="#{autorizacao.podeReenviarAnalise()}">
+						Reabrir
+					</p:commandLink>
+					<p:commandLink class="btn btn-default" style="margin-left: 5px; vertical-align: bottom;" onerror="alert('Erro!')"
+							actionListener="#{processoEditBean.criarEmAcompanhamento()}"
+							onsuccess="openModal('evidencia-modal'); $('h4', '.evidencia-modal').html('#{msg['registrarEmAcompanhamento.label']}')"
+							update="form-evidencia:evidencia-modal-content-id"
+							rendered="#{podeEditar and autorizacao.podeEmAcompanhamento() and not pausaBean.estaEmPausa()}">
+						#{msg['emAcompanhamento.label']}
+					</p:commandLink>
+					<p:commandLink class="btn btn-primary btn-lg" style="margin-left: 5px; vertical-align: bottom;" onerror="alert('Erro!')"
+								   actionListener="#{processoEditBean.carregarSituacoesIsencao(false)}"
+								   onsuccess="openModal('isencao-disciplinas-modal'); $('h4', '.isencao-disciplinas-modal').html('#{msg['registrarIsencaoDisciplinas.label']}')"
+								   update="form-isencao-disciplinas:isencao-disciplinas-modal-content-id"
+								   rendered="#{autorizacao.podeEnviarIsencao()}">
+						#{msg['isencaoDisciplinas.label']}
+					</p:commandLink>
+					<p:commandLink class="btn btn-primary btn-lg" style="margin-left: 5px; vertical-align: bottom;" onerror="alert('Erro!')"
+								   actionListener="#{processoEditBean.carregarSituacoesIsencao(true)}"
+								   onsuccess="openModal('isencao-disciplinas-modal'); $('h4', '.isencao-disciplinas-modal').html('#{msg['registrarRevisaoIsencaoDisciplinas.label']}')"
+								   update="form-isencao-disciplinas:isencao-disciplinas-modal-content-id"
+								   rendered="#{autorizacao.podeEnviarRevisao()}">
+						#{msg['revisaoIsencaoDisciplinas.label']}
+					</p:commandLink>
+					<p:commandLink class="btn btn-primary btn-lg" style="margin-left: 5px; float: right;" onerror="alert('Erro!')"
+							actionListener="#{processoEditBean.criarConclusaoSituacao()}"
+							onsuccess="openModal('evidencia-modal'); $('h4', '.evidencia-modal').html('#{msg['conclusaoSituacao.label']}')"
+							update="form-evidencia:evidencia-modal-content-id"
+							rendered="#{podeEditar and autorizacao.podeConcluirSituacao() and not pausaBean.estaEmPausa() and !autorizacao.isIsencao(processo)}">
+						#{msg['concluirSituacao.label']}
+					</p:commandLink>
+					<p:commandLink class="btn btn-primary btn-lg" style="margin-left: 5px; float: right;" onerror="alert('Erro!')"
+								   actionListener="#{processoEditBean.criarConclusaoSituacao()}"
+								   onsuccess="openModal('evidencia-modal'); $('h4', '.evidencia-modal').html('#{msg['conclusaoSituacao.label']}')"
+								   update="form-evidencia:evidencia-modal-content-id"
+								   rendered="#{podeEditar and autorizacao.podeConcluirSituacao() and not pausaBean.estaEmPausa() and autorizacao.isIsencao(processo) and processoEditBean.existMateriaIsenta}">
+						#{msg['concluirSituacao.label']}
+					</p:commandLink>
+					<h:panelGroup rendered="#{autorizacao.podeEnviarProcesso()}">
+						<h:panelGroup rendered="#{not empty processoEditBean.itemPendente}" style="margin-left: 5px; float: right;" layout="block">
+							<getdoc:itemPendenteButton id="enviarParaAnalise-btn-id" label="#{msg['enviar.label']}" itemPendente="#{processoEditBean.itemPendente}"/>
+						</h:panelGroup>
+						<h:panelGroup rendered="#{podeEditar and empty processoEditBean.itemPendente}">
+							<p:commandLink class="btn btn-default btn-lg" onerror="alert('Erro!')" onclick="openModal('enviarParaAnalise-modal');"
+									style="margin-left: 5px;">
+								#{msg['enviarParaAnalise.label']}
+							</p:commandLink>
+						</h:panelGroup>
+					</h:panelGroup>
+					<h:panelGroup rendered="#{autorizacao.podeResponderPendencia()}">
+						<h:panelGroup rendered="#{not empty processoEditBean.itemPendente}" style="margin-left: 5px; float: right;" layout="block">
+							<getdoc:itemPendenteButton id="reenviarParaAnalise-btn-id" label="#{msg['reenviar.label']}" itemPendente="#{processoEditBean.itemPendente}"/>
+						</h:panelGroup>
+						<h:panelGroup rendered="#{empty processoEditBean.itemPendente}">
+							<p:commandLink class="btn btn-default btn-lg" onerror="alert('Erro!')"
+									actionListener="#{processoEditBean.criarRespostaPendencia()}" style="margin-left: 5px;"
+									onsuccess="openModal('evidencia-modal'); $('h4', '.evidencia-modal').html('#{msg['AcaoProcesso.RESPOSTA_PENDENCIA.label']}')"
+									update="form-evidencia:evidencia-modal-content-id">
+								#{msg['reenviar.label']}
+							</p:commandLink>
+						</h:panelGroup>
+					</h:panelGroup>
+				</div>
+			</h:form>
+			<script type="text/javascript">
+			//<![CDATA[
+
+				function mostrarMenosSolicitacao(id) {
+					$('.observacao_' + id).hide(300);
+					$('.observacaoMin_' + id).show(300);
+				}
+
+				function mostrarMaisSolicitacao(id) {
+					$('.observacao_' + id).show(300);
+					$('.observacaoMin_' + id).hide(300);
+				}
+
+				function mostrarMenosEmailEnviado(id) {
+					$('.textoEmailEnviado_longo_' + id).hide(300);
+					$('.textoEmailEnviado_curto_' + id).show(300);
+				}
+
+				function mostrarMaisEmailEnviado(id) {
+					$('.textoEmailEnviado_longo_' + id).show(300);
+					$('.textoEmailEnviado_curto_' + id).hide(300);
+				}
+
+
+				function preparaModalImagem() {
+					$('.popImg').on('click', function() {
+						var imgSmall =$(this).attr('imgSmall');
+
+						var imgLargura =parseInt($(this).attr('imgLargura'));
+						var imgAltura =parseInt($(this).attr('imgAltura'));
+
+						$('.imagepreview').attr('src', $(this).attr('imgPath'));
+
+						if (imgSmall =="true"){
+							$('.imagepreview').attr('style','width:' +imgLargura);
+							$('.imagepreview').attr('style','height:' +imgAltura);
+
+							$('#imagemodal .modal-content').css({'height': imgAltura+50, 'width': imgLargura+50, 'text-align': 'center'});
+							$('#imagemodal .modal-body').css({'height': imgAltura+50, 'width': imgLargura+50, 'text-align': 'center'});
+							$('#imagemodal').modal('show').css({'height': imgAltura+200, 'width': imgLargura+200, 'text-align': 'center','margin': '30px auto'});
+						}
+						else{
+							$('.imagepreview').attr('style','width: 100%; height: 100%' );
+							$('#imagemodal .modal-content').css({'height': '100%', 'width': '800', 'text-align': 'center'});
+							$('#imagemodal .modal-body').css({'height': '100%', 'width': '800', 'text-align': 'center'});
+							$('#imagemodal').modal('show').css({'height': '100%', 'width': '800', 'text-align': 'center','margin': '30px auto'});;
+						}
+					});
+				}
+
+				$(function() {
+					preparaModalImagem();
+
+					$(".digitalizarTwain-modal").on("hide.bs.modal", function () {
+						document.exitFullscreen();
+					});
+				});
+			//]]>
+			</script>
+			<h:panelGroup rendered="#{processoEditBean.isMostrarAlertaRaschunho()}">
+			<script>
+				jQuery(document).ready(function() {
+					setTimeout("openModal('form-lembrete');", 100);
+				});
+			</script>
+			</h:panelGroup>
+			<h:panelGroup rendered="#{not empty param['documentoId']}">
+				<script>
+                    jQuery(document).ready(function() {
+                        setTimeout("openModal('visualizar-modal');", 100);
+                    });
+				</script>
+			</h:panelGroup>
+		</ui:define>
+	</ui:composition>
+</html>
+

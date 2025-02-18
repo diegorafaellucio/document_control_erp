@@ -1,0 +1,240 @@
+
+.reconhecimentoFacial-modal .modal-dialog {
+	width: 900px;
+	height: 600px;
+	font-size: 14px;
+}
+
+.reconhecimentoFacial-modal .modal-dialog .modal-content {
+	height: 100%;
+}
+
+.reconhecimentoFacial-modal .modal-dialog .modal-body {
+    height: 100%;
+}
+
+.reconhecimentoFacial-modal .modal-header {
+    background-color: #eaeaea;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    height: 40px;
+}
+
+.reconhecimentoFacial-modal {
+	padding-left: 0 !important;
+}
+
+.reconhecimentoFacial-modal * {
+	vertical-align:baseline;
+}
+
+.reconhecimentoFacial-modal a{
+    text-decoration: none;
+}
+
+.reconhecimentoFacial-modal .modal-header h4 {
+    color: #cc092f;
+    margin-top: -5px;
+}
+
+.reconhecimentoFacial-modal .modal-header .close {
+    color: #cc092f;
+    margin-top: -10px;
+    opacity: .6;
+    font-weight: normal;
+}
+
+.reconhecimentoFacial-modal #div-documentos {
+	width: 310px;
+	background-color: #fff;
+	overflow: hidden;
+	position: absolute;
+	bottom: 20px;
+	width: 320px;
+}
+
+.reconhecimentoFacial-modal .selecionarTodosBtn {
+	width: 28px;
+	height: 26px;
+	cursor: pointer;
+}
+
+.reconhecimentoFacial-modal .compararProcessosBtn {
+	width: 25px;
+	height: 20px;
+	cursor: pointer;
+}
+
+.reconhecimentoFacial-modal .compararProcessosBtn.active {
+	border-style: solid;
+	border-radius: 4px;
+	border-color: #033972;
+	border-width: 3px;
+	margin-top: -4px;
+}
+
+.reconhecimentoFacial-modal {
+    font-size: 12px;
+}
+	
+.reconhecimentoFacial-modal #processo{
+    color: #3c4749;
+    line-height:200%;
+    overflow: auto;
+    #width: 310px;
+}
+
+.reconhecimentoFacial-modal #processo .valor-esq{
+    padding: 0 0 0 8px;
+}
+
+.reconhecimentoFacial-modal .docs td{
+    vertical-align: middle;
+    height: 23px;
+    font-size: 10px;
+}
+
+.reconhecimentoFacial-modal .div-principal {
+    height: 100%;
+    position: relative;
+    padding-bottom: 20px;
+}
+
+.reconhecimentoFacial-modal .info-docs{
+    padding: 2px 0 2px 17px;
+    margin-bottom: 5px;
+}
+
+.reconhecimentoFacial-modal .ico-docs{
+    padding: 0 0 0 5px;
+    width: 50px;
+}
+
+.reconhecimentoFacial-modal .coluna-esq{
+    float: left;
+    height: 100%;
+}
+
+.reconhecimentoFacial-modal .nomeDocumento{
+    width: 380px;
+    overflow: hidden;
+}
+
+.reconhecimentoFacial-modal .coluna-dir{
+    float: left;
+    height: 100%;
+    padding-left: 0;
+    padding-right: 10px;
+    padding-bottom: 10px;
+}
+
+.reconhecimentoFacial-modal .box-aprovar{
+    margin-bottom: 25px;
+}
+
+.reconhecimentoFacial-modal .btn-close-direita{
+    position: absolute;
+	left: 305px;
+	top: 4px;
+	cursor: pointer;
+	z-index: 1;
+	font-size: 16px;
+}
+
+.reconhecimentoFacial-modal .doc-ativo img {
+	padding-right: 0;
+}
+
+.reconhecimentoFacial-modal #section-img1 {
+    margin-left: 10px;
+}
+
+.reconhecimentoFacial-modal .section {
+    height: 100%;
+    border: 1px solid #ccc;
+    text-align: center;
+    margin-bottom: -10px;
+    background-color: #000;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.container {
+	margin: 0 auto;
+}
+
+#rejeicao-titulo-doc {
+	padding-left: 30px;
+}
+
+.panzoom {
+	-webkit-backface-visibility: initial !important;
+	-webkit-transform-origin: 50% 50%;
+}
+
+.reconhecimentoFacial-modal .doc-selecionado {
+	box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+	margin: 1px 1px 1px 0px;
+	border: 1px solid rgba(81, 203, 238, 1);
+}
+
+.reconhecimentoFacial-modal .icone-status {
+	width: 22px;
+	margin-top: -3px;
+}
+
+.reconhecimentoFacial-modal .btn-comparacoes {
+	width: 35px;
+	padding: 4px 0px;
+}
+
+.alert {
+	z-index: 9999 !important;
+	bottom: 40px !important;
+	right: 45px !important;
+}
+
+.reconhecimentoFacial-modal .copiar-imagem-modal .modal-dialog {
+    width: 600px;
+    height: auto;
+    position: relative;
+    margin: 100px auto;
+}
+
+.reconhecimentoFacial-modal .rejeitar-modal .modal-dialog {
+    width: 600px;
+    height: auto;
+    position: relative;
+    margin: 100px auto;
+}
+
+.reconhecimentoFacial-modal .aprovar-modal .modal-dialog {
+    width: 600px;
+    height: auto;
+    position: relative;
+    margin: 100px auto;
+}
+
+.reconhecimentoFacial-modal .ocr-modal .modal-dialog {
+    width: 1100px;
+    height: auto;
+    position: relative;
+    margin: 100px auto;
+    font-size: 16px;
+}
+
+.reconhecimentoFacial-modal .text-modal .modal-dialog {
+    width: 1100px;
+    height: auto;
+    position: relative;
+    margin: 100px auto;
+    font-size: 16px;
+}
+
+.justificar-modal .modal-dialog {
+    width: 600px;
+    height: auto;
+    position: relative;
+    margin: 100px auto;
+}
+

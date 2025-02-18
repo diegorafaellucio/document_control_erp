@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+  	xmlns:jsf="http://xmlns.jcp.org/jsf"
+  	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc"
+	xmlns:b="http://bootsfaces.net/ui">
+	<f:metadata>
+		<f:viewAction action="#{configuracaoLoginAzureBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['configuracaoLoginAzure.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<c:set var="bean" value="#{configuracaoLoginAzureBean}" />
+			<getdoc:excluirModal id="excluirModal" metodoExcluir="#{bean.excluir()}"/>
+			<h:form id="form-configuracao">
+				<b:modal id="adicionar-modal-id" title="#{msg['adicionarConfiguracaoFilaLoginAzure.label']}" styleClass="adicionar-modal" rendered="#{menuBean.podeEditar()}">
+					<b:row id="adicionar-modal-content-id">
+						<div class="col-sm-12">
+							<b:messages globalOnly="true" showSummary="true"/>
+							<div class="row" jsf:rendered="#{not empty bean.configuracaoLoginAzure}">
+								<div class="col-md-12">
+									<div class="form-group">
+										<b:inputText value="#{bean.configuracaoLoginAzure.grupo}" label="#{msg['grupoAd.label']}" renderLabel="true"
+													 required="true">
+										</b:inputText>
+										<b:message/>
+									</div>
+									<div class="form-group">
+										<b:selectOneMenu value="#{bean.configuracaoLoginAzure.role}" label="#{msg['roleGD.label']}" required="true" >
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{utilBean.getValues('RoleGD')}" var="role" itemValue="#{role}" itemLabel="#{msg['RoleGD.'.concat(role).concat('.label')]}"/>
+										</b:selectOneMenu>
+										<b:message/>
+									</div>
+									<div class="form-group">
+										<b:selectOneMenu value="#{bean.configuracaoLoginAzure.subperfil}" label="#{msg['subperfil.label']}">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{bean.subperfilList}" var="s" itemValue="#{s}" itemLabel="#{s.descricao}"/>
+										</b:selectOneMenu>
+										<b:message/>
+									</div>
+								</div>
+							</div>
+						</div>
+						<script type="text/javascript">
+							jQuery(function($) {
+								configurarMascaras();
+								configurarDatePicker();
+							});
+						</script>
+					</b:row>
+
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['salvar.label']}" actionListener="#{bean.salvar()}" update="adicionar-modal-content-id form-configuracao-list" styleClass="btn"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-configuracao-list">
+				<div class="row default-form">
+					<div class="col-sm-12">
+						<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+						<div class="row">
+							<div class="col-sm-10 col-sm-offset-1" >
+								<div class="col-sm-6" style="padding-left: 0;">
+									<div class="form-group">
+										<b:inputText value="#{bean.filtro.grupo}" label="#{msg['grupoAd.label']}" maxlength="100"/>
+									</div>
+								</div>
+								<div class="col-sm-3" style="padding-left: 0;">
+									<div class="form-group">
+										<b:selectOneMenu value="#{bean.filtro.roleGD}" label="#{msg['roleGD.label']}">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{utilBean.getValues('RoleGD')}" var="role" itemValue="#{role}" itemLabel="#{msg['RoleGD.'.concat(role).concat('.label')]}"/>
+										</b:selectOneMenu>
+									</div>
+								</div>
+								<div class="col-sm-3" style="padding-left: 0;">
+									<div class="form-group">
+										<b:selectOneMenu value="#{bean.filtro.subperfil}" label="#{msg['subperfil.label']}">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{bean.subperfilList}" var="s" itemValue="#{s}" itemLabel="#{s.descricao}"/>
+										</b:selectOneMenu>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-10 col-sm-offset-1" >
+								<div style="float: right;">
+									<b:commandButton value="#{msg['buscar.label']}" styleClass="btn btn-primary btn-md" ajax="true" update="table-id"/>
+								</div>
+							</div>
+					 	</div>
+					 </div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12">
+						<p:commandLink value="Adicionar" onclick="openModal('adicionar-modal')" class="btn btn-primary btn-lg" style="float: right;" update="form-configuracao:adicionar-modal-content-id" rendered="#{menuBean.podeEditar()}">
+							<f:setPropertyActionListener target="#{bean.configuracaoLoginAzure}" value="#{null}" />
+						</p:commandLink>
+					</div>
+					<div class="col-sm-12">
+						<p:dataTable id="table-id" var="conf" value="#{bean.dataModel}" rows="100" paginator="true" lazy="true"
+								paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+								currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+								paginatorPosition="bottom" >
+
+							<p:column headerText="#{msg['grupoAd.label']}" sortBy="#{conf.grupo}" style="text-align: center;">
+								<h:outputText value="#{conf.grupo}"/>
+							</p:column>
+							<p:column headerText="#{msg['roleGD.label']}" style="text-align: center;">
+								<h:outputText value="#{msg['RoleGD.'.concat(conf.role).concat('.label')]}"/>
+							</p:column>
+							<p:column headerText="#{msg['subperfil.label']}" style="text-align: center;">
+								<h:outputText value="#{conf.subperfil.descricao}" rendered="#{conf.subperfil ne null}"/>
+							</p:column>
+							<p:column style="width: 240px;" sortable="false" rendered="#{menuBean.podeEditar()}" >
+								<p:commandLink value="#{msg['editar.label']}" onclick="openModal('adicionar-modal')" class="btn btn-warning btn-editar" update="form-configuracao:adicionar-modal-content-id">
+									<f:setPropertyActionListener target="#{bean.configuracaoLoginAzure}" value="#{conf}" />
+								</p:commandLink>
+								<p:commandLink value="#{msg['excluir.label']}" onclick="openModal('excluir-modal', 'excluirModal:form-exclusao:excluir-btn')" class="btn btn-danger btn-excluir" rendered="#{menuBean.podeExcluir()}">
+									<f:setPropertyActionListener target="#{bean.configuracaoLoginAzure}" value="#{conf}" />
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

@@ -1,0 +1,1121 @@
+{
+	"info": {
+		"_postman_id": "1779d19a-63ac-41ae-ae64-8785652bf4bf",
+		"name": "GetDoc",
+		"description": "Catálogo de serviços RESTful/JSON.\n\nContact Support: \n{\n\nName : GetDoc\n\nEmail : undefined\n\n}",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "portal-graduacao",
+			"item": [
+				{
+					"name": "v1",
+					"item": [
+						{
+							"name": "Autentica o usuário.",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "98fc93b4-4d8e-48a8-ba6d-842b0f8ac945",
+										"exec": [
+											"pm.test(\"Login 1\", function () {",
+											"    var cookies = pm.response.to.have.header(\"Set-Cookie\");",
+											"    console.log(cookies);",
+											"    pm.environment.set(\"cookieHeader\", \"cookies\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Api-Key",
+										"value": "{{UMBRELLA_API_KEY}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"login\": \"<string>\",\n    \"senha\": \"<string>\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/portal-graduacao/v1/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"portal-graduacao",
+										"v1",
+										"login"
+									]
+								},
+								"description": "Realiza autenticação do usuário através do realm."
+							},
+							"response": [
+								{
+									"name": "Usuário não tem permissão para acessar esse recurso.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"login\": \"<string>\",\n    \"senha\": \"<string>\"\n}"
+										},
+										"url": {
+											"raw": "{{baseUrl}}/portal-graduacao/v1/login",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"portal-graduacao",
+												"v1",
+												"login"
+											]
+										}
+									},
+									"status": "Forbidden",
+									"code": 403,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain"
+										}
+									],
+									"cookie": [],
+									"body": ""
+								},
+								{
+									"name": "Ocorreu um erro ao processar a requisição.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"login\": \"<string>\",\n    \"senha\": \"<string>\"\n}"
+										},
+										"url": {
+											"raw": "{{baseUrl}}/portal-graduacao/v1/login",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"portal-graduacao",
+												"v1",
+												"login"
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain"
+										}
+									],
+									"cookie": [],
+									"body": ""
+								},
+								{
+									"name": "Usuário não autenticado. Faça login para obter um novo JSESSIONID.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"login\": \"<string>\",\n    \"senha\": \"<string>\"\n}"
+										},
+										"url": {
+											"raw": "{{baseUrl}}/portal-graduacao/v1/login",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"portal-graduacao",
+												"v1",
+												"login"
+											]
+										}
+									},
+									"status": "Unauthorized",
+									"code": 401,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain"
+										}
+									],
+									"cookie": [],
+									"body": ""
+								},
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"login\": \"<string>\",\n    \"senha\": \"<string>\"\n}"
+										},
+										"url": {
+											"raw": "{{baseUrl}}/portal-graduacao/v1/login",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"portal-graduacao",
+												"v1",
+												"login"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n \"nome\": \"<string>\"\n}"
+								},
+								{
+									"name": "Autentica o usuário.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "X-Api-Key",
+												"value": "{{UMBRELLA_API_KEY}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"login\": \"portalgraduacaovh\",\n    \"senha\": \"teste@123\"\n}"
+										},
+										"url": {
+											"raw": "{{baseUrl}}/portal-graduacao/v1/login",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"portal-graduacao",
+												"v1",
+												"login"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Server",
+											"value": "nginx/1.10.3"
+										},
+										{
+											"key": "Date",
+											"value": "Fri, 23 Aug 2019 05:26:08 GMT"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=UTF-8"
+										},
+										{
+											"key": "Transfer-Encoding",
+											"value": "chunked"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Set-Cookie",
+											"value": "JSESSIONID=fOwBwNa2PVkctt1aU34bBzyk2ajYo_3gWGyooP0l.fb7c42828a12; path=/getdoc_aluno"
+										},
+										{
+											"key": "Content-Encoding",
+											"value": "gzip"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"nome\": \"Portal Graduação VH\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Lista os documentos que o inscrito deve enviar.",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "X-Api-Key",
+										"value": "{{UMBRELLA_API_KEY}}",
+										"type": "text"
+									},
+									{
+										"key": "Set-Cookie",
+										"value": "{{cookieHeader}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"alunoCod\": \"<string>\",\n    \"tipoAlunoId\": \"<long>\",\n    \"classificacaoProcessoId\": \"<long>\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/portal-graduacao/v1/lista-documentos",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"portal-graduacao",
+										"v1",
+										"lista-documentos"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Ocorreu um erro ao processar a requisição.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"alunoCod\": \"<string>\",\n    \"tipoAlunoId\": \"<long>\",\n    \"classificacaoProcessoId\": \"<long>\"\n}"
+										},
+										"url": {
+											"raw": "{{baseUrl}}/portal-graduacao/v1/lista-documentos",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"portal-graduacao",
+												"v1",
+												"lista-documentos"
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain"
+										}
+									],
+									"cookie": [],
+									"body": ""
+								},
+								{
+									"name": "Usuário não autenticado. Faça login para obter um novo JSESSIONID.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"alunoCod\": \"<string>\",\n    \"tipoAlunoId\": \"<long>\",\n    \"classificacaoProcessoId\": \"<long>\"\n}"
+										},
+										"url": {
+											"raw": "{{baseUrl}}/portal-graduacao/v1/lista-documentos",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"portal-graduacao",
+												"v1",
+												"lista-documentos"
+											]
+										}
+									},
+									"status": "Unauthorized",
+									"code": 401,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain"
+										}
+									],
+									"cookie": [],
+									"body": ""
+								},
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"alunoCod\": \"<string>\",\n    \"tipoAlunoId\": \"<long>\",\n    \"classificacaoProcessoId\": \"<long>\"\n}"
+										},
+										"url": {
+											"raw": "{{baseUrl}}/portal-graduacao/v1/lista-documentos",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"portal-graduacao",
+												"v1",
+												"lista-documentos"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n \"nome\": \"<string>\",\n \"descricao\": \"<string>\",\n \"permiteUploadManual\": \"<boolean>\",\n \"contratoEducacional\": \"<boolean>\",\n \"entregue\": \"<boolean>\",\n \"equivalentes\": [\n  \"<long>\",\n  \"<long>\"\n ],\n \"obrigatorio\": \"<boolean>\",\n \"observacao\": \"<string>\",\n \"status\": \"<string>\",\n \"tipoDocumentoId\": \"<long>\"\n}"
+								},
+								{
+									"name": "Usuário não tem permissão para acessar esse recurso.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"alunoCod\": \"<string>\",\n    \"tipoAlunoId\": \"<long>\",\n    \"classificacaoProcessoId\": \"<long>\"\n}"
+										},
+										"url": {
+											"raw": "{{baseUrl}}/portal-graduacao/v1/lista-documentos",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"portal-graduacao",
+												"v1",
+												"lista-documentos"
+											]
+										}
+									},
+									"status": "Forbidden",
+									"code": 403,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain"
+										}
+									],
+									"cookie": [],
+									"body": ""
+								}
+							]
+						},
+						{
+							"name": "Consulta o status dos documentos do processo.",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"alunoCod\": \"<string>\",\n    \"classificacaoProcessoId\": \"<long>\",\n    \"cpf\": \"<string>\",\n    \"tipoAlunoId\": \"<long>\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/portal-graduacao/v1/status-documentos",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"portal-graduacao",
+										"v1",
+										"status-documentos"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Ocorreu um erro ao processar a requisição.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"alunoCod\": \"<string>\",\n    \"classificacaoProcessoId\": \"<long>\",\n    \"cpf\": \"<string>\",\n    \"tipoAlunoId\": \"<long>\"\n}"
+										},
+										"url": {
+											"raw": "{{baseUrl}}/portal-graduacao/v1/status-documentos",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"portal-graduacao",
+												"v1",
+												"status-documentos"
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain"
+										}
+									],
+									"cookie": [],
+									"body": ""
+								},
+								{
+									"name": "Usuário não autenticado. Faça login para obter um novo JSESSIONID.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"alunoCod\": \"<string>\",\n    \"classificacaoProcessoId\": \"<long>\",\n    \"cpf\": \"<string>\",\n    \"tipoAlunoId\": \"<long>\"\n}"
+										},
+										"url": {
+											"raw": "{{baseUrl}}/portal-graduacao/v1/status-documentos",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"portal-graduacao",
+												"v1",
+												"status-documentos"
+											]
+										}
+									},
+									"status": "Unauthorized",
+									"code": 401,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain"
+										}
+									],
+									"cookie": [],
+									"body": ""
+								},
+								{
+									"name": "Usuário não tem permissão para acessar esse recurso.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"alunoCod\": \"<string>\",\n    \"classificacaoProcessoId\": \"<long>\",\n    \"cpf\": \"<string>\",\n    \"tipoAlunoId\": \"<long>\"\n}"
+										},
+										"url": {
+											"raw": "{{baseUrl}}/portal-graduacao/v1/status-documentos",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"portal-graduacao",
+												"v1",
+												"status-documentos"
+											]
+										}
+									},
+									"status": "Forbidden",
+									"code": 403,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain"
+										}
+									],
+									"cookie": [],
+									"body": ""
+								},
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"alunoCod\": \"<string>\",\n    \"classificacaoProcessoId\": \"<long>\",\n    \"cpf\": \"<string>\",\n    \"tipoAlunoId\": \"<long>\"\n}"
+										},
+										"url": {
+											"raw": "{{baseUrl}}/portal-graduacao/v1/status-documentos",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"portal-graduacao",
+												"v1",
+												"status-documentos"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n \"documentos\": [\n  {\n   \"nome\": \"<string>\",\n   \"descricao\": \"<string>\",\n   \"permiteUploadManual\": \"<boolean>\",\n   \"contratoEducacional\": \"<boolean>\",\n   \"entregue\": \"<boolean>\",\n   \"equivalentes\": [\n    \"<long>\",\n    \"<long>\"\n   ],\n   \"obrigatorio\": \"<boolean>\",\n   \"observacao\": \"<string>\",\n   \"status\": \"<string>\",\n   \"tipoDocumentoId\": \"<long>\"\n  },\n  {\n   \"nome\": \"<string>\",\n   \"descricao\": \"<string>\",\n   \"permiteUploadManual\": \"<boolean>\",\n   \"contratoEducacional\": \"<boolean>\",\n   \"entregue\": \"<boolean>\",\n   \"equivalentes\": [\n    \"<long>\",\n    \"<long>\"\n   ],\n   \"obrigatorio\": \"<boolean>\",\n   \"observacao\": \"<string>\",\n   \"status\": \"<string>\",\n   \"tipoDocumentoId\": \"<long>\"\n  }\n ],\n \"id\": \"<long>\",\n \"status\": \"<string>\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Upload dos documentos do inscrito.",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "multipart/form-data"
+									},
+									{
+										"key": "X-Api-Key",
+										"value": "{{UMBRELLA_API_KEY}}",
+										"type": "text"
+									},
+									{
+										"key": "Set-Cookie",
+										"value": "{{cookieHeader}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "file",
+											"type": "file",
+											"src": []
+										},
+										{
+											"key": "dados",
+											"value": "{\"nome\": \"teste\", \"cpf\": \"\", \"email\": \"\", \"canalId\": 2, \"tipoAlunoId\": 1, \"tipoProcessoId\": 1, \"classificacaoProcessoId\": 1, \"alunoCod\": 10, \"dataCadastro\": \"11/08/2019 14:52\", \"cursoCod\": 10, \"campusCod\": 11, \"tipoDocumentoId\": 1010, \"nomeArquivo\": \"teste.jpg\"}",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{baseUrl}}/portal-graduacao/v1/upload-documento",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"portal-graduacao",
+										"v1",
+										"upload-documento"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Usuário não autenticado. Faça login para obter um novo JSESSIONID.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "multipart/form-data"
+											}
+										],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "file",
+													"value": "<binary>"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseUrl}}/portal-graduacao/v1/upload-documento?nome=<string>&cpf=<string>&email=<string>&canalId=<long>&tipoAlunoId=<long>&alunoCod=<string>&tipoProcessoId=<long>&classificacaoProcessoId=<long>&dataCadastro=<dateTime>&cursoCod=<integer>&campusCod=<integer>&tipoDocumentoId=<long>&nomeArquivo=<string>",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"portal-graduacao",
+												"v1",
+												"upload-documento"
+											],
+											"query": [
+												{
+													"key": "nome",
+													"value": "<string>"
+												},
+												{
+													"key": "cpf",
+													"value": "<string>"
+												},
+												{
+													"key": "email",
+													"value": "<string>"
+												},
+												{
+													"key": "canalId",
+													"value": "<long>"
+												},
+												{
+													"key": "tipoAlunoId",
+													"value": "<long>"
+												},
+												{
+													"key": "alunoCod",
+													"value": "<string>"
+												},
+												{
+													"key": "tipoProcessoId",
+													"value": "<long>"
+												},
+												{
+													"key": "classificacaoProcessoId",
+													"value": "<long>"
+												},
+												{
+													"key": "dataCadastro",
+													"value": "<dateTime>"
+												},
+												{
+													"key": "cursoCod",
+													"value": "<integer>"
+												},
+												{
+													"key": "campusCod",
+													"value": "<integer>"
+												},
+												{
+													"key": "tipoDocumentoId",
+													"value": "<long>"
+												},
+												{
+													"key": "nomeArquivo",
+													"value": "<string>"
+												}
+											]
+										}
+									},
+									"status": "Unauthorized",
+									"code": 401,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain"
+										}
+									],
+									"cookie": [],
+									"body": ""
+								},
+								{
+									"name": "Ocorreu um erro ao processar a requisição.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "multipart/form-data"
+											}
+										],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "file",
+													"value": "<binary>"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseUrl}}/portal-graduacao/v1/upload-documento?nome=<string>&cpf=<string>&email=<string>&canalId=<long>&tipoAlunoId=<long>&alunoCod=<string>&tipoProcessoId=<long>&classificacaoProcessoId=<long>&dataCadastro=<dateTime>&cursoCod=<integer>&campusCod=<integer>&tipoDocumentoId=<long>&nomeArquivo=<string>",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"portal-graduacao",
+												"v1",
+												"upload-documento"
+											],
+											"query": [
+												{
+													"key": "nome",
+													"value": "<string>"
+												},
+												{
+													"key": "cpf",
+													"value": "<string>"
+												},
+												{
+													"key": "email",
+													"value": "<string>"
+												},
+												{
+													"key": "canalId",
+													"value": "<long>"
+												},
+												{
+													"key": "tipoAlunoId",
+													"value": "<long>"
+												},
+												{
+													"key": "alunoCod",
+													"value": "<string>"
+												},
+												{
+													"key": "tipoProcessoId",
+													"value": "<long>"
+												},
+												{
+													"key": "classificacaoProcessoId",
+													"value": "<long>"
+												},
+												{
+													"key": "dataCadastro",
+													"value": "<dateTime>"
+												},
+												{
+													"key": "cursoCod",
+													"value": "<integer>"
+												},
+												{
+													"key": "campusCod",
+													"value": "<integer>"
+												},
+												{
+													"key": "tipoDocumentoId",
+													"value": "<long>"
+												},
+												{
+													"key": "nomeArquivo",
+													"value": "<string>"
+												}
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain"
+										}
+									],
+									"cookie": [],
+									"body": ""
+								},
+								{
+									"name": "Usuário não tem permissão para acessar esse recurso.",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "multipart/form-data"
+											}
+										],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "file",
+													"value": "<binary>"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseUrl}}/portal-graduacao/v1/upload-documento?nome=<string>&cpf=<string>&email=<string>&canalId=<long>&tipoAlunoId=<long>&alunoCod=<string>&tipoProcessoId=<long>&classificacaoProcessoId=<long>&dataCadastro=<dateTime>&cursoCod=<integer>&campusCod=<integer>&tipoDocumentoId=<long>&nomeArquivo=<string>",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"portal-graduacao",
+												"v1",
+												"upload-documento"
+											],
+											"query": [
+												{
+													"key": "nome",
+													"value": "<string>"
+												},
+												{
+													"key": "cpf",
+													"value": "<string>"
+												},
+												{
+													"key": "email",
+													"value": "<string>"
+												},
+												{
+													"key": "canalId",
+													"value": "<long>"
+												},
+												{
+													"key": "tipoAlunoId",
+													"value": "<long>"
+												},
+												{
+													"key": "alunoCod",
+													"value": "<string>"
+												},
+												{
+													"key": "tipoProcessoId",
+													"value": "<long>"
+												},
+												{
+													"key": "classificacaoProcessoId",
+													"value": "<long>"
+												},
+												{
+													"key": "dataCadastro",
+													"value": "<dateTime>"
+												},
+												{
+													"key": "cursoCod",
+													"value": "<integer>"
+												},
+												{
+													"key": "campusCod",
+													"value": "<integer>"
+												},
+												{
+													"key": "tipoDocumentoId",
+													"value": "<long>"
+												},
+												{
+													"key": "nomeArquivo",
+													"value": "<string>"
+												}
+											]
+										}
+									},
+									"status": "Forbidden",
+									"code": 403,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain"
+										}
+									],
+									"cookie": [],
+									"body": ""
+								},
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "multipart/form-data"
+											}
+										],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "file",
+													"value": "<binary>"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{baseUrl}}/portal-graduacao/v1/upload-documento?nome=<string>&cpf=<string>&email=<string>&canalId=<long>&tipoAlunoId=<long>&alunoCod=<string>&tipoProcessoId=<long>&classificacaoProcessoId=<long>&dataCadastro=<dateTime>&cursoCod=<integer>&campusCod=<integer>&tipoDocumentoId=<long>&nomeArquivo=<string>",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"portal-graduacao",
+												"v1",
+												"upload-documento"
+											],
+											"query": [
+												{
+													"key": "nome",
+													"value": "<string>"
+												},
+												{
+													"key": "cpf",
+													"value": "<string>"
+												},
+												{
+													"key": "email",
+													"value": "<string>"
+												},
+												{
+													"key": "canalId",
+													"value": "<long>"
+												},
+												{
+													"key": "tipoAlunoId",
+													"value": "<long>"
+												},
+												{
+													"key": "alunoCod",
+													"value": "<string>"
+												},
+												{
+													"key": "tipoProcessoId",
+													"value": "<long>"
+												},
+												{
+													"key": "classificacaoProcessoId",
+													"value": "<long>"
+												},
+												{
+													"key": "dataCadastro",
+													"value": "<dateTime>"
+												},
+												{
+													"key": "cursoCod",
+													"value": "<integer>"
+												},
+												{
+													"key": "campusCod",
+													"value": "<integer>"
+												},
+												{
+													"key": "tipoDocumentoId",
+													"value": "<long>"
+												},
+												{
+													"key": "nomeArquivo",
+													"value": "<string>"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n \"nome\": \"<string>\",\n \"descricao\": \"<string>\",\n \"permiteUploadManual\": \"<boolean>\",\n \"contratoEducacional\": \"<boolean>\",\n \"entregue\": \"<boolean>\",\n \"equivalentes\": [\n  \"<long>\",\n  \"<long>\"\n ],\n \"obrigatorio\": \"<boolean>\",\n \"observacao\": \"<string>\",\n \"status\": \"<string>\",\n \"tipoDocumentoId\": \"<long>\"\n}"
+								}
+							]
+						}
+					],
+					"_postman_isSubFolder": true
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"id": "baseUrl",
+			"key": "baseUrl",
+			"value": "//localhost:8080/getdoc_aluno/rest",
+			"type": "string"
+		}
+	]
+}

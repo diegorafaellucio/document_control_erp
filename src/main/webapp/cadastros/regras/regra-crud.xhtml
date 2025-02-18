@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+	<f:metadata>
+		<f:viewAction action="#{regraCrudBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['regraCrud.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<o:importConstants type="net.wasys.getdoc.domain.enumeration.TipoExecucaoRegra" />
+			<style type="text/css">
+				.adicionar-modal > label {
+				   font-size: 12px;
+				}
+				.adicionar-modal .modal-dialog {
+				    width: 800px;
+				    padding-top: 0px;
+				}
+				.adicionar-modal > .form-group {
+				    margin-bottom: 0px;
+				}
+				.adicionar-modal > .row > div {
+				    margin-bottom: 0px;
+				}
+			</style>
+			<c:set var="bean" value="#{regraCrudBean}" />
+			<getdoc:excluirModal id="excluirModal" metodoExcluir="#{regraCrudBean.excluir()}" update="mensagensGlobaisGroup form-regra-list"/>
+			<h:form id="form-duplicar">
+				<b:modal title="#{msg['confirmarDuplicarTitulo.label']}" styleClass="confirmar-modal duplicar-modal">
+					<p><h4 class="msg-confirm"><h:outputText value="#{msg['duplicarRegra.confirm']}"/> </h4></p>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+						<p:commandButton id="duplicar-btn" value="#{msg['duplicar.label']}" actionListener="#{bean.duplicar}" update="form-regra-list mensagensGlobaisGroup" styleClass="btn btn-danger" oncomplete="closeModal('duplicar-modal')"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-regra">
+				<b:modal id="adicionar-modal-id" title="#{msg['adicionarRegra.label']}" styleClass="adicionar-modal" rendered="#{menuBean.podeEditar()}">
+					<h:panelGroup id="adicionar-modal-content-id">
+						<b:messages globalOnly="true" showSummary="true"/>
+						<div class="row" jsf:rendered="#{not empty bean.regra}">
+							<div class="col-md-12">
+								<div class="form-group">
+									<b:inputText value="#{bean.regra.nome}" label="#{msg['nome.label']}" renderLabel="true" maxlength="120" required="true"/>
+									<b:message/>
+								</div>
+								<div class="row">
+									<div class="col-sm-6 noMarginBottom">
+										<div class="form-group">
+											<b:selectOneMenu value="#{bean.selectedTipoProcesso}" label="#{msg['tipoProcesso.label']}" required="true"
+													valueChangeListener="#{bean.changeTipoProcesso}" update="situacao-id" process="@this">
+												<f:selectItem itemValue="" itemLabel=""/>
+												<f:selectItems value="#{bean.tiposProcessos}" var="tp" itemValue="#{tp}" itemLabel="#{tp.nome}"/>
+											</b:selectOneMenu>
+											<b:message/>
+										</div>
+									</div>
+									<div class="col-sm-6 noMarginBottom">
+										<div class="form-group">
+											<b:selectOneMenu id="situacao-id" value="#{bean.regra.situacao}" label="#{msg['situacao.label']}" required="true">
+												<f:selectItem itemValue="" itemLabel=""/>
+												<f:selectItems value="#{bean.situacoes}" var="s" itemValue="#{s}" itemLabel="#{s.nome}"/>
+											</b:selectOneMenu>
+											<b:message/>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom sem-padding-left">
+										<div class="form-group" style="margin-bottom: 5px;">
+											<h:outputLabel value="#{msg['isAtiva.label']}" for="ativaId"/>
+											<h:selectOneRadio id="ativaId" value="#{bean.regra.ativa}" label="#{msg['isAtiva.label']}"
+													styleClass="radio-default" style="margin-left: 15px;">
+												<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+												<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+											</h:selectOneRadio>
+											<b:message/>
+										</div>
+									</div>
+									<div class="col-sm-3 noMarginBottom sem-padding-left">
+										<div class="form-group" style="margin-bottom: 5px;">
+											<h:outputLabel value="#{msg['tipoExecucao.label']}" for="tipoExecucaoId"/>
+											<h:selectOneRadio id="tipoExecucaoId" value="#{bean.regra.tipoExecucao}" label="#{msg['tipoExecucao.label']}"
+													styleClass="radio-default" required="true">
+												<f:selectItem itemValue="#{TipoExecucaoRegra.AGENDADA}" itemLabel="#{msg['TipoExecucaoRegra.AGENDADA.label']}"/>
+												<f:selectItem itemValue="#{TipoExecucaoRegra.IMEDIATA}" itemLabel="#{msg['TipoExecucaoRegra.IMEDIATA.label']}"/>
+											</h:selectOneRadio>
+											<b:message/>
+										</div>
+									</div>
+									<div class="col-sm-3 noMarginBottom sem-padding-left">
+										<div class="form-group" style="margin-bottom: 5px;">
+											<h:outputLabel value="#{msg['decisaoFluxo.label']}" for="decisaoFluxoId"/>
+											<p:selectOneRadio id="decisaoFluxoId" value="#{bean.regra.decisaoFluxo}" label="#{msg['decisaoFluxo.label']}"
+													styleClass="radio-default" required="false">
+												<f:selectItem itemValue="#{null}" itemLabel="#{msg['nao.label']}"/>
+												<f:selectItem itemValue="#{1}" itemLabel="#{msg['sim.label']}"/>
+											</p:selectOneRadio>
+											<b:message/>
+										</div>
+									</div>
+									<div class="col-sm-3 noMarginBottom sem-padding-left">
+										<div class="form-group" style="margin-bottom: 5px;">
+											<h:outputLabel value="#{msg['reprocessarEditarCampos.label']}" for="reprocessaEditarCampos"/>
+											<p:selectOneRadio id="reprocessaEditarCampos" value="#{bean.regra.reprocessaEditarCampos}" label="#{msg['reprocessarEditarCampos.label']}"
+													styleClass="radio-default" required="false">
+												<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+												<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+											</p:selectOneRadio>
+											<b:message/>
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom sem-padding-left">
+										<div class="form-group" style="margin-bottom: 5px;">
+											<h:outputLabel value="#{msg['reprocessarAtualizarDocumentos.label']}" for="reprocessaAtualizarCampos"/>
+											<p:selectOneRadio id="reprocessaAtualizarCampos" value="#{bean.regra.reprocessaAtualizarDocumentos}" label="#{msg['reprocessarAtualizarDocumentos.label']}"
+															  styleClass="radio-default" required="false">
+												<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+												<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+											</p:selectOneRadio>
+											<b:message/>
+										</div>
+									</div>
+								</div>
+								<div class="form-group" style="margin-bottom: 5px;">
+									<h:outputLabel value="#{msg['vigencia.label']}"/>
+								</div>
+								<div class="row" style="margin-left: 5px;">
+									<div class="col-sm-1">De:</div>
+									<div class="col-sm-5 noMarginBottom">
+										<b:inputText value="#{bean.regra.inicioVigencia}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+												label="#{msg['inicioVigencia.label']}" renderLabel="false">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14" />
+											</f:facet>
+										</b:inputText>
+										<b:message/>
+									</div>
+									<div class="col-sm-1">Até:</div>
+									<div class="col-sm-5 noMarginBottom">
+										<b:inputText value="#{bean.regra.fimVigencia}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+												label="#{msg['fimVigencia.label']}" renderLabel="false">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14" />
+											</f:facet>
+										</b:inputText>
+										<b:message/>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-12">
+										<h:panelGroup>
+											<div class="form-group">
+												<h:outputLabel value="Perfis que podem visualizar" for="roleId"/>
+												<p:selectManyCheckbox value="#{bean.rolesGDSelecionados}" layout="grid" columns="7" id="roleId" label="#{msg['roleGD.label']}">
+													<f:selectItems value="#{bean.roles}" var="role" itemLabel="#{msg['RoleGD.'.concat(role).concat('.label')]}" itemValue="#{role}" />
+													<f:selectItems />
+												</p:selectManyCheckbox>
+											</div>
+										</h:panelGroup>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-12">
+										<h:panelGroup>
+											<div class="form-group">
+												<h:outputLabel value="SubPerfis que podem visualizar" for="subperfilId"/>
+												<p:selectManyCheckbox value="#{bean.subperfilSelecionadoList}" layout="grid" columns="7" id="subperfilId" label="#{msg['subperfil.label']}" converter="entityConverter">
+													<f:selectItems value="#{bean.subperfilList}" var="sp" itemLabel="#{sp.descricao}" itemValue="#{sp}" />
+													<f:selectItems />
+												</p:selectManyCheckbox>
+											</div>
+										</h:panelGroup>
+									</div>
+								</div>
+								<div class="form-group">
+									<b:inputTextarea value="#{bean.regra.descricao}" label="#{msg['descricao.label']}" required="true" rows="5"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<script type="text/javascript">
+							configurarMascaras();
+							configurarDatePicker();
+						</script>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<h:panelGroup id="botao-regra-id">
+							<h:panelGroup rendered="#{bean.regra.id != null ? true : false}">
+								<a href="#{request.contextPath}/cadastros/regras/subregras/#{bean.regra.id}" class="btn btn-default" title="#{msg['subRegras.label']}">
+									<img src="#{request.contextPath}/resources/images/tree.png" alt="" style="width: 18px;"/>
+								</a>
+								<a href="#{request.contextPath}/cadastros/regras/teste/#{bean.regra.id}" class="btn btn-default" title="#{msg['testarRegra.label']}">
+									<img src="#{request.contextPath}/resources/images/test.png" alt="" style="width: 18px;"/>
+								</a>
+							</h:panelGroup>
+						</h:panelGroup>
+
+						<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['salvar.label']}" actionListener="#{bean.salvar()}" update="adicionar-modal-content-id form-regra-list mensagensGlobaisGroup"
+								styleClass="btn" rendered="#{menuBean.podeEditar()}"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-regra-list">
+				<div class="row default-form">
+					<div class="col-sm-12">
+						<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+						<div class="row">
+							<div class="col-sm-1" ></div>
+							<div class="col-sm-4" >
+								<div class="form-group">
+									<b:selectOneMenu value="#{bean.filtro.tipoProcessoId}" label="#{msg['tipoProcesso.label']}">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{bean.tiposProcessos}" var="tp" itemValue="#{tp.id}" itemLabel="#{tp.nome}"/>
+									</b:selectOneMenu>
+									<b:message/>
+								</div>
+						 	</div>
+							<div class="col-sm-3" >
+								<h:outputLabel value="#{msg['status.label']}" />
+								<p:selectCheckboxMenu value="#{bean.filtro.statusArray}"
+										style="form-control bf-no-message has-success" label="" multiple="true"
+										filter="false" panelStyle="width:250px">
+									<f:selectItem itemLabel="Ativas" itemValue="#{true}"/>
+									<f:selectItem itemLabel="Inativas" itemValue="#{false}"/>
+								</p:selectCheckboxMenu>
+						 	</div>
+							<div class="col-sm-2" >
+								<b:switch value="#{bean.filtro.apenasVigentes}" label="Apenas Vigentes"
+										onText="#{msg['sim.label']}" offText="#{msg['nao.label']}"/>
+						 	</div>
+							<div class="col-sm-1" >
+								<b:commandButton value="#{msg['buscar.label']}" styleClass="btn btn-primary btn-md" ajax="true" update="tabela-id" style="margin-top: 14px; float: right;"/>
+						 	</div>
+						</div>
+					 </div>
+				</div>
+					<div class="row">
+						<div class="col-sm-12">
+							<p:commandLink value="#{msg['adicionarRegra.label']}" onclick="openModal('adicionar-modal')" class="btn btn-primary btn-lg" style="float: right;" update="form-regra:adicionar-modal-content-id form-regra:botao-regra-id" rendered="#{menuBean.podeEditar()}">
+								<f:setPropertyActionListener target="#{bean.regra}" value="#{null}" />
+							</p:commandLink>
+						</div>
+					</div>
+					<div class="row">
+						<p:dataTable id="tabela-id" var="regra" value="#{bean.dataModel}" rows="100" paginator="true" lazy="true"
+								paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+								currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+								paginatorPosition="bottom" rowStyleClass="#{regra.decisaoFluxo eq 1? 'regraDecisao' : ''}"
+							 	stickyHeader="true" stickyTopAt=".layout-topbar">
+							<p:column headerText="ID" style="text-align: center; width: 70px;">
+								<h:outputText value="#{regra.id}" />
+							</p:column>
+							<p:column headerText="#{msg['tipoProcesso.label']}" sortBy="#{regra.tps.tipoProcesso.nome}" style=" text-align: center; width: 150px;">
+								<h:outputText value="#{regra.tipoProcesso.nome}" />
+							</p:column>
+							<p:column headerText="#{msg['situacao.label']}" sortBy="#{regra.s.nome}" style="text-align: center; width: 150px;">
+								<h:outputText value="#{regra.situacao.nome}" />
+							</p:column>
+							<p:column headerText="#{msg['nome.label']}" sortBy="#{regra.r.nome}" style="text-align: center; width: 200px;">
+								<h:outputText value="#{regra.nome}" />
+							</p:column>
+							<p:column headerText="#{msg['decisaoFluxo.label']}" style="width: 80px; text-align: center;">
+								<h:outputText value="#{msg['sim.label']}" rendered="#{regra.decisaoFluxo eq 1}"/>
+								<h:outputText value="#{msg['nao.label']}" rendered="#{regra.decisaoFluxo ne 1}"/>
+							</p:column>
+							<p:column headerText="#{msg['isAtiva.label']}" style="width: 80px; text-align: center;">
+								<h:outputText value="#{msg['sim.label']}" rendered="#{regra.ativa}"/>
+								<h:outputText value="#{msg['nao.label']}" rendered="#{!regra.ativa}"/>
+							</p:column>
+							<p:column headerText="#{msg['dataAlteracao.label']}" style="width: 150px; text-align: center;" sortBy="#{regra.r.dataAlteracao}">
+								<h:outputText value="#{utilBean.getDateTimeStr(regra.dataAlteracao)}" />
+							</p:column>
+							<p:column style="width: 240px;" sortable="false" rendered="#{menuBean.podeEditar()}">
+								<a href="#{request.contextPath}/cadastros/regras/subregras/#{regra.id}" class="btn btn-default" title="#{msg['subRegras.label']}">
+									<img src="#{request.contextPath}/resources/images/tree.png" alt="" style="width: 18px;"/>
+								</a>
+								<a href="#{request.contextPath}/cadastros/regras/teste/#{regra.id}" class="btn btn-default" title="#{msg['testarRegra.label']}">
+									<img src="#{request.contextPath}/resources/images/test.png" alt="" style="width: 18px;"/>
+								</a>
+								<p:commandLink onclick="openModal('duplicar-modal', 'form-duplicar:duplicar-btn')" title="#{msg['duplicarRegra.label']}"
+											   class="btn btn-default" style="margin-left: 4px; margin-right: 2px;">
+									<f:setPropertyActionListener target="#{bean.regra}" value="#{regra}" />
+									<i class="fa fa-files-o" aria-hidden="true"></i>
+								</p:commandLink>
+								<p:commandLink actionListener="#{bean.setRegra(regra)}" title="#{msg['editar.label']}" onclick="openModal('adicionar-modal')" class="btn btn-warning"
+										update="form-regra:adicionar-modal-content-id form-regra:botao-regra-id" style="margin-left: 2px; margin-right: 2px; width: 45px;">
+									<i class="fa fa-pencil" aria-hidden="true" style="color: #fff;"></i>
+								</p:commandLink>
+								<p:commandLink title="#{msg['excluir.label']}" onclick="openModal('excluir-modal', 'excluirModal:form-exclusao:excluir-btn')" class="btn btn-danger"
+										rendered="#{menuBean.podeExcluir()}" style="margin-left: 2px; width: 45px;">
+									<f:setPropertyActionListener target="#{bean.regra}" value="#{regra}" />
+									<i class="fa fa-trash" aria-hidden="true" style="color: #fff;"></i>
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+					</div>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

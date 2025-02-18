@@ -1,0 +1,53 @@
+<html>
+	<head>
+		<style type="text/css">
+			.tabelaNotificacao {
+				border-collapse: collapse;
+			}
+			.tabelaNotificacao td, th {
+				border: 1px black solid;
+				padding: 1px 5px 1px 5px;
+			}
+			.tabelaNotificacao a {
+				color: #3c4749;
+			}
+			.tabelaNotificacao th {
+				font-weight: bold;
+			}
+			.nomeDocumento {
+				color: #0447ff;
+			}
+		</style>
+	</head>
+	<body style="width: 100%;">
+		<center>
+			<table style="width: 650px; height: 400px; text-align: left; border: 1px #f2f2f2 solid;">
+				<tr>
+					<td style="background-color: #f2f2f2; padding: 10px 20px; height: 60px;">
+						 <img src="$logoImagemUrl" width="200px"/>
+					</td>
+				</tr>
+				<tr>
+					<td style="padding: 10px 50px 50px 50px; vertical-align: top;">
+						<h3>Análise #if($resultado.equals('Problema na Documentação')) com #end $resultado</h3>
+						<p>Olá $aluno.nome,</p>
+						#if($resultado.equals('Deferido'))
+						<p>Seu processo de análise de isenção de disciplina foi avaliado e os possíveis aproveitamentos concedidos!</p>
+						#elseif($resultado.equals('Indeferido'))
+						<p>Seu processo foi avaliado e não houve disciplinas isentas por incompatibilidade de conteúdo.</p>
+						#else
+						<p>Seu processo não foi analisado devido o problema com a documentação.</p>
+						#end
+						<p>Número de inscrição: $numInscricao</p>
+						Dúvidas? É só ligar para 4003-6767 (Regiões Metropolitanas) ou 0800-6767 (Demais regiões).<br><br>
+						Se tiver outras dúvidas, você também pode enviar um e-mail para: faleconosco@estacio.com.br
+					</td>
+				</tr>
+				<tr>
+					<td style="background-color: #4f708c; height: 15px;"></td>
+				</tr>
+			</table>
+		</center>
+	</body>
+</html>
+

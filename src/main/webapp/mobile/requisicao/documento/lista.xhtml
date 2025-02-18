@@ -1,0 +1,165 @@
+<ui:composition template="/mobile/master.xhtml"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc"
+	>
+	<f:metadata>
+		<f:viewParam name="id" value="#{listaDocumentoBean.id}" />
+		<f:viewParam name="id" value="#{edicaoRequisicaoBean.id}" />
+		<f:viewParam name="origem" value="#{listaDocumentoBean.origem}" />
+		<f:event type="preRenderView" listener="#{listaDocumentoBean.init}" />
+		<f:event type="preRenderView" listener="#{edicaoRequisicaoBean.init}" />
+	</f:metadata>
+	<ui:define name="master.style">
+	</ui:define>
+	<ui:define name="master.script">
+		<c:set var="bean" value="#{listaDocumentoBean}" />
+		<script type="text/javascript">
+			//<![CDATA[
+			Device = {
+				onReady: function() {
+					Device.initialize(#{bean.deviceInitializeScript});
+				},
+				onTapped: function(id) {
+					if (id == 1) {
+						Device.Scan.open({
+							url: '#{request.contextPath}/rest/file/recognition/upload'
+						});
+					} else if (id == 2) {
+						location.href = '#{request.contextPath}/mobile/requisicao/edicao.xhtml?id=#{bean.id}&origem=#{bean.origem}'
+					}
+				},
+				onRecognition: function(result) {
+					var json = JSON.stringify(result);
+					salvar({ upload: json });
+				}
+			};
+			View = {
+				onRowClick(id, el) {
+					$(el).css({
+						background: '#ddd'
+					});
+					location.href = '#{request.contextPath}/mobile/requisicao/documento/edicao.xhtml?origem=#{bean.origem}&id=' + id
+				}
+			};
+			//]]>
+		</script>
+	</ui:define>
+	<ui:define name="master.content">
+		<c:set var="bean" value="#{listaDocumentoBean}" />
+		<c:set var="rows" value="#{bean.rows}" />
+		<c:set var="options" value="#{bean.options}" />
+		<getdoc:headerRequisicao numMenu="2" bean="#{edicaoRequisicaoBean}"/>
+		<div class="container">
+			<h:form>
+				<o:commandScript 
+					name="salvar"
+					action="#{bean.salvar}"
+					render="@form"
+					/>
+				<h:panelGroup
+					layout="block"
+					styleClass="row empty"
+					rendered="#{empty rows}"
+					>
+					<div class="col-xs-12 text-center">
+						<h:outputText value="#{msg['emptyMessage.label']}" />
+					</div>
+				</h:panelGroup>
+				<h:panelGroup
+					layout="block"
+					rendered="#{not empty rows}"
+					>
+					<ui:repeat var="documento" value="#{rows}">
+						<div class="row list" onclick="View.onRowClick('#{documento.id}', this)">
+							<div class="col-xs-2">
+								<img width="40px" src="#{request.contextPath}/resources/images/icons/StatusDocumento-#{documento.status}.png"/>
+							</div>
+							<div class="col-xs-10">
+								<div class="tituloRequisicaoFila">
+									<h:outputText value="#{documento.nome}"/>
+								</div>
+								<div class="row">
+									<div class="col-xs-10 ellipsis">
+					 					<span style="width: 8px" />	
+					 					<h:outputText>
+					 						<f:convertDateTime pattern="dd/MM/yyyy HH:mm" locale="pt_BR" />
+					 					</h:outputText>
+									</div>
+									<div class="col-xs-2">
+										<div class="pull-right">
+											<span class="badge">#{documento.imagens.size()}</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</ui:repeat>
+				</h:panelGroup>
+				
+				<!-- Modais -->
+				<div id="add-modal" class="modal fade" tabindex="-1" role="dialog">
+					<div class="modal-dialog modal-lg" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal">
+									<i class="fa fa-times" aria-hidden="true" />
+								</button>
+								<h4 class="modal-title">#{msg['adicionarDocumento.label']}</h4>
+							</div>
+							<div class="modal-body form-horizontal">
+								<div class="form-group">
+					 				<div class="col-xs-12 control-label">
+										<h:outputLabel 
+											value="#{msg['documento.label']}"
+						 					/>
+					 				</div>
+					 				<div class="col-xs-12">
+					 					<h:selectOneMenu
+											id="documentoId" 
+											value="#{bean.documentoId}"
+											styleClass="form-control"
+											>
+											<f:selectItem itemLabel=""/>
+											<f:selectItems 
+												var="item" 
+												itemValue="#{item.id}" 
+												itemLabel="#{item.nome}"
+												value="#{options}"
+												/>
+											<f:ajax
+												event="change"
+												render="modalFooterDocumento"
+												/>
+										</h:selectOneMenu>
+					 				</div>
+					 			</div>
+							</div>
+							<h:panelGroup
+								id="modalFooterDocumento"
+								layout="block"
+								styleClass="modal-footer"
+								>
+								<button type="button" class="btn btn-default" data-dismiss="modal">
+									<h:outputText
+										value="#{msg['cancelar.label']}"
+										/>
+								</button>
+								<h:commandButton
+									value="#{msg['adicionar.label']}"
+									actionListener="#{bean.adicionar()}"
+									disabled="#{empty bean.documentoId}"
+									styleClass="btn btn-primary"
+									/>
+							</h:panelGroup>
+				  		</div>
+					</div>
+				</div>
+			</h:form>
+		</div>
+	</ui:define>
+</ui:composition>

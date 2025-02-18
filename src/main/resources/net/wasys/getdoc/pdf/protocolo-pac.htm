@@ -1,0 +1,80 @@
+
+<style>
+	table {
+		font-size: 12px;
+	}
+</style>
+
+<table><tr><td height="930px" valign="top">
+
+	<table style="border: solid 1px black;" width="760" height="46px">
+		<tr>
+			<td height="46px" align="left"><img src="$caminhoLogoRenault" height="46px"/></td>
+			<td height="46px" align="right"><img src="$caminhoLogoNissan" height="46px"/></td>
+		</tr>
+	</table>
+	<br>
+	<table style="border: solid 1px black;" width="760">
+		<tr>
+			<td colspan="2" style="font-weight: bold; text-align: right; font-size: 15px">Protocolo de Entrega de Documentos</td>
+		</tr>
+		<tr>
+			<td>C&oacute;digo PAC</td>
+			<td>: $codigoPac</td>
+		</tr>
+		<tr>
+			<td>Data da entrega</td>
+			<td>: _____/_____/________</td>
+			<td>Respons&aacute;vel pela entrega</td>
+			<td>: $usuarioNome</td>
+		</tr>
+		<tr>
+			<td>N&uacute;mero da filial</td>
+			<td>: __________</td>
+			<td>Nome da Filial</td>
+			<td height="30px">: ____________________________________________________________</td>
+		</tr>
+	</table>
+	<br>
+	<table style="border: solid 1px black;" width="760" cellpadding="0" cellspacing="0">
+		<tr>
+			<td width="120px" style="font-weight: bold">&nbsp;N&uacute;mero da proposta&nbsp;</td>
+			<td width="420px" style="font-weight: bold">&nbsp;Nome do Financiado&nbsp;</td>
+		</tr>
+		#foreach($numeroProposta in $propostas.keySet())
+		<tr>
+			<td style="border-right: solid 1px black; border-top: solid 1px black; height: 18px">&nbsp;$numeroProposta</td>
+			<td style="border-right: solid 1px black; border-top: solid 1px black; height: 18px">&nbsp;$propostas.get($numeroProposta)</td>
+		</tr>
+		#end
+	</table>
+</td></tr><tr><td>
+	<br>
+	<table style="border: solid 1px black;" width="760">
+		<tr>
+			<td>Observa&ccedil;&otilde;es:</td>
+			<td height="25px" colspan="3">_______________________________________________________________________________________________________</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td height="25px" colspan="3">_______________________________________________________________________________________________________</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td height="25px" colspan="3">_______________________________________________________________________________________________________</td>
+		</tr>
+		<tr>
+			<td height="25px">Recebido por:</td>
+			<td>___________________________________________________________________</td>
+			<td>Data:</td>
+			<td>_____/_____/________</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td nowrap="nowrap">Assinatura e Carimbo:</td>
+			<td>___________________________________________________________________</td>
+		</tr>
+	</table>
+</td></tr></table>

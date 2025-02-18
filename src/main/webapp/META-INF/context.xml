@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context path="/getdoc">
+
+	<Realm
+		className="org.apache.catalina.realm.JDBCRealm"
+		driverName="org.postgresql.Driver"
+		userTable="usuario" userNameCol="login" userCredCol="senha"
+		userRoleTable="role" roleNameCol="nome"
+
+		connectionURL="jdbc:postgresql://192.168.1.3:5432/getdoc_captacao"
+		connectionName="getdoc_captacao" connectionPassword="getdoc_captacao"
+	/>
+
+	<Resource
+		name="getdocJDBC"
+		auth="Container"
+		type="javax.sql.DataSource"
+		factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
+		driverClassName="org.postgresql.Driver"
+		maxActive="500"
+        minIdle="30"
+        maxWait="10000"
+        initialSize="5"
+
+		url="jdbc:postgresql://192.168.1.3:5432/getdoc_captacao"
+		username="getdoc_captacao" password="getdoc_captacao"
+	/>
+
+	<Resource
+			name="getdocBiJDBC"
+			auth="Container"
+			type="javax.sql.DataSource"
+			factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
+			driverClassName="org.postgresql.Driver"
+			maxActive="1000"
+			minIdle="30"
+			maxWait="10000"
+			initialSize="5"
+			url="jdbc:postgresql://192.168.1.3:5432/getdoc_captacao"
+			username="getdoc_captacao" password="getdoc_captacao"
+	/>
+
+	<!--
+	local
+		connectionURL="jdbc:postgresql://192.168.1.3:5432/getdoc_captacao"
+		connectionName="getdoc_captacao" connectionPassword="getdoc_captacao"
+		url="jdbc:postgresql://192.168.1.3:5432/getdoc_captacao"
+		username="getdoc_captacao" password="getdoc_captacao"
+	produção
+		connectionURL="jdbc:postgresql://10.221.242.96:5432/getdoc_captacao"
+		connectionName="getdoc_captacao" connectionPassword="getdoc_captacao"
+		url="jdbc:postgresql://10.221.242.96:5432/getdoc_captacao"
+		username="getdoc_captacao" password="getdoc_captacao"
+	homologação
+		connectionURL="jdbc:postgresql://10.221.242.95:5432/getdoc_captacao"
+		connectionName="getdoc_captacao" connectionPassword="getdoc_captacao"
+		url="jdbc:postgresql://10.221.242.95:5432/getdoc_captacao"
+		username="getdoc_captacao" password="getdoc_captacao"
+	-->
+</Context>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+	<composite:interface>
+		<composite:attribute name="numMenu" type="Integer" required="true"/>
+		<composite:attribute name="bean" type="net.wasys.getdoc.mb.bean.EdicaoRequisicaoBean" required="true"/>
+	</composite:interface>
+	<composite:implementation>
+		<c:set var="numMenu" value="#{cc.attrs.numMenu}"/>
+		<c:set var="bean" value="#{cc.attrs.bean}"/>
+		<div class="box-shadow" style="background-color: #4f708c;">
+			<div class="container">
+				<div class="headerRequisicao">
+					<div class="row">
+						<div class="col-xs-2">
+		 					<img width="40px" class="status-processo" src="#{request.contextPath}/resources/images/icons/StatusProcesso-#{bean.processo.status}.png"/>
+		 				</div>
+		 				<div class="col-xs-6" style="padding-left: 10px;">
+		 					<h:outputText value="#{msg['StatusProcesso.'.concat(bean.processo.status).concat('.label')]}" class="requisicaoStatuLabel"/>
+		 				</div>
+		 				<div class="col-xs-4" align="right">
+		 					<h:outputText value="Nº - #{bean.processo.id}"/>
+		 				</div>
+		 			</div>
+				</div>
+				<div class="menusRequisicao">
+					<h:outputLink
+							value="#{request.contextPath}/mobile/requisicao/edicao.xhtml?id=#{bean.processo.id}&amp;origem=#{bean.origem}"
+							class="menuRequisicaoLink menuRequisicaoLink_1 #{numMenu == 1 ? 'ativo' : ''}" style="margin-left: 40px;">
+						<h:outputText value="#{msg['processo.label']}"/>
+					</h:outputLink>
+					<h:outputLink value="#{request.contextPath}/mobile/requisicao/documento/lista.xhtml?id=#{bean.processo.id}&amp;origem=#{bean.origem}"
+							rendered="#{bean.mostrarLinkDocumentos()}" class="menuRequisicaoLink menuRequisicaoLink_2 #{numMenu == 2 ? 'ativo' : ''}">
+						<h:outputText value="#{msg['documentos.label']}"/>
+					</h:outputLink>
+					<h:outputLink
+							value="#{request.contextPath}/mobile/requisicao/acompanhamento/lista.xhtml?id=#{bean.processo.id}&amp;origem=#{bean.origem}"
+							rendered="#{bean.mostrarLinkAcompanhamento()}" class="menuRequisicaoLink menuRequisicaoLink_3 #{numMenu == 3 ? 'ativo' : ''}">
+						<h:outputText value="#{msg['acompanhamento.label']}"/>
+					</h:outputLink>
+					<h:outputLink value="#{request.contextPath}/mobile/requisicao/solicitacao/lista.xhtml?id=#{bean.processo.id}&amp;origem=#{bean.origem}"
+							rendered="#{bean.mostrarLinkSolicitacoes()}" class="menuRequisicaoLink menuRequisicaoLink_4 #{numMenu == 4 ? 'ativo' : ''}">
+						<h:outputText value="#{msg['solicitacoes.label']}"/>
+					</h:outputLink>
+					<h:outputLink value="#{request.contextPath}/mobile/requisicao/email/lista.xhtml?id=#{bean.processo.id}&amp;origem=#{bean.origem}"
+							rendered="#{bean.mostrarLinkEmails()}" class="menuRequisicaoLink menuRequisicaoLink_5 #{numMenu == 5 ? 'ativo' : ''}">
+						<h:outputText value="#{msg['email.label']}"/>
+					</h:outputLink>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			var link = $('.menuRequisicaoLink_#{numMenu}');
+			link.parent().scrollLeft(link.position().left - 80);
+		</script>
+	</composite:implementation>
+</html>

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:o="http://omnifaces.org/ui">
+
+	<f:metadata>
+		<f:viewAction action="#{relatorioOcrBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+
+	<ui:composition template="/templates/navegacao.xhtml">
+	
+		<ui:define name="tituloPagina">Relatório Número de OCR's</ui:define>
+		<ui:define name="conteudo">
+		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+			<h:form id="form">
+				<div class="row default-form">
+					<div class="col-sm-12">
+						<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+						
+						<div class="row">
+							<div class="col-sm-1" ></div>
+							<div class="col-sm-5">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['periodo.label']}"/>
+									<b:panelGrid colSpans="1,5,1,5" style="margin-bottom: -20px; margin-left: 5px;">
+										<h:outputText value="#{msg['de.label']}"/>
+										<b:inputText id="dataInicioId" value="#{relatorioOcrBean.filtro.dataInicio}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+												label="#{msg['dataInicial.label']}" renderLabel="false" required="true">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14" />
+											</f:facet>
+										</b:inputText>
+										<h:outputText value="#{msg['ate.label']}"/>
+										<b:inputText id="dataFimId" value="#{relatorioOcrBean.filtro.dataFim}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+												label="#{msg['dataFinal.label']}" renderLabel="false" required="true">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14" />
+											</f:facet>
+										</b:inputText>
+									</b:panelGrid>
+									<b:message for="dataInicioId" showSummary="false"/>
+									<b:message for="dataFimId" showSummary="false"/>
+								</div>
+							</div>
+						
+						 	
+							<div class="col-sm-5">
+								<div class="form-group" style="margin-top:25px;">
+									<b:commandButton value="#{msg['buscar.label']}" process="form" update="googleChart" ajax="true"
+										actionListener="#{relatorioOcrBean.buscar}" styleClass="btn btn-primary btn-md"/>
+								</div>
+							</div>
+							
+						</div>
+						
+					</div>
+				</div>
+				<div class="row">
+					
+				</div>
+				<h:panelGroup id="googleChart">
+					<div class="row default-form">
+						
+						<div class="col-sm-9">
+							<div id="piechart" style="width: 1100px; height: 610px;"></div>
+						</div>
+						
+						<div class="col-sm-3">
+							<br/>
+							<br/>
+							<br/>
+							<p:dataTable id="tabela-ID" var="item" value="#{relatorioOcrBean.list}" scrollable="false"
+									currentPageReportTemplate="Total: {totalRecords}" emptyMessage="#{msg['emptyMessage.label']}">
+								<p:column headerText="Status OCRs" style="text-align: center;">
+									<p:commandLink action="#{relatorioOcrBean.detalhes(item)}">
+										<h:outputText rendered="#{item.nomeLinha eq 'TOTAL'}"
+												value="#{item.nomeLinha}"/>
+										<h:outputText rendered="#{item.nomeLinha ne 'TOTAL'}"
+												value="#{item.nomeLinha}" />
+									</p:commandLink>
+								</p:column>
+								<p:column headerText="#{msg['total.label']}" style="text-align: center;">
+									<h:outputText value="#{item.total}" />
+								</p:column>
+							
+							</p:dataTable>
+						</div>
+						
+					</div>
+					
+					<script type="text/javascript">
+					//<![CDATA[
+						google.charts.load('current', {'packages':['corechart']});
+						google.charts.setOnLoadCallback(drawChart);
+				
+						function drawChart() {
+							var arrayDataTable = [ #{relatorioOcrBean.arrayGoogleChart} ];
+							var data = google.visualization.arrayToDataTable(arrayDataTable);
+				
+				        	var options = {
+				          	title: ' ',
+				          	pieSliceTextStyle: {
+				            	color: 'white',
+				            },
+				            slices: {
+				                0: { color: 'orange' },
+				                1: { color: 'red' },				                
+				                2: { color: 'green' }
+				              },
+				             is3D: true,
+				             chartArea:{
+				            	 top: 50,
+				            	 left:150
+				             },
+				             tooltip:{
+				            	 	ignoreBounds: true,
+				            	 	trigger:'selection'
+							 },
+							 pieSliceText: 'label'
+							 
+				        };
+			       
+				        if(data.getNumberOfRows() == 0){
+			        	    $("#piechart").append("<br/><br/><h3><center>Sem Dados</center></h3>")
+			        	}else{
+							var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+			        		
+							google.visualization.events.addListener(chart, 'ready', function(e) { 
+								var selected_rows = [];
+							  	for (var i = 0; i < data.getNumberOfRows(); i++) {
+									selected_rows.push({row: i, column: null});
+								}
+								chart.setSelection(selected_rows);
+							});
+		        			
+							chart.draw(data, options);
+					              
+			        	}
+			        
+				      }
+					//]]>
+					</script>
+				</h:panelGroup>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

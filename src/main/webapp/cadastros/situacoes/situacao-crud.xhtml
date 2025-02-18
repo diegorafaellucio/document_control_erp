@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+	<f:metadata>
+		<f:viewParam name="id" value="#{situacaoCrudBean.tipoProcessoId}" />
+		<f:viewAction action="#{situacaoCrudBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['situacaoCrud.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<c:set var="bean" value="#{situacaoCrudBean}" />
+			<style>
+				.adicionar-modal > label {
+				   font-size: 12px;
+				}
+				.adicionar-modal .modal-dialog {
+				    width: 800px;
+				    padding-top: 0px;
+				}
+				.adicionar-modal > .form-group {
+				    margin-bottom: 0px;
+				}
+				.adicionar-modal > .row > div {
+				    margin-bottom: 0px;
+				}
+				.fluxograma-modal .modal-dialog {
+					width: 100%;
+					height: 100%;
+					padding: 20px;
+					margin: 0;
+					position: fixed;
+				}
+
+				.fluxograma-modal .modal-footer {
+					text-align: center;
+				}
+
+				.fluxograma-modal .modal-dialog .modal-content {
+					height: 100%;
+				}
+
+				.fluxograma-modal .modal-dialog .modal-body {
+					height: 100%;
+				}
+
+				.escondeGojs {
+					position: absolute;
+					margin-left: 10px;
+					left: 10px;
+					top: 55px;
+					background: rgba(252,244,252,1);
+					background: -moz-linear-gradient(top, rgba(252,244,252,1) 0%, rgba(255,255,255,1) 5%, rgba(255,255,255,1) 96%, rgba(224,255,244,1) 100%);
+					background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(252,244,252,1)), color-stop(5%, rgba(255,255,255,1)), color-stop(96%, rgba(255,255,255,1)), color-stop(100%, rgba(224,255,244,1)));
+					background: -webkit-linear-gradient(top, rgba(252,244,252,1) 0%, rgba(255,255,255,1) 5%, rgba(255,255,255,1) 96%, rgba(224,255,244,1) 100%);
+					background: -o-linear-gradient(top, rgba(252,244,252,1) 0%, rgba(255,255,255,1) 5%, rgba(255,255,255,1) 96%, rgba(224,255,244,1) 100%);
+					background: -ms-linear-gradient(top, rgba(252,244,252,1) 0%, rgba(255,255,255,1) 5%, rgba(255,255,255,1) 96%, rgba(224,255,244,1) 100%);
+					background: linear-gradient(to bottom, rgba(252,244,252,1) 0%, rgba(255,255,255,1) 5%, rgba(255,255,255,1) 96%, rgba(224,255,244,1) 100%);
+					filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcf4fc', endColorstr='#e0fff4', GradientType=0 );
+					width: 200px;
+					z-index: 5;
+					border-radius:10px;
+					border:#e0f4f9 2px solid;
+					padding-bottom: 5px;
+				}
+				.escondeGojs:hover {
+					position: absolute;
+					margin-left: 10px;
+					left: 10px;
+					top: 55px;
+					width: 200px;
+					z-index: 5;
+					border-radius:10px;
+					-webkit-box-shadow: 0px 0px 21px -2px rgba(230,247,245,1);
+					-moz-box-shadow: 0px 0px 21px -2px rgba(230,247,245,1);
+					box-shadow: 0px 0px 21px -2px rgba(230,247,245,1);
+					padding-bottom: 5px;
+				}
+				.Titulo-Legenda{
+					font-size:13px;
+					color:#666;
+					padding-top: 10px;
+					border-radius:8px 8px 0px 0px;
+					background: #ffffff;
+				}
+				.legenda{
+					color:#444444;
+					line-height:15px;
+					font-size:11px;
+					text-align: left;
+					margin-left: 20px;
+
+				}
+				.balao{
+					position: absolute;
+					border-radius:10px 0px 10px 0px;
+					background-color: #eee;
+					padding: 10px;
+					z-index: 10;
+					margin-left: -144px;
+					margin-top: -10px;
+					display:block;
+					z-index: 1000;
+
+				}
+				.balao:after{ /*Triangulo*/
+					content: "";
+					width: 0;
+					height: 0;
+					position: absolute;
+					border-top: 5px solid transparent;
+					border-bottom: 5px solid transparent;
+					border-left: 5px solid #eee;
+					top: 10px; /*localização. Experimente alterar para 'bottom'*/
+					left: 158px;
+
+			</style>
+			<script type="text/javascript" src="#{request.contextPath}/resources/go/release/go.js"></script>
+			<script type="text/javascript" src="#{request.contextPath}/resources/go/release/myDiagram.js"></script>
+			<o:importConstants type="net.wasys.getdoc.domain.enumeration.TipoPrazo" />
+			<getdoc:excluirModal id="excluirModal" metodoExcluir="#{situacaoCrudBean.excluir()}" update="mensagensGlobaisGroup form-situacao-list"/>
+			<h:form id="form-fluxograma">
+				<c:set var="bean" value="#{situacaoCrudBean}" />
+				<b:modal id="fluxograma-modal-id" title="#{msg['situacao.label']}" styleClass="fluxograma-modal" rendered="#{menuBean.podeEditar()}">
+					<h:panelGroup id="fluxograma-modal-content-id">
+						<div id="sample" jsf:rendered="#{bean.diagramModelVO != null}">
+							<div style="width: 100%; display: flex; justify-content: space-between">
+								<div id="toolTipDIV" class="balao">
+									<p id="toolTipParagraph"></p>
+								</div>
+								<div id="diagrama" style="flex-grow: 1; height: 500px; background-color: #ffffff;"></div>
+								<script type="text/javascript">
+									var contextPath = '#{request.contextPath}';
+									var regrasFluxo = #{bean.regrasFluxo};
+									function load() {
+										myDiagram.model = go.Model.fromJson("#{bean.diagramModelVO}");
+									}
+									init();
+								</script>
+							</div>
+						</div>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<div class="escondeGojs">
+							<div class="Titulo-Legenda"><strong>LEGENDA</strong><hr style="width: 160px;margin-top: 5px;"></hr></div>
+							<p align="left" class="legenda"><i class="fa fa-circle" aria-hidden="true" style="color:#5ce747; margin-right: 5px;"></i> Rascunho / Concluído</p>
+							<p class="legenda"><i class="fa fa-circle" aria-hidden="true" style="color:#DC3C00; margin-right: 5px;" ></i> Pendente</p>
+							<p class="legenda"><i class="fa fa-circle" aria-hidden="true" style="color:#00A9C9; margin-right: 5px;"></i> Outros</p>
+							<p class="legenda"><i class="fa fa-cog" aria-hidden="true" style="color:blue; margin-right: 5px;"></i> Regras Decisão de Fluxo</p>
+							<p class="legenda"><i class="fa fa-cog" aria-hidden="true" style="color:red; margin-right: 5px;"></i> Regras Imediatas</p>
+							<p class="legenda"><i class="fa fa-cog" aria-hidden="true"  style="color:yellow; margin-right: 5px;" ></i> Regras Agendadas</p>
+						</div>
+						<b:button value="#{msg['fechar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-situacao">
+				<b:modal id="adicionar-modal-id" title="#{msg['adicionarSituacao.label']}" styleClass="adicionar-modal" rendered="#{menuBean.podeEditar()}">
+					<h:panelGroup id="adicionar-modal-content-id">
+						<b:messages globalOnly="true" showSummary="true"/>
+						<div class="row" jsf:rendered="#{not empty bean.situacao}">
+							<div class="col-md-6">
+								<div class="form-group">
+									<b:selectOneMenu value="#{bean.situacao.tipoProcesso}" label="#{msg['tipoProcesso.label']}" required="true"
+											valueChangeListener="#{bean.selecionaTipoProcesso}">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{bean.todosTiposProcessos}" var="tp" itemValue="#{tp}" itemLabel="#{tp.nome}"/>
+										<f:ajax event="change" render="proximas-situacoes-id"/>
+									</b:selectOneMenu>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<b:inputText value="#{bean.situacao.nome}" label="#{msg['nome.label']}" renderLabel="true" maxlength="120" required="true"/>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<b:selectOneMenu value="#{bean.situacao.status}" label="Status inicial" id="status" >
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{bean.statusProcessos}" var="s" itemLabel="#{msg['StatusProcesso.'.concat(s).concat('.label')]}" itemValue="#{s}" />
+									</b:selectOneMenu>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<b:selectOneMenu value="#{bean.situacao.etapa}" valueChangeListener="#{bean.defineCampoContarSlaEtapa}" label="#{msg['etapa.label']}">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{bean.etapas}" var="etapa" itemValue="#{etapa}" itemLabel="#{etapa.nome}"/>
+										<f:ajax event="change" render="contar-sla-etapa-id" ></f:ajax>
+									</b:selectOneMenu>
+									<b:message/>
+								</div>
+								<h:panelGroup id="div_encaminhado">
+									<div class="form-group" jsf:rendered="#{bean.situacao.encaminhado eq true}">
+										<b:selectOneMenu value="#{bean.situacao.situacaoRetorno}" label="#{msg['situacaoRetorno.label']}" required="true">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{bean.proximas}" var="tp" itemValue="#{tp}" itemLabel="#{tp.nome}"/>
+										</b:selectOneMenu>
+										<b:message/>
+									</div>
+									<div class="form-group" jsf:rendered="#{bean.situacao.status ne 'ENCAMINHADO'}">
+										<div class="col-md-6" style="padding: 0">
+											<h:outputLabel value="#{msg['prazo.label']}" for="prazo-id"/>
+											<div class="form-inline">
+												<b:inputText id="prazo-id" value="#{bean.prazo}" maxlength="4" styleClass="mask-number" style="width: 60px" >
+													<f:convertNumber pattern="####"/>
+												</b:inputText>
+												<b:message/>
+												<b:selectOneMenu value="#{bean.situacao.tipoPrazo}">
+													<f:selectItems value="#{TipoPrazo}" var="t" itemValue="#{t}" itemLabel="#{msg['TipoPrazo.'.concat(t).concat('.label')]}" />
+												</b:selectOneMenu>
+												<b:message/>
+											</div>
+										</div>
+										<div class="col-md-6" style="padding: 0">
+											<h:outputLabel value="#{msg['prazoAdvertir.label']}" for="prazo-advertir-id"/>
+											<div class="form-inline">
+												<b:inputText id="prazo-advertir-id" value="#{bean.prazoAdvertir}" maxlength="4" styleClass="mask-number" style="width: 60px" >
+													<f:convertNumber pattern="####"/>
+												</b:inputText>
+												<b:message/>
+												<b:selectOneMenu value="#{bean.situacao.tipoPrazoAdvertir}">
+													<f:selectItems value="#{TipoPrazo}" var="t" itemValue="#{t}" itemLabel="#{msg['TipoPrazo.'.concat(t).concat('.label')]}" />
+												</b:selectOneMenu>
+												<b:message/>
+											</div>
+										</div>
+									</div>
+								</h:panelGroup>
+							</div>
+							<div class="col-md-3">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['isAtiva.label']}" for="ativaId"/>
+									<h:selectOneRadio id="ativaId" value="#{bean.situacao.ativa}" label="#{msg['isAtiva.label']}" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="Distribuição Automática" for="automaticaId"/>
+									<h:selectOneRadio id="automaticaId" value="#{bean.situacao.distribuicaoAutomatica}" label="#{msg['isAtiva.label']}" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['notificarAutor.label']}" for="notificarId"/>
+									<h:selectOneRadio id="notificarId" value="#{bean.situacao.notificarAutor}" label="#{msg['notificarAutor.label']}" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+								<h:panelGroup id="contar-sla-etapa-id">
+									<div class="form-group">
+										<h:outputLabel value="#{msg['contarTempoSlaEtapa.label']}" for="contarTempoSlaEtapaId"/>
+										<h:selectOneRadio id="contarTempoSlaEtapaId" value="#{bean.situacao.contarTempoSlaEtapa}" label="#{msg['contarTempoSlaEtapa.label']}" styleClass="radio-default">
+											<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}" itemDisabled="#{bean.situacao.etapa.etapaFinal}"/>
+											<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+										</h:selectOneRadio>
+										<b:message/>
+									</div>
+								</h:panelGroup>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['isNotificarSia.label']}" for="notificarSiaId"/>
+									<h:selectOneRadio id="notificarSiaId" value="#{bean.situacao.notificarDocumentosSia}" label="#{msg['isNotificarSia.label']}" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-md-3">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['permiteEdicaoCampos.label']}" for="permiteEdicaoCamposId"/>
+									<h:selectOneRadio id="permiteEdicaoCamposId" value="#{bean.situacao.permiteEditarCampos}" label="#{msg['permiteEdicaoCampos.label']}" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+                                    </h:selectOneRadio>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['encaminhado.label']}" for="encaminhadoId"/>
+									<h:selectOneRadio id="encaminhadoId" value="#{bean.situacao.encaminhado}" label="#{msg['encaminhado.label']}" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+										<f:ajax event="change" execute="encaminhadoId" render="div_encaminhado"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['permiteTipificacao.label']}" for="permiteTipificacao"/>
+									<h:selectOneRadio id="permiteTipificacao" value="#{bean.situacao.permiteTipificacao}" label="#{msg['permiteTipificacao.label']}" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+										<f:ajax event="change" execute="permiteTipificacao" render="div_encaminhado"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['permiteEdicaoDocumentos.label']}" for="permiteEdicaoDocumentosId"/>
+									<h:selectOneRadio id="permiteEdicaoDocumentosId" value="#{bean.situacao.permiteEditarDocumentos}" label="#{msg['permiteEdicaoDocumentos.label']}" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<b:inputText value="#{bean.situacao.acaoFinanciamentos}" label="#{msg['acaoFinanciamentos.label']}" renderLabel="true" maxlength="120" />
+								<b:message/>
+							</div>
+						</div>
+						<div class="row" jsf:rendered="#{not empty bean.situacao}">
+							<div class="col-md-12">
+								<div class="form-group" jsf:id="proximas-situacoes-id">
+									<h:outputLabel value="Próximas Situações *" for="proximasId"/>
+									<p:selectManyCheckbox value="#{bean.proximasSelecionadas}" layout="grid" converter="entityConverter" columns="2" id="proximasId" label="Próximas Situações" >
+										<f:selectItems value="#{bean.proximas}" var="s" itemLabel="#{s.nome}" itemValue="#{s}"/>
+									</p:selectManyCheckbox>
+									<b:message/>
+								</div>
+							</div>
+							<h:panelGroup rendered="#{fecharModal}">
+								<script type="text/javascript">
+									$('.adicionar-modal').modal('hide');
+								</script>
+							</h:panelGroup>
+						</div>
+						<div class="row" jsf:rendered="#{not empty bean.situacao}">
+							<div class="col-md-12">
+								<div class="form-group" jsf:id="subperfis-situacoes-id">
+									<h:outputLabel value="Subperfis Liberado" for="subperfis-situacoes-id"/>
+									<p:selectManyCheckbox value="#{bean.subperfisSelecionados}" layout="grid" converter="entityConverter" columns="3" id="subperfilId" label="Próximas Situações" >
+										<f:selectItems value="#{bean.subperfilList}" var="s" itemLabel="#{s.descricao}" itemValue="#{s}" />
+
+									</p:selectManyCheckbox>
+									<b:message/>
+								</div>
+							</div>
+							<h:panelGroup rendered="#{fecharModal}">
+								<script type="text/javascript">
+									$('.adicionar-modal').modal('hide');
+								</script>
+							</h:panelGroup>
+						</div>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['espelhar.label']}" actionListener="#{bean.espelhar()}" update="adicionar-modal-content-id form-situacao-list mensagensGlobaisGroup"
+								styleClass="btn" rendered="#{menuBean.podeEditar() and not empty bean.situacao.id}"/>
+						<p:commandButton value="#{msg['salvar.label']}" actionListener="#{bean.salvar()}" action="#{bean.carregarFluxoGrama(bean.situacao.tipoProcesso)}" update="adicionar-modal-content-id form-situacao-list form-fluxograma:fluxograma-modal-content-id mensagensGlobaisGroup"
+								styleClass="btn" rendered="#{menuBean.podeEditar()}"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-situacao-list">
+				<div class="row default-form">
+					<div class="col-sm-12">
+						<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+						<div class="row">
+							<div class="col-sm-1" ></div>
+							<div class="col-sm-5" >
+								<div class="form-group">
+									<b:selectOneMenu id="usuarioId" value="#{bean.filtro.tipoProcessoId}" label="#{msg['tipoProcesso.label']}">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{bean.todosTiposProcessos}" var="tp" itemValue="#{tp.id}" itemLabel="#{tp.nome}"/>
+										<f:ajax event="change" render="form-situacao-list"/>
+									</b:selectOneMenu>
+									<b:message for="usuarioId"/>
+								</div>
+						 	</div>
+							<div class="col-sm-5" >
+								<a href="#{request.contextPath}/cadastros/tipos-processos/situacoes/#{bean.filtro.tipoProcessoId}" class="btn btn-primary btn-md" style="margin-top: 24px;">
+									<h:outputText value="#{msg['buscar.label']}"/>
+								</a>
+						 	</div>
+						</div>
+					 </div>
+				</div>
+				<div class="row" jsf:id="row-tabela">
+					<div class="col-sm-12">
+						<div class="row">
+							<div class="col-sm-12">
+								<p:commandLink value="#{msg['adicionarSituacao.label']}" onclick="openModal('adicionar-modal')" class="btn btn-primary btn-lg" style="float: right;" update="form-situacao:adicionar-modal-content-id" rendered="#{menuBean.podeEditar()}">
+									<f:setPropertyActionListener target="#{bean.situacao}" value="#{null}" />
+								</p:commandLink>
+							</div>
+						</div>
+						<p:repeat  var="tipoProcesso" value="#{bean.tiposProcessos}">
+							<h4 class="tituloForm" style="margin-bottom: 0">
+								<p:commandLink action="#{bean.carregarFluxoGrama(tipoProcesso)}" styleClass="tituloForm" oncomplete="openModal('fluxograma-modal');" update="form-fluxograma:fluxograma-modal-content-id">
+									<i class="fa fa-sitemap fa-fw" aria-hidden="true"></i> #{tipoProcesso.nome}
+								</p:commandLink>
+							</h4>
+							<p:dataTable id="tabela-id" var="situacao" value="#{bean.dataModelMap.get(tipoProcesso)}" rows="50" paginator="true" lazy="true"
+									paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+									currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+									paginatorPosition="bottom">
+								<p:column headerText="ID" style="text-align: center; width: 70px;">
+									<h:outputText value="#{situacao.id}" />
+								</p:column>
+								<p:column headerText="#{msg['nome.label']}">
+									<h:outputText value="#{situacao.nome}" />
+								</p:column>
+								<p:column headerText="Próximas Situações">
+									<ui:repeat value="#{bean.getProximasList(situacao)}" var="ssp">
+										#{ssp.proxima.nome},<br/>
+									</ui:repeat>
+								</p:column>
+								<p:column headerText="#{msg['prazo.label']}" style="text-align: center; width: 80px;">
+									<h:outputText value="#{bean.formatarPrazo(situacao.horasPrazo, situacao.tipoPrazo)}" />
+								</p:column>
+								<p:column headerText="#{msg['status.label']}" style="width: 150px; text-align: center;">
+									#{msg['StatusProcesso.'.concat(situacao.status).concat('.label')]}
+								</p:column>
+								<p:column headerText="#{msg['etapa.label']}" style="width: 150px; text-align: center;">
+									#{not empty situacao.etapa ? situacao.etapa.nome : '-'}
+								</p:column>
+								<p:column headerText="#{msg['isAtiva.label']}" style="width: 80px; text-align: center;">
+									<h:outputText value="#{msg['sim.label']}" rendered="#{situacao.ativa}"/>
+									<h:outputText value="#{msg['nao.label']}" rendered="#{!situacao.ativa}"/>
+								</p:column>
+								<p:column style="width: 250px;" sortable="false" rendered="#{menuBean.podeEditar()}">
+									<o:commandScript name="abrirModalKey" actionListener="#{bean.carregarSituacao()}" oncomplete="openModal('adicionar-modal')" render=":form-situacao"/>
+									<p:commandLink actionListener="#{bean.setSituacao(situacao)}" value="#{msg['editar.label']}" onclick="openModal('adicionar-modal')" class="btn btn-warning btn-editar" update="form-situacao:adicionar-modal-content-id">
+									</p:commandLink>
+									<p:commandLink value="#{msg['excluir.label']}" onclick="openModal('excluir-modal', 'excluirModal:form-exclusao:excluir-btn')" class="btn btn-danger btn-excluir" rendered="#{menuBean.podeExcluir()}">
+										<f:setPropertyActionListener target="#{bean.situacao}" value="#{situacao}" />
+									</p:commandLink>
+								</p:column>
+							</p:dataTable>
+						</p:repeat>
+					</div>
+				</div>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

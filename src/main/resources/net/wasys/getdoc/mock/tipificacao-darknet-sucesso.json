@@ -1,0 +1,15 @@
+{
+  "data": [{
+	"topleft": {
+	  "x": 149,
+	  "y": 80
+	},
+	"confidence": 0.9272226095199585,
+	"label": "rg_frente",
+	"bottomright": {
+	  "x": 933,
+	  "y": 1283
+	}
+  }],
+  "status": true
+}

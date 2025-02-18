@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	>
+	<f:metadata>
+		<f:viewAction action="#{relatorioOperacaoBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['relatorioOperacao.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<h:form id="form">
+				<div class="row default-form">
+					<div class="col-sm-12">
+						<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+						<div class="row">
+							<div class="col-sm-1" ></div>
+							<div class="col-sm-5">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['periodo.label']}"/>
+									<b:panelGrid colSpans="1,5,1,5" style="margin-bottom: -20px; margin-left: 5px;">
+										<h:outputText value="#{msg['de.label']}"/>
+										<b:inputText id="dataInicioId" value="#{relatorioOperacaoBean.filtro.dataInicio}" placeholder="dd/mm/aaaa" styleClass="mask-date" label="#{msg['dataInicial.label']}" renderLabel="false">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14" />
+											</f:facet>
+										</b:inputText>
+										<h:outputText value="#{msg['ate.label']}"/>
+										<b:inputText id="dataFimId" value="#{relatorioOperacaoBean.filtro.dataFim}" placeholder="dd/mm/aaaa" styleClass="mask-date" label="#{msg['dataFinal.label']}" renderLabel="false">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14" />
+											</f:facet>
+										</b:inputText>
+									</b:panelGrid>
+									<b:message for="dataInicioId" showSummary="false"/>
+									<b:message for="dataFimId" showSummary="false"/>
+								</div>
+							</div>
+							<div class="col-sm-3">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['tipoProcesso.label']}"/>
+									<p:selectCheckboxMenu value="#{relatorioOperacaoBean.filtro.tipoProcessoIds}" style="overflow: auto;" converter="javax.faces.Long" filter="true" filterMatchMode="contains" multiple="true" label="#{msg['tipoProcesso.label']}">
+										<f:selectItems value="#{relatorioOperacaoBean.tiposProcesso}" var="tp" itemValue="#{tp.id}" itemLabel="#{tp.nome}"/>
+									</p:selectCheckboxMenu>
+								</div>
+							</div>
+							<div class="col-sm-3"></div>
+						 </div>
+						 <div class="row">
+							 <div class="col-sm-1" ></div>
+							 <div class="col-sm-3">
+								 <div class="form-group">
+									 <h:outputLabel value="#{msg['subperfil.label']}"/>
+									 <p:selectCheckboxMenu value="#{relatorioOperacaoBean.filtro.subperfilIds}" style="overflow: auto;" converter="javax.faces.Long" filter="true" filterMatchMode="contains" multiple="true" label="#{msg['tipoProcesso.label']}">
+										 <f:selectItems value="#{relatorioOperacaoBean.subPerfils}" var="sp" itemValue="#{sp.id}" itemLabel="#{sp.descricao}"/>
+									 </p:selectCheckboxMenu>
+								 </div>
+							 </div>
+							 <div class="col-sm-3"></div>
+							 <div class="col-sm-1"></div>
+						 </div>
+						 <div class="row">
+							<div class="col-sm-1"></div>
+							<div class="col-sm-10">
+								<div class="form-group" style="float: right;">
+									<b:commandButton action="#{relatorioOperacaoBean.buscar()}" value="#{msg['buscar.label']}"
+										styleClass="btn btn-primary btn-md" update="tabela-ID" />
+									<b:commandButton value="#{msg['exportar.label']}" styleClass="btn btn-primary btn-md" type="button" onclick="exportarInicioRelatorioOperacao()"
+													 style="margin-left: 10px"/>
+								</div>
+							</div>
+							<div class="col-sm-1"></div>
+						</div>
+					</div>
+					<script type="text/javascript">
+						configurarMascaras();
+						configurarDatePicker();
+					</script>
+				</div>
+				<div class="row" >
+					<div class="col-sm-12" jsf:id="tabela-ID">
+						<p:dataTable var="relatorioOperacaoVO" value="#{relatorioOperacaoBean.relatorioOperacaoVOS}" rows="50"
+									 scrollable="false" binding="#{ utilBean.lazyDataTable }">
+							<p:column headerText="#{msg['processoId.label']}" style="text-align: center; width: 120px;">
+								<a href="#{request.contextPath}/requisicoes/fila/edit/#{relatorioOperacaoVO.processoId}" target="_blank">#{relatorioOperacaoVO.processoId}</a>
+							</p:column>
+							<p:column headerText="#{msg['documento.label']}" style="text-align: center; width: 120px;">
+								<h:outputText value="#{relatorioOperacaoVO.nomeDocumento}" />
+							</p:column>
+							<p:column headerText="#{msg['statusAtual.label']}" style="text-align: center; width: 120px;">
+								<h:outputText value="#{msg['StatusDocumento.'.concat(relatorioOperacaoVO.statusDocumento).concat('.label')]}" />
+							</p:column>
+							<p:column headerText="#{msg['formaIngresso.label']}" style="text-align: center; width: 120px;">
+								<h:outputText value="#{relatorioOperacaoVO.formaIngresso}" />
+							</p:column>
+							<p:column headerText="#{msg['usuario.label']}" style="text-align: center; width: 120px;">
+								<h:outputText value="#{relatorioOperacaoVO.usuario}" />
+							</p:column>
+							<p:column headerText="#{msg['acao.label']}" style="text-align: center; width: 120px;">
+								<h:outputText value="#{msg['AcaoDocumento.'.concat(relatorioOperacaoVO.acaoDocumento).concat('.label')]}" />
+							</p:column>
+							<p:column headerText="#{msg['data.label']}" style="text-align: center; width: 120px;">
+								<h:outputText value="#{utilBean.getDateTimeStr(relatorioOperacaoVO.data)}" />
+							</p:column>
+							<p:column headerText="#{msg['totalImagens.label']}" style="text-align: center; width: 120px;">
+								<h:outputText value="#{relatorioOperacaoVO.totalImagens}" />
+							</p:column>
+						</p:dataTable>
+
+					</div>
+				</div>
+
+				<p:remoteCommand name="exportarRelatorioOperacao" actionListener="#{relatorioOperacaoBean.exportarRelatorioOperacao()}" oncomplete="verificarNoBeanRelatorioOperacao()" />
+				<p:remoteCommand name="verificarNoBeanRelatorioOperacao" actionListener="#{relatorioOperacaoBean.verificarRelatorioOperacao()}" oncomplete="verificarRelatorioOperacao()"/>
+				<b:commandButton id="baixar-id-RelatorioOperacao" style="display: none;" action="#{relatorioOperacaoBean.baixarRelatorioOperacao}"/>
+			</h:form>
+			<script type="text/javascript">
+
+				function exportarInicioRelatorioOperacao() {
+					this.disabled = true;
+					waitingDialog.show('Aguarde...');
+					exportarRelatorioOperacao();
+				}
+
+				function baixarRelatorioOperacao() {
+					document.getElementById('form:baixar-id-RelatorioOperacao').click();
+					waitingDialog.hide();
+				}
+
+				function verificarRelatorioOperacao() {
+
+					var data = OmniFaces.Ajax.data;
+					var terminou = data.terminou;
+
+					if(terminou) {
+						baixarRelatorioOperacao();
+					}
+					else if (terminou == false) {
+						setTimeout(verificarNoBeanRelatorioOperacao, 2000);
+					}
+				}
+
+			</script>
+		</ui:define>
+	</ui:composition>
+</html>

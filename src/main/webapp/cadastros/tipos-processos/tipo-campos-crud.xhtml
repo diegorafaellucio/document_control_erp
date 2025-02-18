@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+	<f:metadata>
+		<f:viewParam name="id" value="#{tipoCampoCrudBean.tipoProcessoId}" />
+		<f:viewAction action="#{tipoCampoCrudBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['tipoCampoCrud.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<style type="text/css">
+				.adicionar-modal > label {
+				   font-size: 12px;
+				}
+				.adicionar-modal .modal-dialog {
+					width: 800px;
+					padding-top: 0px;
+				}
+				.adicionar-modal > .form-group {
+					margin-bottom: 0px;
+				}
+				.adicionar-modal > .row > div {
+					margin-bottom: 0px;
+				}
+				.adicionarGrupo-modal .modal-dialog {
+					width: 750px;
+					padding-top: 0px;
+				}
+			</style>
+			<getdoc:excluirModal id="excluirModal" metodoExcluir="#{tipoCampoCrudBean.excluir()}" update="mensagensGlobaisGroup form-tipoCampo-list"/>
+			<h:form id="form-tipoCampo">
+				<b:modal id="adicionar-modal-id" title="#{msg['adicionarTipoCampo.label']}" styleClass="adicionar-modal" rendxhtred="#{menuBean.podeEditar()}">
+					<h:panelGroup id="adicionar-modal-content-id">
+						<b:messages globalOnly="true" showSummary="true"/>
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="form-group">
+									<b:selectOneMenu id="grupoId" value="#{tipoCampoCrudBean.tipoCampo.grupo}" label="#{msg['grupo.label']}">
+										<f:selectItems value="#{tipoCampoCrudBean.grupos}" var="grupo" itemValue="#{grupo}" itemLabel="#{grupo.nome}"/>
+									</b:selectOneMenu>
+									<b:message for="grupoId"/>
+								</div>
+							</div>
+							<div class="col-sm-6">
+								<div class="form-group">
+									<b:inputText value="#{tipoCampoCrudBean.tipoCampo.nome}" maxlength="50" required="true"
+										id="nomeId" label="#{msg['nome.label']}" renderLabel="true" style="text-transform: uppercase"/>
+									<b:message/>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group">
+									<b:selectOneMenu id="tipoId" value="#{tipoCampoCrudBean.tipoCampo.tipo}" label="#{msg['tipoEntrada.label']}" required="true" valueChangeListener="#{tipoCampoCrudBean.selecionaTipoEntrada}">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{utilBean.getValues('TipoEntradaCampo')}" var="tec" itemValue="#{tec}" itemLabel="#{msg['TipoEntradaCampo.'.concat(tec).concat('.label')]}"/>
+										<f:ajax event="change" execute="@form" render="adicional-info"/>
+									</b:selectOneMenu>
+									<b:message for="tipoId"/>
+								</div>
+								<h:panelGroup id="adicional-info">
+									<h:panelGroup rendered="#{tipoCampoCrudBean.solicitarInfoTamanho()}">
+										<h:outputLabel value="#{msg['tamanho.label']}"/>
+										<div class="row">
+											<div class="col-md-2 noMarginBottom">
+												<h:outputText value="#{msg['minimo.label']}"/>
+											</div>
+											<div class="col-md-4 noMarginBottom">
+												<b:inputText value="#{tipoCampoCrudBean.tipoCampo.tamanhoMinimo}"
+														id="minimoId" label="#{msg['minimo.label']}" renderLabel="false"
+														maxlength="4" styleClass="mask-number" required="true">
+													<f:convertNumber pattern="####"/>
+												</b:inputText>
+											</div>
+											<div class="col-md-2 noMarginBottom">
+												<h:outputText value="#{msg['maximo.label']}"/>
+											</div>
+											<div class="col-md-4 noMarginBottom">
+												<b:inputText value="#{tipoCampoCrudBean.tipoCampo.tamanhoMaximo}"
+															 id="maximoId" label="#{msg['maximo.label']}" renderLabel="false"
+															 maxlength="4" styleClass="mask-number" required="true">
+													<f:convertNumber pattern="####"/>
+												</b:inputText>
+											</div>
+										</div>
+										<b:message for="minimoId" showSummary="false"/>
+										<b:message for="maximoId" showSummary="false"/>
+									</h:panelGroup>
+									<h:panelGroup rendered="#{tipoCampoCrudBean.solicitarInfoOpcoes()}">
+										<div class="form-group" style="margin-bottom: 0;">
+											<h:outputLabel for="opcoes-id" value="#{msg['opcoes.label']} *"/>
+										</div>
+										<div class="row">
+											<b:inputText id="opcoes-id" tags="true" value="#{tipoCampoCrudBean.tipoCampo.opcoes}"
+													placeholder="#{msg['placeholderTagsOpcoes.label']}" styleClass="inputTag" required="true"
+													label="#{msg['opcoes.label']}" render-label="false" tiny-screen="full-width"/>
+										</div>
+										<script type="text/javascript">
+											$('.inputTag').tagsinput('refresh');
+										</script>
+									</h:panelGroup>
+									<h:panelGroup rendered="#{tipoCampoCrudBean.solicitarInfoBaseInterna()}">
+										<div class="form-group">
+											<b:selectOneMenu value="#{tipoCampoCrudBean.tipoCampo.baseInterna}"  label="#{msg['basesInternas.label']}" required="true">
+												<f:selectItem itemValue="" itemLabel=""/>
+												<f:selectItems value="#{tipoCampoCrudBean.basesInternas}" var="bi" itemValue="#{bi}" itemLabel="#{bi.nome}"/>
+											</b:selectOneMenu>
+											<b:message />
+										</div>
+									</h:panelGroup>
+								</h:panelGroup>
+								<div class="row noMarginBottom">
+									<div class="col-md-4 noMarginBottom">
+										<h:outputLabel value="#{msg['isObrigatorio.label']}" for="ativaId"/>
+										<h:selectOneRadio id="ativaId" value="#{tipoCampoCrudBean.tipoCampo.obrigatorio}" label="#{msg['isObrigatorio.label']}" styleClass="radio-default">
+											<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+											<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+										</h:selectOneRadio>
+										<b:message/>
+									</div>
+									<div class="col-md-4 noMarginBottom">
+										<h:outputLabel value="#{msg['isEditavel.label']}" for="editavelId"/>
+										<h:selectOneRadio id="editavelId" value="#{tipoCampoCrudBean.tipoCampo.editavel}" label="#{msg['isEditavel.label']}" styleClass="radio-default">
+											<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+											<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+										</h:selectOneRadio>
+										<b:message/>
+									</div>
+									<div class="col-md-4 noMarginBottom">
+										<h:outputLabel value="#{msg['defineUnicidade.label']}" for="editavelId"/>
+										<h:selectOneRadio id="defineUnicidadeId" value="#{tipoCampoCrudBean.tipoCampo.defineUnicidade}" label="#{msg['defineUnicidade.label']}" styleClass="radio-default">
+											<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+											<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+										</h:selectOneRadio>
+										<b:message/>
+									</div>
+								</div>
+								<div class="form-group">
+									<b:inputText value="#{tipoCampoCrudBean.tipoCampo.dica}" maxlength="200"
+											label="#{msg['dica.label']}" renderLabel="true"/>
+									<b:message/>
+								</div>
+								<div class="row">
+								   <div class="col-sm-12" style="margin-bottom: 0;">
+									   <p:commandLink class="btn btn-default" update="form-tipoCampo:filiacoes-id"
+												style="float: right; padding: 6px 10px 3px 10px;" title="">
+											<f:actionListener binding="#{tipoCampoCrudBean.addFiliacao()}"/>
+										   <i class="fa fa-plus" aria-hidden="true" style="font-size: 22px; color: green;"></i>
+									   </p:commandLink>
+									   <h5 class="tituloForm" style="margin-bottom: 10px;"><h:outputText value="Filiação"/></h5>
+								   </div>
+								</div>
+								<div class="row">
+									<div class="col-sm-4 noMarginBottom">
+										<div class="form-group noMarginBottom"><h:outputLabel value="#{msg['nome.label']}"/></div>
+									</div>
+									<div class="col-sm-8 noMarginBottom">
+										<div class="form-group noMarginBottom"><h:outputLabel value="Campo Pai"/></div>
+									</div>
+								</div>
+								<h:panelGroup id="filiacoes-id">
+								<ui:repeat value="#{tipoCampoCrudBean.getFiliacoes()}" var="pai">
+									<div class="row">
+										<div class="col-sm-4 noMarginBottom">
+											<div class="form-group">
+												<b:inputText tags="true" value="#{pai.nome}" disabled="true"/>
+												<b:message/>
+											</div>
+										</div>
+										<div class="col-sm-7 noMarginBottom">
+											<div class="form-group">
+												<b:selectOneMenu value="#{pai.paiId}" label="Campo Pai" required="true" renderLabel="false">
+													<f:selectItem itemValue="" itemLabel=""/>
+													<f:selectItems value="#{tipoCampoCrudBean.getCamposPais()}" var="cp" itemValue="#{cp.id}" itemLabel="#{cp.grupo.nome.concat(' - ').concat(cp.nome)}"/>
+												</b:selectOneMenu>
+												<b:message/>
+											</div>
+										</div>
+										<div class="col-sm-1">
+											<p:commandLink class="btn btn-danger btnDelFiliacao" style="float: right; " title="Remover item" process="form-tipoCampo:filiacoes-id"
+														   actionListener="#{tipoCampoCrudBean.removeFiliacao(pai)}" update="form-tipoCampo:filiacoes-id">
+												<i class="fa fa-trash fa-1" aria-hidden="true" style=""></i>
+											</p:commandLink>
+										</div>
+									</div>
+								</ui:repeat>
+								</h:panelGroup>
+								<div class="row">
+									<div class="col-sm-12" style="margin-bottom: 0;">
+										<b:inputTextarea value="#{tipoCampoCrudBean.tipoCampo.criterioExibicao}" label="Critério de Exibição" rows="2"/>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-12" style="margin-bottom: 0;">
+										<b:inputTextarea value="#{tipoCampoCrudBean.tipoCampo.criterioFiltro}" label="Critério de Filtro" rows="2"/>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-sm-12" style="margin-bottom: 0;">
+										<b:inputText value="#{tipoCampoCrudBean.tipoCampo.origem}" label="Origem" rows="2" title="Serve para integração automatizada"/>
+									</div>
+								</div>
+							</div>
+						</div>
+						<script type="text/javascript">
+							jQuery(function($) {
+								configurarMascaras();
+								configurarDatePicker();
+							});
+						</script>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['espelhar.label']}" actionListener="#{tipoCampoCrudBean.espelhar()}" update="adicionar-modal-content-id form-tipoCampo-list" styleClass="btn"/>
+						<p:commandButton value="#{msg['salvar.label']}" actionListener="#{tipoCampoCrudBean.salvar()}" update="adicionar-modal-content-id form-tipoCampo-list" styleClass="btn"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-grupo">
+				<b:modal id="adicionarGrupo-modal-id" title="#{msg['adicionarGrupo.label']}" styleClass="adicionarGrupo-modal" rendered="#{menuBean.podeEditar()}">
+					<b:row id="adicionarGrupo-modal-content-id">
+						<div class="col-sm-12" jsf:rendered="#{not empty tipoCampoCrudBean.grupo}">
+							<b:messages globalOnly="true" showSummary="true"/>
+							<div class="row">
+								<div class="col-sm-12">
+									<div class="form-group">
+										<b:inputText value="#{tipoCampoCrudBean.grupo.nome}" maxlength="50" required="true"
+											id="nomeId" label="#{msg['nome.label']}" renderLabel="true"/>
+										<b:message/>
+									</div>
+								</div>
+								<div class="col-sm-12">
+									<div class="form-group">
+										<h:outputLabel value="#{msg['situacoes.label']}" />
+										<p:selectManyCheckbox value="#{tipoCampoCrudBean.proximasSelecionadas}" layout="grid" converter="entityConverter" columns="2"  label="#{msg['situacao.label']}" >
+											<f:selectItems value="#{tipoCampoCrudBean.situacoes}" var="s" itemLabel="#{s.nome}" itemValue="#{s}" />
+										</p:selectManyCheckbox>
+										<b:message/>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-sm-4">
+									<div class="form-group">
+										<b:switch id="criacaoProcesso" onText="#{msg['sim.label']}" label="#{msg['criacaoGrupoCriacaoProcesso.label']}" offText="#{msg['nao.label']}"
+												value="#{ tipoCampoCrudBean.grupo.criacaoProcesso }"/>
+										<b:message/>
+									</div>
+								</div>
+								<div class="col-sm-4">
+									<div class="form-group">
+										<b:switch id="abertoPadrao" onText="#{msg['sim.label']}" label="#{msg['abertoPorPadrao.label']}" offText="#{msg['nao.label']}"
+												value="#{ tipoCampoCrudBean.grupo.abertoPadrao }"/>
+										<b:message/>
+									</div>
+								</div>
+								<div class="col-sm-4">
+									<div class="form-group">
+										<b:switch id="grupoDinamico" onText="#{msg['sim.label']}" label="#{msg['grupoDinamico.label']}" offText="#{msg['nao.label']}"
+                                                value="#{ tipoCampoCrudBean.grupo.grupoDinamico }"/>
+										<b:message/>
+									</div>
+								</div>
+							</div>
+                            <div class="row" >
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        <b:selectOneMenu value="#{tipoCampoCrudBean.grupo.subgrupo}" label="#{msg['subgrupo.label']}">
+                                            <f:selectItem itemLabel="" itemValue="#{null}"/>
+                                            <f:selectItems value="#{ tipoCampoCrudBean.getGruposMenosGrupoAtual() }" var="grupo" itemValue="#{grupo}" itemLabel="#{grupo.nome}"/>
+                                        </b:selectOneMenu>
+                                        <b:message/>
+                                    </div>
+                                </div>
+                            </div>
+						</div>
+						<script type="text/javascript">
+							jQuery(function($) {
+								configurarMascaras();
+								configurarDatePicker();
+							});
+						</script>
+					</b:row>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['salvar.label']}" actionListener="#{tipoCampoCrudBean.salvarGrupo()}" update="adicionarGrupo-modal-content-id form-tipoCampo-list" styleClass="btn"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-tipoCampo-list">
+				<div class="row">
+					<div class="col-sm-6">
+						<div class="form-group" style="float: left; padding-top: 10px;">
+							<h:outputLabel value="#{msg['tipoProcesso.label']}"/>:&nbsp;
+							<h:outputText value="#{tipoCampoCrudBean.tipoProcesso.nome}"/>
+						</div>
+					</div>
+					<div class="col-sm-6" style="text-align: right;">
+ 						<p:commandLink value="#{msg['adicionarGrupo.label']}" onclick="openModal('adicionarGrupo-modal')" class="btn btn-default btn-md" style="margin: 12px 10px 0 0;"
+ 								update="form-grupo:adicionarGrupo-modal-content-id"
+ 								rendered="#{menuBean.podeEditar()}">
+							<f:setPropertyActionListener target="#{tipoCampoCrudBean.grupo}" value="#{null}" />
+						</p:commandLink>
+ 						<p:commandLink value="#{msg['adicionarTipoCampo.label']}" onclick="openModal('adicionar-modal')" class="btn btn-primary btn-lg" update="form-tipoCampo:adicionar-modal-content-id" rendered="#{menuBean.podeEditar()}">
+							<f:setPropertyActionListener target="#{tipoCampoCrudBean.tipoCampo}" value="#{null}" />
+						</p:commandLink>
+					</div>
+				</div>
+				<h:panelGroup id="row-tabela">
+					<div class="row">
+						<div class="col-sm-12">
+							<ui:repeat value="#{tipoCampoCrudBean.grupos}" var="grupo">
+								<h:panelGroup rendered="#{not empty grupo.nome}">
+									<b>##{grupo.id} #{grupo.nome}</b>&nbsp;
+									<p:commandLink onclick="openModal('adicionarGrupo-modal')" class="btn btn-warning btn-md" style="padding: 1px 6px;" title="#{msg['editar.label']}"
+			 								actionListener="#{tipoCampoCrudBean.setGrupo(grupo)}"
+			 								update="form-grupo:adicionarGrupo-modal-content-id">
+										<f:setPropertyActionListener target="#{tipoCampoCrudBean.tipoCampo}" value="#{null}" />
+										<i class="fa fa-pencil" aria-hidden="true"></i>
+									</p:commandLink>
+									<p:commandLink class="btn btn-danger btn-md" style="padding: 1px 6px; margin-left: 5px;"
+											onclick="openModal('excluir-modal', 'excluirModal:form-exclusao:excluir-btn')" title="#{msg['excluir.label']}"
+											actionListener="#{tipoCampoCrudBean.setOptionDeleteGrupo(true, grupo)}" update="form-grupo:adicionarGrupo-modal-content-id" >
+										<f:setPropertyActionListener target="#{tipoCampoCrudBean.tipoCampo}" value="#{null}" />
+										<i class="fa fa-trash fa-1" aria-hidden="true"></i>
+									</p:commandLink>
+									<p:commandLink class="btn btn-md" style="padding: 0px; margin-left: 5px;"
+											actionListener="#{tipoCampoCrudBean.descerOrdem(grupo)}" update="form-tipoCampo-list"
+											rendered="#{rowIndex != list.size() - 1}">
+										<f:setPropertyActionListener target="#{tipoCampoCrudBean.tipoCampo}" value="#{null}" />
+										<span style="font-size: 20px; color: #c2c2a3;" class="glyphicon glyphicon-download" aria-hidden="true"></span>
+									</p:commandLink>
+									<p:commandLink class="btn btn-md" style="padding: 0px;"
+											actionListener="#{tipoCampoCrudBean.subirOrdem(grupo)}" update="form-tipoCampo-list"
+											rendered="#{rowIndex != 0}">
+										<f:setPropertyActionListener target="#{tipoCampoCrudBean.tipoCampo}" value="#{null}" />
+										<span style="font-size: 20px; color: #c2c2a3" class="glyphicon glyphicon-upload" aria-hidden="true"></span>
+									</p:commandLink>
+								</h:panelGroup>
+								<ui:param name="list" value="#{tipoCampoCrudBean.camposMap.get(grupo)}"/>
+								<p:dataTable var="tipoCampo" value="#{list}" paginatorTemplate="{CurrentPageReport}"
+										currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+										paginatorPosition="bottom" rowIndexVar="rowIndex" rowStyleClass="rowHeight">
+									<p:column headerText="ID" style="text-align: left; width: 40px; position: relative; overflow: visible;" >
+										<h:outputText value="#{tipoCampo.id}" />
+										<span style="font-size: 10px; color: black; float: right; top: 19px; right: -10px; position: absolute;" class="glyphicon glyphicon-lock"
+												jsf:rendered="#{tipoCampo.defineUnicidade}" title="#{msg['defineUnicidade.label']}"></span>
+									</p:column>
+									<p:column headerText="#{msg['nome.label']}" style="text-align: center;">
+										<h:outputText value="#{tipoCampo.nome}" />
+									</p:column>
+									<p:column headerText="#{msg['tipoEntrada.label']}" style="text-align: center;">
+										<h:outputText value="#{msg['TipoEntradaCampo.'.concat(tipoCampo.tipo).concat('.label')]}" />
+									</p:column>
+									<p:column headerText="#{msg['tamanho.label']}" style="text-align: center;">
+										<h:outputText value="#{msg['minimo.label']}"/>: <h:outputText value="#{tipoCampo.tamanhoMinimo}"/> &nbsp;
+									<h:outputText value="#{msg['maximo.label']}"/>: <h:outputText value="#{tipoCampo.tamanhoMaximo}"/>
+									</p:column>
+									<p:column headerText="#{msg['isObrigatorio.label']}" style="width: 100px; text-align: center;">
+										<h:outputText value="#{msg['sim.label']}" rendered="#{tipoCampo.obrigatorio}"/>
+										<h:outputText value="#{msg['nao.label']}" rendered="#{!tipoCampo.obrigatorio}"/>
+									</p:column>
+									<p:column style="width: 290px;" sortable="false" rendered="#{menuBean.podeEditar()}">
+										<div style="float: left; margin-top: 6px; padding-right: 5px;">
+											<div style="float: left; width: 25px;">
+												<p:commandLink actionListener="#{tipoCampoCrudBean.descerOrdem(tipoCampo)}" update="form-tipoCampo-list:row-tabela"
+													rendered="#{rowIndex != list.size() - 1}">
+													<span style="font-size: 20px;" class="glyphicon glyphicon-download" aria-hidden="true"></span>
+												</p:commandLink>&nbsp;
+											</div>
+											<div style="float: left; width: 25px;">
+												<p:commandLink actionListener="#{tipoCampoCrudBean.subirOrdem(tipoCampo)}" update="form-tipoCampo-list:row-tabela"
+													rendered="#{rowIndex != 0}">
+													<span style="font-size: 20px;" class="glyphicon glyphicon-upload" aria-hidden="true"></span>
+												</p:commandLink>
+											</div>
+										</div>
+										<p:commandLink value="#{msg['editar.label']}" onclick="openModal('adicionar-modal')" class="btn btn-warning btn-editar" update="form-tipoCampo:adicionar-modal-content-id">
+											<f:setPropertyActionListener target="#{tipoCampoCrudBean.tipoCampo}" value="#{tipoCampo}" />
+										</p:commandLink>
+										<p:commandLink value="#{msg['excluir.label']}" onclick="openModal('excluir-modal', 'excluirModal:form-exclusao:excluir-btn')" class="btn btn-danger btn-excluir" rendered="#{menuBean.podeExcluir()}">
+											<f:setPropertyActionListener target="#{tipoCampoCrudBean.tipoCampo}" value="#{tipoCampo}" />
+										</p:commandLink>
+									</p:column>
+								</p:dataTable>
+								<br/>
+							</ui:repeat>
+						</div>
+					</div>
+				</h:panelGroup>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

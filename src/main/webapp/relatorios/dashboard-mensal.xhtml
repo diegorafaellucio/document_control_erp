@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:b="http://bootsfaces.net/ui"
+      xmlns:o="http://omnifaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:jsf="http://xmlns.jcp.org/jsf"
+      xmlns:of="http://omnifaces.org/functions">
+<f:metadata>
+    <f:viewAction action="#{dashboardMensalBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/navegacao.xhtml">
+    <ui:include src="/WEB-INF/include/footer.xhtml"/>
+    <ui:define name="head">
+        <link href="#{request.contextPath}/resources/css/prism.css" rel="stylesheet"/>
+        <script src="#{request.contextPath}/resources/highcharts/highcharts.js"></script>
+        <script src="#{request.contextPath}/resources/highcharts/modules/data.js"></script>
+        <script src="#{request.contextPath}/resources/highcharts/modules/exporting.js"></script>
+    </ui:define>
+    <ui:define name="tituloPagina">#{msg['dashboardMensal.label']}</ui:define>
+    <ui:define name="conteudo">
+        <h:form id="form-dashboard">
+            <c:set var="bean" value="#{dashboardMensalBean}" />
+            <div class="row default-form">
+                <div class="col-sm-8">
+                    <h4 class="tituloForm" style="margin-top: 13px;"><h:outputText value="#{msg['dashboardMensal.label']}"/></h4>
+                </div>
+                <div class="col-sm-2" style="margin-top: 0; padding-left: 5px;">
+                    <p:commandLink id="btn-filtrar-id" value="#{msg['filtrar.label']}" onclick="showHideFiltro()" styleClass="btn btn-primary btn-md"
+                                   style="margin-right: 15px; background-color: #d3d3d3;" process="@this" />
+                    <p:commandLink id="reloadAutomaticoId" actionListener="#{bean.reloadAutomatico()}" process="@this" update="reloadAutomaticoId" styleClass="btn btn-md"
+                                   style="margin-right: 5px; background-color: #{bean.reloadAutomatico ? '#d3d3d3' : '#fff'}" title="Atualizar a cada 5 min.">
+                        <i class="fa fa-clock-o" style="font-size: 16px; color: #{bean.reloadAutomatico ? '#000' : '#337ab7'}"></i>
+                    </p:commandLink>
+                    <p:commandLink id="modoTelaCheiaId" actionListener="#{bean.modoTelaCheia()}" process="@this" update="modoTelaCheiaId" styleClass="btn btn-md"
+                                   style="background-color: #{bean.modoTelaCheia ? '#d3d3d3' : '#fff'}" title="Tela cheia">
+                        <i class="fa fa-expand" style="font-size: 16px; color: #{bean.modoTelaCheia ? '#000' : '#337ab7'}"></i>
+                    </p:commandLink>
+                </div>
+                <div class="col-sm-2">
+
+                    <p:commandLink id="exportarId" value="#{msg['exportar.label']}" styleClass="btn btn-primary btn-md" type="button" onclick="exportarInicio()"
+                                   style="margin-left: 0px; margin-right: 15px;display:none" />
+
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <b:messages id="message" globalOnly="true" showSummary="true"/>
+            </div>
+            <h:panelGroup id="filtros-id">
+                <div class="row">
+                    <div class="col-sm-1" ></div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <h:outputLabel value="#{msg['periodo.label']}"/>
+                            <b:panelGrid colSpans="1,5,1,5" style="margin-bottom: -20px; margin-left: 5px;">
+                                <h:outputLabel value="Mês" />
+                                <h:selectOneMenu styleClass="form-control" value="#{bean.filtro.mes}">
+                                    <f:selectItems value="#{bean.meses.keySet()}" var="mes" itemValue="#{mes}" itemLabel="#{bean.meses.get(mes)}"/>
+                                </h:selectOneMenu>
+                                <b:message/>
+                            </b:panelGrid>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <h:outputLabel value="#{msg['periodo.label']}"/>
+                            <b:panelGrid colSpans="1,5,1,5" style="margin-bottom: -20px; margin-left: 5px;">
+                                <h:outputLabel value="Ano" />
+                                <h:selectOneMenu styleClass="form-control" value="#{bean.filtro.ano}">
+                                    <f:selectItems value="#{bean.anos}" var="ano" itemValue="#{ano}" itemLabel="#{ano}"/>
+                                </h:selectOneMenu>
+                                <b:message/>
+                            </b:panelGrid>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <h:outputLabel value="#{msg['tipoProcesso.label']}" />
+                            <p:selectCheckboxMenu value="#{bean.filtro.tiposProcessoId}" label="#{msg['tipoProcesso.label']}"
+                                                  style="form-control bf-no-message has-success" multiple="true" converter="javax.faces.Long">
+                                <f:selectItems value="#{bean.tiposProcesso}" var="item" itemLabel="#{item.nome}" itemValue="#{item.id}"/>
+                            </p:selectCheckboxMenu>
+                            <b:message/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-1" ></div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <h:outputLabel value="#{msg['regional.label']}" />
+                            <h:selectOneMenu styleClass="form-control" value="#{bean.filtro.regional}" >
+                                <f:selectItem itemValue="" itemLabel=""/>
+                                <f:selectItems value="#{bean.regionais}" var="regional" itemValue="#{regional.baseRegistro.chaveUnicidade}" itemLabel="#{regional.label}"/>
+                                <f:ajax event="change" render="filtros-id" listener="#{bean.findCampusList}"/>
+                            </h:selectOneMenu>
+                            <b:message/>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <h:outputLabel value="#{msg['campus.label']}" />
+                            <h:selectOneMenu styleClass="form-control" value="#{bean.filtro.campus}">
+                                <f:selectItem itemValue="" itemLabel=""/>
+                                <f:selectItems value="#{bean.campusList}" var="campus" itemValue="#{campus.baseRegistro.chaveUnicidade}" itemLabel="#{campus.label}"/>
+                                <f:ajax event="change" render="filtros-id" listener="#{bean.findCursos}"/>
+                            </h:selectOneMenu>
+                            <b:message/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-1" ></div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <h:outputLabel value="#{msg['curso.label']}" />
+                            <h:selectOneMenu styleClass="form-control" value="#{bean.filtro.curso}">
+                                <f:selectItem itemValue="" itemLabel=""/>
+                                <f:selectItems value="#{bean.cursos}" var="curso" itemValue="#{curso.baseRegistro.chaveUnicidade}" itemLabel="#{curso.label}"/>
+                            </h:selectOneMenu>
+                            <b:message/>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <o:importConstants type="net.wasys.getdoc.domain.enumeration.Origem" />
+                            <b:selectOneMenu value="#{bean.filtro.origemProcesso}" label="#{msg['origem.label']}">
+                                <f:selectItem itemValue="" itemLabel=""/>
+                                <f:selectItem itemValue="#{Origem.PORTAL_GRADUCAO}" itemLabel="Portal Graduação"/>
+                                <f:selectItem itemValue="#{Origem.PORTAL_POS_GRADUACAO}" itemLabel="Portal Pós-Graduação"/>
+                                <f:selectItem itemValue="#{Origem.WEB}" itemLabel="Sala Matrícula"/>
+                            </b:selectOneMenu>
+                            <b:message/>
+                        </div>
+                    </div>
+                    <div class="col-sm-3"></div>
+                    <div class="col-sm-3">
+                        <div class="form-group" style="padding-top: 15px">
+                            <p:commandLink id="buscar-id" action="#{bean.buscar()}" value="#{msg['buscar.label']}" update="form-dashboard:message charts-id"
+                                           styleClass="btn btn-primary btn-md" style="float: right;" />
+                        </div>
+                    </div>
+                </div>
+            </h:panelGroup>
+            <h:panelGroup id="charts-id" style="display: none">
+
+
+                <div class="row default-form" >
+                    <div class="col-sm-12">
+                        <h4 style="margin: 0; color: #cc092f; border-bottom: none;"><h:outputText value="#{msg['mensal.label']}"/></h4>
+                        <div id="conferidoPorDia" style="height: 230px; margin: 0"></div>
+                        <script type="text/javascript">
+							function drawConferidoPorDia(qtdPorDia, yMax, y2Max, totalDia, conferido, diasMes, mes) {
+								Highcharts.chart('conferidoPorDia', {
+									chart: {
+										zoomType: 'xy'
+									},
+									title: {
+										text: mes
+									},
+									subtitle: {
+										text: ''
+									},
+									xAxis: [{
+										categories: diasMes,
+										crosshair: true
+									}],
+									yAxis: [{ // Primary yAxis
+										labels: {
+											format: '{value} tickets',
+											style: {
+												color: Highcharts.getOptions().colors[1]
+											}
+										},
+										title: {
+											text: 'Volume de tickets',
+											style: {
+												color: Highcharts.getOptions().colors[1]
+											}
+										},
+										max: yMax,
+										min: 0
+									}, { // Secondary yAxis
+										title: {
+											text: 'Tempo até a conclusão da análise',
+											style: {
+												color: Highcharts.getOptions().colors[0]
+											}
+										},
+										labels: {
+											format: '{value} horas',
+											style: {
+												color: Highcharts.getOptions().colors[0]
+											}
+										},
+										max: y2Max,
+										min: 0,
+										opposite: true
+									}],
+									tooltip: {
+										shared: true
+									},
+									legend: {
+										layout: 'vertical',
+										align: 'left',
+										x: 120,
+										verticalAlign: 'top',
+										y: 0,
+										floating: true,
+										backgroundColor:
+											Highcharts.defaultOptions.legend.backgroundColor || // theme
+											'rgba(255,255,255,0.25)'
+									},
+									series: [{
+										name: 'Contagem de Tickets - Total ('+totalDia+')',
+										type: 'column',
+										yAxis: 0,
+										data: qtdPorDia,
+										tooltip: {
+											valueSuffix: ' tickets'
+										}
+
+									}, {
+										name: 'Média de Tempo em Análise',
+										type: 'spline',
+										yAxis: 1,
+										data: conferido,
+										tooltip: {
+											valueSuffix: ' horas'
+										}
+									}]
+								});
+							}
+                        </script>
+                    </div>
+                </div>
+                <div class="row default-form" >
+                    <div class="col-sm-12">
+                        <h4 style="margin: 0; color: #cc092f; border-bottom: none;"><h:outputText value="#{msg['consolidado.label']}"/></h4>
+                        <div id="conferidoPorMes" style="height: 230px; margin: 0"></div>
+                        <script type="text/javascript">
+							function drawConferidoPorMes(qtdPorMes, yMax, y2Max, conferido, meses, title) {
+								Highcharts.chart('conferidoPorMes', {
+									chart: {
+										zoomType: 'xy'
+									},
+									title: {
+										text: title
+									},
+									subtitle: {
+										text: ''
+									},
+									xAxis: [{
+										categories: meses,
+										crosshair: true
+									}],
+									yAxis: [{ // Primary yAxis
+										labels: {
+											format: '{value} tickets',
+											style: {
+												color: Highcharts.getOptions().colors[1]
+											}
+										},
+										title: {
+											text: 'Volume de tickets',
+											style: {
+												color: Highcharts.getOptions().colors[1]
+											}
+										},
+										max: yMax,
+										min: 0
+									}, { // Secondary yAxis
+										title: {
+											text: 'Tempo até a conclusão da análise',
+											style: {
+												color: Highcharts.getOptions().colors[0]
+											}
+										},
+										labels: {
+											format: '{value} horas',
+											style: {
+												color: Highcharts.getOptions().colors[0]
+											}
+										},
+										max: y2Max,
+										min: 0,
+										opposite: true
+									}],
+									tooltip: {
+										shared: true
+									},
+									legend: {
+										layout: 'vertical',
+										align: 'left',
+										x: 120,
+										verticalAlign: 'top',
+										y: 0,
+										floating: true,
+										backgroundColor:
+											Highcharts.defaultOptions.legend.backgroundColor || // theme
+											'rgba(255,255,255,0.25)'
+									},
+									series: [{
+										name: 'Contagem de Tickets',
+										type: 'column',
+										yAxis: 0,
+										data: qtdPorMes,
+										tooltip: {
+											valueSuffix: ' tickets'
+										}
+
+									}, {
+										name: 'Média de Tempo em Análise',
+										type: 'spline',
+										yAxis: 1,
+										data: conferido,
+										tooltip: {
+											valueSuffix: ' horas'
+										}
+									}]
+								});
+							}
+                        </script>
+                    </div>
+                </div>
+            </h:panelGroup>
+            <p:remoteCommand name="exportar" actionListener="#{bean.exportar()}" oncomplete="verificarNoBean()" />
+            <p:remoteCommand name="verificarNoBean" actionListener="#{bean.verificar()}" oncomplete="verificar()"/>
+            <b:commandButton id="baixarId" value="#{msg['baixar.label']}" style="display:none" action="#{bean.baixar}"/>
+        </h:form>
+        <script type="text/javascript">
+
+			var timeout;
+
+			function exportarInicio() {
+				document.getElementById('form-dashboard:buscar-id').disabled = true;
+				document.getElementById('form-dashboard:exportarId').disabled = true;
+				this.disabled = true;
+				waitingDialog.show('Aguarde...');
+				exportar();
+			}
+
+			function baixar() {
+				document.getElementById('form-dashboard:baixarId').click();
+				document.getElementById('form-dashboard:buscar-id').disabled = false;
+				document.getElementById('form-dashboard:exportarId').disabled = false;
+				waitingDialog.hide();
+			}
+
+			function verificar() {
+
+				var data = OmniFaces.Ajax.data;
+				var terminou = data.terminou;
+
+				if(terminou) {
+					baixar();
+				}
+				else if (terminou == false) {
+					setTimeout(verificarNoBean, 2000);
+				}
+			}
+
+			function startReloadAutomatico() {
+				document.getElementById("form-dashboard:buscar-id").click();
+				timeout = setTimeout("startReloadAutomatico()",300000); //5 minutos
+			}
+
+			function stopReloadAutomatico() {
+				clearTimeout(timeout);
+			}
+
+			function showCharts() {
+				document.getElementById("form-dashboard:charts-id").style.display = "block";
+			}
+
+			function showFiltro() {
+				document.getElementById("form-dashboard:filtros-id").style.display = "block";
+				document.getElementById("form-dashboard:btn-filtrar-id").style.backgroundColor = '#d3d3d3';
+				document.getElementById("form-dashboard:exportarId").style.display = 'none';
+			}
+			function hideFiltro() {
+				document.getElementById("form-dashboard:filtros-id").style.display = "none";
+				document.getElementById("form-dashboard:btn-filtrar-id").style.backgroundColor = '#337ab7';
+				document.getElementById("form-dashboard:exportarId").style.display = 'block';
+
+			}
+			function showHideFiltro(){
+				var display = document.getElementById("form-dashboard:filtros-id").style.display;
+
+				if(display == "none"){
+					showFiltro();
+				}
+				else if(display == "block") {
+					hideFiltro();
+				}
+			}
+
+			function start(){
+				hideFiltro();
+				showCharts();
+			}
+
+			function openFullscreen() {
+				document.getElementById("header").style.display = "none";
+				document.getElementById("content").style.paddingTop = "70px";
+				document.getElementById("footer").style.display = "none";
+				document.getElementById("content").style.paddingBottom = "15px";
+				document.documentElement.requestFullscreen();
+			}
+			function exitFullscreen() {
+				document.getElementById("header").style.display = "block";
+				document.getElementById("content").style.paddingTop = "10px";
+				document.getElementById("footer").style.display = "block";
+				document.getElementById("content").style.paddingBottom = "100px";
+				document.exitFullscreen();
+			}
+
+        </script>
+        <script type="text/javascript" jsf:rendered="#{not empty bean.exporter}">
+			exportarInicio();
+        </script>
+    </ui:define>
+</ui:composition>
+</html>

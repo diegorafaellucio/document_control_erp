@@ -1,0 +1,327 @@
+<ui:composition
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+>
+	<style type="text/css">
+		.timer-group {
+			background-color: #d42a3a;
+			font-family: sans-serif;
+			font-weight: bold;
+			font-size: 20px;
+			color: white;
+			padding: 2px 5px;
+			text-align: center;
+			position: absolute;
+			border-radius: 4px;
+			border: 1px solid transparent;
+			margin-top: 5px;
+			width: auto !important;
+			margin-left: -165px;
+			left: 50%;
+		}
+	</style>
+	<header class="navbar navbar-inverse navbar-fixed-top headerTop" role="banner">
+		<div class="container">
+			<div class="navbar-header" style="width: 100%;">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+					<span class="sr-only"><h:outputText value="#{msg['menu.label']}"/> </span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+			</div>
+<!-- 		Logo -->
+			<div class="logo">
+				<a href="/">
+					<img src="#{request.contextPath}/imgfiles/imagem_layout/logo.png" style="max-height: 90px; max-width: 190px; margin-top: 5px"/>
+			 	</a>
+			</div>
+			<div>
+				<div class="col-sm-12">
+					<script jsf:target="#{pausaBean.iniciarPausaBean()}"/>
+					<h:panelGroup rendered="#{pausaBean.analista.distribuirDemandaAutomaticamente}">
+						<h:panelGroup style="display: flex; z-index: 9999; cursor: default;" layout="block" styleClass="timer-group btn" rendered="#{pausaBean.getMostrarTempo()}">
+							<div style="font-size: 0.55em; display: block;" jsf:rendered="#{not empty pausaBean.analista.processoAtualId and not pausaBean.analistaEstaEmPausa()}">
+								Trabalhando na requisição
+								<a href="#{request.contextPath}/requisicoes/fila/edit/#{pausaBean.analista.processoAtualId}" style="color: #fff; text-decoration: underline;">
+									#{pausaBean.analista.processoAtualId}
+								</a>
+								<h:outputText style="font-size: 2.2em; padding-right: 4px;"> </h:outputText>
+							</div>
+							<div style="font-size: 0.55em; display: block;" jsf:rendered="#{pausaBean.analistaEstaEmPausa()}">
+								Está em pausa
+								#{pausaBean.analista.statusLaboral.nome}
+								<h:outputText style="font-size: 2.2em; padding-right: 4px;"> </h:outputText>
+							</div>
+							<div id="div-tempo-tratativa" style="display: none;">
+								<div style="font-size: 0.55em; display: block;">
+									a
+									<h:outputText styleClass="timerHours" style="font-size: 2.2em;"/>h
+								</div>
+								<div style="display: block;">
+									<div style=" vertical-align: middle;">:</div>
+								</div>
+								<div style="font-size: 0.55em; display: block;">
+									<h:outputText styleClass="timerMinutes" style="font-size: 2.2em;"/>m
+								</div>
+								<div style="display: block;">
+									<div style=" vertical-align: middle;">:</div>
+								</div>
+								<div style="font-size: 0.55em; display: block;">
+									<h:outputText styleClass="timerSeconds" style="font-size: 2.2em;"/>s
+								</div>
+							</div>
+							<script language="javascript">
+								var startStr = "#{pausaBean.getUltimoLogAtendimento().inicio}"
+								var start = new Date(startStr);
+								var timeHours;
+								var timeMinutes;
+								var timeSeconds;
+								function formatarIntervalo() {
+									seconds = (new Date() - start) / 1000;
+									timeHours = moment().startOf('day').seconds(seconds).format('HH');
+									timeMinutes = moment().startOf('day').seconds(seconds).format('mm');
+									timeSeconds = moment().startOf('day').seconds(seconds).format('ss');
+									return moment().startOf('day').seconds(seconds).format('HH:mm:ss');
+								}
+								function setTempoRequisicao() {
+									if(startStr) {
+										$('#div-tempo-tratativa').css('display', 'flex');
+										$('.timer').text(' ' + formatarIntervalo());
+										$('.timerHours').text('' + timeHours);
+										$('.timerMinutes').text('' + timeMinutes);
+										$('.timerSeconds').text('' + timeSeconds);
+									}
+									else {
+										$('.timer-group').css('width', '195px');
+									}
+								};
+								setTempoRequisicao();
+								setInterval(setTempoRequisicao, 1000);
+							</script>
+						</h:panelGroup>
+						<h:panelGroup style="display: flex; padding: 2px 5px; background-color: transparent;" layout="block" styleClass="timer-group" rendered="#{(empty pausaBean.analista.processoAtualId or pausaBean.analista.podeTrocarProcessoAtual) and not pausaBean.analistaEstaEmPausa()}">
+							<h:form>
+							<p:commandLink id="aguardando-proxima-requisicao-btn-id" styleClass="aguardando-proxima-requisicao-btn btn btn-lg" style="margin-left: 5px; font-size: 16px !important; font-weight: 600; color: #212529; background-color: #fdd559;"
+										   actionListener="#{processoFilaBean.proximaRequisicao}" value=""
+										   onerror="alert('Erro!'); document.location.reload();" update="mensagensGlobaisGroup" oncomplete="setTimeout(checkProximaOk, 1000)"/>
+							<p:remoteCommand name="entrarSituacaoAtendimentoProgramada" actionListener="#{pausaBean.entrarSituacaoAtendimentoProgramada()}" oncomplete="location.reload();"/>
+							<script type="application/javascript">
+								//<![CDATA[
+								$(function () {
+									showTimerProximaRequisicao()
+								})
+
+								function showTimerProximaRequisicao() {
+
+									var programouSituacao = "#{pausaBean.getProgramouSituacaoAtendimento()}";
+
+									if (#{pausaBean.estaDisponivel() || pausaBean.estaEmPausaSistema()}) {
+										jQuery(document).ready(function () {
+											if (programouSituacao == 'true') {
+												entrarSituacaoAtendimentoProgramada();
+											};
+										});
+									}
+
+									var estaEmPausa = "#{pausaBean.estaEmPausa()}";
+									if (estaEmPausa == 'false') {
+
+										if (programouSituacao == 'true') {
+											return;
+										}
+
+										let tempoSegundos = #{utilBean.intervaloDistribuicaoAutomatica};
+
+										function pad(value) {
+											return (value < 10 ? '0' : '') + value;
+										}
+
+										function step() {
+											$('.aguardando-proxima-requisicao-btn').text('Próxima requisição em ' + Math.floor(tempoSegundos / 60) + ':' + pad(tempoSegundos % 60) + '...');
+
+											if (tempoSegundos <= 0) {
+												$('.aguardando-proxima-requisicao-btn').click();
+											} else {
+												tempoSegundos--;
+												setTimeout(step, 1000);
+											}
+										};
+
+										step();
+
+									} else {
+
+										var prazoEstouroPermitido = (#{pausaBean.analista.statusLaboral.prazoEstouroPermitido});
+										var duracao = (#{pausaBean.analista.statusLaboral.duracaoPadrao} * 60);
+										var tempoPrazoMaximo = duracao + prazoEstouroPermitido;
+										var startTimeStr = "#{pausaBean.getUltimoLogAtendimento().inicio}";
+										var startTime = new Date(startTimeStr);
+
+										function fimDaPausa() {
+
+											var endTime = new Date();
+											var difference = endTime.getTime() - startTime.getTime();
+											var tempoDePausa = difference / 1000;
+											if (tempoDePausa > tempoPrazoMaximo) {
+												alert('Tempo Prazo Máximo de Pausa Estourado, clique OK para sair da pausa...');
+												$('.aguardando-proxima-requisicao-btn').click();
+											} else {
+												setTimeout(fimDaPausa, 1000);
+											}
+										};
+
+										fimDaPausa();
+									}
+
+								}
+
+								function checkProximaOk() {
+
+									let temErro = $('.alert-danger', '#mensagensGlobaisGroup').size();
+									if(temErro) {
+										let tempoSegundos = #{utilBean.intervaloDistribuicaoAutomatica};
+										function reload() {document.location.reload()};
+										setTimeout(reload, tempoSegundos * 1000);
+									}
+									let temInfo = $('.alert-info', '#mensagensGlobaisGroup').size();
+									if(temInfo) {
+										let tempoSegundos = #{utilBean.intervaloDistribuicaoAutomatica};
+										function reload() {document.location.reload()};
+										setTimeout(reload, tempoSegundos * 1000);
+									}
+								}
+
+								//]]>
+							</script>
+							</h:form>
+						</h:panelGroup>
+					</h:panelGroup>
+					<div class="status-login-menu collapse navbar-collapse">
+						<ul class="nav navbar-nav navbar-right" style="margin-top: 0; background-color: #fff;">
+							<li>
+								<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+									<span>#{utilBean.usuarioLogado.nome} (#{msg['RoleGD.'.concat(utilBean.usuarioLogado.roleGD).concat('.label')]} #{utilBean.usuarioLogado.subperfilAtivo.descricao})</span>
+									<i class="fa fa-user-circle"></i>
+								</a>
+								<ul class="dropdown-menu">
+									<li><a href="#{request.contextPath}/trocar-senha.xhtml">
+										<i class="fa fa-lock" style="padding-right: 5px;"></i>
+										<h:outputText value="#{msg['alterarSenha.label']}"/>
+									</a></li>
+									<ui:repeat value="#{utilBean.toList(utilBean.usuarioLogado.subperfils)}" var="us">
+										<li><a href="#{request.contextPath}/requisicoes/fila/?subperfil=#{us.subperfil.id}">
+											<i class="fa fa-exchange" aria-hidden="true"></i>
+											#{us.subperfil.descricao}
+										</a></li>
+									</ui:repeat>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="menu-itens">
+			<div class="container">
+				<h:form>
+					<div class="collapse navbar-collapse">
+						<ul class="nav navbar-nav navbar-right">
+							<li>
+								<p:commandButton id="dynaButton" styleClass="btn glyphicon glyphicon-pause"
+												  value=""
+												  type="button"
+												  data-toggle="tooltip" data-placement="top"
+												  title="#{pausaBean.getStrSituacaoAtendimentoProgramada()}"
+												  rendered="#{pausaBean.isPausarStatusLaboral() and !pausaBean.estaEmPausa()}"/>
+								<p:menu style="font-size: 20px;" overlay="true" trigger="dynaButton"
+										 my="left top"
+										 at="left bottom"
+										 rendered="#{pausaBean.isPausarStatusLaboral()}">
+									<c:forEach var="sit" items="#{pausaBean.getSituacaoAtendimentoList()}">
+										<p:menuitem value="#{sit.nome}" action="#{pausaBean.entrarEmPausa(sit)}"
+													 oncomplete="location.reload();"/>
+									</c:forEach>
+								</p:menu>
+
+								<p:commandButton id="playButton" styleClass="btn glyphicon glyphicon-play"
+												  value=""
+												  update="@this"
+												  title="Sair da Pausa"
+												  actionListener="#{pausaBean.criarPausaSistema()}"
+												  oncomplete="location.reload();"
+												  rendered="#{pausaBean.isPausarStatusLaboral() and pausaBean.estaEmPausa()}"/>
+							</li>
+							<ui:repeat value="#{menuBean.arvoreMenuItens}" var="item">
+								<li class="#{menuBean.menuClass(item)}">
+									<h:panelGroup rendered="#{empty item.menuItens}">
+										<a href="#{request.contextPath}#{item.url}"><h:outputText value="#{msg[item.labelKey]}"/></a>
+									</h:panelGroup>
+									<h:panelGroup rendered="#{not empty item.menuItens}">
+										<a href="#" class="dropdown-toggle" data-toggle="dropdown"><h:outputText value="#{msg[item.labelKey]}"/> <i class="icon-angle-down"></i></a>
+										<ul class="dropdown-menu dropdown-menu-left scrollable-menu">
+											<ui:repeat value="#{item.menuItens}" var="subItem" >
+												<li class="#{menuBean.menuClass(subItem)}">
+													<a href="#{request.contextPath}#{subItem.url}"><h:outputText value="#{msg[subItem.labelKey]}"/></a>
+												</li>
+											</ui:repeat>
+										</ul>
+									</h:panelGroup>
+								</li>
+							</ui:repeat>
+							<h:panelGroup rendered="#{utilBean.usuarioLogado.subperfilAtivo.id eq utilBean.getCscAdmId()}">
+								<li style="background-color: #{request.servletPath eq '/processos/candidato-list.xhtml' ? utilBean.cccCorMenuSelecionado() : utilBean.cccCorMenu() };">
+									<a href="#{request.contextPath}/requisicoes/candidato/"><h:outputText value="#{msg['menu-pesquisa-candidatos.label']}" style="color: #{request.servletPath eq '/processos/candidato-list.xhtml' ? utilBean.cccCorFonteMenuSelecionado() : utilBean.cccCorFonteMenu() };"/></a>
+								</li>
+								<li style="background-color: #{request.servletPath eq '/consultas/consulta-candidato.xhtml' ? utilBean.cccCorMenuSelecionado() : utilBean.cccCorMenu() };">
+									<a href="#{request.contextPath}/consultas/candidato/"><h:outputText value="#{msg['menu-candidato.label']}" style="color: #{request.servletPath eq '/consultas/consulta-candidato.xhtml' ? utilBean.cccCorFonteMenuSelecionado() : utilBean.cccCorFonteMenu() };"/></a>
+								</li>
+								<li style="background-color: #{request.servletPath eq '/relatorios/relatorio-isencao-disciplinas.xhtml' ? utilBean.cccCorMenuSelecionado() : utilBean.cccCorMenu() };">
+									<a href="#{request.contextPath}/relatorios/isencao-disciplinas/"><h:outputText value="#{msg['menu-relatorio-isencao-disciplinas.label']}" style="color: #{request.servletPath eq '/relatorios/relatorio-isencao-disciplinas.xhtml' ? utilBean.cccCorFonteMenuSelecionado() : utilBean.cccCorFonteMenu() };"/></a>
+								</li>
+							</h:panelGroup>
+							<li>
+								<a href="#" onclick="logoff()">Sair</a>
+								<o:commandScript name="logoff2" action="#{logoffBean.logoff()}" oncomplete="logoff3()"/>
+							</li>
+							<div id="confirmLogoffMessage" style="display: none;"><h:outputFormat value="#{msg['logoffComVilculo.confirm']}">
+								<f:param value="#{utilBean.usuarioLogado.processoAtualId.toString()}"/>
+							</h:outputFormat></div>
+							<script type="application/javascript">
+								function logoff() {
+									let processoAtualId = "#{pausaBean.analista.processoAtualId}";
+									if(!processoAtualId) {
+										logoff2({confirm: false});
+										return;
+									}
+									var result = confirm($('#confirmLogoffMessage').html());
+									if(result) {
+										logoff2({confirm: true});
+									}
+								}
+
+								function logoff3() {
+									var data = OmniFaces.Ajax.data;
+									var result = data.result;
+									if(!result) {
+										var message = data.message;
+										var result = confirm(message);
+										if(result) {
+											logoff2({confirm: true});
+										}
+									}
+								}
+							</script>
+						</ul>
+					</div>
+				</h:form>
+			</div>
+		</div>
+	</header>
+</ui:composition>

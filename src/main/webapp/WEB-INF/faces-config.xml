@@ -1,0 +1,33 @@
+<faces-config
+    xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_2.xsd"
+    version="2.2">
+	<application>
+		<locale-config>
+			<default-locale>pt_BR</default-locale>
+		</locale-config>
+		<resource-bundle>
+			<base-name>net.wasys.getdoc.messages.msg</base-name>
+			<var>msg</var>
+		</resource-bundle>
+	</application>
+
+	<lifecycle>
+		<phase-listener>net.wasys.util.faces.event.LogRequestPhaseListener</phase-listener>
+	</lifecycle>
+
+	<lifecycle>
+	    <phase-listener>net.wasys.getdoc.mb.faces.event.MobileCacheListener</phase-listener>
+	</lifecycle>
+	
+	<lifecycle>
+	    <phase-listener>net.wasys.getdoc.mb.faces.event.MobileAuthorizationListener</phase-listener>
+	</lifecycle>
+
+	<converter>
+		<converter-for-class>java.lang.Enum</converter-for-class>
+		<converter-class>javax.faces.convert.EnumConverter</converter-class>
+	</converter>
+
+</faces-config>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui">
+	<f:metadata>
+		<f:viewAction action="#{relatorioProcessoListagemBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['relatorioListagem.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<style>
+				.ui-datatable tbody td {
+					font-size: 13px;
+				}
+			</style>
+			<h:form id="form-processos">
+				<div class="row">
+					<div class="col-sm-12">
+						<p:dataTable id="tabela-id" var="vo" value="#{relatorioProcessoListagemBean.listagem}"
+									rowKey="#{vo.id}" >
+							<p:column headerText="#{msg['status.label']}" style="width: 80px; text-align: center;" sortBy="#{vo.status}">
+								<img alt="" title="#{msg['StatusProcesso.'.concat(vo.status).concat('.label')]}"
+										src="#{request.contextPath}/resources/images/icons/StatusProcesso-#{vo.status}.png" class="status-processo" width="28px"/>
+							</p:column>
+							<p:column headerText="#{msg['numero.label']}" style="width: 100px; text-align: right;" >
+								<h:outputText value="#{utilBean.getNumero(vo)}" />
+							</p:column>
+							<p:column headerText="#{msg['motivo.label']}" style="width: 200px; text-align: center;" sortBy="#{vo.tipoProcesso.id}">
+								<h:outputText value="#{vo.tipoProcesso.nome}" />
+							</p:column>
+							<p:column headerText="#{msg['situacao.label']}" style="text-align: center;" sortBy="#{vo.situacao.id}">
+								<h:outputText value="#{vo.situacao.nome}" />
+							</p:column>
+							<p:column headerText="#{msg['dataEnvio.label']}" style="width: 125px; text-align: center;" sortBy="#{vo.dataEnvioAnalise}">
+								<h:outputText value="#{utilBean.getDateTimeStr(vo.dataEnvioAnalise)}" />
+							</p:column>
+							<p:column headerText="#{msg['analista.label']}" style="text-align: center;" sortBy="#{vo.analista.nome}" rendered="#{not utilBean.usuarioLogado.isAnalistaRole()}">
+								<h:outputText value="#{vo.analista.nome}" />
+							</p:column>
+							<p:column headerText="#{msg['nomeCompleto.label']}" style="text-align: center;" >
+								<h:outputText value="#{utilBean.getNome(vo)}" />
+							</p:column>
+							<p:column style="width: 125px;" sortable="false">
+								<a href="#{request.contextPath}/requisicoes/edit/#{vo.id}" class="btn btn-info btn-editar">
+									<h:outputText value="#{msg['abrir.label']}"/>
+								</a>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+			</h:form>
+			<script type="text/javascript">
+				//overhide pra não bloquear
+				function bloquearCampos() {}
+			</script>
+		</ui:define>
+	</ui:composition>
+</html>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:c="http://java.sun.com/jsp/jstl/core"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf"
+	  xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	  xmlns:b="http://bootsfaces.net/ui">
+<f:metadata>
+	<f:viewAction action="#{configuracoesJobsBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/border-util.xhtml">
+	<ui:define name="head">
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/tooltipster.bundle.min.css" />
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-shadow.min.css" />
+		<script type="text/javascript" src="#{request.contextPath}/resources/tooltipster/js/tooltipster.bundle.min.js"></script>
+		<style type="text/css">
+			.play-btm {
+				height: 34px;
+				padding: 0 14px !important;
+				position: relative;
+				z-index: 10;
+			}
+			.switch-col .control-label {
+				padding-right: 0 !important;
+			}
+			.alert-exception {
+				position: absolute;
+				top: 0;
+				margin-left: -15px;
+				padding: 10px;
+			}
+		</style>
+	</ui:define>
+	<ui:define name="titulo">Configurações de Jobs</ui:define>
+	<ui:define name="conteudo">
+		<p:ajaxStatus onstart="$('#ajaxLoaderImg').show()" onsuccess="$('#ajaxLoaderImg').hide()" />
+		<div id='ajaxLoaderImg' style="position: fixed; display: block; bottom: 0; right: 0; z-index: 99999; display: none;">
+			<img src="#{request.contextPath}/resources/images/loader.gif"/>
+		</div>
+		<b:modal title="Confirmar Execução" styleClass="confirmar-modal executar-modal">
+			<p><h4 class="msg-confirm">Tem certeza que deseja iniciar a execução desse job? </h4></p>
+			<f:facet name="footer">
+				<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+				<p:commandButton id="excluir-btn" value="Executar" actionListener="#{configuracoesJobsBean.executar}" update="form-configuracoes-jobs" styleClass="btn btn-danger" oncomplete="closeModal('executar-modal')"/>
+			</f:facet>
+		</b:modal>
+		<b:form id="form-configuracoes-jobs" horizontal="true">
+			<div class="row">
+				<div class="col-sm-12">
+					<h4 class="tituloForm">
+						Ativação de Jobs
+						<p:commandButton id="atualizar-logs-btn" value="Carregar Últimas Execuções"
+										 styleClass="btn btn-danger" style="height: 25px"
+										 actionListener="#{configuracoesJobsBean.carregarUltimasExecucoes}"
+										 update="form-configuracoes-jobs"/>
+					</h4>
+
+					<b:messages globalOnly="true" showSummary="true" id="mensagensGlobais"/>
+					<div class="row">
+						<div class="col-sm-1 noMarginBottom"></div>
+						<div class="col-sm-5 noMarginBottom">
+							<ui:repeat value="#{configuracoesJobsBean.keys1}" var="key">
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom">
+										<div style="float: right;">
+											<label>#{key}</label>
+										</div>
+										<div style="float: right;" title="Data da próxima execução. Cron: #{configuracoesJobsBean.cronMap[key]}">
+											#{configuracoesJobsBean.dataMap[key]}
+										</div>
+									</div>
+									<div class="col-sm-3 noMarginBottom">
+										<div style="float: right;">
+											<b:switch value="#{configuracoesJobsBean.map[key].valor}" label="" label-col-md="0" col-md="4"
+													  onText="#{msg['sim.label']}" offText="#{msg['nao.label']}"/>
+										</div>
+									</div>
+									<div class="col-md-1 noMarginBottom" title="#{configuracoesJobsBean.map[key].executando ? 'Job em execução' : ''}">
+										<p:commandLink onclick="openModal('executar-modal')" class="btn btn-primary btn-md play-btm" disabled="#{configuracoesJobsBean.map[key].executando}" update="form-configuracoes-jobs">
+											<f:setPropertyActionListener target="#{configuracoesJobsBean.jobSelecionado}" value="#{key}" />
+											<i class="#{configuracoesJobsBean.map[key].executando ? 'fa fa-ban' : 'fa fa-play'}" aria-hidden="true" style="color: #fff;"></i>
+										</p:commandLink>
+									</div>
+									<div class="col-md-3 noMarginBottom" style="text-align: right;">
+										<div style="width: 65px;" title="Data da Última Execução">#{utilBean.getDateTimeStr(configuracoesJobsBean.map[key].dataUltimaExecucao)}</div>
+										<h:panelGroup rendered="#{not empty configuracoesJobsBean.map[key].exception}">
+											<div class="tooltip_templates" style="display: none;">
+												<span id="tooltipContent-#{configuracoesJobsBean.map[key].hashCode()}" class="tooltipContent">
+													<h:outputText value="#{utilBean.stringToHTML(configuracoesJobsBean.map[key].exception)}" escape="false"/>
+												</span>
+											</div>
+											<i class="fa fa-exclamation-triangle alert alert-danger alert-exception tooltipar" aria-hidden="true"
+											   data-tooltip-content="#tooltipContent-#{configuracoesJobsBean.map[key].hashCode()}"></i>
+										</h:panelGroup>
+									</div>
+								</div>
+							</ui:repeat>
+						</div>
+						<div class="col-sm-5 noMarginBottom" >
+							<ui:repeat value="#{configuracoesJobsBean.keys2}" var="key">
+								<div class="row">
+									<div class="col-sm-3 noMarginBottom">
+										<div style="float: right;">
+											<label>#{key}</label>
+										</div>
+										<div style="float: right;" title="Data da próxima execução. Cron: #{configuracoesJobsBean.cronMap[key]}">
+											#{configuracoesJobsBean.dataMap[key]}
+										</div>
+									</div>
+									<div class="col-sm-3 noMarginBottom">
+										<div style="float: right;">
+											<b:switch value="#{configuracoesJobsBean.map[key].valor}" label="" label-col-md="0" col-md="4"
+													  onText="#{msg['sim.label']}" offText="#{msg['nao.label']}"/>
+										</div>
+									</div>
+									<div class="col-md-1 noMarginBottom" title="#{configuracoesJobsBean.map[key].executando ? 'Job em execução' : ''}">
+										<p:commandLink onclick="openModal('executar-modal')" class="btn btn-primary btn-md play-btm" disabled="#{configuracoesJobsBean.map[key].executando}" update="form-configuracoes-jobs">
+											<f:setPropertyActionListener target="#{configuracoesJobsBean.jobSelecionado}" value="#{key}" />
+											<i class="#{configuracoesJobsBean.map[key].executando ? 'fa fa-ban' : 'fa fa-play'}" aria-hidden="true" style="color: #fff;"></i>
+										</p:commandLink>
+									</div>
+									<div class="col-md-3 noMarginBottom" style="text-align: right;">
+										<div style="width: 65px;" title="Data da Última Execução">#{utilBean.getDateTimeStr(configuracoesJobsBean.map[key].dataUltimaExecucao)}</div>
+										<h:panelGroup rendered="#{not empty configuracoesJobsBean.map[key].exception}">
+											<div class="tooltip_templates" style="display: none;">
+												<span id="tooltipContent-#{configuracoesJobsBean.map[key].hashCode()}" class="tooltipContent">
+													<h:outputText value="#{utilBean.stringToHTML(configuracoesJobsBean.map[key].exception)}" escape="false"/>
+												</span>
+											</div>
+											<i class="fa fa-exclamation-triangle alert alert-danger alert-exception tooltipar" aria-hidden="true"
+											   data-tooltip-content="#tooltipContent-#{configuracoesJobsBean.map[key].hashCode()}"></i>
+										</h:panelGroup>
+									</div>
+								</div>
+							</ui:repeat>
+						</div>
+						<div class="col-sm-1 noMarginBottom"></div>
+					</div>
+					<div class="row">
+						<div class="col-sm-1 noMarginBottom"></div>
+						<div class="col-sm-10" >
+							<div  style="margin-top: 15px; text-align: right;">
+								<b:commandButton value="#{msg['salvar.label']}" actionListener="#{configuracoesJobsBean.salvar}" styleClass="btn btn-primary btn-md"
+												 ajax="true" update="form-configuracoes-jobs"/>
+							</div>
+						</div>
+						<div class="col-sm-1 noMarginBottom"></div>
+					</div>
+				</div>
+			</div>
+			<script type="text/javascript">
+				$(document).ready(function() {
+					$('.tooltipar').tooltipster({
+						theme: 'tooltipster-shadow',
+						animation: 'grow',
+						interactive: true
+					});
+				});
+			</script>
+		</b:form>
+	</ui:define>
+</ui:composition>
+</html>

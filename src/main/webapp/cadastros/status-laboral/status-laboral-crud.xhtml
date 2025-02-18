@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+	<f:metadata>
+		<f:viewAction action="#{statusLaboralCrudBean.init}" onPostback="false" if="#{utilBean.securityOk}" />
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['StatusLaboralCrud.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<style>
+				.adicionar-modal > label {
+				   font-size: 12px;
+				}
+				.adicionar-modal .modal-dialog {
+					width: 800px;
+					padding-top: 0px;
+				}
+				.adicionar-modal > .form-group {
+					margin-bottom: 0px;
+				}
+				.adicionar-modal > .row > div {
+					margin-bottom: 0px;
+				}
+			</style>
+			<o:importConstants type="net.wasys.getdoc.domain.enumeration.StatusAtendimento" />
+			<getdoc:excluirModal id="excluirModal" metodoExcluir="#{statusLaboralCrudBean.excluir()}"/>
+			<h:form id="form-statusLaboral">
+				<c:set var="bean" value="#{statusLaboralCrudBean}" />
+				<b:modal id="adicionar-modal-id" title="#{msg['adicionarSituacao.label']}" styleClass="adicionar-modal" rendered="#{menuBean.podeEditar()}">
+					<h:panelGroup id="adicionar-modal-content-id">
+						<b:messages globalOnly="true" showSummary="true"/>
+						<div class="row" jsf:rendered="#{not empty bean.statusLaboral}">
+							<div class="col-md-12">
+								<div class="form-group">
+									<b:inputText value="#{bean.statusLaboral.nome}" label="#{msg['nome.label']}" renderLabel="true" maxlength="120" required="true"/>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<b:selectOneMenu value="#{bean.statusLaboral.statusAtendimento}" label="Status Atendimento" >
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{bean.statusAtendimentoList}" var="s" itemLabel="#{msg['StatusAtendimento.'.concat(s).concat('.label')]}" itemValue="#{s}" />
+									</b:selectOneMenu>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['duracaoPausa.label']}" for="duracao-id"/>
+									<div class="form-inline">
+										<b:inputText id="duracao-id" value="#{bean.statusLaboral.duracaoPadrao}" maxlength="5" styleClass="mask-number" style="width: 100px" >
+											<f:convertNumber pattern="#####"/>
+										</b:inputText>
+										<b:message/>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['isAtiva.label']}" for="ativaId"/>
+									<h:selectOneRadio id="ativaId" value="#{bean.statusLaboral.ativa}" label="#{msg['isAtiva.label']}" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+								<div class="form-group">
+									<h:outputLabel value="#{msg['prazoEstouroPermitido.label']}" for="prazo-id"/>
+									<div class="form-inline">
+										<b:inputText id="prazo-id" value="#{bean.statusLaboral.prazoEstouroPermitido}" maxlength="5" styleClass="mask-number" style="width: 100px" >
+											<f:convertNumber pattern="#####"/>
+										</b:inputText>
+										<b:message/>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row" jsf:rendered="#{not empty bean.statusLaboral}">
+							<h:panelGroup rendered="#{fecharModal}">
+								<script type="text/javascript">
+									$('.adicionar-modal').modal('hide');
+								</script>
+							</h:panelGroup>
+						</div>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['salvar.label']}" actionListener="#{bean.salvar()}" update="adicionar-modal-content-id form-statusLaboral-list mensagensGlobaisGroup"
+								styleClass="btn" rendered="#{menuBean.podeEditar()}"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-statusLaboral-list">
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="row">
+							<div class="col-sm-12">
+								<p:commandLink value="#{msg['adicionarStatusLaboral.label']}" onclick="openModal('adicionar-modal')" class="btn btn-primary btn-lg" style="float: right;" update="form-statusLaboral:adicionar-modal-content-id" rendered="#{menuBean.podeEditar()}">
+									<f:setPropertyActionListener target="#{bean.statusLaboral}" value="#{null}" />
+								</p:commandLink>
+							</div>
+						</div>
+
+						<p:dataTable id="tabela-id" var="statusLaboral" value="#{bean.dataModel}" rows="50"
+									 paginator="true" lazy="true"
+									 binding="#{dataTableUtil.lazyDataTable}"
+									 paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+									 currentPageReportTemplate="Total: {totalRecords}" scrollable="false"
+									 emptyMessage="#{msg['emptyMessage.label']}"
+									 paginatorPosition="bottom">
+							<p:column headerText="ID" style="text-align: center;  width: 100px;">
+								<h:outputText value="#{statusLaboral.id}"/>
+							</p:column>
+							<p:column headerText="#{msg['isAtiva.label']}" style="text-align: center; width: 100px;">
+								<h:outputText value="#{msg['sim.label']}" rendered="#{statusLaboral.ativa}"/>
+								<h:outputText value="#{msg['nao.label']}" rendered="#{!statusLaboral.ativa}"/>
+							</p:column>
+							<p:column headerText="#{msg['nome.label']}" style="text-align: center;">
+								<h:outputText value="#{statusLaboral.nome}"/>
+							</p:column>
+							<ui:remove>
+								<p:column headerText="#{msg['prazoEstouroPermitido.label']}" style="text-align: center;  width: 200px;">
+									<h:outputText value="#{bean.statusLaboral.prazoEstouroPermitido}"/>
+								</p:column>
+							</ui:remove>
+							<p:column headerText="#{msg['statusAtendimento.label']}" style="text-align: center; width: 200px;">
+								<h:outputText value="#{msg['StatusAtendimento.'.concat(statusLaboral.statusAtendimento).concat('.label')]}"/>
+							</p:column>
+							<p:column style="width: 250px;" sortable="false" rendered="#{menuBean.podeEditar()}">
+								<p:commandLink value="#{msg['editar.label']}" onclick="openModal('adicionar-modal')" class="btn btn-warning btn-editar" update="form-statusLaboral:adicionar-modal-content-id" disabled="#{statusLaboral.fixo}">
+									<f:setPropertyActionListener target="#{bean.statusLaboral}" value="#{statusLaboral}" />
+								</p:commandLink>
+								<p:commandLink value="#{msg['excluir.label']}"
+											   onclick="openModal('excluir-modal', 'excluirModal:form-exclusao:excluir-btn')"
+											   class="btn btn-danger btn-excluir" rendered="#{menuBean.podeExcluir()}" disabled="#{statusLaboral.fixo}">
+									<f:setPropertyActionListener target="#{bean.statusLaboral}"
+																 value="#{statusLaboral}"/>
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

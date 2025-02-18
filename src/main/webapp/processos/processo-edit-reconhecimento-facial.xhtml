@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+
+<b:growl id="growl-id" placementFrom="bottom" allowDismiss="true" animationEnter="animated bounceInDown" animationExit="animated flipOutX"/>
+
+<b:modal id="copiar-imagem-modal-id" title="#{msg['copiarImagemDocumento.label']}" styleClass="copiar-imagem-modal" rendered="#{menuBean.podeEditar()}" style="z-index: 9999;">
+	<b:row id="copiar-imagem-modal-content-id">
+		<div class="col-sm-12">
+			<b:messages id="copiar-imagem-messages" globalOnly="true" showSummary="true"/>
+			<div class="form-group">
+				<h:outputLabel value="#{msg['copiarImagemAtualPara.label']}"/>
+			</div>
+			<div style="padding-left: 30px;">
+				<div class="form-group">
+					<h:outputLabel value="#{msg['documentoDestino.label']}"/>
+					<select id="documentoDestino" name="documentoDestino" class="form-control" >
+						<option value=""></option>
+						<ui:repeat value="#{processoEditBean.documentos}" var="doc">
+							<h:panelGroup rendered="#{not doc.isExcluido()}">
+								<option value="#{doc.id}">#{doc.nome}</option>
+							</h:panelGroup>
+						</ui:repeat>
+					</select>
+				</div>
+			</div>
+		</div>
+	</b:row>
+	<f:facet name="footer">
+		<b:button value="#{msg['cancelar.label']}" look="primary" onclick="closeModal('copiar-imagem-modal'); return false;"/>
+		<span onclick="copiarImagem($('#img1'), $('#documentoDestino'))" class="btn btn-warning">#{msg['salvar.label']}</span>
+	</f:facet>
+</b:modal>
+
+<b:modal id="rejeitar-modal-id" title="#{msg['rejeitarDocumento.label']}" styleClass="rejeitar-modal" rendered="#{menuBean.podeEditar()}" style="z-index: 9999;">
+	<b:row id="rejeitar-modal-content-id">
+		<ui:include src="/processos/processo-edit-modal-rejeitar-documento.xhtml"/>
+	</b:row>
+</b:modal>
+<b:modal id="ocr-modal-id" title="#{msg['resultadoOCR.label']}" styleClass="ocr-modal" rendered="#{menuBean.podeEditar()}" style="z-index: 9999;">
+	<b:row id="ocr-modal-content-id">
+		<ui:include src="/processos/processo-edit-modal-ocr.xhtml"/>
+	</b:row>
+</b:modal>
+<b:modal id="text-modal-id" title="#{msg['fullText.label']}" styleClass="text-modal" rendered="#{menuBean.podeEditar()}" style="z-index: 9999;">
+	<b:row id="text-modal-content-id">
+		<ui:include src="/processos/processo-edit-modal-text.xhtml"/>
+	</b:row>
+</b:modal>
+<h:panelGroup id="pg-div-principal">
+<div class="div-principal">
+	<div class="row colina-dir-row" style="height: 100%;">
+		<div class="coluna-dir coluna-dir1 col-sm-6">
+			<div class="section" id="section-img1">
+				<div style="color: #FFF; padding-top: 40px;">
+					#{processoEditBean.comparacaoFacesVO.imagemBase.documento.nome}
+				</div>
+				<img src="#{processoEditBean.comparacaoFacesVO.caminhoImagemBase}" alt="" border="0" style="max-width: 70%; max-height: 700px;"/>
+			</div>
+		</div>
+		<div class="coluna-dir coluna-dir2 col-sm-6" style="padding-right: 0;">
+			<div class="section" id="section-img2" style="padding: 10px; overflow: auto;">
+				<ui:repeat value="#{processoEditBean.comparacaoFacesVO.imagens}" var="imagem">
+					<div class="row" style="margin-left: 0; margin-right: 0;">
+						<div class="col-sm-3" style="padding-right: 0; padding-top: 4px; padding-left: 0;">
+							<img src="#{processoEditBean.comparacaoFacesVO.getCaminhoImagem(imagem)}" border="" style="max-height: 96px; "/>
+						</div>
+						<div class="col-sm-9" style="padding-right: 5px;">
+							<div style="background-color: #fff; border-radius: 4px; padding: 10px; text-align: left; height: 100px;" class="statusFacial#{imagem.documento.statusFacial}">
+								<div class="form-group" >
+									<b>#{imagem.documento.nome}</b>
+								</div>
+								<div class="form-group" >
+									#{imagem.similaridadeFacialStr}
+								</div>
+							</div>
+						</div>
+					</div>
+				</ui:repeat>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+</h:panelGroup>
+</html>

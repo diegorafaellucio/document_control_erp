@@ -1,0 +1,578 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+	<f:metadata>
+		<f:viewParam name="id" value="#{subRegraCrudBean.regraId}" />		
+		<f:viewAction action="#{subRegraCrudBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="head">
+			<link href="#{request.contextPath}/resources/css/fluxograma-subregras.css" rel="stylesheet"/>
+			<link rel="stylesheet" href="#{request.contextPath}/resources/codemirror/lib/codemirror.css"/>
+			<link rel="stylesheet" href="#{request.contextPath}/resources/codemirror/theme/blackboard.css"/>
+			<link rel="stylesheet" href="#{request.contextPath}/resources/codemirror/addon/hint/show-hint.css"/>
+			<script src="#{request.contextPath}/resources/codemirror/lib/codemirror.js"></script>
+			<script src="#{request.contextPath}/resources/codemirror/addon/hint/show-hint.js"></script>
+			<script src="#{request.contextPath}/resources/codemirror/addon/hint/javascript-hint.js"></script>
+			<script src="#{request.contextPath}/resources/codemirror/mode/javascript/javascript.js"></script>
+			<script src="#{request.contextPath}/resources/codemirror/mode/markdown/markdown.js"></script>
+		</ui:define>
+		<ui:define name="tituloPagina">#{msg['subregraCrud.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<style>
+				.adicionar-modal > label {
+				   font-size: 12px;
+				}
+				.adicionar-modal .modal-dialog {
+				    width: 1100px;
+				    padding-top: 0px;
+				}
+				.adicionar-modal > .row > div {
+				    margin-bottom: 0px;
+				}
+			</style>
+			<c:set var="bean" value="#{subRegraCrudBean}" />
+			<o:importConstants type="net.wasys.getdoc.domain.enumeration.TipoSubRegra" />
+			<o:importConstants type="net.wasys.getdoc.domain.enumeration.TipoConsultaExterna" />
+			<o:importConstants type="net.wasys.getdoc.domain.enumeration.FarolRegra" />
+			<o:importConstants type="net.wasys.getdoc.domain.enumeration.SubRegraAcoes" />
+			<o:importConstants type="net.wasys.getdoc.domain.enumeration.StatusDocumento" />
+			<getdoc:excluirModal id="excluirModal" metodoExcluir="#{bean.excluir()}" update="mensagensGlobaisGroup form-sub-regra-list"/>
+			<ui:include src="/cadastros/regras/subregra-crud-ajuda.xhtml"/>
+			<h:form id="form-sub-regra">
+				<b:modal id="adicionar-modal-id" title="#{msg['adicionarSubRegra.label']}" styleClass="adicionar-modal"
+						rendered="#{menuBean.podeEditar()}" closeOnEscape="false" backdrop="false">
+					<h:panelGroup id="adicionar-modal-content-id">
+						<b:messages globalOnly="true" showSummary="true"/>
+						<div class="row" jsf:rendered="#{not empty bean.subRegra}">
+							<div class="col-md-12 noMarginBottom">
+								<div class="form-group" jsf:rendered="#{bean.subRegra.isPaiCondicional()}">
+									<h:outputLabel value="#{msg['filhoSim.label']}"/>
+									<h:selectOneRadio value="#{bean.subRegra.filhoSim}" label="#{msg['filhoSim.label']}" styleClass="radio-default" required="true">
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+									</h:selectOneRadio>
+									<b:message/>
+								</div>
+								<div class="form-group noMarginBottom">
+									<b:selectOneMenu value="#{bean.subRegra.tipo}" label="#{msg['tipo.label']}" disabled="#{bean.forcado}" required="true">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{TipoSubRegra}" var="tp" itemValue="#{tp}" itemLabel="#{msg['TipoSubRegra.'.concat(tp).concat('.label')]}"/>
+										<f:ajax event="change" render="campos-sub-regra-id"/>
+									</b:selectOneMenu>
+									<b:message />
+								</div>
+							</div>
+						</div>
+						<div class="row" jsf:id="campos-sub-regra-id" >
+							<div style="position: absolute;left: 80px;top: 45px;">
+								<div class="ajuda-icon" onclick="openModal('ajuda-detranArn-modal')" jsf:rendered="#{TipoConsultaExterna.DETRAN_ARN.equals(bean.subRegra.consultaExterna)}">
+									<i class="fa fa-question" aria-hidden="true"></i>
+								</div>
+								<div class="ajuda-icon" onclick="openModal('ajuda-leilao-modal')" jsf:rendered="#{TipoConsultaExterna.LEILAO.equals(bean.subRegra.consultaExterna)}">
+									<i class="fa fa-question" aria-hidden="true"></i>
+								</div>
+								<div class="ajuda-icon" onclick="openModal('ajuda-processo-modal')" jsf:rendered="#{TipoSubRegra.CONDICAO.equals(bean.subRegra.tipo)}">
+									<i class="fa fa-question" aria-hidden="true"></i>
+								</div>
+							</div>
+							<div class="col-md-12">
+								<h:panelGroup rendered="#{TipoSubRegra.CONSULTA_EXTERNA == bean.subRegra.tipo}">
+									<b:selectOneMenu value="#{bean.subRegra.consultaExterna}" label="#{msg['consultaExterna.label']}" required="true">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{utilBean.getSelectItemsFromEnum('TipoConsultaExterna')}"/>
+										<f:ajax event="change" listener="#{bean.atualizarDeparaParamConsultaExterna()}" render="de-para-params-sub-regra-id subconsultaexterna-id"/>
+									</b:selectOneMenu>
+									<b:message />
+
+									<h:panelGroup id="subconsultaexterna-id">
+										<h:panelGroup rendered="#{TipoConsultaExterna.CRIVO.equals(bean.subRegra.consultaExterna)}">
+											<b:selectOneMenu value="#{bean.subRegra.subConsultaExterna}" label="Política" required="true">
+												<f:selectItem itemValue="" itemLabel=""/>
+												<f:selectItems value="#{bean.subConsultasExternas}" var="sce" itemValue="#{sce}" itemLabel="#{sce}"/>
+												<f:ajax event="change" listener="#{bean.atualizarDeparaParamConsultaExterna()}" render="de-para-params-sub-regra-id"/>
+											</b:selectOneMenu>
+											<b:message />
+										</h:panelGroup>
+									</h:panelGroup>
+
+								</h:panelGroup>
+								<h:panelGroup rendered="#{TipoSubRegra.BASE_INTERNA == bean.subRegra.tipo}">
+									<div class="form-group">
+										<b:selectOneMenu value="#{bean.subRegra.baseInterna}" label="#{msg['basesInternas.label']}" required="true">
+											<f:selectItem itemValue="" itemLabel=""/>
+											<f:selectItems value="#{bean.basesInternas}" var="bi" itemValue="#{bi}" itemLabel="#{bi.nome}"/>
+											<f:ajax event="change" listener="#{bean.atualizarDeparaParamBaseInterna()}" render="de-para-params-sub-regra-id"/>
+										</b:selectOneMenu>
+										<b:message />
+									</div>
+								</h:panelGroup>
+								<h:panelGroup id="de-para-params-sub-regra-id">
+									<h:panelGroup rendered="#{bean.mostrarDeparaParams()}">
+										<div class="row deparaparams">
+											<div class="col-md-4">
+												<h:outputLabel value="Parâmetro" style="margin-bottom: 0;"/>
+											</div>
+											<div class="col-md-3">
+												<h:outputLabel value="#{msg['fonte.label']}" style="margin-bottom: 0;"/>
+											</div>
+											<div class="col-md-5">
+												<h:outputLabel value="#{msg['campo.label']}" style="margin-bottom: 0;"/>
+											</div>
+										</div>
+										<p:repeat value="#{bean.deParaParamVOs}" var="vo">
+											<div class="row deparaparams">
+												<div class="col-md-3">
+													<b:inputText value="#{vo.coluna}" disabled="true"/>
+												</div>
+												<div class="col-md-3">
+													<b:selectOneMenu value="#{vo.fonte}" label="#{msg['campoGrupo.label']}" renderLabel="false" required="false" >
+														<f:selectItem itemValue="" itemLabel=""/>
+														<f:selectItems value="#{bean.fontes}" var="fonte" itemValue="#{fonte}" itemLabel="#{fonte.nome}"/>
+														<f:ajax event="change" listener="#{bean.atualizarCampos(vo)}" render="campos-sub-regra-id"/>
+													</b:selectOneMenu>
+													<b:message/>
+												</div>
+												<div class="col-md-6" jsf:id="campos-sub-regra-id">
+													<div class="form-group">
+														<p:autoComplete multiple="false" label="#{msg['campo.label']}" required="false" value="#{vo.campo}"
+																completeMethod="#{vo.getCampos}" var="c" itemLabel="#{c}" itemValue="#{c}" forceSelection="true"
+																dropdown="true" panelStyleClass="ui-autocomplete-panel-lg">
+															<h:outputText value="#{c}" />
+														</p:autoComplete>
+														<b:message/>
+													</div>
+												</div>
+											</div>
+										</p:repeat>
+										<div class="form-group">
+											<b:inputText value="#{bean.subRegra.varConsulta}" label="#{msg['varConsulta.label']}" maxlength="30" required="true" />
+											<b:message/>
+										</div>
+										<div class="row depararetorno">
+											<div class="col-md-12 noMarginBottom">
+												<label style="margin-right: 10px;">Configurações de Retorno</label>
+												<p:commandLink class="btn btn-default" update="form-sub-regra:deparaRetornos" ajax="true" immediate="true"
+														actionListener="#{bean.adicionarDeparaRetorno()}"
+														style="padding: 6px 10px 3px 10px;" title="#{msg['adicionarDeparaRetorno.label']}">
+													<i class="fa fa-plus" aria-hidden="true" style="font-size: 22px; color: green;"></i>
+												</p:commandLink>
+											</div>
+										</div>
+										<h:panelGroup id="deparaRetornos">
+											<div class="row depararetorno" jsf:rendered="#{not empty bean.deparaRetornoVOs}">
+												<div class="col-md-5 noMarginBottom">
+													<h:outputLabel value="Campo"/>
+												</div>
+												<div class="col-md-4 noMarginBottom">
+													<h:outputLabel value="Processamento do Retorno"/>
+												</div>
+												<div class="col-md-2 noMarginBottom">
+													<h:outputLabel value="Sobrescrever valor?"/>
+												</div>
+											</div>
+											<p:repeat value="#{bean.deparaRetornoVOs}" var="vo">
+												<div class="row deparaparams">
+													<div class="col-md-5">
+														<p:autoComplete multiple="false" label="#{msg['campo.label']}" required="false" value="#{vo.tipoCampoStr}"
+																completeMethod="#{bean.getDestinos}" var="campo" itemLabel="#{campo}" itemValue="#{campo}"
+																forceSelection="true" dropdown="true" panelStyleClass="ui-autocomplete-panel-lg"
+																immediate="true">
+														</p:autoComplete>
+														<b:message/>
+													</div>
+													<div class="col-md-4">
+														<b:inputTextarea rows="1" style="" value="#{vo.origem}" maxlength="1000"/>
+													</div>
+													<div class="col-md-2">
+														<h:selectOneRadio id="sbrescreveId" value="#{vo.sobrescreveValor}" label="#{msg['sobrescreve.label']}"
+																styleClass="radio-default">
+															<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+															<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+														</h:selectOneRadio>
+													</div>
+													<div class="col-md-1">
+														<p:commandLink class="btn btn-danger" style="margin-left: -20px;" title="Remover item" process="form-sub-regra:deparaRetornos"
+																actionListener="#{bean.removerDeparaRetorno(vo)}" update="form-sub-regra:deparaRetornos">
+															<i class="fa fa-trash fa-1" aria-hidden="true" style=""></i>
+														</p:commandLink>
+													</div>
+												</div>
+											</p:repeat>
+										</h:panelGroup>
+									</h:panelGroup>
+								</h:panelGroup>
+								<div class="form-group cm-s-xq-dark" jsf:rendered="#{TipoSubRegra.CONDICAO == bean.subRegra.tipo}">
+									<b:inputTextarea styleClass="cm-s-xq-dark condicionalJs" value="#{bean.subRegra.condicionalJs}" label="#{msg['condicionalJs.label']}" renderLabel="true"
+											id="condicionalJs-id" maxlength="1000" required="true"/>
+									<b:message/>
+								</div>
+								<script type="text/javascript" jsf:rendered="#{TipoSubRegra.CONDICAO == bean.subRegra.tipo or TipoSubRegra.FIM == bean.subRegra.tipo}">
+									setTimeout(iniciarCodeMirror, 1);
+									customWordList = #{bean.getVariaveisDisponiveisJson(bean.subRegra)};
+								</script>
+								<div class="form-group" jsf:rendered="#{TipoSubRegra.CHAMADA_REGRA == bean.subRegra.tipo}">
+									<b:selectOneMenu value="#{bean.subRegra.regraFilha}" label="#{msg['regra.label']}" required="true">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{bean.regras}" var="tp" itemValue="#{tp}" itemLabel="#{tp.nome}"/>
+									</b:selectOneMenu>
+									<b:message />
+								</div>
+								<div class="form-group" jsf:rendered="#{TipoSubRegra.FIM == bean.subRegra.tipo or TipoSubRegra.CHAMADA_REGRA == bean.subRegra.tipo}">
+									<b:selectOneMenu value="#{bean.subRegra.farol}" label="#{msg['farolRegra.label']}" required="true">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{FarolRegra}" var="tp" itemValue="#{tp}" itemLabel="#{msg['FarolRegra.'.concat(tp).concat('.label')]}"/>
+									</b:selectOneMenu>
+									<b:message />
+								</div>
+								<div class="form-group" jsf:rendered="#{TipoSubRegra.FIM == bean.subRegra.tipo and bean.subRegra.linha.regra.decisaoFluxo == 1}">
+									<b:selectOneMenu value="#{bean.subRegra.situacaoDestino}" label="Situação Destino">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{bean.situacoes}" var="s" itemValue="#{s}" itemLabel="#{s.nome}"/>
+									</b:selectOneMenu>
+									<b:message />
+								</div>
+								<div class="row depararetorno">
+									<div class="col-md-12 noMarginBottom">
+										<label style="margin-right: 10px;">Ações</label>
+										<p:commandLink class="btn btn-default" update="form-sub-regra:subRegraAcoes" ajax="true" immediate="true"
+													   actionListener="#{bean.adicionarAcao()}"
+													   style="padding: 6px 10px 3px 10px;" title="#{msg['adicionarDeparaRetorno.label']}">
+											<i class="fa fa-plus" aria-hidden="true" style="font-size: 22px; color: green;"></i>
+										</p:commandLink>
+									</div>
+								</div>
+								<h:panelGroup id="subRegraAcoes">
+									<p:repeat value="#{bean.subRegra.subRegraAcoes}" var="sra">
+										<div class="row subRegraAcoes col-md-12">
+											<div class="col-md-3">
+												<b:selectOneMenu value="#{sra.acao}" label="##{sra.id} Ação">
+													<f:selectItem itemValue="" itemLabel=""/>
+													<f:selectItems value="#{SubRegraAcoes}" var="sa" itemValue="#{sa}" itemLabel="#{msg['AcaoRegra.'.concat(sa).concat('.label')]}"/>
+													<f:ajax event="change" render="subRegraAcao"/>
+												</b:selectOneMenu>
+												<b:message />
+											</div>
+											<h:panelGroup id="subRegraAcao" class="col-md-9" layout="block">
+												<div class="row">
+													<h:panelGroup style="float: left; width: 280px;">
+														<div jsf:rendered="#{SubRegraAcoes.ADICIONAR_GRUPO_NO_PROCESSO == sra.acao}">
+															<h:outputLabel value="#{msg['grupos.label']}"/>
+															<p:selectCheckboxMenu  value="#{sra.tipoGruposIds}" class="form-control" label="Grupos"
+																				  multiple="true" styleClass="checkbox-documentos">
+																<f:selectItems value="#{bean.tipoCampoGrupoList}" var="grupo" itemValue="#{grupo.id}" itemLabel="#{grupo.nome}"/>
+															</p:selectCheckboxMenu>
+															<b:message />
+														</div>
+													</h:panelGroup>
+													<div jsf:rendered="#{SubRegraAcoes.ALTERAR_STATUS_DOCUMENTO == sra.acao}" style="float: left; width: 116px;">
+														<b:selectOneMenu class="col-md-4" value="#{sra.statusDocumento}" label="Novo Status">
+															<f:selectItem itemValue="" itemLabel=""/>
+															<f:selectItems value="#{StatusDocumento}" var="sd" itemValue="#{sd}" itemLabel="#{msg['StatusDocumento.'.concat(sd).concat('.label')]}"/>
+														</b:selectOneMenu>
+														<b:message />
+													</div>
+													<div jsf:rendered="#{SubRegraAcoes.ALTERAR_OBRIGATORIEDADE_DOCUMENTO == sra.acao}" style="float: left;">
+														<h:outputLabel value="#{msg['isObrigatorio.label']}" for="isObrigatorioId"/>
+														<h:selectOneRadio id="isObrigatorioId" value="#{sra.obrigatoriedadeDocumento}" label="#{msg['isObrigatorio.label']}" styleClass="radio-default">
+															<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+															<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+														</h:selectOneRadio>
+														<b:message />
+													</div>
+													<div jsf:rendered="#{SubRegraAcoes.ALTERAR_STATUS_DOCUMENTO == sra.acao or SubRegraAcoes.ALTERAR_OBRIGATORIEDADE_DOCUMENTO == sra.acao}"
+															style="float: left;">
+														<h:outputLabel value="#{msg['todosDigitalizados.label']}"/>
+														<h:selectOneRadio value="#{sra.todosDocumentosAprovados}" label="#{msg['todosDigitalizados.label']}" styleClass="radio-default" required="true">
+															<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+															<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+															<f:ajax event="change" render="documentosList"/>
+														</h:selectOneRadio>
+														<b:message/>
+													</div>
+													<h:panelGroup id="documentosList" style="float: left; width: 480px; padding-left: 15px;">
+														<div jsf:rendered="#{sra.todosDocumentosAprovados == false and (SubRegraAcoes.ALTERAR_STATUS_DOCUMENTO == sra.acao or SubRegraAcoes.ALTERAR_OBRIGATORIEDADE_DOCUMENTO == sra.acao)}">
+															<h:outputLabel value="#{msg['documentos.label']}"/>
+															<p:selectCheckboxMenu class="form-control" value="#{sra.tipoDocumentosIds}" label="Documento"
+																	multiple="true" styleClass="checkbox-documentos">
+																<f:selectItems value="#{bean.tipoDocumentos}" var="td" itemValue="#{td.id}" itemLabel="#{td.nome}"/>
+															</p:selectCheckboxMenu>
+															<b:message />
+														</div>
+													</h:panelGroup>
+													<h:panelGroup id="novoValorCampoId" class="row col-md-7" rendered="#{SubRegraAcoes.ALTERAR_VALOR_CAMPO == sra.acao}" style="padding-left: 35px">
+														<b:selectOneMenu value="#{sra.tipoCampo}" label="Tipo Campo" renderLabel="true" rendered="#{SubRegraAcoes.ALTERAR_VALOR_CAMPO == sra.acao}">
+															<f:selectItem itemValue="" itemLabel=""/>
+															<f:selectItems value="#{bean.campos}" var="cp" itemValue="#{cp}" itemLabel="#{cp.grupo.nome.concat(' - ').concat(cp.nome)}"/>
+														</b:selectOneMenu>
+
+														<b:inputText value="#{sra.novoValorCampo}" label="Novo Valor" maxlength="30" required="true" />
+														<b:message/>
+													</h:panelGroup>
+													<h:panelGroup id="alterarObrigatoriedadeCampoId" class="row col-md-7" rendered="#{SubRegraAcoes.ALTERAR_OBRIGATORIEDADE_CAMPO == sra.acao}" style="padding-left: 35px">
+														<h:outputLabel value="#{msg['tipoCampoCrud.titulo']}"/>
+														<p:selectCheckboxMenu class="form-control" value="#{sra.tipoCampoIdList}" label="Documento"
+																			  multiple="true" panelStyle="width:550px" styleClass="checkbox-documentos">
+															<f:selectItems value="#{bean.camposEditaveis}" var="cp" itemValue="#{cp.id}" itemLabel="#{cp.grupo.nome.concat(' - ').concat(cp.nome)}"/>
+														</p:selectCheckboxMenu>
+														<b:message />
+
+														<h:outputLabel value="#{msg['isObrigatorio.label']}" for="isObrigatorioId"/>
+														<h:selectOneRadio id="isObrigatorioCampoId" value="#{sra.obrigatoriedadeCampo}" label="#{msg['isObrigatorio.label']}" styleClass="radio-default">
+															<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+															<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+														</h:selectOneRadio>
+														<b:message />
+													</h:panelGroup>
+													<div style="float: left; margin-bottom: 0; margin-top: 16px; margin-left: 25px;">
+														<p:commandLink class="btn btn-danger" style="margin-left: -20px;" title="Remover item" process="form-sub-regra:subRegraAcoes"
+																	   actionListener="#{bean.removerSubRegraAcao(sra)}" update="form-sub-regra:subRegraAcoes">
+															<i class="fa fa-trash fa-1" aria-hidden="true" style=""></i>
+														</p:commandLink>
+													</div>
+												</div>
+											</h:panelGroup>
+										</div>
+									</p:repeat>
+								</h:panelGroup>
+								<div class="form-group">
+									<div class="form-group">
+										<b:inputTextarea value="#{bean.subRegra.observacao}" label="#{msg['observacao.label']}" renderLabel="true" maxlength="500" 
+												class="#{TipoSubRegra.FIM == bean.subRegra.tipo ? 'fimRegra' : ''}"/>
+										<b:message/>
+									</div>
+								</div>
+							</div>
+						</div>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['salvar.label']}" actionListener="#{bean.salvar()}" update="adicionar-modal-content-id form-sub-regra-list mensagensGlobaisGroup"
+								styleClass="btn" rendered="#{menuBean.podeEditar()}"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-sub-regra-list">
+				<div class="row">
+					<div class="col-md-12">
+						<h4 class="tituloForm">
+							<h:outputText value="#{msg['subregraCrud.titulo']}" />:&nbsp;
+							<h:outputText value="#{bean.regra.nome}" />
+							<a href="#{request.contextPath}/cadastros/regras/teste/#{bean.regra.id}"
+									style="padding: 0 10px !important" class="btn btn-default" title="#{msg['testarRegra.label']}">
+								<img src="#{request.contextPath}/resources/images/test.png" alt="" style="width: 18px;"/>
+							</a>
+						</h4>
+						<h:outputText value="#{bean.regra.tipoProcesso.nome} / #{bean.regra.situacao.nome}"/>
+						<br/>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12">
+						<div class="row">
+							<div class="col-md-8 col-md-offset-2 fluxograma">
+								<p:repeat var="linha" value="#{bean.linhas}">
+									<div class="row" jsf:rendered="#{not empty linha.linhaPai and not linha.isPaiCondicional()}">
+										<div class="col-sm-6" style="margin: 0; padding: 0;">
+											<div class="seta-sobe"></div>
+										</div>
+									</div>
+									<div class="row" jsf:rendered="#{linha.isPaiCondicional()}">
+										<div class="col-sm-6" style="margin: 0; padding: 0;">
+											<div class="seta-sobe"></div>
+										</div>
+									</div>
+									<div class="row" jsf:rendered="#{linha.isPaiCondicional()}">
+										<div class="col-sm-3" style="margin: 0; padding: 0;"></div>
+										<div class="col-sm-6" style="margin: 0; padding: 0;">
+											<div class="seta-nao">Não</div>
+											<div class="seta-sim">Sim</div>
+											<div class="seta-sobe-dupla"></div>
+										</div>
+									</div>
+									<div class="row">
+										<p:repeat var="subRegra" value="#{linha.subRegrasList}" varStatus="status">
+											<div class="sub-regra-box #{linha.isPaiCondicional() ? 
+														('col-sm-4 col-sm-offset-'.concat(status.index == 0 ? '1' : '2')) :
+														('col-sm-4 col-sm-offset-4') 
+													}">
+												<h:panelGroup rendered="#{not empty subRegra.id}">
+													<div class="acoes">
+														<i class="fa fa-cloud-download tipo-icon" aria-hidden="true" jsf:rendered="#{TipoSubRegra.CONSULTA_EXTERNA.equals(subRegra.tipo)}"></i>
+														<i class="fa fa-database tipo-icon" aria-hidden="true" jsf:rendered="#{TipoSubRegra.BASE_INTERNA.equals(subRegra.tipo)}"></i>
+														<i class="fa fa-share-alt tipo-icon" aria-hidden="true" jsf:rendered="#{TipoSubRegra.CONDICAO.equals(subRegra.tipo)}" style="transform: rotate(90deg);"></i>
+														<i class="fa fa-external-link tipo-icon" aria-hidden="true" jsf:rendered="#{TipoSubRegra.CHAMADA_REGRA.equals(subRegra.tipo)}"></i>
+														<i class="fa fa-stop-circle-o tipo-icon" aria-hidden="true" jsf:rendered="#{TipoSubRegra.FIM.equals(subRegra.tipo)}"></i>
+														<i class="fa fa-ban tipo-icon" aria-hidden="true" jsf:rendered="#{TipoSubRegra.INATIVA.equals(subRegra.tipo)}"></i>
+														<div title="#{msg['TipoSubRegra.'.concat(subRegra.tipo).concat('.label')]}"
+																style="padding-top: 2px; overflow: hidden; max-width: 180px; white-space: nowrap; float: left;">
+															##{subRegra.id}
+															<span>#{msg['TipoSubRegra.'.concat(subRegra.tipo).concat('.label')]}</span>
+														</div>
+														<p:commandLink class="btn-edit" onclick="openModal('adicionar-modal')" 
+																update="form-sub-regra:adicionar-modal-content-id" actionListener="#{bean.adicionar(subRegra.id)}"
+																rendered="#{subRegra.tipo != TipoSubRegra.CHAMADA_REGRA and subRegra.tipo != TipoSubRegra.FIM and bean.podeAdicionar(subRegra.id)}">
+															<i class="fa fa-plus" style="color: #31b0d5;" aria-hidden="true"></i>
+														</p:commandLink>
+														<p:commandLink styleClass="btn-edit"
+																onerror="alert('Erro!')" oncomplete="openModal('adicionar-modal')" title="Editar" 
+																update="form-sub-regra:adicionar-modal-content-id" actionListener="#{bean.editar(subRegra.id)}">
+															<i class="fa fa-pencil" style="color: #333;" aria-hidden="true"></i>
+														</p:commandLink>
+														<p:commandLink styleClass="btn-edit"
+																onclick="openModal('excluir-modal', 'excluirModal:form-exclusao:excluir-btn')"
+																actionListener="#{bean.setSubRegra(subRegra)}" title="Excluir" update="form-sub-regra-list" rendered="#{bean.isFilhoVazio(subRegra.id)}">
+															<i class="fa fa-trash fa-1" style="color: #c9302c;" aria-hidden="true"></i>
+														</p:commandLink>
+													</div>
+													<div class="texto farol-#{subRegra.farol} tipo-#{subRegra.tipo}">
+														<p jsf:rendered="#{TipoSubRegra.CONSULTA_EXTERNA.equals(subRegra.tipo)}">
+															#{subRegra.varConsulta} (#{msg['TipoConsultaExterna.'.concat(subRegra.consultaExterna).concat('.label')]})
+														</p>
+														<p jsf:rendered="#{TipoSubRegra.BASE_INTERNA.equals(subRegra.tipo)}">
+															#{subRegra.varConsulta} (#{subRegra.baseInterna.nome})
+														</p>
+														<p jsf:rendered="#{TipoSubRegra.CHAMADA_REGRA.equals(subRegra.tipo)}">
+															#{subRegra.regraFilha.nome}
+														</p>
+														<p jsf:rendered="#{TipoSubRegra.FIM.equals(subRegra.tipo)}">
+															#{msg['FarolRegra.'.concat(subRegra.farol).concat('.label')]}
+														</p>
+														<pre jsf:rendered="#{TipoSubRegra.CONDICAO.equals(subRegra.tipo)}"
+															title="#{subRegra.condicionalJs}">#{subRegra.condicionalJs}</pre>
+														<p>#{subRegra.observacao}</p>
+														<p jsf:rendered="#{TipoSubRegra.FIM.equals(subRegra.tipo) and not empty subRegra.situacaoDestino}" title="Situação de destino">
+															<i class="fa fa-long-arrow-right" aria-hidden="true"></i>
+															#{subRegra.situacaoDestino.nome}
+														</p>
+														<div class="ajuda-icon" onclick="openModal('ajuda-detranArn-modal')" jsf:rendered="#{TipoConsultaExterna.DETRAN_ARN.equals(subRegra.consultaExterna)}">
+															<i class="fa fa-question" aria-hidden="true"></i>
+														</div>
+														<div class="ajuda-icon" onclick="openModal('ajuda-leilao-modal')" jsf:rendered="#{TipoConsultaExterna.LEILAO.equals(subRegra.consultaExterna)}">
+															<i class="fa fa-question" aria-hidden="true"></i>
+														</div>
+														<div class="ajuda-icon" onclick="openModal('ajuda-processo-modal')" jsf:rendered="#{TipoSubRegra.CONDICAO.equals(subRegra.tipo)}">
+															<i class="fa fa-question" aria-hidden="true"></i>
+														</div>
+													</div>
+												</h:panelGroup>
+												<h:panelGroup rendered="#{empty subRegra.id and not empty subRegra.linha}" >
+													<div class="acoes">
+														<p:commandLink class="btn-edit" onclick="openModal('adicionar-modal')" 
+														update="form-sub-regra:adicionar-modal-content-id" actionListener="#{bean.adicionar(null)}">
+														<i class="fa fa-plus" style="color: #31b0d5;" aria-hidden="true"></i>
+													</p:commandLink>
+													</div>
+													<div class="texto">
+														<p>Clique no + para adicionar uma Sub-Regra</p>
+													</div>
+								        		</h:panelGroup>
+											</div>
+										</p:repeat>
+									</div>
+									<div class="row" jsf:rendered="#{not linha.isPaiCondicional()}">
+										<div class="col-sm-6" style="margin: 0; padding: 0;">
+											<div class="seta-sobe"></div>
+										</div>
+									</div>
+									<div class="row" jsf:rendered="#{linha.isPaiCondicional()}">
+										<div class="col-sm-3" style="margin: 0; padding: 0;"></div>
+										<div class="col-sm-3" style="margin: 0; padding: 0;">
+											<div class="seta-desce-esq" jsf:rendered="#{not bean.isNaoFim(linha)}"></div>
+										</div>
+										<div class="col-sm-3" style="margin: 0; padding: 0;" >
+											<div class="seta-desce-dir" jsf:rendered="#{not bean.isSimFim(linha)}"></div>
+										</div>
+									</div>
+									<div class="row" jsf:rendered="#{linha.isPaiCondicional() and not empty linha.filha}">
+										<div class="col-sm-6" style="margin: 0; padding: 0;">
+											<div class="seta-sobe"></div>
+										</div>
+									</div>
+								</p:repeat>
+							</div>
+						</div>
+					</div>
+				</div>
+			</h:form>
+			<script type="text/javascript">
+			//<![CDATA[
+
+				var customWordList = [];
+
+				function configurarCodeMirror() {
+
+					var orig = CodeMirror.hint.javascript;
+					CodeMirror.hint.javascript = function(editor) {
+
+						var inner = orig(editor) || {from: editor.getCursor(), to: editor.getCursor(), list: []};
+
+						var cursor = editor.getCursor();
+				        var currentLine = editor.getLine(cursor.line);
+				        var start = cursor.ch;
+				        var end = start;
+				        while (end < currentLine.length && /[\w$]+/.test(currentLine.charAt(end))) ++end;
+				        while (start && /[\w$]+/.test(currentLine.charAt(start - 1))) --start;
+				        var curWord = start != end && currentLine.slice(start, end);
+
+						if($(editor.getTextArea()).hasClass('fimRegra')) {
+							inner.list.splice(0, inner.list.length);
+						}
+
+				        if(curWord) {
+							for (item in customWordList) {
+								if(customWordList[item].toLowerCase().indexOf(curWord.toLowerCase()) != -1) {
+									inner.list.push(customWordList[item]); //add no final
+									//inner.list.unshift(customWordList[item]); //add no começo
+								}
+							}
+				        }
+
+						return inner;
+					};
+				}
+
+				configurarCodeMirror();
+
+				function iniciarCodeMirror() {
+
+					var textAreaJQ = $('.condicionalJs');
+					textAreaJQ.each(function() {
+						thiz = $(this);
+						editor = CodeMirror.fromTextArea(this, {
+							extraKeys: {"Ctrl-Space": "autocomplete"},
+							mode: {name: "javascript", globalVars: true},
+							theme: "blackboard"
+						});
+						editor.on("change", function(cm, change) {
+							thiz.val(cm.getValue());
+						});
+					});
+
+					textAreaJQ = $('.fimRegra');
+					textAreaJQ.each(function() {
+						thiz = $(this);
+						editor = CodeMirror.fromTextArea(this, {
+							extraKeys: {"Ctrl-Space": "autocomplete"},
+							theme: "default"
+						});
+						editor.on("change", function(cm, change) {
+							thiz.val(cm.getValue());
+						});
+						$('.CodeMirror', thiz.parent()).css('height', '100px');
+					});
+				}
+			//]]>
+			</script>
+		</ui:define>
+	</ui:composition>
+</html>

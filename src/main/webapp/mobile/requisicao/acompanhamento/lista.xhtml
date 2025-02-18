@@ -1,0 +1,299 @@
+<ui:composition template="/mobile/master.xhtml"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc"
+	>
+	<f:metadata>
+		<f:viewParam name="id" value="#{listaAcompanhamentoBean.id}" />
+		<f:viewParam name="id" value="#{edicaoRequisicaoBean.id}" />
+		<f:viewParam name="origem" value="#{listaAcompanhamentoBean.origem}" />
+		<f:event type="preRenderView" listener="#{listaAcompanhamentoBean.init}" />
+		<f:event type="preRenderView" listener="#{edicaoRequisicaoBean.init}" />
+	</f:metadata>
+	<ui:define name="master.style">
+		
+	</ui:define>
+	<ui:define name="master.script">
+		<c:set var="bean" value="#{listaAcompanhamentoBean}" />	
+		<script type="text/javascript">
+			//<![CDATA[
+			Device = {
+				onReady: function() {
+					Device.initialize(#{bean.deviceInitializeScript});
+				},
+				onTapped: function(id) {
+					if (id == 1) {
+						adicionar();
+					} else if (id == 2) {
+						location.href = '#{request.contextPath}/mobile/requisicao/edicao.xhtml?id=#{bean.id}&origem=#{bean.origem}'
+					}
+				},
+				onUpload: function(result) {
+					var json = JSON.stringify(result);
+					onUpload({ upload: json });
+				}
+			};
+			View = {
+				onCameraClick: function() {
+					Device.Image.upload({
+						types: ['png', 'jpg', 'jpeg']
+					});
+				},
+				Evidencia: {
+					show: function() {
+						$('#add-modal').modal()
+					},
+					onSalvarAjaxHandler: function() {
+						return Ajax.onSuccess(function() {
+							$('#add-modal').modal('hide');
+						});
+					}
+				},
+				Observacao: {
+					show: function() {
+						$('#obs-modal').modal()
+					}
+				}
+			};
+			//]]>
+		</script>
+	</ui:define>
+	<ui:define name="master.content">
+		<c:set var="bean" value="#{listaAcompanhamentoBean}" />
+		<c:set var="rows" value="#{bean.rows}" />
+		<c:set var="imagens" value="#{bean.imagens}" />
+		<c:set var="options" value="#{bean.options}" />
+		<c:set var="evidencia" value="#{bean.evidencia}" />
+		<getdoc:headerRequisicao numMenu="3" bean="#{edicaoRequisicaoBean}"/>
+		<div class="container">
+			<h:form>
+				<o:commandScript 
+					name="onUpload"
+					action="#{bean.onUpload}"
+					render="#{panelImagens.clientId}"
+					/>
+				<o:commandScript 
+					name="adicionar" 
+					actionListener="#{bean.onAdicionarClick()}"
+					render="#{evidenciaBody.clientId}"
+					oncomplete="View.Evidencia.show()"
+					/>
+				<h:panelGroup
+					layout="block"
+					styleClass="row empty"
+					rendered="#{empty rows}"
+					>
+					<div class="col-xs-12 text-center">
+						<h:outputText value="#{msg['emptyMessage.label']}" />
+					</div>
+				</h:panelGroup>
+				<h:panelGroup
+					layout="block"
+					rendered="#{not empty rows}"
+					>
+					<ui:repeat var="row" value="#{rows}">
+						<div class="row list">
+							<div class="col-xs-12">
+								<div class="secao">
+									<div class="row">
+										<div class="col-xs-6">
+											<h:outputText
+												value="#{row.data}"
+						 						>
+						 						<f:convertDateTime pattern="dd/MM/yyyy" locale="pt_BR" />
+						 					</h:outputText>
+						 				</div>
+						 				<div class="col-xs-6" align="right">
+						 					<h:outputText
+												value="#{row.data}"
+						 						>
+						 						<f:convertDateTime pattern="HH:mm" locale="pt_BR" />
+						 					</h:outputText>
+						 				</div>
+						 			</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-12 ellipsis">
+										<h:outputText
+											value="#{row.usuario.nome}"
+											/>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-12 ellipsis">
+										<h:outputText value="#{msg[row.acaoKey]}" />
+										<h:outputText value=" - #{row.documento.nome}" rendered="#{not empty row.documento}"/>
+										<h:outputText value=" - #{row.solicitacao.subarea.area.descricao} / #{row.solicitacao.subarea.descricao}" rendered="#{not empty row.solicitacao}"/>
+									</div>
+								</div>
+								<h:panelGroup
+									layout="block"
+									styleClass="row"
+									rendered="#{not empty row.observacao}"
+									>
+									<div class="col-xs-10 ellipsis">
+										<h:outputText value="#{row.observacao}" />
+									</div>
+									<div class="col-xs-2 text-right">
+										<h:commandLink
+											actionListener="#{bean.onObservacaoClick(row)}"
+											>
+											<f:ajax
+												onevent="Ajax.onSuccess(View.Observacao.show)"
+												render="#{modalBodyObs.clientId}"
+												/>
+											<i class="fa fa-ellipsis-h" />
+										</h:commandLink>
+									</div>
+								</h:panelGroup>
+							</div>
+						</div>
+					</ui:repeat>
+				</h:panelGroup>
+				
+				<!-- Modais -->
+				<div id="add-modal" class="modal fade" tabindex="-1" role="dialog">
+					<div class="modal-dialog modal-lg" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal">
+									<i class="fa fa-times" aria-hidden="true" />
+								</button>
+								<h4 class="modal-title">#{msg['registrarEvidencia.label']}</h4>
+							</div>
+							<h:panelGroup
+								id="evidenciaBody"
+								binding="#{evidenciaBody}"
+								layout="block"
+								styleClass="modal-body"
+								>
+								<div class="form-group">
+									<h:outputLabel
+										value="#{msg['tipoEvidencia.label']}"
+										/>
+									<h:selectOneMenu
+										value="#{bean.tipoEvidenciaId}"
+										styleClass="form-control"
+										>
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems 
+											var="item" 
+											itemValue="#{item.id}" 
+											itemLabel="#{item.descricao}"
+											value="#{bean.options}"
+											/>
+									</h:selectOneMenu>
+								</div>
+								<div class="form-group">
+									<h:outputLabel
+										value="#{msg['observacao.label']}"
+										/>
+									<h:inputTextarea
+										value="#{evidencia.observacaoTmp}"
+										maxlength="3000"
+										styleClass="form-control"
+										rows="4"
+										/>
+								</div>
+								<div class="row">
+									<div class="col-xs-12">
+										<div class="secao">
+											<i class="fa fa-paperclip" />
+											<span class="space" />
+											<h:outputLink
+												value="#"
+												onclick="View.onCameraClick()"
+												>
+												<h:outputText
+													value="#{msg['anexar.label']}"
+													/>
+											</h:outputLink>
+										</div>
+									</div>
+								</div>
+								<h:panelGroup
+									id="panelImagens"
+									binding="#{panelImagens}"
+									layout="block"
+									styleClass="row"
+									>
+									<ui:repeat var="imagem" value="#{imagens}">
+										<div class="col-xs-4">
+											<div class="thumbnail">
+												<img src="#{imagem.caminho}" onclick="Device.Image.open('#{imagem.caminho}')" class="img-responsive" />
+												<div class="caption">
+													<h:commandButton
+														value="#{msg['excluir.label']}"
+														actionListener="#{bean.remover(imagem)}"
+														styleClass="btn btn-xs btn-block btn-danger"
+														>
+														<f:ajax
+															render="#{panelImagens.clientId}"
+															/>
+													</h:commandButton>
+												</div>
+											</div>
+										</div>
+									</ui:repeat>
+								</h:panelGroup>
+							</h:panelGroup>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">
+									<h:outputText
+										value="#{msg['cancelar.label']}"
+										/>
+								</button>
+								<h:commandButton
+									value="#{msg['salvar.label']}"
+									actionListener="#{bean.salvar()}"
+									styleClass="btn btn-primary"
+									>
+									<f:ajax
+										render="#{evidenciaBody.clientId}"
+										execute="#{evidenciaBody.clientId}"
+										onevent="View.Evidencia.onSalvarAjaxHandler()"
+										/>
+								</h:commandButton>
+							</div>
+				  		</div>
+					</div>
+				</div>
+				
+				<div id="obs-modal" class="modal fade" tabindex="-1" role="dialog">
+					<div class="modal-dialog modal-lg" role="document">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal">
+									<i class="fa fa-times" aria-hidden="true" />
+								</button>
+								<h4 class="modal-title">#{msg['observacao.label']}</h4>
+							</div>
+							<h:panelGroup
+								id="modalBodyObs"
+								binding="#{modalBodyObs}"
+								layout="block"
+								styleClass="modal-body"
+								>
+								<h:outputText
+									id="observacaoFull"
+									value="#{bean.row.observacaoFull}"
+									/>
+							</h:panelGroup>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">
+									<h:outputText
+										value="#{msg['fechar.label']}"
+										/>
+								</button>
+							</div>
+				  		</div>
+					</div>
+				</div>
+			</h:form>
+		</div>
+	</ui:define>
+</ui:composition>

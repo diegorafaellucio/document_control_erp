@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:o="http://omnifaces.org/ui"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc"
+	  xmlns:b="http://bootsfaces.net/ui"
+>
+<f:metadata>
+	<f:viewAction action="#{configuracaoGeracaoRelatorioBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	<f:viewAction action="#{relatorioPendenciaDocumentoFiltroBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/navegacao.xhtml">
+	<ui:define name="tituloPagina">#{msg['configucaraoGeracaoRelatorio.titulo']}</ui:define>
+	<ui:define name="conteudo">
+		<o:importConstants type="net.wasys.getdoc.domain.enumeration.TipoConfiguracaoRelatorio" />
+		<style>
+			.agendamento-modal .modal-dialog {
+				width: 1000px;
+			}
+		</style>
+		<getdoc:excluirModal id="excluirModal" metodoExcluir="#{configuracaoGeracaoRelatorioBean.excluir()}" update="mensagensGlobaisGroup configuracoes-datatable-id"/>
+		<h:form id="form-duplicar">
+			<b:modal title="#{msg['confirmarDuplicar.label']}" styleClass="confirmar-modal duplicar-modal">
+				<p><h4 class="msg-confirm"><h:outputText value="#{msg['duplicarConfiguracaoExecucaoRelatorio.confirm']}"/> </h4></p>
+				<f:facet name="footer">
+					<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+					<p:commandButton id="duplicar-btn" value="#{msg['duplicar.label']}" actionListener="#{configuracaoGeracaoRelatorioBean.duplicar}" update="configuracoes-datatable-id mensagensGlobaisGroup" styleClass="btn btn-danger" oncomplete="closeModal('duplicar-modal')"/>
+				</f:facet>
+			</b:modal>
+		</h:form>
+		<h:form id="form-busca">
+			<div class="row default-form">
+				<div class="col-sm-12">
+					<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+					<div class="row">
+						<div class="col-sm-12">
+							<div class="col-sm-5">
+								<div class="form-group">
+									<b:selectOneMenu value="#{configuracaoGeracaoRelatorioBean.filtro.tipo}" label="#{msg['tipoConfiguracaoRelatorio.label']}">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{TipoConfiguracaoRelatorio}" var="tp" itemValue="#{tp}" itemLabel="#{msg['TipoConfiguracaoRelatorio.'.concat(tp).concat('.label')]}"/>
+									</b:selectOneMenu>
+								</div>
+							</div>
+							<div class="col-sm-5">
+								<div class="form-group">
+									<b:inputText id="nome" value="#{configuracaoGeracaoRelatorioBean.filtro.nome}"
+												 label="#{msg['nome.label']}" maxlength="60" />
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-2">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['isAtiva.label']}" for="ativa-busca-id"/>
+									<h:selectOneRadio id="ativa-busca-id" value="#{configuracaoGeracaoRelatorioBean.filtro.ativo}" label="#{msg['isAtiva.label']}"
+													  styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+									</h:selectOneRadio>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="form-group" style="float: right;">
+						<b:commandButton id="buscarId" value="#{msg['buscar.label']}" styleClass="btn btn-primary btn-md"
+										 update="configuracoes-datatable-id" style="margin-left: 10px"/>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="form-group pull-right">
+						<p:commandLink value="#{msg['adicionarConfiguracao.label']}"
+									   onclick="openModal('agendamento-modal')" class="btn btn-primary btn-lg"
+									   update="form-agendamento:agendamento-modal-content-id"
+									   rendered="#{menuBean.podeEditar()}">
+							<f:setPropertyActionListener target="#{configuracaoGeracaoRelatorioBean.configuracaoGeracaoRelatorio}" value="#{null}"/>
+						</p:commandLink>
+					</div>
+				</div>
+			</div>
+		</h:form>
+		<div class="row">
+			<div class="col-sm-12">
+				<p:dataTable id="configuracoes-datatable-id" var="cgr" value="#{configuracaoGeracaoRelatorioBean.geracaoRelatorioDataModel}" rows="10" paginator="true" lazy="true"
+							 paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+							 currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+							 paginatorPosition="bottom" >
+					<p:column headerText="ID" width="60" style="text-align: center;">
+						<h:outputText value="#{cgr.id}"/>
+					</p:column>
+					<p:column headerText="#{msg['horario.label']}" width="60" style="text-align: center;">
+						<h:outputText value="#{cgr.horario}"/>
+					</p:column>
+					<p:column headerText="#{msg['nomeArquivo.label']}" width="360" style="text-align: center;">
+						<h:outputText value="#{cgr.nome}"/>
+					</p:column>
+					<p:column headerText="#{msg['destinatariosSucesso.label']}" style="text-align: center;">
+						<h:outputText value="#{cgr.emailsEnvioSucessoString}"/>
+					</p:column>
+					<p:column headerText="#{msg['destinatariosFalha.label']}" style="text-align: center;">
+						<h:outputText value="#{cgr.emailsEnvioErroString}"/>
+					</p:column>
+					<p:column headerText="#{msg['isAtivo.label']}" width="80" style="text-align: center;">
+						<h:outputText value="#{msg['sim.label']}" rendered="#{cgr.ativo}"/>
+						<h:outputText value="#{msg['nao.label']}" rendered="#{!cgr.ativo}"/>
+					</p:column>
+					<p:column headerText="" width="180" style="text-align: center;" rendered="#{menuBean.podeEditar()}">
+						<p:commandLink onclick="openModal('duplicar-modal', 'form-duplicar:duplicar-btn')" title="#{msg['duplicar.label']}"
+									   class="btn btn-default" style="margin-left: 4px; margin-right: 2px;">
+							<f:setPropertyActionListener target="#{configuracaoGeracaoRelatorioBean.configuracaoGeracaoRelatorio}" value="#{cgr}" />
+							<i class="fa fa-files-o" aria-hidden="true"></i>
+						</p:commandLink>
+						<p:commandLink actionListener="#{configuracaoGeracaoRelatorioBean.setConfiguracaoGeracaoRelatorio(cgr)}" title="#{msg['editar.label']}" immediate="true"
+									   onerror="alert('Erro inesperado ao abrir modal de agendamento.')"
+									   action="#{configuracaoGeracaoRelatorioBean.editar(cgr)}"
+									   onsuccess="openModal('agendamento-modal');"
+									   update="form-agendamento:agendamento-modal-content-id"
+									   class="btn btn-warning">
+							<i class="fa fa-pencil" aria-hidden="true" style="color: #fff;"></i>
+							<f:setPropertyActionListener value="#{cgr}" target="#{configuracaoGeracaoRelatorioBean.configuracaoGeracaoRelatorio}"/>
+						</p:commandLink>
+						<p:commandLink title="#{msg['excluir.label']}" onclick="openModal('excluir-modal', 'excluirModal:form-exclusao:excluir-btn')" class="btn btn-danger"
+									   rendered="#{menuBean.podeExcluir()}" style="margin-left: 2px; width: 45px;">
+							<f:setPropertyActionListener target="#{configuracaoGeracaoRelatorioBean.configuracaoGeracaoRelatorio}" value="#{cgr}" />
+							<i class="fa fa-trash" aria-hidden="true" style="color: #fff;"></i>
+						</p:commandLink>
+					</p:column>
+				</p:dataTable>
+			</div>
+		</div>
+		<h:form id="form-agendamento">
+			<b:modal id="agendamento-modal-id" title="#{msg['agendamentoGeracaoRelatorio.title']}" rendered="#{menuBean.podeEditar()}"
+					 styleClass="agendamento-modal">
+				<h:panelGroup id="agendamento-modal-content-id">
+					<b:row>
+						<b:messages globalOnly="true" showSummary="true"/>
+
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="col-sm-10">
+									<div class="form-group">
+										<b:inputText id="nome" value="#{configuracaoGeracaoRelatorioBean.configuracaoGeracaoRelatorio.nome}"
+													 label="#{msg['nomeArquivo.label']}" maxlength="60" required="true"/>
+										<b:message/>
+									</div>
+								</div>
+								<div class="col-sm-2">
+									<div class="form-group">
+										<h:outputLabel value="#{msg['isAtiva.label']}" for="ativaId"/>
+										<h:selectOneRadio id="ativaId" value="#{configuracaoGeracaoRelatorioBean.configuracaoGeracaoRelatorio.ativo}" label="#{msg['isAtiva.label']}"
+														  styleClass="radio-default">
+											<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+											<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+										</h:selectOneRadio>
+										<b:message/>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="col-sm-4">
+									<div class="form-group">
+										<h:outputLabel value="#{msg['executaEmExpediente.label']}" for="executaEmExpedienteId"/>
+										<h:selectOneRadio id="executaEmExpedienteId" value="#{configuracaoGeracaoRelatorioBean.configuracaoGeracaoRelatorio.executaEmExpediente}" label="#{msg['isAtiva.label']}"
+														  styleClass="radio-default">
+											<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+											<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+										</h:selectOneRadio>
+										<b:message/>
+									</div>
+								</div>
+								<div class="col-sm-2">
+									<div class="form-group">
+										<b:inputText id="chegadaManha" value="#{configuracaoGeracaoRelatorioBean.configuracaoGeracaoRelatorio.horario}" styleClass="mask-time" tabindex="1"
+													 label="#{msg['horario.label']}" size="7" maxlength="5" required="true"/>
+										<b:message/>
+									</div>
+								</div>
+								<div class="col-sm-3">
+									<div class="form-group" >
+										<h:outputLabel value="#{msg['tipoArquivo.label']}" styleClass="bf-no-message"/>
+										<h:selectOneRadio value="#{configuracaoGeracaoRelatorioBean.configuracaoGeracaoRelatorio.extensao}" label="#{msg['extencao.label']}" styleClass="radio-default"
+														  required="true">
+											<f:selectItems value="#{utilBean.getValues('TipoExtensaoRelatorio')}" var="te" itemValue="#{te}" itemLabel="#{msg['TipoExtensaoRelatorio.'.concat(te).concat('.label')]}"/>
+										</h:selectOneRadio>
+									</div>
+								</div>
+								<div class="col-sm-3">
+									<div class="form-group" >
+										<h:outputLabel value="#{msg['dehMenosUm.label']}" styleClass="bf-no-message"/>
+										<h:selectOneRadio id="dehMenosUmId" value="#{configuracaoGeracaoRelatorioBean.configuracaoGeracaoRelatorio.dehMenosUm}" label="#{msg['dehMenosUm.label']}"
+														  styleClass="radio-default">
+											<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+											<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}"/>
+										</h:selectOneRadio>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-12">
+								<div class="col-sm-6">
+									<div class="form-group">
+										<b:inputText id="destinatarios-sucesso-id" tags="true" value="#{configuracaoGeracaoRelatorioBean.configuracaoGeracaoRelatorio.emailsEnvioSucesso}"
+													 label="#{msg['destinatariosSucesso.label']}" placeholder="Informe os e-mails, separados por vírgula" styleClass="inputTag"/>
+										<b:message/>
+									</div>
+								</div>
+								<div class="col-sm-6">
+									<div class="form-group">
+										<b:inputText id="destinatarios-falha-id" tags="true" value="#{configuracaoGeracaoRelatorioBean.configuracaoGeracaoRelatorio.emailsEnvioErro}"
+													 label="#{msg['destinatariosFalha.label']}" placeholder="Informe os e-mails, separados por vírgula" styleClass="inputTag"/>
+										<b:message/>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<getdoc:relatorioPendenciaDocumentoFiltro filtro="#{configuracaoGeracaoRelatorioBean.relatorioPendenciaDocumentoFiltro}" bean="#{relatorioPendenciaDocumentoFiltroBean}" />
+					</b:row>
+					<script type="text/javascript">
+
+                        $('.inputTag').tagsinput('refresh');
+
+                        jQuery(function ($) {
+                            configurarMascaras();
+                        });
+					</script>
+				</h:panelGroup>
+				<f:facet name="footer">
+					<p:commandButton value="#{msg['executarAgora.label']}" styleClass="btn" actionListener="#{configuracaoGeracaoRelatorioBean.executarRelatorio()}"
+									 style="float: left;"
+									 onerror="alert('Erro inesperado ao tentar executar o relatório.')"
+									 update="form-agendamento:agendamento-modal-content-id mensagensGlobaisGroup">
+					</p:commandButton>
+
+					<b:button value="#{msg['cancelar.label']}" look="default" dismiss="modal" onclick="return false;"/>
+					<p:commandButton value="#{msg['salvarAgendamento.label']}" styleClass="btn" rendered="#{menuBean.podeEditar()}"
+									 onerror="alert('Erro inesperado ao salvar agendamento.')" actionListener="#{configuracaoGeracaoRelatorioBean.salvarConfiguracaoGeracaoRelatorio()}"
+									 update="form-agendamento:agendamento-modal-content-id configuracoes-datatable-id mensagensGlobaisGroup">
+					</p:commandButton>
+				</f:facet>
+			</b:modal>
+		</h:form>
+
+	</ui:define>
+</ui:composition>
+</html>

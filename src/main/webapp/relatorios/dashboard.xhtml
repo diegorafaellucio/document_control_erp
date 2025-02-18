@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+		"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:b="http://bootsfaces.net/ui"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf"
+	  xmlns:c="http://java.sun.com/jsp/jstl/core"
+>
+<f:metadata>
+	<f:viewAction action="#{dashboardBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/navegacao.xhtml">
+	<ui:define name="head">
+		<link href="#{request.contextPath}/resources/css/prism.css" rel="stylesheet"/>
+		<script type="text/javascript" src="#{request.contextPath}/resources/highcharts/highcharts.js"></script>
+		<script type="text/javascript" src="#{request.contextPath}/resources/highcharts/modules/data.js"></script>
+		<script type="text/javascript" src="#{request.contextPath}/resources/highcharts/modules/exporting.js"></script>
+	</ui:define>
+	<ui:define name="tituloPagina">#{msg['dashboard.label']}</ui:define>
+	<ui:define name="conteudo">
+		<h:form id="form-envio">
+			<c:set var="bean" value="#{dashboardBean}"/>
+			<input type="hidden" value="#{bean.jsonObjetos}" id="jsonObjects"/>
+			<div class="row default-form">
+				<div class="col-sm-12">
+					<div class="col-sm-12">
+						<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+					</div>
+					<div class="col-sm-12" style="margin-top: 13px;">
+						<div class="row">
+							<div class="col-sm-1"></div>
+							<div class="col-sm-3">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['regional.label']}" />
+									<h:selectOneMenu styleClass="form-control bf-no-message bf-required"
+													 value="#{bean.filtro.regional}" id="regional" converter="entityConverter">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{bean.regionais}" var="re" itemValue="#{re}"
+													   itemLabel="#{re.label}"/>
+										<f:ajax event="change" render="form:campus" listener="#{bean.setCampus}"/>
+									</h:selectOneMenu>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-3">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['campus.label']}" />
+									<h:selectOneMenu styleClass="form-control bf-no-message bf-required"
+													 value="#{bean.filtro.campus}" id="campus" converter="entityConverter">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{bean.campus}" var="ca" itemValue="#{ca.label}"
+													   itemLabel="#{ca.label}"/>
+									</h:selectOneMenu>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['periodo.label']}"/>
+									<b:panelGrid colSpans="1,5,1,5" style="margin-bottom: -20px; margin-left: 5px;">
+										<h:outputText value="#{msg['de.label']}"/>
+										<b:inputText id="dataInicioId" value="#{bean.filtro.dataInicio}" placeholder="dd/mm/aaaa" styleClass="mask-date" label="#{msg['dataInicial.label']}" renderLabel="false">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14" />
+											</f:facet>
+										</b:inputText>
+										<h:outputText value="#{msg['ate.label']}"/>
+										<b:inputText id="dataFimId" value="#{bean.filtro.dataFim}" placeholder="dd/mm/aaaa" styleClass="mask-date" label="#{msg['dataFinal.label']}" renderLabel="false">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14" />
+											</f:facet>
+										</b:inputText>
+									</b:panelGrid>
+									<b:message for="dataInicioId" showSummary="false"/>
+									<b:message for="dataFimId" showSummary="false"/>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-12">
+						<div class="row">
+							<div class="col-sm-1"></div>
+							<div class="col-sm-4">
+								<div class="form-group">
+									<h:outputLabel value="Comparativo"/>
+									<b:panelGrid colSpans="5,1,6" style="margin-bottom: -20px;">
+										<b:selectOneMenu value="#{bean.filtro.situacao}" converter="enumConverter" >
+											<f:selectItems value="#{bean.situacoes}" var="situacao" itemLabel="#{situacao.nome}" itemValue="#{situacao}" />
+										</b:selectOneMenu>
+										<h:outputText value="vs."/>
+										<b:selectOneMenu value="#{bean.filtro.situacaoCompara}" converter="enumConverter" >
+											<f:selectItems value="#{bean.situacoes}" var="situacaoCompara" itemLabel="#{situacaoCompara.nome}" itemValue="#{situacaoCompara}" />
+										</b:selectOneMenu>
+									</b:panelGrid>
+								</div>
+							</div>
+							<div class="col-sm-2">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['agrupar.label']} Por"/>
+									<b:selectOneMenu value="#{bean.filtro.tipoAgrupamento}" converter="enumConverter">
+										<f:selectItems value="#{bean.tiposAgrupamento}" var="tipoAgrupamento" itemLabel="#{tipoAgrupamento.nome}" itemValue="#{tipoAgrupamento}" />
+									</b:selectOneMenu>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-2">
+								<div class="form-group">
+									<h:outputLabel value=""/>
+									<b:selectOneMenu value="#{bean.filtro.interval}" converter="enumConverter" >
+										<f:selectItems value="#{bean.intervals}" var="interval" itemLabel="#{interval.nome}" itemValue="#{interval}" />
+									</b:selectOneMenu>
+									<b:message/>
+									<input type="hidden" value="#{bean.filtro.interval.nome}" name="interval-input" id="interval-input"/>
+								</div>
+							</div>
+							<div class="col-sm-2" style="margin-top:17px; ">
+								<div class="form-group">
+									<p:commandLink id="buscarId"
+										actionListener="#{dashboardBean.countBySituacaoFormaIngresso}"
+										value="#{msg['buscar.label']}" styleClass="btn btn-primary btn-md"
+										update="form-envio" style="float: right"
+										oncomplete="initGraficos()"/>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</h:form>
+		<div class="col-sm-12" jsf:id="tabela-ID">
+			<h4 value="qqqq" style="margin: 0; color: #cc092f; border-bottom: none;"></h4>
+			<div class="row">
+				<div id="backlog-digitalizado" style="height: 400px; width: 100%;"></div>
+			</div>
+		</div>
+		<script type="text/javascript">
+            $(function () {
+                var grafico;
+                configurarDatePicker();
+            })
+
+            function loadCharts(tipo, jsonData) {
+                var groupBy = $('#interval-input').val();
+                var labelFormat = '{value:%e/%b}';
+                if (groupBy == 'Ano'){
+                    labelFormat = '{value:%b/%Y}';
+                }
+                var options = {
+                    chart: {
+                        type: 'column',
+                        renderTo: tipo,
+                    },
+                    title: {
+                        text: null,
+                    },
+                    xAxis: {
+                        type: 'datetime',
+                        lineColor: '#ffffff',
+                        labels: {
+                            y: 35,
+                            format: labelFormat
+                        },
+                        scrollbar: {
+                            enabled: true,
+                            showFull: false,
+                        },
+                    },
+                    yAxis: {
+                        gridLineWidth: 1,
+                        allowDecimals: false,
+                        min: 1,
+                        title: {
+                            text: 'Número de Processos'
+                        },
+                        tickInterval: 50,
+                        stackLabels: {
+                            enabled: true,
+                            crop: false,
+                            overflow: 'none',
+                            verticalAlign: 'bottom',
+                            formatter: function () {
+                                if(this.total > 0) {
+                                    return this.stack + " (" + this.total + ")";
+                                }else{
+                                    return null;
+                                }
+                            },
+                            y: 15
+                        },
+                    },
+                    tooltip: {
+                        formatter: function () {
+                            return this.series.name + ': ' + this.y;
+                        }
+                    },
+                    legend: {
+                        enabled: true,
+                    },
+                    plotOptions: {
+                        column: {
+                            stacking: 'normal',
+                            groupPadding: 0.15,
+                        }
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    series: jsonData,
+                    exporting: {
+                        enabled: true,
+                        csv: {
+                            dateFormat: '%Y-%m-%d'
+                        }
+                    }
+                };
+
+                this.grafico = new Highcharts.Chart(options);
+            }
+
+            function initGraficos() {
+                if (this.grafico) {
+                    this.grafico.destroy();
+                }
+                var jsonNovos = $('#jsonObjects').val();
+                jsonNovos = JSON.parse(jsonNovos);
+                loadCharts('backlog-digitalizado', jsonNovos);
+                configurarDatePicker();
+            }
+		</script>
+	</ui:define>
+</ui:composition>
+</html>

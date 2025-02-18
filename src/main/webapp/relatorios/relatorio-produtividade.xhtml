@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:pa="http://java.sun.com/jsf/passthrough"
+	>
+	<f:metadata>
+		<f:viewAction action="#{relatorioProdutividadeBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['relatorioProdutividade.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/tooltipster.bundle.min.css" />
+			<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-punk.min.css" />
+			<script type="text/javascript" src="#{request.contextPath}/resources/tooltipster/js/tooltipster.bundle.min.js"></script>		
+			<style>
+				.acompanharLink {
+					color: #3c4749;
+				}
+				.relatorioTable {
+					width: 100%;
+				}
+				.relatorioTable th {
+					font-weight: bold;
+					font-size: 13px;
+					border: 1px solid #dddddd;
+					padding: 4px 10px;
+					color: #23527c;
+					text-align: center;
+				}
+				.relatorioTable td {
+					border: 1px solid #dddddd;
+					padding: 6px 10px;
+				}
+				.relatorioTable .tdTitulo {
+					background-color: #f0f6fb;
+				}
+				.relatorioTable .even {
+					background-color: #FFF;
+				}
+				.relatorioTable .even {
+					background-color: #FFF;
+				}
+				.relatorioTable .odd {
+					background-color: #F9F9F9;
+				}
+				.relatorioTable tbody tr:hover {
+					background-color: #e6e6e6;
+				}
+				.relatorioTable tbody tr:hover .tdTitulo {
+					background-color: #e6e6e6;
+				}
+				.relatorioTable .total td {
+					background-color: #d0d6db !important;
+					color: #3c4749 !important;
+				}
+				.relatorioTable .total {
+				}
+				.relatorioTable tbody  tr.total:hover td {
+					background-color: #e0e6eb;
+				}
+				.tooltipContent {
+					color: #fff;
+				}
+				.tooltipster-sidetip.tooltipster-punk .tooltipster-box {
+					background-color: #0f487f;
+				}
+			</style>		
+			<h:form id="form">
+				<div class="row default-form">
+					<div class="col-sm-12">
+						<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+						<div class="row">
+							<div class="col-sm-1" ></div>
+							<div class="col-sm-5">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['periodo.label']}"/>
+									<b:panelGrid colSpans="1,5,1,5" style="margin-bottom: -20px; margin-left: 5px;">
+										<h:outputText value="#{msg['de.label']}"/>
+										<b:inputText id="dataInicioId" value="#{relatorioProdutividadeBean.filtro.dataInicio}" placeholder="dd/mm/aaaa" styleClass="mask-date" label="#{msg['dataInicial.label']}" renderLabel="false">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14" />
+											</f:facet>
+										</b:inputText>
+										<h:outputText value="#{msg['ate.label']}"/>
+										<b:inputText id="dataFimId" value="#{relatorioProdutividadeBean.filtro.dataFim}" placeholder="dd/mm/aaaa" styleClass="mask-date" label="#{msg['dataFinal.label']}" renderLabel="false">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14" />
+											</f:facet>
+										</b:inputText>
+									</b:panelGrid>
+									<b:message for="dataInicioId" showSummary="false"/>
+									<b:message for="dataFimId" showSummary="false"/>
+								</div>
+							</div>
+							<div class="col-sm-3">
+								<b:selectOneMenu value="#{relatorioProdutividadeBean.filtro.tipo}" label="#{msg['visualizacao.label']}"
+												 ajax="true" process="@this" update="@form">
+									<f:selectItem itemLabel="Por Motivo" itemValue="VISUALIZACAO_POR_MOTIVO" />
+									<f:selectItem itemLabel="Por Analista" itemValue="VISUALIZACAO_POR_ANALISTA" />
+								</b:selectOneMenu>
+							</div>
+							<div class="col-sm-2 noMarginBottom" style="padding-left: 46px;" jsf:id="agrupar_div">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['agrupar.label']}"/>
+									<h:selectOneRadio id="importarId" value="#{relatorioProdutividadeBean.filtro.agrupar}"
+													  label="#{msg['agrupar.label']}" styleClass="radio-default">
+										<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+										<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}" />
+									</h:selectOneRadio>
+								</div>
+							</div>
+							<div class="col-sm-1"></div>
+						 </div>
+						 <div class="row">
+							 <div class="col-sm-1" ></div>
+							 <div class="col-sm-3">
+								 <div class="form-group" jsf:rendered="#{relatorioProdutividadeBean.filtro.tipo eq 'VISUALIZACAO_POR_ANALISTA'}">
+									 <h:outputLabel value="#{msg['tipoProcesso.label']}"/>
+									 <h:selectOneMenu  styleClass="form-control bf-no-message bf-required"
+													  value="#{relatorioProdutividadeBean.filtro.tipoProcesso}"
+													  converter="entityConverter">
+										 <f:selectItem itemValue="" itemLabel=""/>
+										 <f:selectItems value="#{relatorioProdutividadeBean.tiposProcesso}" var="s" itemValue="#{s}" itemLabel="#{s.nome}" />
+										 <f:ajax event="change" render="form" listener="#{relatorioProdutividadeBean.listarSituacoes}"/>
+									 </h:selectOneMenu>
+									 <b:message/>
+								 </div>
+							 </div>
+							 <div class="col-sm-3">
+								 <div class="form-group" jsf:rendered="#{relatorioProdutividadeBean.filtro.tipo eq 'VISUALIZACAO_POR_ANALISTA'}">
+									 <h:outputLabel value="#{msg['situacao.label']}"/>
+									 <p:selectCheckboxMenu value="#{relatorioProdutividadeBean.filtro.situacao}" label=""
+														   style="form-control bf-no-message has-success" multiple="true"
+														   filter="true" filterMatchMode="contains" converter="entityConverter">
+										 <f:selectItems value="#{relatorioProdutividadeBean.situacoes}" var="s" itemValue="#{s}" itemLabel="#{s.tipoProcesso.nome} -> #{s.nome}"/>
+									 </p:selectCheckboxMenu>
+									 <b:message/>
+								 </div>
+							 </div>
+							 <div class="col-sm-1"></div>
+						 </div>
+						 <div class="row">
+							<div class="col-sm-1"></div>
+							<div class="col-sm-10">
+								<div class="form-group" style="float: right;">
+									<b:commandButton id="buscarId" action="#{relatorioProdutividadeBean.buscar()}" value="#{msg['buscar.label']}" 
+										styleClass="btn btn-primary btn-md" />
+									<b:commandButton id="exportarId" action="#{relatorioProdutividadeBean.exportar()}" value="#{msg['exportar.label']}" styleClass="btn btn-primary btn-md"
+										style="margin-left: 10px"  />
+								</div>
+							</div>
+							<div class="col-sm-1"></div>
+						</div>
+					</div>
+				</div>
+				<div class="row" >
+					<div class="col-sm-12">
+						<div class="tooltip_templates" style="display: none;">
+						    <span id="tooltipRequisicoesContent" class="tooltipContent">
+						        Número de requisições onde foram executadas ao menos uma atividade pelos analistas.
+						    </span>
+						</div>
+						<div class="tooltip_templates" style="display: none;">
+						    <span id="tooltipAtividadesContent" class="tooltipContent">
+						        Número total de atividades executadas pelos analistas.
+						    </span>
+						</div>
+						<div class="tooltip_templates" style="display: none;">
+						    <span id="tooltipCadastrosContent" class="tooltipContent tooltipTable">
+						        Requisições cadastradas:
+						        <table><tr><td>Manual</td><td>Automático</td><td>Total</td></tr></table>
+						    </span>
+						</div>
+						<div class="tooltip_templates" style="display: none;">
+						    <span id="tooltipAcompanhamentoContent" class="tooltipContent">
+						        Número de requisições que foram enviadas para o status "Em Acompanhamento".
+						    </span>
+						</div>
+						<div class="tooltip_templates" style="display: none;">
+						    <span id="tooltipFinalizacoesContent" class="tooltipContent tooltipTable">
+						        Requisições finalizadas ou redirecionadas:
+						        <table>
+						        	<tr>
+						        		<td>De "Em Análise" <br/>para Finalizada
+						        		</td>
+						        		<td>De "Em Acompanhamento" <br/>para Finalizada</td>
+						        		<td>Total</td>
+						        	</tr>
+						        </table>
+						    </span>
+						</div>
+						<h:panelGroup layout="div" id="tabela-ID" style="margin: 10px 15px;">
+							<table class="relatorioTable">
+								<thead>
+									<tr>
+										<th>#{msg[relatorioProdutividadeBean.filtro.tipo]} </th>
+										<th class="tooltipar" data-tooltip-content="#tooltipRequisicoesContent">
+											Requ.
+											<i class="fa fa-question-circle" aria-hidden="true"></i>
+										</th>
+										<th class="tooltipar" data-tooltip-content="#tooltipAtividadesContent">
+											Ativ.
+											<i class="fa fa-question-circle" aria-hidden="true"></i>
+										</th>
+										<th class="tooltipar" data-tooltip-content="#tooltipCadastrosContent" colspan="3">
+											Cadastros
+											<i class="fa fa-question-circle" aria-hidden="true"></i>
+										</th>
+										<th class="tooltipar" data-tooltip-content="#tooltipAcompanhamentoContent" style="width: 85px;">
+											Acomp.
+											<i class="fa fa-question-circle" aria-hidden="true"></i>
+										</th>
+										<th class="tooltipar" data-tooltip-content="#tooltipFinalizacoesContent" colspan="3">
+											Finalizações
+											<i class="fa fa-question-circle" aria-hidden="true"></i>
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									<ui:repeat var="rg" value="#{relatorioProdutividadeBean.list}" varStatus="status" >
+										<tr class="#{status.index%2 == 0 ? 'even' : 'odd'} #{status.index == relatorioProdutividadeBean.list.size()-1 ? 'total' : '' }">
+											<td class="tdTitulo">
+												<h:outputText value="#{rg.registroDescricao}" />
+											</td>
+											<td style="text-align: right; width: 80px;">
+												<h:outputText value="#{rg.requisicoes}" />
+											</td>
+											<td style="text-align: right; width: 80px;">
+												<h:outputText value="#{rg.atividades}" />
+											</td>
+											<td style="text-align: right; width: 50px;">
+												<h:outputText value="#{rg.cadastroManual}" />
+											</td>
+											<td style="text-align: right; width: 50px;">
+												<h:outputText value="#{rg.cadastroAutomatio}" />
+											</td>
+											<td style="text-align: right; width: 50px; background-color: #5891c8; color: #fff;">
+												<h:outputText value="#{rg.cadastroTotal}" />
+											</td>
+											<td style="text-align: right; width: 80px; background-color: #7cb5ec; color: #fff;">
+												<h:outputText value="#{rg.emAcompanhamento}" />
+											</td>
+											<td style="text-align: right; width: 50px;">
+												<h:outputText value="#{rg.finalizadosAnalise}" />
+											</td>
+											<td style="text-align: right; width: 50px;">
+												<h:outputText value="#{rg.finalizadosAcompanhamento}" />
+											</td>
+											<td style="text-align: right; width: 50px; background-color: #5891c8; color: #fff;">
+												<h:outputText value="#{rg.finalizadosTotal}" />
+											</td>
+										</tr>
+									</ui:repeat>
+								</tbody>
+							</table>
+						</h:panelGroup>
+					</div>
+				</div>
+				<script type="text/javascript">
+					var total = $('.total');
+					total.css('font-weight', 'bold');
+					$('td', total.parent().parent()).css('font-weight', 'bold');
+					
+					 $(document).ready(function() {
+				         $('.tooltipar').tooltipster({
+				        	    theme: 'tooltipster-punk',
+				        	    animation: 'grow',
+				        	    interactive: true
+				         });
+				     });
+				</script>			
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

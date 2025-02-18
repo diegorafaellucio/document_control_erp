@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:o="http://omnifaces.org/ui"
+  	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:pa="http://java.sun.com/jsf/passthrough">
+	<f:metadata>
+		<f:viewAction action="#{relatorioProdutividadeProuniBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['relatorioProdutividadeProuni.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<c:set var="bean" value="#{relatorioProdutividadeProuni}" />
+			<h:form id="form">
+				<div class="row default-form">
+					<div class="col-sm-12">
+						<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="form-group">
+									<b:panelGrid colSpans="1,5,1,5" style="margin-bottom: -20px; margin-left: 5px;">
+										<h:outputText value="#{msg['de.label']}"/>
+										<b:inputText id="dataInicioId" value="#{relatorioProdutividadeProuniBean.filtro.dataInicio}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+												label="#{msg['dataInicial.label']}" renderLabel="false" required="true">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14" />
+											</f:facet>
+										</b:inputText>
+										<h:outputText value="#{msg['ate.label']}"/>
+										<b:inputText id="dataFimId" value="#{relatorioProdutividadeProuniBean.filtro.dataFim}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+												label="#{msg['dataFinal.label']}" renderLabel="false" required="true">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14" />
+											</f:facet>
+										</b:inputText>
+									</b:panelGrid>
+									<b:message for="dataInicioId" showSummary="false"/>
+									<b:message for="dataFimId" showSummary="false"/>
+								</div>
+							</div>
+						 </div>
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="form-group" style="float: right;">
+									<b:commandButton id="buscarId" value="#{msg['buscar.label']}" styleClass="btn btn-primary btn-md" update="tabela-ID form" actionListener="#{relatorioProdutividadeProuniBean.buscar()}"/>
+									<b:commandButton id="exportarId" value="#{msg['exportar.label']}" styleClass="btn btn-primary btn-md"
+											style="margin-left: 10px" onclick="exportarInicio()" type="button" />
+								</div>
+							</div>
+							<div class="col-sm-1"></div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12">
+						<p:dataTable id="tabela-ID" var="vo" value="#{relatorioProdutividadeProuniBean.voList}" rows="10"
+									 scrollable="false" binding="#{ utilBean.lazyDataTable }">
+							<p:column headerText="#{msg['processoId.label']}" style="text-align: center; width: 120px;">
+								<h:outputText value="#{vo.processoId}" />
+							</p:column>
+							<p:column headerText="#{msg['dataAbertura.label']}" style="text-align: center;">
+								<h:outputText value="#{vo.dataAbertura}" />
+							</p:column>
+							<p:column headerText="#{msg['dataVencimento.label']}" style="text-align: center;">
+								<h:outputText value="#{vo.dataVencimento}" />
+							</p:column>
+							<p:column headerText="#{msg['dataFechamento.label']}" style="text-align: center;">
+								<h:outputText value="#{vo.dataFechamento}" />
+							</p:column>
+							<p:column headerText="#{msg['solicitante.label']}" style="text-align: center;">
+								<h:outputText value="#{vo.solicitante}" />
+							</p:column>
+							<p:column headerText="#{msg['responsavel.label']}" style="text-align: center;">
+								<h:outputText value="#{vo.responsavel}" />
+							</p:column>
+							<p:column headerText="#{msg['status.label']}" style="text-align: center;">
+								<h:outputText value="#{vo.status}" />
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+				<p:remoteCommand name="exportar" actionListener="#{relatorioProdutividadeProuniBean.exportar()}" oncomplete="verificarNoBean()" />
+				<p:remoteCommand name="verificarNoBean" actionListener="#{relatorioProdutividadeProuniBean.verificar()}" oncomplete="verificar()"/>
+				<b:commandButton id="baixarId" value="#{msg['baixar.label']}" style="display:none" action="#{relatorioProdutividadeProuniBean.baixar}"/>
+			</h:form>
+			<script type="text/javascript">
+
+				function exportarInicio() {
+					document.getElementById('form:buscarId').disabled = true;
+					document.getElementById('form:exportarId').disabled = true;
+					this.disabled = true;
+					waitingDialog.show('Aguarde...');
+					exportar();
+				}
+
+				function baixar() {
+					document.getElementById('form:baixarId').click();
+					document.getElementById('form:buscarId').disabled = false;
+					document.getElementById('form:exportarId').disabled = false;
+					waitingDialog.hide();
+				}
+
+				function verificar() {
+
+					var data = OmniFaces.Ajax.data;
+					var terminou = data.terminou;
+
+					if(terminou) {
+						baixar();
+					}
+					else if (terminou == false) {
+						setTimeout(verificarNoBean, 2000);
+					}
+				}
+
+			</script>
+			<script type="text/javascript" jsf:rendered="#{not empty bean.exporter}">
+				exportarInicio();
+			</script>
+		</ui:define>
+	</ui:composition>
+</html>

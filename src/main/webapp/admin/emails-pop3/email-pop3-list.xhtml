@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:b="http://bootsfaces.net/ui">
+	<f:metadata>
+		<f:viewAction action="#{emailPop3ListBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['emailPop3List.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<h:form id="form-email-recebido">
+				<b:modal id="email-recebido-modal-id" title="#{msg['emailRecebido.label']}" styleClass="email-recebido-modal">
+					<h:panelGroup id="email-recebido-modal-content-id">
+						<b:row rendered="#{not empty emailPop3ListBean.emailRecebido}">
+							<div class="col-sm-12">
+								<div class="form-group">
+									E-mail recebido de #{emailPop3ListBean.emailRecebido.emailFrom}. #{utilBean.getDateTimeStr(emailPop3ListBean.emailRecebido.sentDate)}h:<br/>
+								</div>
+								<div class="form-group">
+									#{emailPop3ListBean.emailRecebido.subject}
+								</div>
+								<div class="form-group">
+									<br/><h:outputLabel value="#{msg['conteudoHtml.label']}" styleClass="bf-no-message"/>:<br/>
+									<h:outputText value="#{emailPop3ListBean.emailRecebido.conteudoLong}" escape="false"/>
+								</div>
+							</div>
+							<ui:repeat value="#{emailPop3ListBean.emailRecebido.anexos.toArray()}" var="anexo">
+								<span class="btn btn-default linkAnexo" style="margin-right: 10px; margin-bottom: 10px;">
+									<h:commandLink action="#{emailPop3ListBean.downloadAnexoEmail(anexo)}" styleClass="linkAnexo">
+										<i class="fa fa-file-o" aria-hidden="true"></i>
+										#{anexo.fileName}
+										#{utilBean.toFileSize(anexo.tamanho)}
+									</h:commandLink>
+								</span>
+							</ui:repeat>
+						</b:row>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<b:button value="#{msg['fechar.label']}" look="default" dismiss="modal" onclick="return false;"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-emails-pop3">
+				<h:panelGroup id="mensagem-conectando">
+					<p:remoteCommand name="conectar" actionListener="#{emailPop3ListBean.conectarPop3}" update="mensagem-conectando lista-emails mensagensGlobaisGroup"/>
+					<h:panelGroup rendered="#{empty emailPop3ListBean.folderPop3}">
+						<div class="alert alert-info" role="alert">
+							<i class="fa fa-plug" aria-hidden="true"></i>
+							Conectando ao servidor POP3, por favor aguarde...
+						</div>
+						<script type="text/javascript">
+
+							//desativando hideMessage
+							function hideMessage(i){}
+
+							conectar();
+
+						</script>
+					</h:panelGroup>
+				</h:panelGroup>
+				<h:panelGroup id="lista-emails">
+					<div class="row">
+						<div class="col-sm-12">
+							<b:commandButton styleClass="btn-info" update="lista-emails"
+									rendered="#{not empty emailPop3ListBean.folderPop3}" style="float: right;">
+								#{msg['atualizar.label']}
+								<i class="fa fa-refresh" aria-hidden="true"></i>
+							</b:commandButton>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-12">
+							<p:dataTable var="er" value="#{emailPop3ListBean.dataModel}" rows="20" paginator="true" lazy="true"
+									paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}" first="1"
+									currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+									paginatorPosition="bottom" rendered="#{not empty emailPop3ListBean.folderPop3}">
+								<p:column headerText="#{msg['emailFrom.label']}" style="width: 250px;">
+									<h:outputText value="#{er.emailFrom}" />
+								</p:column>
+								<p:column headerText="#{msg['subject.label']}" style="width: 400px;">
+									<h:outputText value="#{er.subject}" />
+								</p:column>
+								<p:column headerText="#{msg['sentDate.label']}" style="width: 130px; text-align: center;">
+									<h:outputText value="#{utilBean.getDateTimeStr(er.sentDate)}" />
+								</p:column>
+								<p:column style="width: 125px;" sortable="false">
+									<p:commandLink onerror="alert('Erro!')" styleClass="btn btn-info btn-editar"
+											actionListener="#{emailPop3ListBean.setEmailRecebido(er)}"
+											onsuccess="openModal('email-recebido-modal');"
+											update="form-email-recebido:email-recebido-modal-content-id">
+										<h:outputText value="#{msg['abrir.label']}"/>
+									</p:commandLink>
+								</p:column>
+							</p:dataTable>
+						</div>
+					</div>
+				</h:panelGroup>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

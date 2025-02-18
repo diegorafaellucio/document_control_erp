@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+	id="WebApp_ID" version="3.1">
+
+	<display-name>Getdoc</display-name>
+
+	<welcome-file-list>
+		<welcome-file>index.xhtml</welcome-file>
+		<welcome-file>home/home.xhtml</welcome-file>
+	</welcome-file-list>
+
+	<context-param>
+		<param-name>facelets.SKIP_COMMENTS</param-name>
+		<param-value>true</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>javax.faces.PROJECT_STAGE</param-name>
+		<!-- <param-value>Development</param-value> -->
+		<param-value>Production</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>javax.faces.INTERPRET_EMPTY_STRING_SUBMITTED_VALUES_AS_NULL</param-name>
+		<param-value>true</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>javax.faces.DATETIMECONVERTER_DEFAULT_TIMEZONE_IS_SYSTEM_TIMEZONE</param-name>
+		<param-value>true</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>javax.faces.VALIDATE_EMPTY_FIELDS</param-name>
+		<param-value>true</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>primefaces.UPLOADER</param-name>
+		<param-value>commons</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>primefaces.THEME</param-name>
+		<param-value>bootstrap</param-value>
+	</context-param>
+
+	<!-- activate resource caching -->
+	<context-param>
+		<param-name>org.omnifaces.COMBINED_RESOURCE_ACTIVATE_RESOURCE_CACHING</param-name>
+		<param-value>true</param-value>
+	</context-param>
+
+	<!-- cache ten combined resources at most -->
+	<context-param>
+		<param-name>org.omnifaces.CACHE_SETTING_APPLICATION_MAX_CAPACITY</param-name>
+		<param-value>30</param-value>
+	</context-param>
+
+	<!-- set the maximum time-to-live of cache entries to one day -->
+	<context-param>
+		<param-name>org.omnifaces.CACHE_SETTING_APPLICATION_TTL</param-name>
+		<param-value>86400</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath:spring.xml</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>com.sun.faces.enableRestoreView11Compatibility</param-name>
+		<param-value>true</param-value>
+	</context-param>
+
+	<listener>
+		<listener-class>org.ocpsoft.rewrite.servlet.impl.RewriteServletRequestListener</listener-class>
+	</listener>
+
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+	<filter>
+		<filter-name>CharacterEncodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>forceEncoding</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+	</filter>
+
+	<filter>
+		<filter-name>ImagemFilter</filter-name>
+		<filter-class>net.wasys.getdoc.http.ImagemFilter</filter-class>
+	</filter>
+
+	<filter>
+		<filter-name>RewriteFilter</filter-name>
+		<filter-class>org.ocpsoft.rewrite.servlet.RewriteFilter</filter-class>
+	</filter>
+
+	<filter>
+		<filter-name>sessionFilter</filter-name>
+		<filter-class>net.wasys.util.ddd.CustomOpenSessionInViewFilter</filter-class>
+	</filter>
+
+	<filter>
+		<filter-name>primeFacesFileUploadFilter</filter-name>
+		<filter-class>org.primefaces.webapp.filter.FileUploadFilter</filter-class>
+	</filter>
+
+	<filter>
+		<filter-name>logAcessoFilter</filter-name>
+		<filter-class>net.wasys.util.servlet.LogAcessoFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>primeFacesFileUploadFilter</filter-name>
+		<servlet-name>Faces Servlet</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>CharacterEncodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>sessionFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+		<dispatcher>ASYNC</dispatcher>
+		<dispatcher>ERROR</dispatcher>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>logAcessoFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+		<dispatcher>ASYNC</dispatcher>
+		<dispatcher>ERROR</dispatcher>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>ImagemFilter</filter-name>
+		<url-pattern>/imgfiles/*</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>RewriteFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+		<dispatcher>ASYNC</dispatcher>
+		<dispatcher>ERROR</dispatcher>
+	</filter-mapping>
+
+	<servlet>
+		<servlet-name>Faces Servlet</servlet-name>
+		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet>
+		<servlet-name>UploadImagemServlet</servlet-name>
+		<servlet-class>net.wasys.getdoc.http.UploadImagemServlet</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+
+	<servlet>
+		<servlet-name>DispatcherServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value></param-value>
+		</init-param>
+		<load-on-startup>3</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>Faces Servlet</servlet-name>
+		<url-pattern>*.xhtml</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>UploadImagemServlet</servlet-name>
+		<url-pattern>/uploadimagens</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>DispatcherServlet</servlet-name>
+		<url-pattern>/rest/*</url-pattern>
+	</servlet-mapping>
+
+	<resource-ref>
+		<description>Data Source</description>
+		<res-ref-name>getdoc_captacaoJDBC</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<res-auth>Container</res-auth>
+		<res-sharing-scope>Shareable</res-sharing-scope>
+	</resource-ref>
+
+	<error-page>
+		<exception-type>javax.faces.application.ViewExpiredException</exception-type>
+		<location>/</location>
+	</error-page>
+
+	<resource-ref>
+		<description>Data Source</description>
+		<res-ref-name>getdocBiJDBC</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<res-auth>Container</res-auth>
+		<res-sharing-scope>Shareable</res-sharing-scope>
+	</resource-ref>
+	
+	<error-page>
+		<error-code>404</error-code>
+		<location>/erro/erro404.xhtml</location>
+	</error-page>
+
+	<error-page>
+		<error-code>403</error-code>
+		<location>/erro/erro403.xhtml</location>
+	</error-page>
+
+	<error-page>
+		<error-code>500</error-code>
+		<location>/erro/erro500.xhtml</location>
+	</error-page>
+
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>qualquer-pagina</web-resource-name>
+			<url-pattern>/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>*</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+	<!-- liberado geral :) -->
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>resources</web-resource-name>
+			<url-pattern>/cliente/*</url-pattern>
+		</web-resource-collection>
+		<web-resource-collection>
+			<web-resource-name>resources</web-resource-name>
+			<url-pattern>/resources/*</url-pattern>
+		</web-resource-collection>
+		<web-resource-collection>
+			<web-resource-name>faces-resources</web-resource-name>
+			<url-pattern>/javax.faces.resource/*</url-pattern>
+		</web-resource-collection>
+		<web-resource-collection>
+			<web-resource-name>login</web-resource-name>
+			<url-pattern>/login.xhtml</url-pattern>
+		</web-resource-collection>
+		<web-resource-collection>
+			<web-resource-name>recuperacao-senha</web-resource-name>
+			<url-pattern>/recuperacao-senha/*</url-pattern>
+		</web-resource-collection>
+		<web-resource-collection>
+			<web-resource-name>trocar-senha</web-resource-name>
+			<url-pattern>/trocar-senha/*</url-pattern>
+		</web-resource-collection>
+		<web-resource-collection>
+			<web-resource-name>Restful</web-resource-name>
+			<url-pattern>/rest/*</url-pattern>
+		</web-resource-collection>
+		<web-resource-collection>
+			<web-resource-name>reply-azure-oauth</web-resource-name>
+			<url-pattern>/reply-azure-oauth.xhtml</url-pattern>
+		</web-resource-collection>
+		<web-resource-collection>
+			<web-resource-name>Mobile WebView</web-resource-name>
+			<url-pattern>/mobile/*</url-pattern>
+		</web-resource-collection>
+		<web-resource-collection>
+			<web-resource-name>Image Files</web-resource-name>
+			<url-pattern>/imgfiles/imagem_layout/*</url-pattern>
+		</web-resource-collection>
+		<web-resource-collection>
+			<web-resource-name>Monitoramento</web-resource-name>
+			<url-pattern>/monitoramento.xhtml</url-pattern>
+		</web-resource-collection>
+	</security-constraint>
+
+	<login-config>
+		<auth-method>FORM</auth-method>
+		<realm-name>getdoc-realm</realm-name>
+		<form-login-config>
+			<form-login-page>/login.xhtml</form-login-page>
+			<form-error-page>/login.xhtml?error=true</form-error-page>
+		</form-login-config>
+	</login-config>
+
+	<session-config>
+		<session-timeout>180</session-timeout>
+	</session-config>
+
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>swagger-docs</web-resource-name>
+			<url-pattern>/v2/api-docs/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>GD_ADMIN</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>admin-util</web-resource-name>
+			<url-pattern>/admin/util/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>GD_ADMIN</role-name>
+		</auth-constraint>
+	</security-constraint>
+
+	<security-role>
+		<role-name>GD_ADMIN</role-name>
+	</security-role>
+
+	<security-role>
+		<role-name>GD_GESTOR</role-name>
+	</security-role>
+
+	<security-role>
+		<role-name>GD_ANALISTA</role-name>
+	</security-role>
+
+	<security-role>
+		<role-name>GD_AREA</role-name>
+	</security-role>
+
+	<security-role>
+		<role-name>GD_COMERCIAL</role-name>
+	</security-role>
+
+	<security-role>
+		<role-name>GD_CONSULTA</role-name>
+	</security-role>
+
+	<security-role>
+		<role-name>GD_SUPERVISOR</role-name>
+	</security-role>
+
+	<security-role>
+		<role-name>GD_API</role-name>
+	</security-role>
+
+	<security-role>
+		<role-name>GD_SALA_MATRICULA</role-name>
+	</security-role>
+
+	<security-role>
+		<role-name>GD_PESQUISA</role-name>
+	</security-role>
+
+</web-app>

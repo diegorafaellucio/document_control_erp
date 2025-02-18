@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui">
+	<f:metadata>
+		<f:viewAction action="#{logAlteracaoListBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['logAlteracaoList.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<h:form id="form-log-alteracoes">
+				<div class="row default-form">
+					<div class="col-sm-12">
+						<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+						<div class="row">
+							<div class="col-sm-1" ></div>
+							<div class="col-sm-5" >
+								<div class="form-group">
+									<h:outputLabel value="#{msg['periodo.label']}"/>
+									<b:panelGrid colSpans="1,5,1,5" style="margin-bottom: -20px; margin-left: 5px;">
+										<h:outputText value="#{msg['de.label']}"/>
+										<b:inputText id="dataInicioId" value="#{logAlteracaoListBean.filtro.dataInicio}" placeholder="dd/mm/aaaa" styleClass="mask-date" label="#{msg['dataInicial.label']}" renderLabel="false">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14" />
+											</f:facet>
+										</b:inputText>
+										<h:outputText value="#{msg['ate.label']}"/>
+										<b:inputText value="#{logAlteracaoListBean.filtro.dataFim}" placeholder="dd/mm/aaaa" styleClass="mask-date" label="#{msg['dataFinal.label']}" renderLabel="false">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14" />
+											</f:facet>
+										</b:inputText>
+									</b:panelGrid>
+									<b:message for="dataInicioId" showSummary="false"/>
+								</div>
+								<div class="form-group">
+									<b:selectOneMenu id="usuarioId" value="#{logAlteracaoListBean.filtro.usuarioId}" label="#{msg['usuario.label']}">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{utilBean.usuarios}" var="usu" itemValue="#{usu.id}" itemLabel="#{usu.nome}"/>
+									</b:selectOneMenu>
+									<b:message for="usuarioId"/>
+								</div>
+								<div class="form-group">
+									<b:selectOneMenu id="tipoAlteracaoId" value="#{logAlteracaoListBean.filtro.tipoAlteracao}" label="#{msg['tipoAlteracao.label']}">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{utilBean.getValues('TipoAlteracao')}" var="ta" itemValue="#{ta}" itemLabel="#{msg['TipoAlteracao.'.concat(ta).concat('.label')]}"/>
+									</b:selectOneMenu>
+									<b:message for="tipoAlteracaoId"/>
+								</div>
+							</div>
+							<b:column col-sm="5">
+								<div class="form-group">
+									<b:selectOneMenu id="tipoRegistroId" value="#{logAlteracaoListBean.filtro.tipoRegistro}" label="#{msg['tipoRegistro.label']}">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{utilBean.getValues('TipoRegistro')}" var="tr" itemValue="#{tr}" itemLabel="#{tr}"/>
+									</b:selectOneMenu>
+									<b:message for="tipoRegistroId"/>
+								</div>
+								<div class="form-group">
+									<b:inputText value="#{logAlteracaoListBean.filtro.registroId}" placeholder="#{msg['registroId.label']}"
+										label="#{msg['registroId.label']}" renderLabel="true" maxlength="10"
+										styleClass="mask-number"/>
+									<b:message/>
+								</div>
+								<div class="form-group" style="height: 60px;">
+								</div>
+								<div class="form-group" style="float: right;">
+									<b:commandButton value="#{msg['buscar.label']}" styleClass="btn btn-primary btn-md" ajax="true" update="content-pg-id"/>
+								</div>
+							</b:column>
+							<div class="col-sm-1"></div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12">
+						<p:dataTable var="log" value="#{logAlteracaoListBean.dataModel}" rows="10" paginator="true" lazy="true"
+								paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+								currentPageReportTemplate="Total: {totalRecords}" scrollable="true" emptyMessage="#{msg['emptyMessage.label']}"
+								paginatorPosition="bottom">
+							<p:column headerText="ID" style="width: 80px; text-align: right;" sortBy="#{log.id}">
+								<h:outputText value="#{log.id}" />
+							</p:column>
+							<p:column headerText="#{msg['data.label']}" style="width: 130px; text-align: center;" sortBy="#{log.data}">
+								<h:outputText value="#{utilBean.getDateTimeStr(log.data)}" />
+							</p:column>
+							<p:column headerText="#{msg['usuario.label']}" sortBy="#{log.usuario.nome}">
+								<h:outputText value="#{log.usuario.nome}" />
+							</p:column>
+							<p:column headerText="#{msg['tipoAlteracao.label']}" style="width: 150px;" sortBy="#{log.tipoAlteracao}">
+								<h:outputText value="#{msg['TipoAlteracao.'.concat(log.tipoAlteracao).concat('.label')]}" />
+							</p:column>
+							<p:column headerText="#{msg['tipoRegistro.label']}" style="width: 150px;" sortBy="#{log.tipoRegistro}">
+								<h:outputText value="#{log.tipoRegistro}" />
+							</p:column>
+							<p:column headerText="ID Reg." style="width: 90px; text-align: right;" sortBy="#{log.registroId}">
+								<h:outputText value="#{log.registroId}" />
+							</p:column>
+							<p:column style="width: 125px;" sortable="false">
+								<a href="#{request.contextPath}/admin/logs-alteracoes/view/#{log.id}" class="btn btn-info btn-editar">
+									<h:outputText value="#{msg['abrir.label']}"/>
+								</a>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

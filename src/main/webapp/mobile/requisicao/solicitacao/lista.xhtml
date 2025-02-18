@@ -1,0 +1,132 @@
+<ui:composition template="/mobile/master.xhtml"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc"
+	>
+	<f:metadata>
+		<f:viewParam name="id" value="#{listaSolicitacaoBean.id}" />
+		<f:viewParam name="id" value="#{edicaoRequisicaoBean.id}" />
+		<f:viewParam name="origem" value="#{listaSolicitacaoBean.origem}" />
+		<f:event type="preRenderView" listener="#{listaSolicitacaoBean.init}" />
+		<f:event type="preRenderView" listener="#{edicaoRequisicaoBean.init}" />
+	</f:metadata>
+	<ui:define name="master.style">
+		
+	</ui:define>
+	<ui:define name="master.script">
+		<c:set var="bean" value="#{listaSolicitacaoBean}" />	
+		<script type="text/javascript">
+			//<![CDATA[
+			Device = {
+				onReady: function() {
+					Device.initialize(#{bean.deviceInitializeScript});
+				},
+				onTapped: function(id) {
+					if (id == 1) {
+						
+					} else if (id == 2) {
+						location.href = '#{request.contextPath}/mobile/requisicao/edicao.xhtml?id=#{bean.id}&origem=#{bean.origem}'
+					}
+				}
+			};
+			//]]>
+		</script>
+	</ui:define>
+	<ui:define name="master.content">
+		<c:set var="bean" value="#{listaSolicitacaoBean}" />
+		<c:set var="rows" value="#{bean.rows}" />
+		<getdoc:headerRequisicao numMenu="4" bean="#{edicaoRequisicaoBean}"/>
+		<div class="container">
+			<h:form>
+				<h:panelGroup
+					layout="block"
+					styleClass="row empty"
+					rendered="#{empty rows}"
+					>
+					<div class="col-xs-12 text-center">
+						<h:outputText value="#{msg['emptyMessage.label']}" />
+					</div>
+				</h:panelGroup>
+				<h:panelGroup
+					layout="block"
+					rendered="#{not empty rows}"
+					>
+					<ui:repeat var="row" value="#{rows}">
+						<div class="row list">
+							<div class="col-xs-12">
+								<div class="secao">
+									<div class="ellipsis">
+										<h:outputText value="#{row.solicitacao.subarea.area.descricao} / #{row.solicitacao.subarea.descricao}. #{utilBean.getDateTimeStr(row.logCriacao.data)}." />
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-xs-8 ellipsis text-warning">
+										<h:outputText
+											value="#{utilBean.getDateTimeStr(row.solicitacao.prazoLimite)}h"
+											/>
+									</div>
+									<div class="col-xs-4 ellipsis text-right text-warning">
+										<h:outputText
+											value="#{row.horasRestantes}"
+											/>
+									</div>
+								</div>
+								<h:panelGroup
+									layout="block"
+									rendered="#{not empty row.logCriacao.anexos}"
+									>
+									<div class="row">
+										<div class="col-xs-12">
+											<div class="title">
+												<span class="text">
+													<i class="fa fa-paperclip" />
+													<span style="margin: 0 2px" />
+													<h:outputText
+														value="#{msg['anexos.label']}"
+														/>
+												</span>
+												<hr />
+											</div>
+										</div>
+									</div>
+									<ui:repeat var="anexo" value="#{row.logCriacao.anexos.toArray()}">
+										<div class="row">
+											<div class="col-xs-12">
+												<div class="ellipsis text-info" style="padding: 2px 0">
+													<i class="fa fa-file-image-o" />
+													<span class="space" />
+													<h:commandLink
+														actionListener="#{bean.download(anexo)}"
+														target="_blank"
+														rendered="#{not utilBean.isExtensaoImagem(anexo.extensao)}"
+														>
+														<h:outputText
+															value="#{anexo.nome} #{utilBean.toFileSize(anexo.tamanho)}"
+															/>
+													</h:commandLink>
+													<h:outputLink
+														value="#"
+														rendered="#{utilBean.isExtensaoImagem(anexo.extensao)}"
+														onclick="Device.Image.open('#{utilBean.getPathImagem(anexo)}')"
+														>
+														<h:outputText
+															value="#{anexo.nome} #{utilBean.toFileSize(anexo.tamanho)}"
+															/>
+													</h:outputLink>
+												</div>
+											</div>
+										</div>
+									</ui:repeat>
+								</h:panelGroup>
+							</div>
+						</div>
+					</ui:repeat>
+				</h:panelGroup>
+			</h:form>
+		</div>
+	</ui:define>
+</ui:composition>

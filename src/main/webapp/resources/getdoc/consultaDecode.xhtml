@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:composite="http://java.sun.com/jsf/composite">
+
+	<composite:interface>
+		<composite:attribute name="resultadoConsulta" type="net.wasys.getdoc.domain.vo.ResultadoConsultaVO" required="true"/>
+	</composite:interface>
+
+	<composite:implementation>
+		<div class="col-sm-6 row-g row-grupo-#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: -15px;">
+			<div class="row">
+				<div class="col-sm-4">
+					<h:outputLabel value="Chassi:" styleClass="bf-no-message"/>
+				</div>
+				<div class="col-sm-8">
+					<h:outputText value="#{cc.attrs.resultadoConsulta.decode.veiculo.chassi}"/>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4">
+					<h:outputLabel value="Marca:" styleClass="bf-no-message"/>
+				</div>
+				<div class="col-sm-8">
+					<h:outputText value="#{cc.attrs.resultadoConsulta.decode.veiculo.marca}"/>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4">
+					<h:outputLabel value="Ano Fabricação: " styleClass="bf-no-message"/>
+				</div>
+				<div class="col-sm-8">
+					<h:outputText value="#{cc.attrs.resultadoConsulta.decode.veiculo.anoFabricacao}"/>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4">
+					<h:outputLabel value="Combustível:" styleClass="bf-no-message"/>
+				</div>
+				<div class="col-sm-8">
+					<h:outputText value="#{cc.attrs.resultadoConsulta.decode.veiculo.combustivel}"/>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4">
+					<h:outputLabel value="Tipo Veículo:" styleClass="bf-no-message"/>
+				</div>
+				<div class="col-sm-8">
+					<h:outputText value="#{cc.attrs.resultadoConsulta.decode.veiculo.tipoVeiculo}"/>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4">
+					<h:outputLabel value="Potência:" styleClass="bf-no-message"/>
+				</div>
+				<div class="col-sm-8">
+					<h:outputText value="#{cc.attrs.resultadoConsulta.decode.veiculo.potencia}"/>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4">
+					<h:outputLabel value="Nº Eixos:" styleClass="bf-no-message"/>
+				</div>
+				<div class="col-sm-8">
+					<h:outputText value="#{cc.attrs.resultadoConsulta.decode.veiculo.numeroEixos}"/>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4">
+					<h:outputLabel value="Caixa Câmbio:" styleClass="bf-no-message"/>
+				</div>
+				<div class="col-sm-8">
+					<h:outputText value="#{cc.attrs.resultadoConsulta.decode.veiculo.caixaCambio}"/>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4">
+					<h:outputLabel value="Terceiro Eixo:" styleClass="bf-no-message"/>
+				</div>
+				<div class="col-sm-8">
+					<h:outputText value="#{cc.attrs.resultadoConsulta.decode.veiculo.terceiroEixo}"/>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-6 row-g row-grupo-#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: -15px;">
+			<div class="row">
+				<div class="col-sm-4">
+					<h:outputLabel value="Placa: " styleClass="bf-no-message"/>
+				</div>
+				<div class="col-sm-8">
+					<h:outputText value="#{cc.attrs.resultadoConsulta.decode.veiculo.placa}"/>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4">
+					<h:outputLabel value="Modelo:" styleClass="bf-no-message"/>
+				</div>
+				<div class="col-sm-8">
+					<h:outputText value="#{cc.attrs.resultadoConsulta.decode.veiculo.modelo}"/>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4">
+					<h:outputLabel value="Ano Modelo:" styleClass="bf-no-message"/>
+				</div>
+				<div class="col-sm-8">
+					<h:outputText value="#{cc.attrs.resultadoConsulta.decode.veiculo.anoModelo}"/>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4">
+					<h:outputLabel value="Espécie Veículo:" styleClass="bf-no-message"/>
+				</div>
+				<div class="col-sm-8">
+					<h:outputText value="#{cc.attrs.resultadoConsulta.decode.veiculo.especieVeiculo}"/>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4">
+					<h:outputLabel value="Tipo Carroceria:" styleClass="bf-no-message"/>
+				</div>
+				<div class="col-sm-8">
+					<h:outputText value="#{cc.attrs.resultadoConsulta.decode.veiculo.tipoCarroceria}"/>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4">
+					<h:outputLabel value="Nº Cilindradas:" styleClass="bf-no-message"/>
+				</div>
+				<div class="col-sm-8">
+					<h:outputText value="#{cc.attrs.resultadoConsulta.decode.veiculo.numeroCilindradas}"/>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4">
+					<h:outputLabel value="Nº Motor:" styleClass="bf-no-message"/>
+				</div>
+				<div class="col-sm-8">
+					<h:outputText value="#{cc.attrs.resultadoConsulta.decode.veiculo.numeroMotor}"/>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4">
+					<h:outputLabel value="Eixo Traseiro Diferencial:" styleClass="bf-no-message"/>
+				</div>
+				<div class="col-sm-8">
+					<h:outputText value="#{cc.attrs.resultadoConsulta.decode.veiculo.eixoTraseiroDiferencial}"/>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4">
+					<h:outputLabel value="Carroceria:" styleClass="bf-no-message"/>
+				</div>
+				<div class="col-sm-8">
+					<h:outputText value="#{cc.attrs.resultadoConsulta.decode.veiculo.carroceria}"/>
+				</div>
+			</div>
+		</div>
+		<h:panelGroup rendered="#{not empty cc.attrs.resultadoConsulta.decode.tabelaFipe and not empty cc.attrs.resultadoConsulta.decode.tabelaFipe.fipes}">
+			<ui:repeat var="fipe" value="#{cc.attrs.resultadoConsulta.decode.tabelaFipe.fipes}" varStatus="status">
+				<div class="row" style="margin-left: 0; margin-right: 0">
+					<div class="col-sm-6 row-g row-grupo-#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+						<div class="row">
+							<div class="col-sm-4">
+								<h:outputLabel value="Fipe Nº#{status.index + 1}" styleClass="bf-no-message"/>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-4">
+								<h:outputLabel value="Codigo FIPE:" styleClass="bf-no-message"/>
+							</div>
+							<div class="col-sm-8">
+								<h:outputText value="#{fipe.codigoFipe}"/>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-6 row-g row-grupo-#{cc.attrs.resultadoConsulta.subRegraId}" style="margin-bottom: 0;">
+						<div class="row">
+							<div class="col-sm-4">
+								<h:outputLabel value="" styleClass="bf-no-message"/>
+							</div>
+							<div class="col-sm-8">
+								<h:outputText value=""/>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-4">
+								<h:outputLabel value="Descricao:" styleClass="bf-no-message"/>
+							</div>
+							<div class="col-sm-8">
+								<h:outputText value="#{fipe.descricao}"/>
+							</div>
+						</div>
+					</div>
+				</div>
+			</ui:repeat>
+		</h:panelGroup>
+	</composite:implementation>
+</html>

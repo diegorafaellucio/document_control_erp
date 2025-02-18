@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+		xmlns:h="http://xmlns.jcp.org/jsf/html"
+		xmlns:f="http://xmlns.jcp.org/jsf/core"
+		xmlns:p="http://primefaces.org/ui"
+		xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+		xmlns:c="http://java.sun.com/jsp/jstl/core"
+		xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+		xmlns:jsf="http://xmlns.jcp.org/jsf"
+		xmlns:b="http://bootsfaces.net/ui">
+	<f:metadata>
+		<f:viewParam name="pasta" value="#{downloadBean.pasta}" />
+		<f:viewAction action="#{downloadBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/border-util.xhtml">
+		<ui:define name="header">
+			<a class="navbar-brand logo" href="#{request.contextPath}" style="position: fixed; top: 0;">
+				<IMG src="#{request.contextPath}/imgfiles/imagem_layout/logo.png"/>
+		 	</a>
+		</ui:define>
+		<ui:define name="titulo">
+			<span style="margin-left: 130px;">
+				Download
+			</span>
+		</ui:define>
+		<ui:define name="conteudo">
+			<div class="container-fluid">
+				<h:form id="formUpload" enctype="multipart/form-data">
+				<div class="row">
+					<div class="col-xs-12 col-sm-3 col-md-2 "></div>
+					<div class="col-xs-12 col-sm-6 col-md-8 ">
+						<div class="list-group">
+							<span class="list-group-item active">
+								<span class="glyphicon glyphicon-folder-open" aria-hidden="true" style="padding-right: 10px;"></span>
+							</span>
+							<li class="list-group-item">
+								<div class="row">
+									<div class="col-sm-5" style="margin-bottom: 0">
+										<label>Nome</label>
+									</div>
+									<div class="col-sm-3" style="margin-bottom: 0">
+										<label>Data de Modificação</label>
+									</div>
+									<div class="col-sm-2" style="margin-bottom: 0">
+										<label>Tamanho</label>
+									</div>
+									<div class="col-sm-2" style="margin-bottom: 0">
+									</div>
+								</div>
+							</li>
+							<ui:repeat var="item" value="#{listagemArquivos}">
+								<li class="list-group-item">
+									<div class="row">
+										<div class="col-sm-5" style="margin-bottom: 0">
+											<i class="fa fa-file-o" style="padding-right: 10px;"></i>
+											#{item.name}
+										</div>
+										<div class="col-sm-3" style="margin-bottom: 0">
+											#{item.lastModifiedDate}
+										</div>
+										<div class="col-sm-2" style="margin-bottom: 0">
+											#{item.size}
+										</div>
+										<div class="col-sm-2" style="margin-bottom: 0">
+											<span class="badge" style="float: right;" jsf:rendered="#{downloadBean.senhaOk}">
+												<div onclick="excluir('#{item.name}')" class="glyphicon glyphicon-remove" style="font-size: 16px; cursor: pointer;"></div>
+											</span>
+											<span class="badge" style="float: right;">
+												<div onclick="download('#{item.name}')" class="glyphicon glyphicon-download" style="font-size: 16px; cursor: pointer;"></div>
+											</span>
+										</div>
+									</div>
+								</li>
+							</ui:repeat>
+						</div>
+					</div>
+					<div class="col-xs-12 col-sm-3 col-md-2"></div>
+				</div>
+				<div class="row" jsf:rendered="#{downloadBean.senhaOk}">
+					<div class="col-xs-12 col-sm-3 col-md-3 col-lg-2"></div>
+					<div class="col-xs-12 col-sm-6 col-md-6 col-lg-8">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">Carregar arquivo ao servidor</h3>
+							</div>
+							<div class="panel-body">
+								<div class="form-group">
+									<div class="col-sm-12" align="right">
+										<label for="inputFile" class="sr-only">Arquivo</label>
+										<p:growl id="messages" showDetail="true" />
+										<p:fileUpload label="Escolher Arquivo" mode="advanced" auto="true" multiple="true" sizeLimit="204800000"
+											 update="messages" listener="#{downloadBean.uploadEvent}" oncomplete="$('#ajaxLoaderImg').hide()"/>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-12 col-sm-3 col-md-2"></div>
+				</div>
+				</h:form>
+			</div>
+<script type="application/javascript">
+
+	function download(item) {
+
+		if(confirm('Confirma download')) {
+			location.href = '#{request.contextPath}/download.xhtml?download=' + item + '&amp;' + 'pasta=#{downloadBean.pasta}';
+		}
+	}
+
+	function excluir(item) {
+
+		if(confirm('Confirma exclusao')) {
+			location.href = '#{request.contextPath}/download.xhtml?excluir=' + item + '&amp;' + 'pasta=#{downloadBean.pasta}';
+		}
+	}
+
+	var lastChecked = null;
+
+	$(document).ready(function() {
+
+		var chkboxes = $('.checkboxItem');
+
+		chkboxes.click(function(e) {
+
+			if(!lastChecked) {
+				lastChecked = this;
+				return;
+			}
+
+			if(e.shiftKey) {
+
+				var start = chkboxes.index(this);
+				var end = chkboxes.index(lastChecked);
+
+				chkboxes.slice(Math.min(start,end), Math.max(start,end)+ 1).prop('checked', lastChecked.checked);
+			}
+
+			lastChecked = this;
+		});
+	});
+
+</script>
+		</ui:define>
+	</ui:composition>
+</html>

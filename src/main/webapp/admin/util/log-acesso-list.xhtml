@@ -1,0 +1,669 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="http://xmlns.jcp.org/jsf/html"
+	  xmlns:f="http://xmlns.jcp.org/jsf/core"
+	  xmlns:p="http://primefaces.org/ui"
+	  xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	  xmlns:jsf="http://xmlns.jcp.org/jsf"
+	  xmlns:o="http://omnifaces.org/ui"
+	  xmlns:b="http://bootsfaces.net/ui">
+<f:metadata>
+	<f:viewAction action="#{logAcessoListBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+</f:metadata>
+<ui:composition template="/templates/border-util.xhtml">
+	<ui:define name="head">
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/tooltipster.bundle.min.css" />
+		<link rel="stylesheet" type="text/css" href="#{request.contextPath}/resources/tooltipster/css/plugins/tooltipster/sideTip/themes/tooltipster-sideTip-shadow.min.css" />
+		<script type="text/javascript" src="#{request.contextPath}/resources/tooltipster/js/tooltipster.bundle.min.js"></script>
+		<style>
+			.container {
+				width: 98% !important;
+				padding-left: 30px;
+				padding-right: 30px;
+			}
+			.form-exception .modal-dialog {
+				width: 1200px;
+			}
+			#info-tipo-regitro-table th {
+				text-align: right!important;
+			}
+			.alert-status-ws {
+				position: absolute;
+				top: 0;
+				margin-left: -15px;
+				padding: 10px;
+			}
+		</style>
+		<script type="text/javascript">
+			function refreshTooltipar(){
+				$(document).ready(function() {
+					$('.tooltipar').tooltipster({
+						theme: 'tooltipster-shadow',
+						animation: 'grow',
+						interactive: true
+					});
+				});
+			}
+		</script>
+	</ui:define>
+	<ui:define name="titulo">Logs de Acessos</ui:define>
+	<ui:define name="conteudo">
+		<p:ajaxStatus onstart="$('#ajaxLoaderImg').show()" onsuccess="$('#ajaxLoaderImg').hide()" />
+		<div id='ajaxLoaderImg' style="position: fixed; display: block; bottom: 0; right: 0; z-index: 99999; display: none;">
+			<img src="#{request.contextPath}/resources/images/loader.gif"/>
+		</div>
+		<h:form id="visualizar-query">
+			<b:modal id="query-modal-id" title="Query" styleClass="query-modal">
+				<b:row id="query-modal-content-id">
+					<div class="col-sm-12">
+						<div class="form-group">
+							<h:outputText value="#{logAcessoListBean.query}" label="Query"/>
+						</div>
+					</div>
+				</b:row>
+
+				<f:facet name="footer">
+					<b:button value="#{msg['fechar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+				</f:facet>
+			</b:modal>
+		</h:form>
+		<h:form id="form-usuario">
+			<div class="row default-form">
+				<div class="col-sm-12">
+					<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+					<div class="row">
+						<div class="col-sm-5 noMarginBottom">
+							<div class="form-group">
+								<h:outputLabel value="#{msg['periodo.label']}"/>
+								<b:panelGrid colSpans="1,5,1,5" style="margin-bottom: -20px; margin-left: 5px;">
+									<h:outputText value="#{msg['de.label']}"/>
+									<b:dateTimePicker id="dataInicioId" value="#{logAcessoListBean.filtro.dataInicio}" placeholder="dd/mm/aaaa 00:00" format="DD/MM/YYYY HH:mm" toolbarPlacement="bottom" label="#{msg['inicioVigencia.label']}" renderLabel="false"/>
+									<h:outputText value="#{msg['ate.label']}"/>
+									<b:dateTimePicker id="dataFimId" value="#{logAcessoListBean.filtro.dataFim}" placeholder="dd/mm/aaaa 00:00" format="DD/MM/YYYY HH:mm" toolbarPlacement="bottom" label="#{msg['inicioVigencia.label']}" renderLabel="false"/>
+								</b:panelGrid>
+								<b:message for="dataInicioId" showSummary="false"/>
+								<b:message for="dataFimId" showSummary="false"/>
+							</div>
+						</div>
+						<div class="col-sm-3 noMarginBottom" >
+							<div class="form-group">
+								<b:inputText value="#{logAcessoListBean.filtro.usuario.login}" label="#{msg['login.label']}"/>
+							</div>
+						</div>
+						<div class="col-sm-2 noMarginBottom" >
+							<div class="form-group">
+								<b:selectOneMenu value="#{logAcessoListBean.filtro.usuario.roleGD}" label="Role" >
+									<f:selectItem itemValue="" itemLabel=""/>
+									<f:selectItems value="#{utilBean.getValues('RoleGD')}" var="role" itemValue="#{role}" itemLabel="#{msg['RoleGD.'.concat(role).concat('.label')]}"/>
+								</b:selectOneMenu>
+							</div>
+						</div>
+						<div class="col-sm-2 noMarginBottom" >
+							<div class="form-group">
+								<h:outputLabel value="#{msg['tipoRegistro.label']}"/>
+								<p:selectCheckboxMenu value="#{logAcessoListBean.filtro.tipoDoRegistro}" appendTo="@this"
+													  label="#{msg['tipoRegistro.label']}" multiple="true" filter="false">
+									<f:selectItems value="#{utilBean.getValues('TipoRegistroLogAcesso')}" var="reg" itemLabel="#{reg}" itemValue="#{reg}" />
+								</p:selectCheckboxMenu>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4" >
+							<div class="form-group">
+								<b:inputText value="#{logAcessoListBean.filtro.servletPath}" label="Servlet Path"/>
+							</div>
+						</div>
+						<div class="col-sm-4" >
+							<div class="form-group">
+								<b:inputText value="#{logAcessoListBean.filtro.parameters}" label="Parameters"/>
+							</div>
+						</div>
+						<div class="col-sm-4" >
+							<div class="form-group">
+								<b:inputText value="#{logAcessoListBean.filtro.headers}" label="Headers"/>
+							</div>
+						</div>
+						<div class="col-sm-2" >
+							<b:inputText value="#{logAcessoListBean.filtro.id}" label="ID"/>
+						</div>
+						<div class="col-sm-2" >
+							<b:switch value="#{logAcessoListBean.filtro.apenasErros}" label="Apenas Erros"
+									  onText="#{msg['sim.label']}" offText="#{msg['nao.label']}"/>
+						</div>
+						<div class="col-sm-2" >
+							<b:switch value="#{logAcessoListBean.filtro.semFim}" label="Logs sem Fim"
+									  onText="#{msg['sim.label']}" offText="#{msg['nao.label']}"/>
+						</div>
+						<div class="col-sm-3 noMarginBottom" >
+							<div class="form-group">
+								<b:selectOneMenu value="#{logAcessoListBean.filtro.intervalo}" label="Intervalo" ajax="true" >
+									<f:selectItem itemLabel="1 Minuto" itemValue="1"/>
+									<f:selectItem itemLabel="5 Minutos" itemValue="5" />
+									<f:selectItem itemLabel="10 Minutos" itemValue="10" />
+									<f:selectItem itemLabel="30 Minutos" itemValue="30" />
+									<f:selectItem itemLabel="1 Hora" itemValue="60" />
+								</b:selectOneMenu>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-12" >
+							<div style="margin-top: 15px; text-align: right;">
+								<p:commandLink id="download" ajax="false" style="margin-right: 5px;" onclick="document.getElementById('form-usuario:download').disabled = false" oncomplete="document.getElementById('form-usuario:download').disabled = true">
+									<p:fileDownload value="#{logAcessoListBean.baixarThreadInfo()}" />
+									<i class="fa fa-arrow-down"></i>
+									Thread Dump
+								</p:commandLink>
+								<b:commandButton value="#{msg['buscar.label']}" actionListener="#{logAcessoListBean.buscar}" styleClass="btn btn-primary btn-md" ajax="true"
+												 update="log-id info-id monitoramento-id pathportempo-id wsoortempo-id timeexecutionquery-id conexoesAbertas-id queryonlock-id"/>
+							</div>
+						</div>
+					</div>
+
+					<b:tabView activeIndex="0">
+						<b:tab title="Log Acessos" onclick="updateTabLogAcesso();">
+							<o:commandScript action="#{logAcessoListBean.tabUpdate(0)}" name="updateTabLogAcesso"/>
+							<div jsf:id="log-id" class="col-sm-12">
+								<div class="row">
+									<div class="col-sm-12">
+										<p:dataTable id="table-id" var="log" value="#{logAcessoListBean.logAcessoDataModel}" rows="100" paginator="true" lazy="true"
+													 paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+													 currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+													 paginatorPosition="bottom" rowIndexVar="rowIndex" rowStyleClass="#{
+											   not empty log.exception ? 'bg-danger' :
+											   log.servletPath == '/admin/util/log-acesso-list.xhtml' ? 'bg-info' :
+											   ''}">
+											<p:column headerText="ID" sortBy="#{log.id}" style="width: 120px;">
+												<p:commandLink value="#{log.id}" ajax="false" onerror="alert('Erro!')">
+													<p:fileDownload value="#{logAcessoListBean.downloadArquivoVisualizacao(log.id)}"/>
+												</p:commandLink>
+												<i class="fa fa-download" aria-hidden="true"></i>
+											</p:column>
+											<p:column headerText="Hora" sortBy="#{log.inicio}" style="width: 138px;">
+												<h:outputText value="#{utilBean.getDateTimeStr2(log.inicio)}"/>
+											</p:column>
+											<p:column headerText="ms" sortBy="#{log.tempo}" style="text-align: right; width: 60px; position: relative;">
+												<h:outputText value="#{log.tempoAgora}" />
+												<i jsf:rendered="#{empty log.tempo}"
+												   style="position: absolute; top: 5px; left: 0;"
+												   class="fa fa-spinner" aria-hidden="true"></i>
+											</p:column>
+											<p:column headerText="Ajax" sortBy="#{log.ajax}" style="max-width: 70px; text-align: center;">
+												<h:outputText value="#{log.ajax ? msg['sim.label'] : msg['nao.label']}" />
+											</p:column>
+											<p:column headerText="Status" style="max-width: 50px; text-align: center;">
+												<h:outputText value="#{log.status}" />
+											</p:column>
+											<p:column headerText="Remote User" style="max-width: 130px; text-align: center;">
+												<h:outputText value="#{log.remoteUser}" />
+											</p:column>
+											<p:column headerText="Servlet Path" sortBy="#{log.servletPath}" style="text-align: left;">
+												<span class="tooltipar" data-tooltip-content="#sp-tooltip-#{rowIndex}">
+													<h:outputText value="#{log.servletPath}" />
+												</span>
+												<div class="tooltip_templates" style="display: none;">
+													<span id="sp-tooltip-#{rowIndex}" class="tooltipContent">
+														ServletName: <h:outputText value="#{log.server}" /><br/>
+														ServletPath: <h:outputText value="#{log.servletPath}" /><br/>
+													</span>
+												</div>
+												<script type="text/javascript">refreshTooltipar();</script>
+											</p:column>
+											<p:column headerText="Up" sortBy="#{log.contentLenght}" style="text-align: right; max-width: 80px;">
+												<h:outputText value="#{utilBean.toFileSize(log.contentLength)}" />
+											</p:column>
+											<p:column headerText="Down" sortBy="#{log.contentSize}" style="text-align: right; max-width: 80px;">
+												<h:outputText value="#{utilBean.toFileSize(log.contentSize)}" />
+											</p:column>
+											<p:column headerText="Method" sortBy="#{log.method}" style="text-align: right; max-width: 90px;">
+												<h:outputText value="#{log.method}" />
+											</p:column>
+											<p:column headerText="User Agent" style="max-width: 100px;">
+												<h:panelGroup rendered="#{not empty log.userAgent}">
+													<b:modal title="User Agent" styleClass="form-userAgent-#{log.id}">
+														<p>
+															<h:outputText value="#{log.userAgent}" />
+														</p>
+														<f:facet name="footer">
+															<b:button value="#{msg['fechar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+														</f:facet>
+													</b:modal>
+													<p:commandLink onclick="openModal('form-userAgent-#{log.id}');" style="float: right;">
+														<i class="fa fa-ellipsis-h" aria-hidden="true"></i>
+													</p:commandLink>
+												</h:panelGroup>
+											</p:column>
+											<p:column headerText="Params" style="width: 80px;">
+												<h:panelGroup rendered="#{not empty log.parameters}">
+													<b:modal title="Parameters" styleClass="form-parameters-#{log.id}">
+														<p>
+															<h:outputText value="#{logAcessoListBean.toJsonFormat(log.parameters)}" escape="false"/>
+														</p>
+														<f:facet name="footer">
+															<b:button value="#{msg['fechar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+														</f:facet>
+													</b:modal>
+													<p:commandLink onclick="openModal('form-parameters-#{log.id}');" style="float: right;">
+														<i class="fa fa-ellipsis-h" aria-hidden="true"></i>
+													</p:commandLink>
+												</h:panelGroup>
+											</p:column>
+											<p:column headerText="Headers" style="width: 80px;">
+												<h:panelGroup rendered="#{not empty log.headers}">
+													<b:modal title="Headers" styleClass="form-headers-#{log.id}">
+														<p>
+															<h:outputText value="#{logAcessoListBean.toJsonFormat(log.headers)}" escape="false"/>
+														</p>
+														<f:facet name="footer">
+															<b:button value="#{msg['fechar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+														</f:facet>
+													</b:modal>
+													<p:commandLink onclick="openModal('form-headers-#{log.id}');" style="float: right;">
+														<i class="fa fa-ellipsis-h" aria-hidden="true"></i>
+													</p:commandLink>
+												</h:panelGroup>
+											</p:column>
+											<p:column headerText="Error" style="width: 80px;">
+												<h:panelGroup rendered="#{not empty log.exception}">
+													<b:modal title="Error" styleClass="form-exception form-exception-#{log.id}">
+														<pre>
+															<h:outputText value="#{log.exception}" />
+														</pre>
+														<f:facet name="footer">
+															<b:button value="#{msg['fechar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+														</f:facet>
+													</b:modal>
+													<p:commandLink onclick="openModal('form-exception-#{log.id}');" style="float: right;">
+														<i class="fa fa-ellipsis-h" aria-hidden="true"></i>
+													</p:commandLink>
+												</h:panelGroup>
+											</p:column>
+										</p:dataTable>
+									</div>
+								</div>
+							</div>
+						</b:tab>
+						<b:tab title="Info Logs" onclick="updateTabInfoLogs();">
+							<o:commandScript action="#{logAcessoListBean.tabUpdate(1)}" name="updateTabInfoLogs"/>
+							<div jsf:id="info-id" class="col-sm-12">
+								<div class="row" style="margin-right: 0px;">
+									<div class="col-sm-4" >
+										<div class="form-group">
+											<p:dataTable value="#{logAcessoListBean.servletPathsNormal.entrySet().toArray()}" var="entry" >
+												<p:column headerText="Acesso" style="font-weight: bold;">
+													<h:outputText value="#{entry.key}" style="font-weight: normal;" />
+												</p:column>
+												<p:column headerText="Qtd." styleClass="text-center">
+													<h:outputText value="#{entry.value}"/>
+												</p:column>
+											</p:dataTable>
+										</div>
+									</div>
+									<div class="col-sm-4" style="padding: 0;">
+										<b:commandButton actionListener="#{logAcessoListBean.buildJvmParams()}" ajax="true"
+														 style="position: absolute; right: 0; height: 30px;"
+														 styleClass="btn btn-primary btn-md"
+														 update="table-paramsjvm">
+											<i class="fa fa-refresh" aria-hidden="true" style="color: #fff;"></i>
+										</b:commandButton>
+										<p:dataTable value="#{logAcessoListBean.jvmParams.entrySet().toArray()}" var="entry" id="table-paramsjvm">
+											<p:column headerText="Param JVM" style="font-weight: bold;">
+												<h:outputText value="#{entry.key}" style="font-weight: normal;" />
+											</p:column>
+											<p:column headerText="Value" styleClass="text-center">
+												<h:outputText value="#{entry.value}"/>
+											</p:column>
+										</p:dataTable>
+									</div>
+									<div class="col-sm-4" style="padding: 0;">
+										<div class="col-sm-12" style="padding-right: 0;">
+											<div class="form-group">
+												<p:dataTable value="#{logAcessoListBean.exceptionVO}" var="exception" >
+													<p:column headerText="Exception">
+														<h:outputText value="#{logAcessoListBean.exceptionCut(exception.nome)}" style="font-weight: normal;" />
+														<h:panelGroup>
+															<b:modal title="Exception" styleClass="form-exception form-exception-#{exception.id}">
+																<p>
+																	<h:outputText value="#{exception.nome}"/>
+																</p>
+																<br/>
+																<ui:repeat value="#{exception.servletPaths}" var="sp">
+																	<h:outputText value="#{sp} Exceptions"/><br/>
+																</ui:repeat>
+																<f:facet name="footer">
+																	<b:button value="#{msg['fechar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+																</f:facet>
+															</b:modal>
+															<p:commandLink class="anexoAcompanhamento" onclick="openModal('form-exception-#{exception.id}');" style="float: right;">
+																<i class="fa fa-ellipsis-h" aria-hidden="true"></i>
+															</p:commandLink>
+														</h:panelGroup>
+
+													</p:column>
+													<p:column headerText="Qtd." styleClass="text-center" style="width: 100px;">
+														<h:outputText value="#{exception.quantidade}"/>
+													</p:column>
+												</p:dataTable>
+											</div>
+										</div>
+										<div class="col-sm-12" style="padding-right: 0;">
+											<div class="col-sm-7" style="padding: 0;">
+												<div class="form-group">
+													<p:dataTable value="#{logAcessoListBean.servletPathsJob.entrySet().toArray()}" var="entry" >
+														<p:column headerText="Job" style="font-weight: bold;">
+															<h:outputText value="#{entry.key}" style="font-weight: normal;" />
+														</p:column>
+														<p:column headerText="Qtd." styleClass="text-center">
+															<h:outputText value="#{entry.value}"/>
+														</p:column>
+													</p:dataTable>
+												</div>
+											</div>
+											<div class="col-sm-5" style="padding: 0;">
+												<div class="col-sm-12" style="padding: 0 0 0 20px;">
+													<div class="form-group">
+														<p:dataTable value="#{logAcessoListBean.requisicoesHttpVO}" var="http"  rowIndexVar="rowIndex">
+															<p:column headerText="Requisição HTTP" style="text-align: left!important;">
+															<span class="tooltipar" data-tooltip-content="#http-row-#{rowIndex}" style="cursor: pointer;">
+																<i class="fa fa-angle-double-left" style="font-weight: bold; padding-right: 10px;"/>
+																<h:outputText value="#{http.method}" style="font-weight: normal;" />
+															</span>
+																<div class="tooltip_templates" style="display: none;">
+																<span id="http-row-#{rowIndex}" class="tooltipContent">
+																	<p:dataTable value="#{http.respostasHttp.entrySet().toArray()}" style="width:400px;" var="entry">
+																		<p:column headerText="Resposta HTTP" style="font-weight: bold; width: 300px;">
+																			<h:outputText value="#{entry.key}" style="font-weight: normal;" />
+																		</p:column>
+																		<p:column headerText="Qtd." styleClass="text-center">
+																			<h:outputText value="#{entry.value}"/>
+																		</p:column>
+																	</p:dataTable>
+																</span>
+																</div>
+															</p:column>
+															<p:column headerText="Qtd." styleClass="text-center">
+																<h:outputText value="#{http.quantidade}"/>
+															</p:column>
+														</p:dataTable>
+														<script type="text/javascript">refreshTooltipar();</script>
+													</div>
+												</div>
+												<div class="col-sm-12" style=" padding: 0;"  >
+													<br/>
+													<table id="info-tipo-regitro-table" style="width: 100%; text-align: right">
+														<tr class="text-align: center">
+															<th></th>
+															<th>Ajax</th>
+															<th>Job</th>
+															<th>Normal</th>
+															<th>Rest</th>
+														</tr>
+														<tr>
+															<td>Total Registros</td>
+															<ui:param name="registroTotal" value="#{logAcessoListBean.infoTipoRegistro.get('registro total')}" />
+															<td>#{registroTotal.get('ajax')}</td>
+															<td>#{registroTotal.get('job')}</td>
+															<td>#{registroTotal.get('normal')}</td>
+															<td>#{registroTotal.get('rest')}</td>
+														</tr>
+														<tr>
+															<td>Tempo(ms) Médio</td>
+															<ui:param name="tempoMedio" value="#{logAcessoListBean.infoTipoRegistro.get('tempo medio')}" />
+															<td>#{tempoMedio.get('ajax')}</td>
+															<td>#{tempoMedio.get('job')}</td>
+															<td>#{tempoMedio.get('normal')}</td>
+															<td>#{tempoMedio.get('rest')}</td>
+														</tr>
+													</table>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</b:tab>
+						<b:tab title="Monitoramento" onclick="updateTabMonitoramento();">
+							<o:commandScript action="#{logAcessoListBean.tabUpdate(2)}" name="updateTabMonitoramento"/>
+							<div jsf:id="monitoramento-id" class="col-sm-12">
+								<div class="row" style="margin-right: 0px;" >
+									<div class="col-sm-5">
+										<h:panelGroup rendered="#{not empty logAcessoListBean.monitoramentoErro}">
+											<h:outputText value="#{logAcessoListBean.monitoramentoErro}" />
+										</h:panelGroup>
+										<h:panelGroup rendered="#{empty logAcessoListBean.monitoramentoErro}">
+											<p:dataTable value="#{logAcessoListBean.monitoramentoUsuarios.entrySet().toArray()}" var="entry">
+												<p:column headerText="Usuários Logados" style="font-weight: bold;">
+													<h:outputText value="#{entry.key}" style="font-weight: normal;" />
+												</p:column>
+												<p:column headerText="Qtd." styleClass="text-center">
+													<h:outputText value="#{entry.value}"/>
+												</p:column>
+											</p:dataTable>
+										</h:panelGroup>
+									</div>
+									<div class="col-sm-7">
+										<h:panelGroup rendered="#{empty logAcessoListBean.monitoramentoErro}">
+											<p:dataTable value="#{logAcessoListBean.monitoramentoGeral.entrySet().toArray()}" var="entry">
+												<p:column headerText="Monitoramento" style="font-weight: bold;">
+													<h:outputText value="#{entry.key}" style="font-weight: normal;" />
+												</p:column>
+												<p:column headerText="Qtd." styleClass="text-center">
+													<h:outputText value="#{entry.value}"/>
+												</p:column>
+											</p:dataTable>
+										</h:panelGroup>
+									</div>
+								</div>
+							</div>
+						</b:tab>
+						<b:tab title="Path Por Tempo" onclick="updateTabPathPorTempo();">
+							<o:commandScript action="#{logAcessoListBean.tabUpdate(3)}" name="updateTabPathPorTempo"/>
+							<div jsf:id="pathportempo-id" class="col-sm-12">
+								<div class="row" style="margin-right: 0px;" >
+									<div class="col-sm-12">
+										<h:panelGroup>
+											<p:dataTable var="vo" value="#{logAcessoListBean.pathPorTempoDataModel}" rows="100" paginator="true" lazy="true"
+														 paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+														 currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+														 paginatorPosition="bottom" rowIndexVar="rowIndex"
+														 rowStyleClass="#{logAcessoListBean.getCssPorTempo(vo.horaMinuto)}">
+												<p:column headerText="Path" styleClass="text-center" style="width: 300px">
+													<h:outputText value="#{vo.descricao}" />
+												</p:column>
+												<p:column headerText="Dia/Mês Hora:Min" styleClass="text-center" sortBy="#{vo.horaMinuto}">
+													<h:outputText value="#{vo.horaMinuto}"/>
+												</p:column>
+												<p:column headerText="Tamanho Total (KB)" styleClass="text-center" sortBy="#{vo.tamanhoTotal}">
+													<h:outputText value="#{vo.tamanhoTotal}"/>
+												</p:column>
+												<p:column headerText="Tempo Médio (ms)" styleClass="text-center" sortBy="#{vo.tempoMedio}">
+													<h:outputText value="#{vo.tempoMedio}"/>
+												</p:column>
+												<p:column headerText="Tempo Total (ms)" styleClass="text-center" sortBy="#{vo.tempoTotal}">
+													<h:outputText value="#{vo.tempoTotal}"/>
+												</p:column>
+												<p:column headerText="Acessos" styleClass="text-center">
+													<h:outputText value="#{vo.acessos}"/>
+												</p:column>
+											</p:dataTable>
+										</h:panelGroup>
+									</div>
+								</div>
+							</div>
+						</b:tab>
+						<b:tab title="WS Por Tempo" onclick="updateTabWSPorTempo();">
+							<o:commandScript action="#{logAcessoListBean.tabUpdate(4)}" name="updateTabWSPorTempo" render="wsoortempo-id"/>
+							<div jsf:id="wsoortempo-id" class="col-sm-12">
+								<center><div class="row" style="margin-top: 15px;"><div class="col-sm-9"><div class="row">
+									<p:repeat value="#{logAcessoListBean.statusWsVos}" var="statusWsVo">
+										<div class="col-md-6" style="margin-bottom: 15px;">
+											<div style="float: right; white-space: nowrap;">
+												<label class="control-label" style="padding-top: 9px; margin-right: 20px;">
+													#{statusWsVo.tipo}
+												</label>
+												<i class="fa fa-exclamation-triangle alert alert-danger alert-status-ws tooltipar tooltipstered" aria-hidden="true"
+												   data-tooltip-content="#erroWS-tooltipContent-#{statusWsVo.tipo}" jsf:rendered="#{statusWsVo.mensagemErro != null}"></i>
+												<i class="fa fa-check alert alert-success alert-status-ws" aria-hidden="true"
+												   jsf:rendered="#{statusWsVo.mensagemErro == null}"></i>
+												<span style="margin-left: 20px;">(#{statusWsVo.horaMinuto})</span>
+												<div class="tooltip_templates" style="display: none;">
+													<span id="erroWS-tooltipContent-#{statusWsVo.tipo}" class="tooltipContent">
+														<h4 style="color: #0C1021">#{statusWsVo.mensagemErro}</h4>
+														<pre>#{statusWsVo.stackTrace}</pre>
+													</span>
+													<span id="okWS-tooltipContent-#{statusWsVo.tipo}" class="tooltipContent">
+														vo.mensagemErro
+													</span>
+												</div>
+											</div>
+										</div>
+									</p:repeat>
+								</div></div></div></center>
+								<div class="row" style="margin-right: 0px;" >
+									<div class="col-sm-12">
+										<h:panelGroup>
+											<p:dataTable value="#{logAcessoListBean.wsPorTempoDataModel}" var="vo" rows="100" paginator="true" lazy="true"
+														 paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+														 currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+														 paginatorPosition="bottom" rowIndexVar="rowIndex">
+												<p:column headerText="Tipo" styleClass="text-center" style="width: 300px">
+													<h:outputText value="#{msg['TipoConsultaExterna.'.concat(vo.descricao).concat('.label')]}" />
+												</p:column>
+												<p:column headerText="Dia/Mês Hora:Min" styleClass="text-center" sortBy="#{vo.horaMinuto}">
+													<h:outputText value="#{vo.horaMinuto}"/>
+												</p:column>
+												<p:column headerText="Tempo Médio (ms)" styleClass="text-center" sortBy="#{vo.tempoMedio}">
+													<h:outputText value="#{vo.tempoMedio}"/>
+												</p:column>
+												<p:column headerText="Tempo Total (ms)" styleClass="text-center" sortBy="#{vo.tempoTotal}">
+													<h:outputText value="#{vo.tempoTotal}"/>
+												</p:column>
+												<p:column headerText="Tamanho Total (KB)" styleClass="text-center" sortBy="#{vo.tamanhoTotal}">
+													<h:outputText value="#{vo.tamanhoTotal}"/>
+												</p:column>
+												<p:column headerText="Acessos" styleClass="text-center">
+													<h:outputText value="#{vo.acessos}"/>
+												</p:column>
+											</p:dataTable>
+										</h:panelGroup>
+									</div>
+								</div>
+								<script type="text/javascript">refreshTooltipar();</script>
+							</div>
+						</b:tab>
+						<b:tab title="Tempo de Execução Query" onclick="updateTabTimeExecutionQuery();">
+							<o:commandScript action="#{logAcessoListBean.tabUpdate(5)}" name="updateTabTimeExecutionQuery"/>
+							<div jsf:id="timeexecutionquery-id" class="col-sm-12">
+								<div class="row" style="margin-right: 0px;" >
+									<div class="col-sm-12">
+										<h:panelGroup>
+											<p:dataTable value="#{logAcessoListBean.logTimeExecutionQueryVOS}" var="vo" rows="100" paginator="true" lazy="false"
+														 paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+														 currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+														 paginatorPosition="bottom" rowIndexVar="rowIndex">
+												<p:column headerText="Pid" styleClass="text-center" style="width: 300px">
+													<h:outputText value="#{vo.pid}" />
+												</p:column>
+												<p:column headerText="DB Nome" styleClass="text-center">
+													<h:outputText value="#{vo.datname}"/>
+												</p:column>
+												<p:column headerText="Tempo Execução" styleClass="text-center" sortBy="#{vo.tempoExecucaoSeg}">
+													<h:outputText value="#{vo.tempoExecucaoSeg}"/>
+												</p:column>
+												<p:column headerText="Client IP Address" styleClass="text-center">
+													<h:outputText value="#{vo.clientAddr}"/>
+												</p:column>
+												<p:column headerText="Query" styleClass="text-center">
+													<p:commandButton onclick="openModal('query-modal')" class="btn btn-primary btn-lg" update="visualizar-query:query-modal-content-id" icon="fa fa-quora" title="View">
+														<f:setPropertyActionListener value="#{vo.query}" target="#{logAcessoListBean.query}" />
+													</p:commandButton>
+												</p:column>
+											</p:dataTable>
+										</h:panelGroup>
+									</div>
+								</div>
+							</div>
+						</b:tab>
+						<b:tab title="Conexões Abertas" onclick="updateTabConexoesAbertas();">
+							<o:commandScript action="#{logAcessoListBean.tabUpdate(6)}" name="updateTabConexoesAbertas"/>
+							<div jsf:id="conexoesAbertas-id" class="col-sm-12">
+								<div class="row" style="margin-right: 0px;" >
+									<div class="col-sm-12">
+										<h:panelGroup>
+											<p:dataTable value="#{logAcessoListBean.conexoesAbertas}" var="vo" rows="100" paginator="true" lazy="false"
+														 paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+														 currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+														 paginatorPosition="bottom" rowIndexVar="rowIndex">
+												<p:column headerText="Thread" styleClass="text-center" style="width: 300px">
+													<h:outputText value="#{vo.get('nome')}" />
+												</p:column>
+												<p:column headerText="Count" styleClass="text-center" style="width: 70px">
+													<h:outputText value="#{vo.get('count')}" />
+												</p:column>
+												<p:column headerText="Tempo Total" styleClass="text-center" style="width: 70px">
+													<h:outputText value="#{vo.get('tempoTotal')}"/> ms
+												</p:column>
+												<p:column headerText="Tempo Médio" styleClass="text-center" style="width: 70px">
+													<h:outputText value="#{vo.get('tempoMedio')}"/> ms
+												</p:column>
+											</p:dataTable>
+										</h:panelGroup>
+									</div>
+								</div>
+							</div>
+						</b:tab>
+
+						<b:tab title="Querys Em Lock" onclick="updateQueryOnLock();">
+							<o:commandScript action="#{logAcessoListBean.tabUpdate(7)}" name="updateQueryOnLock"/>
+							<div jsf:id="queryonlock-id" class="col-sm-12">
+								<div class="row" style="margin-right: 0px;" >
+									<div class="col-sm-12">
+										<h:panelGroup>
+											<p:dataTable value="#{logAcessoListBean.queryOnLockVOS}" var="vo" rows="100" paginator="true" lazy="false"
+														 paginatorTemplate="{CurrentPageReport} {PreviousPageLink} {PageLinks} {NextPageLink}"
+														 currentPageReportTemplate="Total: {totalRecords}" scrollable="false" emptyMessage="#{msg['emptyMessage.label']}"
+														 paginatorPosition="bottom" rowIndexVar="rowIndex">
+												<p:column headerText="Blocked Pid" styleClass="text-center" sortBy="#{vo.blockedPid}">
+													<h:outputText value="#{vo.blockedPid}" />
+												</p:column>
+												<p:column headerText="Blocked User" styleClass="text-center">
+													<h:outputText value="#{vo.blockedUser}"/>
+												</p:column>
+												<p:column headerText="Tempo Execução Blocked" styleClass="text-center" sortBy="#{vo.blockedExecucaoSeg}">
+													<h:outputText value="#{vo.blockedExecucaoSeg}"/>
+												</p:column>
+												<p:column headerText="Blocked Query" styleClass="text-center">
+													<p:commandButton onclick="openModal('query-modal')" class="btn btn-primary btn-lg" update="visualizar-query:query-modal-content-id" icon="fa fa-quora" title="View">
+														<f:setPropertyActionListener value="#{vo.blockedQuery}" target="#{logAcessoListBean.query}" />
+													</p:commandButton>
+												</p:column>
+												<p:column headerText="Blocking Pid" styleClass="text-center">
+													<h:outputText value="#{vo.blockingPid}"/>
+												</p:column>
+												<p:column headerText="Blocking User" styleClass="text-center">
+													<h:outputText value="#{vo.blockingUser}"/>
+												</p:column>
+												<p:column headerText="Tempo Execução Blocking" styleClass="text-center" sortBy="#{vo.blockingExecucaoSeg}">
+													<h:outputText value="#{vo.blockingExecucaoSeg}"/>
+												</p:column>
+												<p:column headerText="Blocking Query" styleClass="text-center">
+													<p:commandButton onclick="openModal('query-modal')" class="btn btn-primary btn-lg" update="visualizar-query:query-modal-content-id" icon="fa fa-quora" title="View">
+														<f:setPropertyActionListener value="#{vo.blockingQuery}" target="#{logAcessoListBean.query}" />
+													</p:commandButton>
+												</p:column>
+											</p:dataTable>
+										</h:panelGroup>
+									</div>
+								</div>
+							</div>
+						</b:tab>
+
+					</b:tabView>
+				</div>
+			</div>
+		</h:form>
+	</ui:define>
+</ui:composition>
+</html>

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+    xmlns:o="http://omnifaces.org/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+	<f:metadata>
+		<f:viewAction action="#{etapaCrudBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="tituloPagina">#{msg['etapaCrud.titulo']}</ui:define>
+		<ui:define name="conteudo">
+			<style>
+				.modal-dialog {
+				    width: 750px;
+				}
+			</style>
+			<getdoc:excluirModal id="excluirModal" metodoExcluir="#{etapaCrudBean.excluir()}" update="mensagensGlobaisGroup form-etapa-list"/>
+            <o:importConstants type="net.wasys.getdoc.domain.enumeration.TipoPrazo" />
+			<h:form id="form-etapa">
+				<b:modal id="etapa-modal-id" title="#{msg['adicionarEtapa.label']}" styleClass="etapa-modal" rendered="#{menuBean.podeEditar()}">
+					<b:row id="etapa-modal-content-id">
+						<div class="col-sm-12">
+							<b:messages globalOnly="true" showSummary="true"/>
+							<div class="row" jsf:rendered="#{not empty etapaCrudBean.etapa}">
+								<div class="col-sm-12">
+									<div class="form-group">
+										<b:inputText value="#{etapaCrudBean.etapa.nome}" label="#{msg['nome.label']}" renderLabel="true" maxlength="100" required="true"/>
+										<b:message/>
+									</div>
+									<div class="row">
+										<div class="col-sm-4">
+											<div class="form-group">
+												<b:selectOneMenu value="#{etapaCrudBean.etapa.tipoProcesso}" label="#{msg['tipoProcesso.label']}" required="true">
+													<f:selectItem itemValue="" itemLabel=""/>
+													<f:selectItems value="#{etapaCrudBean.todosTiposProcessos}" var="tp" itemValue="#{tp}" itemLabel="#{tp.nome}"/>
+												</b:selectOneMenu>
+												<b:message/>
+											</div>
+										</div>
+										<div class="col-sm-4">
+											<div class="form-group">
+												<b:selectOneMenu value="#{etapaCrudBean.etapa.fase}" label="#{msg['faseEtapa.label']}" required="true" converter="enumConverter">
+													<f:selectItem itemValue="" itemLabel=""/>
+													<f:selectItems value="#{etapaCrudBean.faseEtapaList}" var="f" itemValue="#{f}" itemLabel="#{msg['FaseEtapa.'.concat(f).concat('.label')]}"/>
+												</b:selectOneMenu>
+												<b:message/>
+											</div>
+										</div>
+										<div class="col-sm-4">
+											<h:outputLabel value="#{msg['isEtapaFinal.label']}" for="etapaFinalId"/>
+											<h:selectOneRadio id="etapaFinalId" value="#{etapaCrudBean.etapa.etapaFinal}" label="#{msg['isEtapaFinal.label']}" styleClass="radio-default">
+												<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+												<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}" />
+												<f:ajax event="change" render="config-sla-id config-sla-id2"/>
+											</h:selectOneRadio>
+											<b:message/>
+										</div>
+									</div>
+									<div class="row">
+										<h:panelGroup id="config-sla-id">
+											<h:panelGroup rendered="#{!etapaCrudBean.etapa.etapaFinal}">
+												<div class="col-sm-4">
+													<div class="form-group">
+														<h:outputLabel value="#{msg['prazo.label']}" for="prazo-id"/>
+														<div class="form-inline">
+															<b:inputText id="prazo-id" value="#{etapaCrudBean.prazo}" maxlength="4" styleClass="mask-number" style="width: 60px" rendered="true" required="true">
+																<f:convertNumber pattern="####"/>
+															</b:inputText>
+															<b:message/>
+															<b:selectOneMenu value="#{etapaCrudBean.etapa.tipoPrazo}" rendered="#{not empty etapaCrudBean.etapa}">
+																<f:selectItems value="#{TipoPrazo}" var="t" itemValue="#{t}" itemLabel="#{msg['TipoPrazo.'.concat(t).concat('.label')]}" />
+															</b:selectOneMenu>
+															<b:message/>
+														</div>
+													</div>
+												</div>
+												<div class="col-sm-4">
+													<div class="form-group">
+														<h:outputLabel value="#{msg['prazoAdvertir.label']}" for="prazo-advertencia-id"/>
+														<div class="form-inline">
+															<b:inputText id="prazo-advertencia-id" value="#{etapaCrudBean.prazoAdvertir}" maxlength="4" renderLabel="false"
+																		 styleClass="mask-number" style="width: 60px" rendered="true" required="true" label="#{msg['prazoAdvertir.label']}">
+																<f:convertNumber pattern="####"/>
+															</b:inputText>
+															<b:message/>
+															<b:selectOneMenu value="#{etapaCrudBean.etapa.tipoPrazoAdvertir}" rendered="#{not empty etapaCrudBean.etapa}">
+																<f:selectItems value="#{TipoPrazo}" var="t" itemValue="#{t}" itemLabel="#{msg['TipoPrazo.'.concat(t).concat('.label')]}" />
+															</b:selectOneMenu>
+															<b:message/>
+														</div>
+													</div>
+												</div>
+											</h:panelGroup>
+										</h:panelGroup>
+										<div class="col-sm-4 pull-right">
+											<h:outputLabel value="#{msg['isAtivo.label']}" for="ativoId"/>
+											<h:selectOneRadio id="ativoId" value="#{etapaCrudBean.etapa.ativo}" label="#{msg['isAtivo.label']}" styleClass="radio-default">
+												<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+												<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}" />
+											</h:selectOneRadio>
+											<b:message/>
+										</div>
+                                   </div>
+									<div class="row">
+										<h:panelGroup id="config-sla-id2">
+											<h:panelGroup rendered="#{!etapaCrudBean.etapa.etapaFinal}">
+												<div class="col-sm-4">
+													<div class="form-group">
+														<h:outputLabel value="#{msg['isSlaFinalDoDia.label']}" for="slaId"/>
+														<h:selectOneRadio id="slaId" value="#{etapaCrudBean.etapa.considerarFinalDoDia}" label="#{msg['isSlaFinalDoDia.label']}" styleClass="radio-default">
+															<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+															<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}" />
+														</h:selectOneRadio>
+														<b:message/>
+													</div>
+												</div>
+												<div class="col-sm-4">
+													<div class="form-group">
+														<h:outputLabel value="#{msg['isRecalcularFinalDeSemana.label']}" for="finalDeSemanaId"/>
+														<h:selectOneRadio id="finalDeSemanaId" value="#{etapaCrudBean.etapa.recalcularFinalDeSemana}" label="#{msg['isRecalcularFinalDeSemana.label']}" styleClass="radio-default">
+															<f:selectItem itemValue="#{true}" itemLabel="#{msg['sim.label']}"/>
+															<f:selectItem itemValue="#{false}" itemLabel="#{msg['nao.label']}" />
+														</h:selectOneRadio>
+														<b:message/>
+													</div>
+												</div>
+											</h:panelGroup>
+										</h:panelGroup>
+									</div>
+							 		<div class="form-group">
+										<b:inputTextarea value="#{etapaCrudBean.etapa.dica}" label="#{msg['dica.label']}" renderLabel="true" maxlength="200" rows="3"/>
+										<b:message/>
+									</div>
+								</div>
+							</div>
+						</div>
+						<h:panelGroup rendered="#{fecharModal}">
+							<script type="text/javascript">
+								$('.etapa-modal').modal('hide');
+							</script>
+						</h:panelGroup>
+					</b:row>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="primary" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['salvar.label']}" actionListener="#{etapaCrudBean.salvar()}" update="etapa-modal-content-id form-etapa-list mensagensGlobaisGroup" styleClass="btn" rendered="#{menuBean.podeEditar()}"/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+			<h:form id="form-etapa-list">
+				<div class="row default-form">
+					<div class="col-sm-12">
+						<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+						<div class="row">
+							<div class="col-sm-1" ></div>
+							<div class="col-sm-5" >
+								<div class="form-group">
+									<b:selectOneMenu value="#{etapaCrudBean.tipoProcessoId}" label="#{msg['tipoProcesso.label']}">
+										<f:selectItem itemValue="" itemLabel=""/>
+										<f:selectItems value="#{etapaCrudBean.todosTiposProcessos}" var="tp" itemValue="#{tp.id}" itemLabel="#{tp.nome}"/>
+									</b:selectOneMenu>
+								</div>
+							</div>
+							<div class="col-sm-5" >
+								<p:commandButton value="#{msg['buscar.label']}" action="#{etapaCrudBean.init()}" styleClass="btn btn-primary btn-md"
+									ajax="true" update="row-tabela" style="margin-top: 24px;" />
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-12" style="float: right;">
+						<div style="float: right; vertical-align: bottom;">
+							<p:commandLink value="#{msg['adicionarEtapa.label']}" onclick="openModal('etapa-modal')" class="btn btn-primary btn-lg" style="float: right;"
+										   update="form-etapa:etapa-modal-content-id" rendered="#{menuBean.podeEditar()}">
+								<f:setPropertyActionListener target="#{etapaCrudBean.etapa}" value="#{null}" />
+							</p:commandLink>
+						</div>
+					</div>
+				</div>
+			<div class="row" jsf:id="row-tabela">
+				<div class="col-sm-12">
+					<p:repeat var="tipoProcesso" value="#{etapaCrudBean.tiposProcessos}">
+						<h4 class="tituloForm" style="margin-bottom: 0">
+							<h:outputText value="#{tipoProcesso.nome}"/>
+						</h4>
+						<p:dataTable var="etapas" value="#{etapaCrudBean.dataModelMap.get(tipoProcesso)}" rows="50" binding="#{ utilBean.lazyDataTable }">
+							<p:column headerText="ID" style="text-align: center; width: 70px;">
+								<h:outputText value="#{etapas.id}" />
+							</p:column>
+							<p:column headerText="#{msg['nome.label']}" sortBy="#{etapas.nome}">
+								<h:outputText value="#{etapas.nome}"/>
+							</p:column>
+							<p:column headerText="#{msg['faseEtapa.label']}" style="width: 200px; text-align: center;" sortBy="#{etapas.nome}">
+								<h:outputText value="#{msg['FaseEtapa.'.concat(etapas.fase).concat('.label')]}"/>
+							</p:column>
+							<p:column headerText="#{msg['prazo.label']}" style="width: 100px; text-align: center;">
+								<h:outputText value="#{etapaCrudBean.calcPrazo(etapas.horasPrazo, etapas.tipoPrazo)} #{msg['TipoPrazo.'.concat(etapas.tipoPrazo).concat('.label')]}"/>
+							</p:column>
+							<p:column headerText="#{msg['prazoAdvertir.label']}" style="width: 100px; text-align: center;">
+								<h:outputText value="#{etapaCrudBean.calcPrazo(etapas.horasPrazoAdvertir, etapas.tipoPrazoAdvertir)} #{msg['TipoPrazo.'.concat(etapas.tipoPrazoAdvertir).concat('.label')]}"/>
+							</p:column>
+							<p:column headerText="#{msg['isAtivo.label']}" style="width: 100px; text-align: center;" sortBy="#{etapas.ativo}">
+								<h:outputText value="#{msg['sim.label']}" rendered="#{etapas.ativo}"/>
+								<h:outputText value="#{msg['nao.label']}" rendered="#{!etapas.ativo}"/>
+							</p:column>
+							<p:column style="width: 180px;">
+								<p:commandLink title="#{msg['editar.label']}" onclick="openModal('etapa-modal')" class="btn btn-warning btn-editar" update="form-etapa:etapa-modal-content-id"
+											   style="margin-left: 2px; margin-right: 2px; width: 45px;">
+									<f:setPropertyActionListener target="#{etapaCrudBean.etapa}" value="#{etapas}" />
+									<i class="fa fa-pencil" aria-hidden="true" style="color: #fff;"></i>
+								</p:commandLink>
+								<p:commandLink title="#{msg['excluir.label']}" onclick="openModal('excluir-modal', 'excluirModal:form-exclusao:excluir-btn')" class="btn btn-danger btn-excluir" rendered="#{menuBean.podeExcluir()}"
+											   style="margin-left: 2px; margin-right: 2px; width: 45px;">
+									<f:setPropertyActionListener target="#{etapaCrudBean.etapa}" value="#{etapas}" />
+									<i class="fa fa-trash" aria-hidden="true" style="color: #fff;"></i>
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+					</p:repeat>
+				</div>
+			</div>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

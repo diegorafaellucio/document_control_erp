@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+
+<center>
+<div id="DWTcontainer" class="div-principal">
+	<div class="coluna-esq" style="padding-left: 10px;">
+		<div id="dwtcontrolContainer">&nbsp;</div>
+		<div id="DWTemessageContainer"></div>
+	</div>
+	<b:modal id="adicionarDocumento-dtw-modal-id" title="#{msg['adicionarDocumento.label']}" styleClass="adicionarDocumento-dtw-modal" style="top: 15%; z-index: 9999;">
+		<b:row id="adicionarDocumento-modal-content-id">
+			<div class="col-sm-12">
+				<div style="padding-left: 30px;">
+					<div class="form-group">
+						<b:selectOneMenu value="#{consultaCandidatoBean.processoEditBean.novoDocumento}" label="#{msg['documento.label']}" required="true">
+							<f:selectItem itemValue="" itemLabel=""/>
+							<f:selectItems value="#{consultaCandidatoBean.processoEditBean.documentosExcluidos}" var="de" itemValue="#{de.id}" itemLabel="#{de.nome}"/>
+						</b:selectOneMenu>
+						<b:message/>
+					</div>
+				</div>
+			</div>
+			<h:panelGroup rendered="#{fecharModal}">
+				<script type="text/javascript">
+					$('.adicionarDocumento-dtw-modal').modal('hide');
+				</script>
+			</h:panelGroup>
+		</b:row>
+		<f:facet name="footer">
+			<b:button value="#{msg['cancelar.label']}" look="default" onclick="closeModal('adicionarDocumento-dtw-modal'); return false;"/>
+			<p:commandButton value="#{msg['adicionar.label']}" styleClass="btn" oncomplete=""
+					actionListener="#{consultaCandidatoBean.adicionarDocumento()}" onerror="alert('Erro!')"
+					update="adicionarDocumento-modal-content-id mensagensGlobaisGroup form-processo form-tabs digitalizar-documentosList-id"/>
+		</f:facet>
+	</b:modal>
+	<div class="coluna-dir">
+		<div class="divinput">
+			<div id="div_ScanImage" class="divTableStyle">
+				<table cellpadding="0" cellspacing="0" style="width: 100%;">
+					<tr>
+						<td width="130px" style="padding-bottom: 10px;"><label>Scanner:</label></td>
+						<td>
+							<select size="1" id="source" style="position:relative;" class="form-control" onchange="source_onchange()">
+								<option value = ""></option>
+							</select>
+						</td>
+					</tr>
+					<tr id="divProductDetail">
+					</tr>
+					<tr id="divProductDetail2">
+					</tr>
+					<tr>
+						<td colspan="2" style="padding-top: 10px;">
+							<input id="btnScan" class="btn btn-primary" disabled="disabled" type="button" value="Buscar do Scanner" onclick ="acquireImage();" style="float: left;"/>&nbsp;
+							<input class="btn btn-primary" type="button" value="Buscar do Computador" onclick="return btnLoadImagesOrPDFs_onclick()" style=""/>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div style="padding-top: 20px; text-align: left;">
+				<span class="icone-comandos btn btn-info edit-icon" title="#{msg['girarEsquerda.label']}" onclick="btnRotateLeft_onclick()"><i class="fa fa-undo" aria-hidden="true"></i></span>
+				<span class="icone-comandos btn btn-info edit-icon" title="#{msg['girarDireita.label']}" onclick="btnRotateRight_onclick()"><i class="fa fa-repeat" aria-hidden="true"></i></span>
+				<span class="icone-comandos btn btn-info edit-icon" title="#{msg['cortar.label']}" onclick="btnCrop_onclick()"><i class="fa fa-crop" aria-hidden="true"></i></span>
+				<span class="icone-comandos btn btn-info edit-icon" title="#{msg['removerImagem.label']}" onclick="btnRemoveCurrentImage_onclick()" id='DW_btnRemoveCurrentImage'><i class="fa fa-times" aria-hidden="true"></i></span>
+				<span class="icone-comandos btn btn-info edit-icon" title="#{msg['removerTodasImagem.label']}" onclick="btnRemoveAllImages_onclick()" id='DW_btnRemoveAllImages'><i class="fa fa-trash-o" aria-hidden="true"></i></span>
+				<p:commandLink title="#{msg['adicionarDocumento.label']}" class="btn btn-default btn-default"
+						style="padding: 3px 8px; vertical-align: bottom; margin-right: 5px; float: right;"
+						onsuccess="openModal('adicionarDocumento-dtw-modal');">
+					<i class="fa fa-plus" aria-hidden="true"></i>
+				</p:commandLink>
+			</div>
+			<div style="padding-top: 20px; height: 325px; overflow: auto;" jsf:id="digitalizar-documentosList-id">
+                    <ui:repeat value="#{consultaCandidatoBean.processoEditBean.grupoDocumentos}" var="processoId">
+                        <c:set var="abertoDocumentos" value="#{consultaCandidatoBean.processoEditBean.verificaGrupoDocumentos(processoId)}" />
+                        <div style="padding-bottom: 5px; margin-bottom: 10px; border-bottom: 1px solid #e5e5e5; text-align: left;">
+							<span onclick="mostrarMenosGrupoDigitalizar(#{processoId})" style="cursor: pointer;" class="hide-grupo-#{processoId}-2">
+								<i style="padding-right: 10px;" class="fa fa-minus-square-o" aria-hidden="true"></i>
+								<h:outputText value="#{utilBean.getProcesso(processoId).tipoProcesso.nome}
+								(#{abertoDocumentos} Pendente#{abertoDocumentos > 1 ? 's' : ''})"/>
+							</span>
+							<span onclick="mostrarMaisGrupoDigitalizar(#{processoId})" style="display: none; cursor: pointer;" class="show-grupo-#{processoId}-2">
+								<i style="padding-right: 10px;" class="fa fa-plus-square-o" aria-hidden="true"></i>
+								<h:outputText value="#{utilBean.getProcesso(processoId).tipoProcesso.nome}
+								(#{abertoDocumentos} Pendente#{abertoDocumentos > 1 ? 's' : ''})"/>
+							</span>
+                        </div>
+                        <h:panelGroup rendered="#{ abertoDocumentos == 0 }">
+                            <script type="text/javascript">
+                                jQuery(function($) {
+                                    mostrarMenosGrupoDigitalizar(#{processoId});
+                                });
+                            </script>
+                        </h:panelGroup>
+                        <div class="row-g row-grupo-#{processoId}-2" style="margin-bottom: 10px;">
+                            <ui:repeat value="#{consultaCandidatoBean.processoEditBean.getDocumentosProcessoId(processoId)}" var="doc">
+                                <div class="row-g valor-campo-tr campos-grupo-#{processoId}-2">
+                                    <h:panelGroup>
+                                        <table>
+                                        <tr style="border-bottom: 1px solid #d3d3d3; height: 40px;">
+                                            <td width="35px">
+												<span title="#{msg['associarImagensDocumento.label']}" class="icone-comandos btn btn-info btn-associacao" disabled="disabled"
+													  jsf:rendered="#{!doc.digitalizavel}"><i class="fa fa-arrow-circle-o-right" aria-hidden="true"></i></span>
+
+                                                <span title="#{msg['associarImagensDocumento.label']}" class="icone-comandos btn btn-info btn-associacao"
+													  onclick="marcarImagens('#{doc.id}')" jsf:rendered="#{doc.digitalizavel}"><i class="fa fa-arrow-circle-o-right" aria-hidden="true"></i></span>
+                                            </td>
+                                            <td style="width: 28px;">
+                                                <img alt="" title="#{msg['StatusDocumento.'.concat(doc.status).concat('.label')]}" src="#{request.contextPath}/resources/images/icons/StatusDocumento-#{doc.status}.png" width="22px"/>
+                                            </td>
+                                            <td style="padding-left: 0; width: 230px;">
+                                                #{doc.nome}
+                                            </td>
+                                            <td style="padding-left: 10px; font-style: italic; text-align: right; width: 100px;" id="docsSelecionados_#{doc.id}"></td>
+                                            <td style="padding-left: 10px;" onclick="desmarcarImagens('#{doc.id}')">
+                                                <span id='desmarcarImagens_#{doc.id}' style="display: none; font-weight: bold; cursor: pointer;">
+                                                    <i class="fa fa-eraser" aria-hidden="true"></i>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        </table>
+                                    </h:panelGroup>
+                                </div>
+                            </ui:repeat>
+                        </div>
+                    </ui:repeat>
+			</div>
+			<div id='DWTdivMsg' style='width:440px; position: absolute;'>
+				<div id='DWTemessage' style='width:100%; height:80px; margin-top:5px; overflow:auto; background-color:#ffffff; border:1px #ccc solid; text-align:left; position:relative' ></div>
+				<div style="padding-top: 10px; padding-bottom: 10px;text-align: left;">
+					<input id="btnUpload" type="button" value="Fazer Upload das Imagens" onclick="return enviarImagens()" class="btn btn-primary" />
+				</div>
+			</div>
+			<div id="divBlank" style="height:20px"></div>
+		</div>
+	</div>
+</div>
+</center>
+<h:form style="display: none;">
+	<input type="hidden" name="chave" value="#{consultaCandidatoBean.processoEditBean.chave}" />
+	<input type="hidden" name="confirmacao" value="true" />
+	<input type="hidden" name="fechar" value="true" />
+	<input type="hidden" name="processoId" value="#{consultaCandidatoBean.processoEditBean.id}"/>
+	<ui:repeat value="#{consultaCandidatoBean.processoEditBean.documentos}" var="doc">
+		<input type="hidden" name="img_doc_#{doc.id}" id="img_doc_#{doc.id}" value="" class="campoIdxImgs"/>
+	</ui:repeat>
+	<b:commandButton binding="#{submitDigitalizacao}" value="." actionListener="#{consultaCandidatoBean.salvarDigitalizacaoTwain()}"
+			update="form-processo form-confirms form-tabs mensagensGlobaisGroup" onerror="alert('Erro!')"
+			onsuccess="$('.digitalizarTwain-modal').modal('hide');" oncomplete="carregarDocumentos()" style="display: none;"/>
+</h:form>
+<script type="text/javascript" language="javascript" src="#{request.contextPath}/resources/dwt/dynamsoft.webtwain.initiate.js"></script>
+<script type="text/javascript" language="javascript" src="#{request.contextPath}/resources/dwt/dynamsoft.webtwain.config.js"></script>
+<script type="text/javascript" language="javascript" src="#{request.contextPath}/resources/dwt/addon/dynamsoft.webtwain.addon.pdf.js"></script>
+<script type="text/javascript" language="javascript" src="#{request.contextPath}/resources/dwt/online_demo_operation_3.js"></script>
+<script type="text/javascript" language="javascript" src="#{request.contextPath}/resources/dwt/online_demo_initpage.js"></script>
+<script type="text/javascript" language="javascript">
+
+	$(function() {
+		pageonload();
+	});
+
+	/*$('#DWTcontainer').hover(function() {
+		$(document).bind('mousewheel DOMMouseScroll', function(event) {
+			stopWheel(event);
+		});
+	}, function() {
+		$(document).unbind('mousewheel DOMMouseScroll');
+	});*/
+
+	function enviarImagens() {
+
+		enviarImagens2('#{request.contextPath}/uploadimagens', '#{consultaCandidatoBean.processoEditBean.chave}', '#{submitDigitalizacao.clientId}', '#{consultaCandidatoBean.processoEditBean.processo.situacao.permiteTipificacao}');
+	}
+
+	var modal = $('.digitalizar-modal');
+	var header = $('.modal-header', modal);
+	$('.close', header).click(function() {
+		exitFullscreen();
+	});
+
+</script>
+
+</html>

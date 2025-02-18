@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:o="http://omnifaces.org/ui">
+	<f:metadata>
+		<f:viewAction action="#{relatorioConsultaExternaBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+	</f:metadata>
+	<ui:composition template="/templates/navegacao.xhtml">
+		<ui:define name="head">
+			<link href="#{request.contextPath}/resources/css/prism.css" rel="stylesheet"/>
+		</ui:define>
+		<ui:define name="tituloPagina">#{msg['menu-relatorio-CE.label']}</ui:define>
+		<ui:define name="conteudo">
+			<style>
+				.visualizar-ce-modal .modal-dialog {
+				    width: 800px;
+				}
+				.visualizar-cel-modal .modal-dialog {
+				    width: 800px;
+				}
+			</style>
+			<h:form id="form">
+				<div class="row default-form" style="margin-bottom: 0;">
+					<div class="col-sm-12" style="margin-bottom: 0;">
+						<h4 class="tituloForm"><h:outputText value="#{msg['filtroForm.label']}"/></h4>
+						<div class="row">
+							<div class="col-sm-1" ></div>
+							<div class="col-sm-5">
+								<div class="form-group">
+									<h:outputLabel value="#{msg['periodo.label']}"/>
+									<b:panelGrid colSpans="1,5,1,5" style="margin-bottom: -20px; margin-left: 5px;">
+										<h:outputText value="#{msg['de.label']}"/>
+										<b:inputText id="dataInicioId" value="#{relatorioConsultaExternaBean.consultaExternaDataModel.filtro.dataInicio}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+												label="#{msg['dataInicial.label']}" renderLabel="false">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14" />
+											</f:facet>
+										</b:inputText>
+										<h:outputText value="#{msg['ate.label']}"/>
+										<b:inputText id="dataFimId" value="#{relatorioConsultaExternaBean.consultaExternaDataModel.filtro.dataFim}" placeholder="dd/mm/aaaa" styleClass="mask-date"
+												label="#{msg['dataFinal.label']}" renderLabel="false">
+											<f:convertDateTime pattern="dd/MM/yyyy"/>
+											<f:facet name="append">
+												<i class="fa fa-calendar-o fa-12x14" />
+											</f:facet>
+										</b:inputText>
+									</b:panelGrid>
+									<b:message for="dataInicioId" showSummary="false"/>
+									<b:message for="dataFimId" showSummary="false"/>
+								</div>
+							</div>
+						
+							<div class="col-sm-5">
+								<div class="row">
+									<div class="col-sm-6">
+										<b:selectOneMenu label="#{msg['consultaExterna.label']}" value="#{ relatorioConsultaExternaBean.consultaExternaDataModel.filtro.tipo }" converter="enumConverter">
+											<f:selectItem itemLabel="" itemValue=""/>
+											<f:selectItems value="#{ relatorioConsultaExternaBean.listaTipoConsultaExterna }" var="fe" itemValue="#{ fe }" itemLabel="#{ msg['TipoConsultaExterna.'.concat(fe).concat('.label')] }"/>
+										</b:selectOneMenu>
+									</div>
+									<div class="col-sm-6">
+										<b:selectOneMenu label="#{msg['status.label']}" value="#{ relatorioConsultaExternaBean.consultaExternaDataModel.filtro.status }" converter="enumConverter">
+											<f:selectItem itemLabel="" itemValue=""/>
+											<f:selectItems value="#{ relatorioConsultaExternaBean.listaStatus }" var="s" itemValue="#{ s }" itemLabel="#{ msg['StatusConsultaExterna.'.concat(s).concat('.label')] }"/>
+										</b:selectOneMenu>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-1" ></div>
+							<div class="col-sm-5" >
+								<div class="form-group">
+									<b:inputText value="#{relatorioConsultaExternaBean.consultaExternaDataModel.filtro.processoId }"
+											label="#{msg['numero.label']}" styleClass="mask-number"/>
+									<b:message/>
+								</div>
+							</div>
+							<div class="col-sm-5" >
+								<p:commandLink value="#{msg['buscar.label']}" class="btn btn-primary btn-salvar" update="tableCes statusWs" style="float: right;" actionListener="#{relatorioConsultaExternaBean.buscar()}"/>
+							</div>
+							<div class="col-sm-1" ></div>
+						</div>
+					</div>
+				</div>
+				<div class="row default-form">
+					<div class="col-sm-12">
+						<p:chart type="bar" model="#{ relatorioConsultaExternaBean.horizontalBarChartModel }" style="height:130px"/>
+					</div>
+				</div>
+				<div class="row default-form">
+					<center><div class="col-sm-9" jsf:id="statusWs">
+						<p:repeat value="#{relatorioConsultaExternaBean.statusWsVos}" var="statusWsVo">
+							<div class="col-md-6" style="margin-bottom: 15px;">
+								<div style="float: right; white-space: nowrap;">
+									<label class="control-label" style="padding-top: 9px; margin-right: 20px;">
+										#{msg['TipoConsultaExterna.'.concat(statusWsVo.tipo).concat('.label')]}
+									</label>
+									<i class="fa fa-exclamation-triangle alert alert-danger alert-status-ws tooltipar tooltipstered"
+											aria-hidden="true" data-tooltip-content="#erroWS-tooltipContent-#{statusWsVo.tipo}" jsf:rendered="#{statusWsVo.mensagemErro != null}"></i>
+									<i class="fa fa-check alert alert-success alert-status-ws" aria-hidden="true" jsf:rendered="#{statusWsVo.mensagemErro == null}"></i>
+									<span style="margin-left: 20px;">(#{statusWsVo.horaMinuto})</span>
+									<div class="tooltip_templates" style="display: none;">
+										<span id="erroWS-tooltipContent-#{statusWsVo.tipo}" class="tooltipContent">
+											<h4 style="color: #0C1021">#{statusWsVo.mensagemErro}</h4>
+											<pre>#{statusWsVo.stackTrace}</pre>
+										</span>
+										<span id="okWS-tooltipContent-#{statusWsVo.tipo}" class="tooltipContent">
+											vo.mensagemErro
+										</span>
+									</div>
+								</div>
+							</div>
+						</p:repeat>
+					</div></center>
+				</div>
+				<div class="row default-form">
+					<div class="col-sm-12" jsf:id="tableCes">
+						<p:dataTable id="consultaExternaTable" var="ce" value="#{ relatorioConsultaExternaBean.consultaExternaDataModel }"
+							binding="#{ dataTableUtil.lazyDataTable }">
+							
+							<p:column headerText="#{msg['consultaExterna.label']}" style="text-align: center;">
+								<h:outputText value="#{msg['TipoConsultaExterna.'.concat(ce.tipo).concat('.label')]}" />
+							</p:column>
+
+							<p:column headerText="#{msg['data.label']}" style="text-align: center;">
+								<h:outputText value="#{ ce.data }">
+									<f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+								</h:outputText>
+							</p:column>
+							<p:column headerText="#{msg['tempo.label']}" style="text-align: center;">
+								<h:outputText value="#{ utilBean.formatarMilisegundosParaSegundos(ce.tempoExecucao) } " />
+							</p:column>
+							<p:column headerText="#{msg['status.label']}" style="text-align: center;">
+								<h:outputText value="#{ msg['StatusConsultaExterna.'.concat(ce.status).concat('.label')] }" />
+							</p:column>
+							<p:column headerText="#{msg['usuario.label']}" style="text-align: center;">
+								<h:outputText value="#{ ce.usuario.nome }" />
+							</p:column>
+							<p:column headerText="" style="text-align: center; width: 50px;">
+								<p:commandLink oncomplete="openModal('visualizar-ce-modal')" update="formCe:visualizar-ce-modal-content-id" title="Visualizar">
+									<f:setPropertyActionListener target="#{ relatorioConsultaExternaBean.consultaExternaVisualizacao }" value="#{ ce }" />
+									<i class="fa fa-search" aria-hidden="true"></i>
+								</p:commandLink>
+								<p:commandLink oncomplete="openModal('visualizar-cel-modal')" update="formCe:visualizar-ce-modal-content-id" title="Visualizar Logs">
+									<p:ajax listener="#{ relatorioConsultaExternaBean.carregarConsultaExternaLog(ce) }" update="formCel:visualizar-cel-modal-content-id"/>
+									<i class="fa fa-file-text-o" aria-hidden="true"></i>
+								</p:commandLink>
+							</p:column>
+						</p:dataTable>
+					</div>
+				</div>
+			</h:form>
+			
+			<!-- MODAL Consultas Externas -->
+			<h:form id="formCe">
+				<b:modal id="ce-modal-id" title="#{ msg['visualizarConsultaExterna.label'] }" styleClass="visualizar-ce-modal">
+					<b:row id="visualizar-ce-modal-content-id">
+						<div class="col-sm-12">
+							<div class="row">
+								<div class="col-sm-6 noMarginBottom">
+									<b:inputText label="Consulta Externa" value="#{ relatorioConsultaExternaBean.consultaExternaVisualizacao.tipo }" disabled="true"/>
+								</div>
+								<div class="col-sm-6 noMarginBottom">
+									<b:inputText label="Data" value="#{ relatorioConsultaExternaBean.consultaExternaVisualizacao.data }" disabled="true">
+										<f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+									</b:inputText>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-sm-6 noMarginBottom">
+									<b:inputText label="Status" value="#{ relatorioConsultaExternaBean.consultaExternaVisualizacao.status }" disabled="true"/>
+								</div>
+								<div class="col-sm-6 noMarginBottom">
+									<b:inputText label="Usuário" value="#{ relatorioConsultaExternaBean.consultaExternaVisualizacao.usuario.nome }" disabled="true"/>
+								</div>
+							</div>
+							<div class="row" jsf:rendered="#{ relatorioConsultaExternaBean.consultaExternaVisualizacao.stackTrace ne null }">
+								<div class="col-sm-12 noMarginBottom">
+									<b:inputTextarea label="StackTrace" value="#{ relatorioConsultaExternaBean.consultaExternaVisualizacao.stackTrace }" disabled="true"/>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-sm-12 noMarginBottom">
+									<h:outputLabel value="Parâmetros"/>
+									<pre><code class="language-javascript"><h:outputText value="#{utilBean.stringToJson(relatorioConsultaExternaBean.consultaExternaVisualizacao.parametros)}" escape="false"/></code></pre>
+								</div>
+								<script src="#{request.contextPath}/resources/js/prism.js"></script>
+							</div>
+							<div class="row">
+								<div class="col-sm-12 noMarginBottom">
+									<h:outputLabel value="Resultado"/>
+									<pre><code class="language-javascript"><h:outputText value="#{utilBean.stringToJson(relatorioConsultaExternaBean.consultaExternaVisualizacao.resultado)}" escape="false"/></code></pre>
+								</div>
+							</div>
+							<h:panelGroup rendered="#{ fecharModal }">
+								<script type="text/javascript">
+									$('.ce-modal').modal('hide');
+								</script>
+							</h:panelGroup>
+						</div>
+					</b:row>
+				</b:modal>
+			</h:form>
+
+			<!-- MODAL Consultas Externas Log -->
+			<h:form id="formCel">
+				<b:modal id="cel-modal-id" title="#{ msg['visualizarConsultaExternaLog.label'] }" styleClass="visualizar-cel-modal">
+					<b:row id="visualizar-cel-modal-content-id">
+						<div class="col-sm-12">
+							<p:dataTable id="consultaExternaLogTable" var="cel" value="#{ relatorioConsultaExternaBean.consultaExternaLogDataModel }"
+								binding="#{ dataTableUtil.lazyDataTable }">
+								
+								<p:column headerText="#{msg['data.label']}" style="text-align: center;">
+										<h:outputText value="#{ utilBean.getDateTimeStr(cel.data) }"/>
+								</p:column>
+	
+								<p:column headerText="#{msg['usuario.label']}" style="text-align: center;">
+									<h:outputText value="#{ cel.usuario.nome }" />
+								</p:column>
+
+								<p:column headerText="#{msg['processoConsultaExterna.label']}" style="text-align: center;">
+									<h:outputText value="#{ cel.processo.id }" />
+								</p:column>
+
+								<p:column headerText="#{msg['consultaExterna.label']}" style="text-align: center;">
+									<h:outputText value="#{ msg['TipoConsultaExterna.'.concat(cel.consultaExterna.tipo).concat('.label')] }" />
+								</p:column>
+							</p:dataTable>
+						</div>
+						<h:panelGroup rendered="#{ fecharModal }">
+							<script type="text/javascript">
+								$('.cel-modal').modal('hide');
+							</script>
+						</h:panelGroup>
+					</b:row>
+				</b:modal>
+			</h:form>
+		</ui:define>
+	</ui:composition>
+</html>

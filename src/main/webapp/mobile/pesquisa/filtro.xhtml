@@ -1,0 +1,220 @@
+<ui:composition template="/mobile/master.xhtml"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	>
+	<f:metadata>
+		<f:event type="preRenderView" listener="#{filtroPesquisaBean.init}" />
+	</f:metadata>
+	<ui:define name="master.style">
+		<style type="text/css">
+			body { padding-bottom: 50px; }
+			nav.navbar-fixed-bottom {
+				padding: 8px;
+			}
+		</style>
+	</ui:define>
+	<ui:define name="master.script">
+		<c:set var="bean" value="#{filtroPesquisaBean}" />
+		<script type="text/javascript">
+			//<![CDATA[
+			Device = {
+				onReady: function() {
+					Device.initialize(#{bean.deviceInitializeScript});
+				},
+				onTapped: function(id) {
+					if (id == 1) {
+						voltar();
+					}
+				}
+			};
+			//]]>
+		</script>
+	</ui:define>
+	<ui:define name="master.content">
+		<c:set var="bean" value="#{filtroPesquisaBean}" />
+		<c:set var="filtro" value="#{bean.filtro}" />
+		<o:importConstants type="net.wasys.getdoc.domain.vo.filtro.ProcessoFiltro.ConsiderarData" />
+		<div class="container">
+			<h:form>
+				<o:commandScript name="voltar" actionListener="#{bean.onVoltarClick()}" />
+				<h:panelGroup
+					id="panelFiltro"
+					layout="block"
+					style="padding-top: 15px; padding-bottom: 15px;"
+					>
+					<div class="form-group">
+						<h:outputLabel 
+							value="#{msg['periodo.label']}"
+							/>
+						<h:selectOneMenu
+							value="#{filtro.considerarData}"
+							converter="enumConverter"
+							styleClass="form-control"
+							>
+							<f:selectItems value="#{ConsiderarData.values()}" var="sp" itemLabel="#{msg['ConsiderarData.'.concat(sp).concat('.label')]}" itemValue="#{sp}" />
+						</h:selectOneMenu>
+					</div>
+					<div class="row">
+						<div class="col-xs-6">
+							<div class="form-group">
+								<h:outputLabel 
+									value="#{msg['de.label']}"
+									/>
+								<div class="input-group">
+									<h:inputText
+										value="#{filtro.dataInicio}"
+										styleClass="form-control mask-date"
+										pt:placeholder="dd/mm/aaaa"
+										>
+										<f:convertDateTime pattern="dd/MM/yyyy"/>
+									</h:inputText>
+									<span class="input-group-addon">
+										<i class="fa fa-calendar-o" />	
+									</span>							
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-6">
+							<div class="form-group">
+								<h:outputLabel 
+									value="#{msg['ate.label']}"
+									/>
+								<div class="input-group">
+									<h:inputText
+										value="#{filtro.dataFim}"
+										styleClass="form-control mask-date"
+										pt:placeholder="dd/mm/aaaa"
+										>
+										<f:convertDateTime pattern="dd/MM/yyyy"/>
+									</h:inputText>
+									<span class="input-group-addon">
+										<i class="fa fa-calendar-o" />	
+									</span>							
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<h:outputLabel 
+							value="#{msg['numero.label']}"
+							/>
+						<h:inputText 
+							value="#{filtro.numero}"
+							styleClass="form-control"
+							/>
+					</div>
+					<div class="form-group">
+						<h:outputLabel 
+							value="#{msg['TipoEntradaCampo.CPF_CNPJ.label']}"
+							/>
+						<h:inputText 
+							value="#{filtro.chaveNfe}"
+							styleClass="form-control"
+							/>
+					</div>
+					<div class="form-group">
+						<h:outputLabel 
+							value="#{msg['analista.label']}"
+							/>
+						<h:selectOneMenu
+							value="#{filtro.analista}"
+							styleClass="form-control"
+							>
+							<f:selectItem itemValue="" itemLabel=""/>
+							<f:selectItems 
+								var="item" 
+								itemValue="#{item}" 
+								itemLabel="#{item.nome}"
+								value="#{bean.analistas}"
+								/>
+						</h:selectOneMenu>
+					</div>
+					<div class="form-group">
+						<h:outputLabel 
+							value="#{msg['situacao.label']}"
+							/>
+						<h:selectOneMenu
+							value="#{filtro.situacao}"
+							styleClass="form-control"
+							>
+							<f:selectItem itemValue="" itemLabel=""/>
+							<f:selectItems 
+								var="item" 
+								itemValue="#{item}" 
+								itemLabel="#{item.nome}"
+								value="#{bean.situacoes}"
+								/>
+						</h:selectOneMenu>
+					</div>
+					<div class="form-group">
+						<h:outputLabel 
+							value="#{msg['tipoProcesso.label']}"
+							/>
+						<ul class="list-group">
+							<ui:repeat var="checkbox" value="#{bean.checkboxTiposProcessos}">
+								<li class="list-group-item">
+									<div class="ellipsis">
+										<h:selectBooleanCheckbox
+											value="#{checkbox.checked}"
+											/>
+										<span class="space" />
+										<h:outputText
+											value="#{checkbox.value.nome}"
+											/>
+									</div>
+								</li>
+							</ui:repeat>
+						</ul>
+					</div>
+					<div class="form-group">
+						<h:outputLabel 
+							value="#{msg['status.label']}"
+							/>
+						<ul class="list-group">
+							<ui:repeat var="checkbox" value="#{bean.checkboxStatusProcessos}">
+								<li class="list-group-item">
+									<div class="ellipsis">
+										<h:selectBooleanCheckbox
+											value="#{checkbox.checked}"
+											/>
+										<span class="space" />
+										<h:outputText
+											value="#{msg['StatusProcesso.'.concat(checkbox.value).concat('.label')]}"
+											/>
+									</div>
+								</li>
+							</ui:repeat>
+						</ul>
+					</div>
+					<nav class="navbar navbar-default navbar-fixed-bottom">
+						<div class="row">
+							<div class="col-xs-12">
+								<h:commandButton
+									value="#{msg['buscar.label']}"
+									styleClass="btn btn-primary btn-block"
+									actionListener="#{bean.onBuscarClick()}"
+									>
+									<f:ajax execute="panelFiltro" />
+								</h:commandButton>
+							</div>
+						</div>
+					</nav>
+					<script type="text/javascript">
+						(function($) {
+							$(function() {
+								configurarMascaras();
+								configurarDatePicker();
+							});
+						})(jQuery);
+					</script>
+				</h:panelGroup>
+			</h:form>
+		</div>
+	</ui:define>
+	
+</ui:composition>

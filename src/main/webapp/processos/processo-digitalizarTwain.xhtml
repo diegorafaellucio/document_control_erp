@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:b="http://bootsfaces.net/ui"
+      xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+<h:head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>#{msg['appName.label']}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="#{request.contextPath}/resources/images/favicon-getdoc.png" rel="shortcut icon"/>
+    <link href="#{request.contextPath}/resources/css/main.css" rel="stylesheet"/>
+    <link href="#{request.contextPath}/resources/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="#{request.contextPath}/resources/css/font-awesome.min.css" rel="stylesheet"/>
+    <link href="#{request.contextPath}/resources/css/animate.css" rel="stylesheet"/>
+    <script src="#{request.contextPath}/resources/js/bootstrap.min.js"></script>
+    <script src="#{request.contextPath}/resources/js/jquery.mask.min.js"></script>
+    <script src="#{request.contextPath}/resources/js/main.js"></script>
+    <script src="#{request.contextPath}/resources/js/jquery.panzoom.min.js"></script>
+    <link href="#{request.contextPath}/resources/css/digitalizacao.css" rel="stylesheet" type="text/css" />
+    <script src="#{request.contextPath}/resources/js/digitalizacao.js"></script>
+    <link href="#{request.contextPath}/resources/css/primefaces-SelectManyCheckbox.css" rel="stylesheet"/>
+    <ui:insert name="head" />
+    <getdoc:customizacao/>
+</h:head>
+<h:body>
+    <f:metadata>
+        <f:viewParam name="id" value="#{processoEditBean.id}" />
+        <f:viewAction action="#{processoEditBean.init}" onPostback="false" if="#{utilBean.securityOk}"/>
+    </f:metadata>
+    <p:ajaxStatus onstart="$('#ajaxLoaderImg').show()" onsuccess="$('#ajaxLoaderImg').hide()" />
+    <script type="text/javascript">
+        var contextPath = '#{request.contextPath}';
+    </script>
+    <h:form id="form-digitalizarTwain">
+        <h:panelGroup id="digitalizarTwain-modal-id" styleClass="digitalizarTwain-modal">
+            <div class="digitalizarTwain-modal-content-id">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <ui:include src="/processos/processo-edit-digitalizarTwain.xhtml"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </h:panelGroup>
+    </h:form>
+    <h:form id="form-tabs"></h:form>
+    <h:form id="form-confirms"></h:form>
+    <h:form id="form-processo"></h:form>
+    <h:panelGroup id="mensagensGlobaisGroup"></h:panelGroup>
+</h:body>
+</html>

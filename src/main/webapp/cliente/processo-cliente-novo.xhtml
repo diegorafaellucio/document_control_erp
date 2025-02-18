@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:o="http://omnifaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:jsf="http://xmlns.jcp.org/jsf"
+	xmlns:getdoc="http://java.sun.com/jsf/composite/getdoc">
+	<f:metadata>
+		<f:viewAction action="#{processoClienteNovoBean.init}" onPostback="false"/>
+		<f:viewParam name="tipo" value="#{processoClienteNovoBean.tipo}" />
+	</f:metadata>
+	<ui:composition template="/templates/border-cliente.xhtml">
+		<ui:define name="head">
+			<link href="#{request.contextPath}/resources/css/visualizacao.css" rel="stylesheet" type="text/css" />
+			<script src="#{request.contextPath}/resources/js/visualizacao.js"></script>
+		</ui:define>
+		<ui:define name="conteudo">
+			<h:form id="form-digitalizar">
+				<b:modal id="digitalizar-modal-id" title="#{msg['uploadDocumentos.label']}" styleClass="digitalizar-modal">
+					<h:panelGroup id="digitalizar-modal-content-id">
+						<b:row rendered="#{not empty processoClienteNovoBean.digitalizacaoVO}">
+							<b:growl id="growl-digitalizar-id" placementFrom="bottom" allowDismiss="true" animationEnter="animated bounceInDown" animationExit="animated flipOutX"/>
+							<div class="col-sm-12">
+								<b:messages id="messages-digitalizar" globalOnly="true" showSummary="true"/>
+								<h:outputLabel for="anexo" value="#{msg['anexos.label']}"/>
+								<h:panelGroup id="lista-anexos-digitalizar">
+									<ui:repeat value="#{processoClienteNovoBean.arquivos}" var="anexo">
+										<div style="padding-bottom: 5px;">
+											<p:commandLink class="btn btn-default" onerror="alert('Erro!')" immediate="true"
+													actionListener="#{processoClienteNovoBean.removerAnexo(anexo)}"
+													update="form-digitalizar:lista-anexos-digitalizar">
+												x
+											</p:commandLink>
+											<span style="padding-left: 5px;">#{anexo.name}</span>
+											<span style="padding-left: 15px;">#{anexo.length}</span>
+										</div>
+									</ui:repeat>
+								</h:panelGroup>
+								<h:form id="form-anexo-upload" enctype="multipart/form-data" >
+									<p:fileUpload
+											id="anexo" styleClass="anexo-evidencia"
+											cancelLabel="#{msg['cancelar.label']}"
+											label="#{msg['escolherArquivo.label']}"
+											auto="true" update="form-digitalizar:lista-anexos-digitalizar form-digitalizar:growl-digitalizar-id form-anexo-upload"
+											listener="#{processoClienteNovoBean.uploadAnexo}"
+											oncomplete="$('#ajaxLoaderImg').hide()"
+											accept="image/*,application/pdf" allowTypes="/(\.|\/)(gif|jpe?g|png|tiff|pdf)$/"
+											multiple="true" fileLimit="10" sizeLimit="#{utilBean.getFileSizeLimit()}">
+									</p:fileUpload>
+									<b:message/>
+								</h:form>
+							</div>
+							<h:panelGroup rendered="#{fecharModal}">
+								<script type="text/javascript">
+									$('.digitalizar-modal').modal('hide');
+								</script>
+							</h:panelGroup>
+						</b:row>
+					</h:panelGroup>
+					<f:facet name="footer">
+						<b:button value="#{msg['cancelar.label']}" look="default" dismiss="modal" onclick="return false;"/>
+						<p:commandButton value="#{msg['salvar.label']}" styleClass="btn"
+								actionListener="#{processoClienteNovoBean.salvarDigitalizacao()}" onerror="alert('Erro!')"
+								update="digitalizar-modal-content-id form-processo:documentosTab-content "/>
+					</f:facet>
+				</b:modal>
+			</h:form>
+		 	<h:form id="form-processo">
+		 		<div class="row">
+					<div class="col-sm-12" >
+						<div class="form-group">
+							<a href="#{request.contextPath}/cliente/requisicoes/" class="btn btn-default" style="vertical-align: bottom;">
+								<i class="fa fa-chevron-left" aria-hidden="true"></i>&nbsp;
+								#{msg['voltar.label']}
+							</a>
+						</div>
+					</div>
+				</div>
+				<section id="processo-page" class="container">
+					<div class="row">
+						<div class="col-sm-2"></div>
+						<div class="col-sm-8">
+							<h4 class="tituloForm">
+								<i class="fa fa-file-text-o" aria-hidden="true" style="padding-right: 10px;"></i>
+								#{msg['processoNovo.titulo']}
+							</h4>
+						</div>
+						<div class="col-sm-2"></div>
+					</div>
+					<div class="row" style="background-image: url('#{request.contextPath}/resources/images/icons/seta-vermelha.png');background-repeat: no-repeat;background-position: 22% 27%;margin-top: -21px;height: 46px;">
+						<div class="col-sm-3"></div>
+						<div class="col-sm-6" style="margin-bottom: 0;">
+							<div class="form-group" style="margin-bottom: 0; back">
+								<h:selectOneMenu id="tipoProcessoId" label="#{msg['tipoProcesso.label']}" required="true" styleClass="form-control bf-no-message bf-required"
+										valueChangeListener="#{processoClienteNovoBean.selecionaTipoProcesso}" value="#{processoClienteNovoBean.tipoProcesso}"
+										converter="entityConverter" immediate="false">
+									<f:selectItem itemValue="" itemLabel="  Selecione  "/>
+									<f:selectItems value="#{processoClienteNovoBean.tiposProcessos}" var="tipoProcesso" itemValue="#{tipoProcesso}" itemLabel="#{tipoProcesso.nome}"/>
+									<f:ajax event="change" render="camposDinamicos documentosTab-content botaoSalvar-id dica-id"/>
+								</h:selectOneMenu>
+								<b:message/>
+								<h:panelGroup id="dica-id" layout="block" style="padding: 0 0 0 20px; color: #cc092f;">
+									<h:outputText value="#{utilBean.stringToHTML(processoClienteNovoBean.tipoProcesso.dica)}" escape="false"/>
+								</h:panelGroup>
+							</div>
+						</div>
+						<div class="col-sm-3"></div>
+					</div>
+					<b:row id="camposDinamicos" style="padding-top: 10px;">
+						<p:repeat value="#{processoClienteNovoBean.grupos}" var="grupo">
+							<h:panelGroup layout="block" id="panelEndereco"
+								 binding="#{panelEndereco}" rendered="#{grupo.nome eq 'Endereço'}">
+								<o:commandScript name="cartaEmail" action="#{processoClienteNovoBean.cartaEmail()}" 
+										immediate="true" update="panelEndereco" />
+								<div class="row enderecoGrupo" style="#{grupo.show eq true ? '' : 'display: none;'}" >
+									<div class="col-sm-2"></div>
+									<div class="col-sm-8">
+										<h:panelGroup rendered="#{not empty grupo.nome}">
+											<h4 class="tituloForm" style="margin-bottom: 10px;">
+												<i class="fa fa-file-text-o" aria-hidden="true" style="padding-right: 10px;"></i>
+												<h:outputText value="#{grupo.nome}"/>
+											</h4>
+										</h:panelGroup>
+									</div>
+									<div class="col-sm-2"></div>
+								</div>
+								<div class="row enderecoGrupo row-grupo-#{grupo.id}" style="#{grupo.show eq true ? '' : 'display: none;'}" >
+									<div class="col-sm-3"></div>
+									<div class="col-sm-6">
+										<p:repeat value="#{processoClienteNovoBean.getCampos(grupo)}" var="campo">
+											<div class="form-group">
+												<getdoc:campo campo="#{campo}"/>
+											</div>
+										</p:repeat>
+									</div>
+									<div class="col-sm-3"></div>
+								</div>
+							</h:panelGroup>
+							<h:panelGroup layout="block" styleClass="col-sm-12" style="margin-bottom: 0;" rendered="#{grupo.nome ne 'Endereço'}">
+								<div class="row">
+									<div class="col-sm-2"></div>
+									<div class="col-sm-8">
+										<h:panelGroup rendered="#{not empty grupo.nome}">
+											<h4 class="tituloForm" style="margin-bottom: 10px;">
+												<i class="fa fa-file-text-o" aria-hidden="true" style="padding-right: 10px;"></i>
+												<h:outputText value="#{grupo.nome}"/>
+											</h4>
+										</h:panelGroup>
+									</div>
+									<div class="col-sm-2"></div>
+								</div>
+								<div class="row row-grupo-#{grupo.id}">
+									<div class="col-sm-3"></div>
+									<div class="col-sm-6">
+										<p:repeat value="#{processoClienteNovoBean.getCampos(grupo)}" var="campo">
+											<div class="form-group">
+												<getdoc:campo campo="#{campo}"/>
+											</div>
+										</p:repeat>
+									</div>
+									<div class="col-sm-3"></div>
+								</div>
+							</h:panelGroup>
+						</p:repeat>
+						<o:commandScript name="buscarPorContrato" action="#{processoClienteNovoBean.buscarPorContrato}"/>
+						<script type="text/javascript">
+							jQuery(function($) {
+								configurarMascaras();
+								configurarDatePicker();
+								$('input[campoNome=\'CHASSI\']').css('text-transform', 'uppercase');
+							});
+						</script>
+					</b:row>
+					<h:panelGroup id="documentosTab-content">
+						<b:row rendered="#{not empty processoClienteNovoBean.documentos}">
+							<div class="col-sm-3"></div>
+							<div class="col-sm-6">
+								<ul class="list-group">
+									<div style="color: #cc092f; padding-bottom: 5px; cursor: pointer;" onclick="$('#div-tabela').toggle(300);">
+										<h:outputText value="#{msg['orientacoes-documentos-cliente.label']}" escape="false"/>
+									</div>
+									<ui:repeat value="#{processoClienteNovoBean.documentos}" var="documento">
+										<li class="list-group-item">
+											<div class="row">
+												<div class="col-sm-10" style="margin-bottom: 0;">
+													<div style="float: left">
+														<c:set var="status" value="#{empty documento.arquivos ? 'INCLUIDO' : 'DIGITALIZADO'}"/>
+														<img alt="" title="#{msg['StatusDocumento.'.concat(status).concat('.label')]}" src="#{request.contextPath}/resources/images/icons/StatusDocumento-#{status}.png" width="27px"/>
+													</div>
+													<div style="padding-left: 50px;">
+														<b>#{documento.nome}</b><br/>
+														<div style="font-size: 12px;">
+															#{msg['imagens.label']}: #{documento.arquivos.size()}.&nbsp;
+														</div>
+													</div>
+												</div>
+												<div class="col-sm-2" style="margin-bottom: 0;">
+													<div style="float: right;">
+														<p:commandLink class="btn btn-default" actionListener="#{processoClienteNovoBean.criarDigitalizacao(documento)}"
+																ajax="true" immediate="true" title="Upload de Documentos"
+																onsuccess="openModal('digitalizar-modal');" onerror="alert('Erro!')"
+																update="form-digitalizar:digitalizar-modal-content-id" style="margin-left: 5px; color: #cc092f; border-color: #cc092f;"
+																>
+															<i class="fa fa-camera" aria-hidden="true" style="font-size: 16px;"></i>
+														</p:commandLink>
+													</div>
+												</div>
+											</div>
+										</li>
+									</ui:repeat>
+								</ul>
+							</div>
+							<div class="col-sm-3"></div>
+						</b:row>
+					</h:panelGroup>
+					<div class="row">
+						<b:column col-sm="9" id="botaoSalvar-id">
+							<div class="form-group">
+								<b:row rendered="#{not empty processoClienteNovoBean.tipoProcesso}">
+									<button jsf:actionListener="#{processoClienteNovoBean.salvar()}" class="btn btn-primary btn-lg" style="float: right;">
+										<h:outputText value="#{msg['salvar.label']}"/>
+										<span aria-hidden="true">&rarr;</span>
+										<f:ajax render="content-pg-id" execute="form-processo"/>
+									</button>
+								</b:row>
+							</div>
+						</b:column>
+					</div>
+				</section>
+				<div class="row">
+					<div class="col-sm-12" >
+						<div class="form-group">
+							<a href="#{request.contextPath}/cliente/requisicoes/" class="btn btn-default" style="vertical-align: bottom;">
+								<i class="fa fa-chevron-left" aria-hidden="true"></i>&nbsp;
+								#{msg['voltar.label']}
+							</a>
+						</div>
+					</div>
+				</div>
+		 	</h:form>
+		 	<script type="text/javascript">
+		 	function buscarPorContrato(){
+		 		// do nothing
+		 	}
+			</script>
+		</ui:define>
+	</ui:composition>
+</html>
